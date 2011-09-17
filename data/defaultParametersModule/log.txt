@@ -1,0 +1,61 @@
+[psi46expert] --------- psi46expert ---------
+[psi46expert] Tue Sep  7 15:07:25 2010
+[ConfigParameters] Reading Config-Parameters from '../Input/Module//configParameters.dat'.
+---- TestBoard VersionATB V6.1 (27.08.2010 15:35) ID=22A71BED TS=4C371750
+TBM emulator off
+[TBParameters] Reading TB-Parameters from '../Input/Module//tbParameters.dat'.
+[TestParameters] Reading Test-Parameters from '../Input/Module//testParameters.dat'.
+[TBMParameters] Reading TBM-Parameters from '../Input/Module//tbmParameters.dat'.
+[DACParameters] Reading DAC-Parameters from ../Input/Module//dacParameters_C0.dat.
+[Roc] Reading Trim configuration from '../Input/Module//trimParameters_C0.dat'.
+[DACParameters] Reading DAC-Parameters from ../Input/Module//dacParameters_C1.dat.
+[Roc] Reading Trim configuration from '../Input/Module//trimParameters_C1.dat'.
+[DACParameters] Reading DAC-Parameters from ../Input/Module//dacParameters_C2.dat.
+[Roc] Reading Trim configuration from '../Input/Module//trimParameters_C2.dat'.
+[DACParameters] Reading DAC-Parameters from ../Input/Module//dacParameters_C3.dat.
+[Roc] Reading Trim configuration from '../Input/Module//trimParameters_C3.dat'.
+[DACParameters] Reading DAC-Parameters from ../Input/Module//dacParameters_C4.dat.
+[Roc] Reading Trim configuration from '../Input/Module//trimParameters_C4.dat'.
+[DACParameters] Reading DAC-Parameters from ../Input/Module//dacParameters_C5.dat.
+[Roc] Reading Trim configuration from '../Input/Module//trimParameters_C5.dat'.
+[DACParameters] Reading DAC-Parameters from ../Input/Module//dacParameters_C6.dat.
+[Roc] Reading Trim configuration from '../Input/Module//trimParameters_C6.dat'.
+[DACParameters] Reading DAC-Parameters from ../Input/Module//dacParameters_C7.dat.
+[Roc] Reading Trim configuration from '../Input/Module//trimParameters_C7.dat'.
+[DACParameters] Reading DAC-Parameters from ../Input/Module//dacParameters_C8.dat.
+[Roc] Reading Trim configuration from '../Input/Module//trimParameters_C8.dat'.
+[DACParameters] Reading DAC-Parameters from ../Input/Module//dacParameters_C9.dat.
+[Roc] Reading Trim configuration from '../Input/Module//trimParameters_C9.dat'.
+[DACParameters] Reading DAC-Parameters from ../Input/Module//dacParameters_C10.dat.
+[Roc] Reading Trim configuration from '../Input/Module//trimParameters_C10.dat'.
+[DACParameters] Reading DAC-Parameters from ../Input/Module//dacParameters_C11.dat.
+[Roc] Reading Trim configuration from '../Input/Module//trimParameters_C11.dat'.
+[DACParameters] Reading DAC-Parameters from ../Input/Module//dacParameters_C12.dat.
+[Roc] Reading Trim configuration from '../Input/Module//trimParameters_C12.dat'.
+[DACParameters] Reading DAC-Parameters from ../Input/Module//dacParameters_C13.dat.
+[Roc] Reading Trim configuration from '../Input/Module//trimParameters_C13.dat'.
+[DACParameters] Reading DAC-Parameters from ../Input/Module//dacParameters_C14.dat.
+[Roc] Reading Trim configuration from '../Input/Module//trimParameters_C14.dat'.
+[DACParameters] Reading DAC-Parameters from ../Input/Module//dacParameters_C15.dat.
+[Roc] Reading Trim configuration from '../Input/Module//trimParameters_C15.dat'.
+[TestParameters] Reading Test-Parameters from '../Input/Module//testParameters.dat'.
+[Delay] Timestamp: Tue Sep  7 15:07:39 2010
+
+[Delay] Timestamp: Tue Sep  7 15:07:51 2010
+
+[DACParameters] Writing DAC-Parameters to ../Input/Module/module_C0.dat.
+[DACParameters] Writing DAC-Parameters to ../Input/Module/module_C1.dat.
+[DACParameters] Writing DAC-Parameters to ../Input/Module/module_C2.dat.
+[DACParameters] Writing DAC-Parameters to ../Input/Module/module_C3.dat.
+[DACParameters] Writing DAC-Parameters to ../Input/Module/module_C4.dat.
+[DACParameters] Writing DAC-Parameters to ../Input/Module/module_C5.dat.
+[DACParameters] Writing DAC-Parameters to ../Input/Module/module_C6.dat.
+[DACParameters] Writing DAC-Parameters to ../Input/Module/module_C7.dat.
+[DACParameters] Writing DAC-Parameters to ../Input/Module/module_C8.dat.
+[DACParameters] Writing DAC-Parameters to ../Input/Module/module_C9.dat.
+[DACParameters] Writing DAC-Parameters to ../Input/Module/module_C10.dat.
+[DACParameters] Writing DAC-Parameters to ../Input/Module/module_C11.dat.
+[DACParameters] Writing DAC-Parameters to ../Input/Module/module_C12.dat.
+[DACParameters] Writing DAC-Parameters to ../Input/Module/module_C13.dat.
+[DACParameters] Writing DAC-Parameters to ../Input/Module/module_C14.dat.
+[DACParameters] Writing DAC-Parameters to ../Input/Module/module_C15.dat.

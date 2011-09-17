@@ -1,0 +1,90 @@
+[psi46expert] --------- psi46expert ---------
+[psi46expert] Tue Sep  7 14:14:51 2010
+[ConfigParameters] Reading Config-Parameters from '../output//configParameters.dat'.
+---- TestBoard VersionATB V6.1 (27.08.2010 15:35) ID=22A71BED TS=4C371750
+TBM emulator on
+[TBParameters] Reading TB-Parameters from '../output//tbParameters.dat'.
+[TestParameters] Reading Test-Parameters from '../output//testParameters.dat'.
+[TBMParameters] Reading TBM-Parameters from '../output//tbmParameters.dat'.
+[DACParameters] Reading DAC-Parameters from ../output//dacParameters_C0.dat.
+[Roc] Reading Trim configuration from '../output//trimParameters_C0.dat'.
+[DACParameters] Reading DAC-Parameters from ../output//dacParameters_C1.dat.
+[Roc] Reading Trim configuration from '../output//trimParameters_C1.dat'.
+[DACParameters] Reading DAC-Parameters from ../output//dacParameters_C2.dat.
+[Roc] Reading Trim configuration from '../output//trimParameters_C2.dat'.
+[DACParameters] Reading DAC-Parameters from ../output//dacParameters_C3.dat.
+[Roc] Reading Trim configuration from '../output//trimParameters_C3.dat'.
+[DACParameters] Reading DAC-Parameters from ../output//dacParameters_C4.dat.
+[Roc] Reading Trim configuration from '../output//trimParameters_C4.dat'.
+[DACParameters] Reading DAC-Parameters from ../output//dacParameters_C5.dat.
+[Roc] Reading Trim configuration from '../output//trimParameters_C5.dat'.
+Find pulse shape pixel column 0 row 0
+Scan Vthr vs CalDel, Vcal = 120
+Scan Vthr vs CalDel finished
+===
+Find lowest threshold for Vcal vs CalDel scan
+Lowest threshold - 10 is 117
+============================
+Scan Vthr vs Vcal, CalDel = 80
+===
+Scan Vthr vs Vcal at WBC-1, CalDel = 80
+Old WBC= 100 now use WBC-1 =  99
+===
+Add the histograms at WBC and WBC-1 
+Scan Vthr vs Vcal at WBC-1, CalDel = 80
+Old WBC= 100 now use WBC-1 = 98
+===
+
+Add the histograms at WBC and WBC-1 
+into VthrCompVcal_c0r0_C0_tot
+============================
+Scan Vcal vs CalDel at Vthr = 117
+Scan Vthr vs CalDel finished
+
+============================
+
+The Pixel is : PH_C0_R0
+The number of bins is 256
+The nTrig is 5
+The minThreshold is 117
+  t_0 is at CalDel 119
+  cal width is 57.9403
+  The y interscept of the Vthrcomp vs. Vcal is 270.173
+  The slope of the V thrcomp vs. Vcal is -1.50466
+The rise time is: 18.5536
+==============================
+Find pulse shape pixel column 0 row 0
+Scan Vthr vs CalDel, Vcal = 120
+Scan Vthr vs CalDel finished
+===
+Find lowest threshold for Vcal vs CalDel scan
+Lowest threshold - 10 is 133
+============================
+Scan Vthr vs Vcal, CalDel = 80
+===
+Scan Vthr vs Vcal at WBC-1, CalDel = 80
+Old WBC= 100 now use WBC-1 =  99
+===
+Add the histograms at WBC and WBC-1 
+Scan Vthr vs Vcal at WBC-1, CalDel = 80
+Old WBC= 100 now use WBC-1 = 98
+===
+
+Add the histograms at WBC and WBC-1 
+into VthrCompVcal_c0r0_C1_tot
+============================
+Scan Vcal vs CalDel at Vthr = 133
+Scan Vthr vs CalDel finished
+
+============================
+
+The Pixel is : PH_C0_R0
+The number of bins is 256
+The nTrig is 5
+The minThreshold is 133
+  t_0 is at CalDel 122
+  cal width is 57.8665
+  The y interscept of the Vthrcomp vs. Vcal is 294.184
+  The slope of the V thrcomp vs. Vcal is -1.58603
+The rise time is: 19.0093
+==============================

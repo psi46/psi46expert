@@ -1,0 +1,60 @@
+#copied from default config.dat
+#copied from default config.dat
+#copied from default config.dat
+# telescope decoding
+roc.deconvolution  0.22 0.13 0.22 0.13
+roc.deconvolution2 0.15 0.09 0.15 0.09
+roc.tbmLevels  -466 -280  -13  151  314  709
+roc.rocLevels[0]  -416 -339  -47  152  351  534  703  905
+roc.rocLevels[1]  -458 -368  -52  153  354  542  714  910
+roc.rocLevels[2]  -361 -283  -11  173  353  522  675  886
+roc.rocLevels[3]  -414 -324  -21  175  369  550  716  909
+
+# module decoding
+mod.deconvolution  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+mod.deconvolution2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+mod.tbmLevels  -648 -421  -90  122  334  731
+mod.rocLevels[0]  -629 -416  -84   89  262  431  592  846
+mod.rocLevels[1]  -630 -480  -54  166  386  602  807  965
+mod.rocLevels[2]  -627 -483  -66  153  371  582  783  953
+mod.rocLevels[3]  -632 -494  -90  122  334  540  737  929
+mod.rocLevels[4]  -628 -481  -61  158  376  587  787  954
+mod.rocLevels[5]  -631 -490  -77  139  355  566  767  945
+mod.rocLevels[6]  -630 -481  -55  168  390  606  810  967
+mod.rocLevels[7]  -636 -503 -107  102  311  514  711  915
+mod.rocLevels[8]  -629 -490  -82  130  342  549  746  934
+mod.rocLevels[9]  -627 -484  -69  148  364  576  778  950
+mod.rocLevels[10]  -631 -488  -75  140  356  566  767  944
+mod.rocLevels[11]  -627 -485  -74  140  354  564  765  943
+mod.rocLevels[12]  -628 -480  -57  165  386  601  804  963
+mod.rocLevels[13]  -655 -504  -68  161  390  610  819  972
+mod.rocLevels[14]  -630 -489  -79  134  348  556  755  938
+mod.rocLevels[15]  -632 -483  -57  168  393  605  806  965
+
+# may 06 V2.1
+#shift[3]  -0.0119 0.0036 0.0000
+#shift[1]  -0.0053 -0.0028 0.0000
+#shift[4]  0.0048 0.6607 0.0000
+
+# dec 05 alignment
+#shift[3]  0.0100 0.0172 0.0000
+#shift[1]  0.0128 -0.0080 0.0000
+#shift[4]  0.0040 0.5541 0.0000
+
+# may 06 V2.3 alignment
+shift[3]  0.0133 0.0014 0.0000
+shift[1]  -0.0216 0.0030 0.0000
+shift[4]  0.0006 0.6406 0.0000
+
+verbose 0
+roc.clusterCut 2
+mod.clusterCut 2
+chi2Cut 4
+QminTrk 100
+QminEff 100
+roc.anaOffset -120 -147 -180 -176
+roc.anaSlope 0.906 0.807 0.665 0.597
+
+
+mod.anaOffset -255 -228 -225 -229 -254 -224 -76 -261 -292 -285 -342 -269 -219 -222 -218 -175 
+mod.anaSlope 0.336 0.379 0.389 0.424 0.440 0.401 1.686 0.352 0.346 0.352 0.322 0.324 0.390 0.378 0.384 0.561

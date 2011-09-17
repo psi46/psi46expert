@@ -1,0 +1,100 @@
+-- DacDependency
+
+Dac1 26
+Dac2 12
+DacNTrig 5
+DacRange1 256
+DacRange2 256
+
+-- Trimming --
+
+TrimVcal 60
+TrimNTrig 5
+TrimDoubleWbc 1
+
+-- PH --
+
+PHNTrig 10
+PHMode 25
+PHdac1Start 60
+PHdac1Stop 80
+PHdac1Step 10
+PHdac2Start 70
+PHdac2Stop 90
+PHdac2Step 10
+PHNumberOfSteps 15
+PHtestVcal 60
+PHDacType 1
+
+-- PHCalibration --
+
+PHCalibrationNTrig 10
+PHCalibrationMode 0
+PHCalibrationCalDelVthrComp 1
+# 0: 10 points 1: 100 points
+
+-- PixelMap --
+
+PixelMapReadouts 10
+PixelMapEfficiency 100
+
+-- SCurve --
+
+SCurveVcal 100
+SCurveVthr -1
+SCurveMode 1
+# 1: VthrComp fix 2: Vcal fix
+SCurveNTrig 50
+SCurveBeamNTrig 5
+
+-- Threshold --
+
+ThresholdVcal 200
+ThresholdVthr -1
+ThresholdMode 4
+# 0: CalThresholdMap 1: VcalThresholdMap 2: VcalsThresholdMap 3: NoiseMap 4: CalXTalkMap
+ThresholdNTrig 50
+
+-- BumpBonding --
+
+BumpBondingNTrig 50
+
+-- TrimTest --
+
+TrimBitsVtrim14 250
+TrimBitsVtrim13 200
+TrimBitsVtrim11 180
+TrimBitsVtrim7  140
+TrimBitsNTrig 5
+
+-- IVCurve --
+
+IVStep 5
+IVStart 0
+IVStop 600
+IVDelay 3
+
+-- TempTest ---
+
+TempNTrig 1
+
+
+-- TBMUbCheck --
+
+TBMUbLevel 1000
+PHSafety 50
+
+-- VsfOptimization --
+
+vsfStart 130
+vsfStop 250
+vsfSteps 24
+vhldDelStart 70
+vhldDelStop 80
+vhldDelSteps 10
+goalPar1 1.2
+goalCurrent 0.005
+
+-- TimeWalk ---
+
+TWMeanShift 22

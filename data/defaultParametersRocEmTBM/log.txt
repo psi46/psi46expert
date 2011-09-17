@@ -1,0 +1,23 @@
+[psi46expert] --------- psi46expert ---------
+[psi46expert] Tue Sep  7 14:28:19 2010
+[ConfigParameters] Reading Config-Parameters from '../output/singleROC//configParameters.dat'.
+---- TestBoard VersionATB V6.1 (27.08.2010 15:35) ID=22A71BED TS=4C371750
+TBM emulator on
+[TBParameters] Reading TB-Parameters from '../output/singleROC//tbParameters.dat'.
+[TestParameters] Reading Test-Parameters from '../output/singleROC//testParameters.dat'.
+[TBMParameters] Reading TBM-Parameters from '../output/singleROC//tbmParameters.dat'.
+[DACParameters] Reading DAC-Parameters from ../output/singleROC//dacParameters60_C0.dat.
+[Roc] Reading Trim configuration from '../output/singleROC//trimParameters60_C0.dat'.
+[PHCalibration] Chip #0 Calibration: start.
+[Delay] Timestamp: Tue Sep  7 14:28:30 2010
+
+[PHCalibration] Writing PH Calibration to '../output/singleROC//phCalibration_C0.dat'.
+[Delay] Timestamp: Tue Sep  7 14:28:50 2010
+
+[TestParameters] Reading Test-Parameters from '../output/singleROC//testParameters.dat'.
+[Delay] Timestamp: Tue Sep  7 14:29:23 2010
+
+[SCurveTest] Writing pulse SCurves to '../output/singleROC//SCurveData_C0.dat'.
+[Delay] Timestamp: Tue Sep  7 14:30:52 2010
+
+[DACParameters] Writing DAC-Parameters to ../output/singleROC/module_C0.dat.

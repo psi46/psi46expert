@@ -1,0 +1,576 @@
+[psi46expert] --------- psi46expert ---------
+[psi46expert] Tue Sep  7 14:14:51 2010
+[ConfigParameters] Reading Config-Parameters from '../output//configParameters.dat'.
+---- TestBoard VersionATB V6.1 (27.08.2010 15:35) ID=22A71BED TS=4C371750
+TBM emulator on
+[TBParameters] Reading TB-Parameters from '../output//tbParameters.dat'.
+[TestParameters] Reading Test-Parameters from '../output//testParameters.dat'.
+[TBMParameters] Reading TBM-Parameters from '../output//tbmParameters.dat'.
+[DACParameters] Reading DAC-Parameters from ../output//dacParameters_C0.dat.
+[DACParameters] Parameter 1 is set to 6.
+[DACParameters] Parameter 2 is set to 138.
+[DACParameters] Parameter 3 is set to 150.
+[DACParameters] Parameter 4 is set to 10.
+[DACParameters] Parameter 5 is set to 0.
+[DACParameters] Parameter 6 is set to 0.
+[DACParameters] Parameter 7 is set to 35.
+[DACParameters] Parameter 8 is set to 0.
+[DACParameters] Parameter 9 is set to 35.
+[DACParameters] Parameter 10 is set to 160.
+[DACParameters] Parameter 11 is set to 7.
+[DACParameters] Parameter 12 is set to 99.
+[DACParameters] Parameter 13 is set to 30.
+[DACParameters] Parameter 14 is set to 10.
+[DACParameters] Parameter 15 is set to 67.
+[DACParameters] Parameter 16 is set to 50.
+[DACParameters] Parameter 17 is set to 120.
+[DACParameters] Parameter 18 is set to 130.
+[DACParameters] Parameter 19 is set to 220.
+[DACParameters] Parameter 20 is set to 84.
+[DACParameters] Parameter 21 is set to 220.
+[DACParameters] Parameter 22 is set to 99.
+[DACParameters] Parameter 23 is set to 0.
+[DACParameters] Parameter 24 is set to 0.
+[DACParameters] Parameter 25 is set to 200.
+[DACParameters] Parameter 26 is set to 80.
+[DACParameters] Parameter 27 is set to 0.
+[DACParameters] Parameter 253 is set to 0.
+[DACParameters] Parameter 254 is set to 100.
+[Roc] Reading Trim configuration from '../output//trimParameters_C0.dat'.
+[DACParameters] Reading DAC-Parameters from ../output//dacParameters_C1.dat.
+[DACParameters] Parameter 1 is set to 6.
+[DACParameters] Parameter 2 is set to 154.
+[DACParameters] Parameter 3 is set to 150.
+[DACParameters] Parameter 4 is set to 10.
+[DACParameters] Parameter 5 is set to 0.
+[DACParameters] Parameter 6 is set to 0.
+[DACParameters] Parameter 7 is set to 35.
+[DACParameters] Parameter 8 is set to 0.
+[DACParameters] Parameter 9 is set to 35.
+[DACParameters] Parameter 10 is set to 160.
+[DACParameters] Parameter 11 is set to 7.
+[DACParameters] Parameter 12 is set to 105.
+[DACParameters] Parameter 13 is set to 30.
+[DACParameters] Parameter 14 is set to 10.
+[DACParameters] Parameter 15 is set to 77.
+[DACParameters] Parameter 16 is set to 50.
+[DACParameters] Parameter 17 is set to 120.
+[DACParameters] Parameter 18 is set to 130.
+[DACParameters] Parameter 19 is set to 220.
+[DACParameters] Parameter 20 is set to 80.
+[DACParameters] Parameter 21 is set to 220.
+[DACParameters] Parameter 22 is set to 99.
+[DACParameters] Parameter 23 is set to 0.
+[DACParameters] Parameter 24 is set to 0.
+[DACParameters] Parameter 25 is set to 200.
+[DACParameters] Parameter 26 is set to 80.
+[DACParameters] Parameter 27 is set to 0.
+[DACParameters] Parameter 253 is set to 0.
+[DACParameters] Parameter 254 is set to 100.
+[Roc] Reading Trim configuration from '../output//trimParameters_C1.dat'.
+[DACParameters] Reading DAC-Parameters from ../output//dacParameters_C2.dat.
+[DACParameters] Parameter 1 is set to 6.
+[DACParameters] Parameter 2 is set to 143.
+[DACParameters] Parameter 3 is set to 150.
+[DACParameters] Parameter 4 is set to 10.
+[DACParameters] Parameter 5 is set to 0.
+[DACParameters] Parameter 6 is set to 0.
+[DACParameters] Parameter 7 is set to 35.
+[DACParameters] Parameter 8 is set to 0.
+[DACParameters] Parameter 9 is set to 35.
+[DACParameters] Parameter 10 is set to 160.
+[DACParameters] Parameter 11 is set to 7.
+[DACParameters] Parameter 12 is set to 98.
+[DACParameters] Parameter 13 is set to 30.
+[DACParameters] Parameter 14 is set to 10.
+[DACParameters] Parameter 15 is set to 82.
+[DACParameters] Parameter 16 is set to 50.
+[DACParameters] Parameter 17 is set to 120.
+[DACParameters] Parameter 18 is set to 130.
+[DACParameters] Parameter 19 is set to 220.
+[DACParameters] Parameter 20 is set to 78.
+[DACParameters] Parameter 21 is set to 220.
+[DACParameters] Parameter 22 is set to 99.
+[DACParameters] Parameter 23 is set to 0.
+[DACParameters] Parameter 24 is set to 0.
+[DACParameters] Parameter 25 is set to 200.
+[DACParameters] Parameter 26 is set to 87.
+[DACParameters] Parameter 27 is set to 0.
+[DACParameters] Parameter 253 is set to 0.
+[DACParameters] Parameter 254 is set to 100.
+[Roc] Reading Trim configuration from '../output//trimParameters_C2.dat'.
+[DACParameters] Reading DAC-Parameters from ../output//dacParameters_C3.dat.
+[DACParameters] Parameter 1 is set to 6.
+[DACParameters] Parameter 2 is set to 139.
+[DACParameters] Parameter 3 is set to 150.
+[DACParameters] Parameter 4 is set to 10.
+[DACParameters] Parameter 5 is set to 0.
+[DACParameters] Parameter 6 is set to 0.
+[DACParameters] Parameter 7 is set to 35.
+[DACParameters] Parameter 8 is set to 0.
+[DACParameters] Parameter 9 is set to 35.
+[DACParameters] Parameter 10 is set to 160.
+[DACParameters] Parameter 11 is set to 7.
+[DACParameters] Parameter 12 is set to 110.
+[DACParameters] Parameter 13 is set to 30.
+[DACParameters] Parameter 14 is set to 10.
+[DACParameters] Parameter 15 is set to 72.
+[DACParameters] Parameter 16 is set to 50.
+[DACParameters] Parameter 17 is set to 120.
+[DACParameters] Parameter 18 is set to 130.
+[DACParameters] Parameter 19 is set to 220.
+[DACParameters] Parameter 20 is set to 82.
+[DACParameters] Parameter 21 is set to 220.
+[DACParameters] Parameter 22 is set to 99.
+[DACParameters] Parameter 23 is set to 0.
+[DACParameters] Parameter 24 is set to 0.
+[DACParameters] Parameter 25 is set to 200.
+[DACParameters] Parameter 26 is set to 95.
+[DACParameters] Parameter 27 is set to 0.
+[DACParameters] Parameter 253 is set to 0.
+[DACParameters] Parameter 254 is set to 100.
+[Roc] Reading Trim configuration from '../output//trimParameters_C3.dat'.
+[DACParameters] Reading DAC-Parameters from ../output//dacParameters_C4.dat.
+[DACParameters] Parameter 1 is set to 6.
+[DACParameters] Parameter 2 is set to 143.
+[DACParameters] Parameter 3 is set to 150.
+[DACParameters] Parameter 4 is set to 10.
+[DACParameters] Parameter 5 is set to 0.
+[DACParameters] Parameter 6 is set to 0.
+[DACParameters] Parameter 7 is set to 35.
+[DACParameters] Parameter 8 is set to 0.
+[DACParameters] Parameter 9 is set to 35.
+[DACParameters] Parameter 10 is set to 160.
+[DACParameters] Parameter 11 is set to 7.
+[DACParameters] Parameter 12 is set to 116.
+[DACParameters] Parameter 13 is set to 30.
+[DACParameters] Parameter 14 is set to 10.
+[DACParameters] Parameter 15 is set to 72.
+[DACParameters] Parameter 16 is set to 50.
+[DACParameters] Parameter 17 is set to 120.
+[DACParameters] Parameter 18 is set to 130.
+[DACParameters] Parameter 19 is set to 220.
+[DACParameters] Parameter 20 is set to 88.
+[DACParameters] Parameter 21 is set to 220.
+[DACParameters] Parameter 22 is set to 99.
+[DACParameters] Parameter 23 is set to 0.
+[DACParameters] Parameter 24 is set to 0.
+[DACParameters] Parameter 25 is set to 200.
+[DACParameters] Parameter 26 is set to 95.
+[DACParameters] Parameter 27 is set to 0.
+[DACParameters] Parameter 253 is set to 0.
+[DACParameters] Parameter 254 is set to 100.
+[Roc] Reading Trim configuration from '../output//trimParameters_C4.dat'.
+[DACParameters] Reading DAC-Parameters from ../output//dacParameters_C5.dat.
+[DACParameters] Parameter 1 is set to 6.
+[DACParameters] Parameter 2 is set to 133.
+[DACParameters] Parameter 3 is set to 150.
+[DACParameters] Parameter 4 is set to 10.
+[DACParameters] Parameter 5 is set to 0.
+[DACParameters] Parameter 6 is set to 0.
+[DACParameters] Parameter 7 is set to 35.
+[DACParameters] Parameter 8 is set to 0.
+[DACParameters] Parameter 9 is set to 35.
+[DACParameters] Parameter 10 is set to 160.
+[DACParameters] Parameter 11 is set to 7.
+[DACParameters] Parameter 12 is set to 104.
+[DACParameters] Parameter 13 is set to 30.
+[DACParameters] Parameter 14 is set to 10.
+[DACParameters] Parameter 15 is set to 62.
+[DACParameters] Parameter 16 is set to 50.
+[DACParameters] Parameter 17 is set to 120.
+[DACParameters] Parameter 18 is set to 130.
+[DACParameters] Parameter 19 is set to 220.
+[DACParameters] Parameter 20 is set to 80.
+[DACParameters] Parameter 21 is set to 220.
+[DACParameters] Parameter 22 is set to 99.
+[DACParameters] Parameter 23 is set to 0.
+[DACParameters] Parameter 24 is set to 0.
+[DACParameters] Parameter 25 is set to 200.
+[DACParameters] Parameter 26 is set to 95.
+[DACParameters] Parameter 27 is set to 0.
+[DACParameters] Parameter 253 is set to 0.
+[DACParameters] Parameter 254 is set to 100.
+[Roc] Reading Trim configuration from '../output//trimParameters_C5.dat'.
+psi46expert> roc 0 PulseShape()
+
+Find pulse shape pixel column 0 row 0
+Scan Vthr vs CalDel, Vcal = 120
+[DACParameters] Parameter 25 is set to 119.
+[DACParameters] Parameter 1 is set to 6.
+[DACParameters] Parameter 2 is set to 138.
+[DACParameters] Parameter 3 is set to 150.
+[DACParameters] Parameter 4 is set to 10.
+[DACParameters] Parameter 5 is set to 0.
+[DACParameters] Parameter 6 is set to 0.
+[DACParameters] Parameter 7 is set to 35.
+[DACParameters] Parameter 8 is set to 0.
+[DACParameters] Parameter 9 is set to 35.
+[DACParameters] Parameter 10 is set to 160.
+[DACParameters] Parameter 11 is set to 7.
+[DACParameters] Parameter 12 is set to 99.
+[DACParameters] Parameter 13 is set to 30.
+[DACParameters] Parameter 14 is set to 10.
+[DACParameters] Parameter 15 is set to 67.
+[DACParameters] Parameter 16 is set to 50.
+[DACParameters] Parameter 17 is set to 120.
+[DACParameters] Parameter 18 is set to 130.
+[DACParameters] Parameter 19 is set to 220.
+[DACParameters] Parameter 20 is set to 84.
+[DACParameters] Parameter 21 is set to 220.
+[DACParameters] Parameter 22 is set to 99.
+[DACParameters] Parameter 23 is set to 0.
+[DACParameters] Parameter 24 is set to 0.
+[DACParameters] Parameter 25 is set to 119.
+[DACParameters] Parameter 26 is set to 80.
+[DACParameters] Parameter 27 is set to 0.
+[DACParameters] Parameter 253 is set to 0.
+[DACParameters] Parameter 254 is set to 100.
+[DACParameters] Parameter 26 is set to 80.
+Scan Vthr vs CalDel finished
+===
+Find lowest threshold for Vcal vs CalDel scan
+Lowest threshold - 10 is 117
+============================
+Scan Vthr vs Vcal, CalDel = 80
+[DACParameters] Parameter 1 is set to 6.
+[DACParameters] Parameter 2 is set to 138.
+[DACParameters] Parameter 3 is set to 150.
+[DACParameters] Parameter 4 is set to 10.
+[DACParameters] Parameter 5 is set to 0.
+[DACParameters] Parameter 6 is set to 0.
+[DACParameters] Parameter 7 is set to 35.
+[DACParameters] Parameter 8 is set to 0.
+[DACParameters] Parameter 9 is set to 35.
+[DACParameters] Parameter 10 is set to 160.
+[DACParameters] Parameter 11 is set to 7.
+[DACParameters] Parameter 12 is set to 99.
+[DACParameters] Parameter 13 is set to 30.
+[DACParameters] Parameter 14 is set to 10.
+[DACParameters] Parameter 15 is set to 67.
+[DACParameters] Parameter 16 is set to 50.
+[DACParameters] Parameter 17 is set to 120.
+[DACParameters] Parameter 18 is set to 130.
+[DACParameters] Parameter 19 is set to 220.
+[DACParameters] Parameter 20 is set to 84.
+[DACParameters] Parameter 21 is set to 220.
+[DACParameters] Parameter 22 is set to 99.
+[DACParameters] Parameter 23 is set to 0.
+[DACParameters] Parameter 24 is set to 0.
+[DACParameters] Parameter 25 is set to 119.
+[DACParameters] Parameter 26 is set to 80.
+[DACParameters] Parameter 27 is set to 0.
+[DACParameters] Parameter 253 is set to 0.
+[DACParameters] Parameter 254 is set to 100.
+===
+[DACParameters] Parameter 254 is set to 99.
+Scan Vthr vs Vcal at WBC-1, CalDel = 80
+Old WBC= 100 now use WBC-1 =  99
+[DACParameters] Parameter 1 is set to 6.
+[DACParameters] Parameter 2 is set to 138.
+[DACParameters] Parameter 3 is set to 150.
+[DACParameters] Parameter 4 is set to 10.
+[DACParameters] Parameter 5 is set to 0.
+[DACParameters] Parameter 6 is set to 0.
+[DACParameters] Parameter 7 is set to 35.
+[DACParameters] Parameter 8 is set to 0.
+[DACParameters] Parameter 9 is set to 35.
+[DACParameters] Parameter 10 is set to 160.
+[DACParameters] Parameter 11 is set to 7.
+[DACParameters] Parameter 12 is set to 99.
+[DACParameters] Parameter 13 is set to 30.
+[DACParameters] Parameter 14 is set to 10.
+[DACParameters] Parameter 15 is set to 67.
+[DACParameters] Parameter 16 is set to 50.
+[DACParameters] Parameter 17 is set to 120.
+[DACParameters] Parameter 18 is set to 130.
+[DACParameters] Parameter 19 is set to 220.
+[DACParameters] Parameter 20 is set to 84.
+[DACParameters] Parameter 21 is set to 220.
+[DACParameters] Parameter 22 is set to 99.
+[DACParameters] Parameter 23 is set to 0.
+[DACParameters] Parameter 24 is set to 0.
+[DACParameters] Parameter 25 is set to 119.
+[DACParameters] Parameter 26 is set to 80.
+[DACParameters] Parameter 27 is set to 0.
+[DACParameters] Parameter 253 is set to 0.
+[DACParameters] Parameter 254 is set to 99.
+[DACParameters] Parameter 254 is set to 100.
+===
+Add the histograms at WBC and WBC-1 
+[DACParameters] Parameter 254 is set to 98.
+Scan Vthr vs Vcal at WBC-1, CalDel = 80
+Old WBC= 100 now use WBC-1 = 98
+[DACParameters] Parameter 1 is set to 6.
+[DACParameters] Parameter 2 is set to 138.
+[DACParameters] Parameter 3 is set to 150.
+[DACParameters] Parameter 4 is set to 10.
+[DACParameters] Parameter 5 is set to 0.
+[DACParameters] Parameter 6 is set to 0.
+[DACParameters] Parameter 7 is set to 35.
+[DACParameters] Parameter 8 is set to 0.
+[DACParameters] Parameter 9 is set to 35.
+[DACParameters] Parameter 10 is set to 160.
+[DACParameters] Parameter 11 is set to 7.
+[DACParameters] Parameter 12 is set to 99.
+[DACParameters] Parameter 13 is set to 30.
+[DACParameters] Parameter 14 is set to 10.
+[DACParameters] Parameter 15 is set to 67.
+[DACParameters] Parameter 16 is set to 50.
+[DACParameters] Parameter 17 is set to 120.
+[DACParameters] Parameter 18 is set to 130.
+[DACParameters] Parameter 19 is set to 220.
+[DACParameters] Parameter 20 is set to 84.
+[DACParameters] Parameter 21 is set to 220.
+[DACParameters] Parameter 22 is set to 99.
+[DACParameters] Parameter 23 is set to 0.
+[DACParameters] Parameter 24 is set to 0.
+[DACParameters] Parameter 25 is set to 119.
+[DACParameters] Parameter 26 is set to 80.
+[DACParameters] Parameter 27 is set to 0.
+[DACParameters] Parameter 253 is set to 0.
+[DACParameters] Parameter 254 is set to 98.
+[DACParameters] Parameter 254 is set to 100.
+===
+
+Add the histograms at WBC and WBC-1 
+into VthrCompVcal_c0r0_C0_tot
+============================
+Scan Vcal vs CalDel at Vthr = 117
+[DACParameters] Parameter 12 is set to 117.
+[DACParameters] Parameter 1 is set to 6.
+[DACParameters] Parameter 2 is set to 138.
+[DACParameters] Parameter 3 is set to 150.
+[DACParameters] Parameter 4 is set to 10.
+[DACParameters] Parameter 5 is set to 0.
+[DACParameters] Parameter 6 is set to 0.
+[DACParameters] Parameter 7 is set to 35.
+[DACParameters] Parameter 8 is set to 0.
+[DACParameters] Parameter 9 is set to 35.
+[DACParameters] Parameter 10 is set to 160.
+[DACParameters] Parameter 11 is set to 7.
+[DACParameters] Parameter 12 is set to 117.
+[DACParameters] Parameter 13 is set to 30.
+[DACParameters] Parameter 14 is set to 10.
+[DACParameters] Parameter 15 is set to 67.
+[DACParameters] Parameter 16 is set to 50.
+[DACParameters] Parameter 17 is set to 120.
+[DACParameters] Parameter 18 is set to 130.
+[DACParameters] Parameter 19 is set to 220.
+[DACParameters] Parameter 20 is set to 84.
+[DACParameters] Parameter 21 is set to 220.
+[DACParameters] Parameter 22 is set to 99.
+[DACParameters] Parameter 23 is set to 0.
+[DACParameters] Parameter 24 is set to 0.
+[DACParameters] Parameter 25 is set to 119.
+[DACParameters] Parameter 26 is set to 80.
+[DACParameters] Parameter 27 is set to 0.
+[DACParameters] Parameter 253 is set to 0.
+[DACParameters] Parameter 254 is set to 100.
+[DACParameters] Parameter 12 is set to 99.
+Scan Vthr vs CalDel finished
+
+============================
+
+The Pixel is : PH_C0_R0
+The number of bins is 256
+The nTrig is 5
+The minThreshold is 117
+  t_0 is at CalDel 119
+  cal width is 57.9403
+  The y interscept of the Vthrcomp vs. Vcal is 270.173
+  The slope of the V thrcomp vs. Vcal is -1.50466
+The rise time is: 18.5536
+==============================
+psi46expert> roc 1 PulseShape()
+
+Find pulse shape pixel column 0 row 0
+Scan Vthr vs CalDel, Vcal = 120
+[DACParameters] Parameter 25 is set to 119.
+[DACParameters] Parameter 1 is set to 6.
+[DACParameters] Parameter 2 is set to 154.
+[DACParameters] Parameter 3 is set to 150.
+[DACParameters] Parameter 4 is set to 10.
+[DACParameters] Parameter 5 is set to 0.
+[DACParameters] Parameter 6 is set to 0.
+[DACParameters] Parameter 7 is set to 35.
+[DACParameters] Parameter 8 is set to 0.
+[DACParameters] Parameter 9 is set to 35.
+[DACParameters] Parameter 10 is set to 160.
+[DACParameters] Parameter 11 is set to 7.
+[DACParameters] Parameter 12 is set to 105.
+[DACParameters] Parameter 13 is set to 30.
+[DACParameters] Parameter 14 is set to 10.
+[DACParameters] Parameter 15 is set to 77.
+[DACParameters] Parameter 16 is set to 50.
+[DACParameters] Parameter 17 is set to 120.
+[DACParameters] Parameter 18 is set to 130.
+[DACParameters] Parameter 19 is set to 220.
+[DACParameters] Parameter 20 is set to 80.
+[DACParameters] Parameter 21 is set to 220.
+[DACParameters] Parameter 22 is set to 99.
+[DACParameters] Parameter 23 is set to 0.
+[DACParameters] Parameter 24 is set to 0.
+[DACParameters] Parameter 25 is set to 119.
+[DACParameters] Parameter 26 is set to 80.
+[DACParameters] Parameter 27 is set to 0.
+[DACParameters] Parameter 253 is set to 0.
+[DACParameters] Parameter 254 is set to 100.
+[DACParameters] Parameter 26 is set to 80.
+Scan Vthr vs CalDel finished
+===
+Find lowest threshold for Vcal vs CalDel scan
+Lowest threshold - 10 is 133
+============================
+Scan Vthr vs Vcal, CalDel = 80
+[DACParameters] Parameter 1 is set to 6.
+[DACParameters] Parameter 2 is set to 154.
+[DACParameters] Parameter 3 is set to 150.
+[DACParameters] Parameter 4 is set to 10.
+[DACParameters] Parameter 5 is set to 0.
+[DACParameters] Parameter 6 is set to 0.
+[DACParameters] Parameter 7 is set to 35.
+[DACParameters] Parameter 8 is set to 0.
+[DACParameters] Parameter 9 is set to 35.
+[DACParameters] Parameter 10 is set to 160.
+[DACParameters] Parameter 11 is set to 7.
+[DACParameters] Parameter 12 is set to 105.
+[DACParameters] Parameter 13 is set to 30.
+[DACParameters] Parameter 14 is set to 10.
+[DACParameters] Parameter 15 is set to 77.
+[DACParameters] Parameter 16 is set to 50.
+[DACParameters] Parameter 17 is set to 120.
+[DACParameters] Parameter 18 is set to 130.
+[DACParameters] Parameter 19 is set to 220.
+[DACParameters] Parameter 20 is set to 80.
+[DACParameters] Parameter 21 is set to 220.
+[DACParameters] Parameter 22 is set to 99.
+[DACParameters] Parameter 23 is set to 0.
+[DACParameters] Parameter 24 is set to 0.
+[DACParameters] Parameter 25 is set to 119.
+[DACParameters] Parameter 26 is set to 80.
+[DACParameters] Parameter 27 is set to 0.
+[DACParameters] Parameter 253 is set to 0.
+[DACParameters] Parameter 254 is set to 100.
+===
+[DACParameters] Parameter 254 is set to 99.
+Scan Vthr vs Vcal at WBC-1, CalDel = 80
+Old WBC= 100 now use WBC-1 =  99
+[DACParameters] Parameter 1 is set to 6.
+[DACParameters] Parameter 2 is set to 154.
+[DACParameters] Parameter 3 is set to 150.
+[DACParameters] Parameter 4 is set to 10.
+[DACParameters] Parameter 5 is set to 0.
+[DACParameters] Parameter 6 is set to 0.
+[DACParameters] Parameter 7 is set to 35.
+[DACParameters] Parameter 8 is set to 0.
+[DACParameters] Parameter 9 is set to 35.
+[DACParameters] Parameter 10 is set to 160.
+[DACParameters] Parameter 11 is set to 7.
+[DACParameters] Parameter 12 is set to 105.
+[DACParameters] Parameter 13 is set to 30.
+[DACParameters] Parameter 14 is set to 10.
+[DACParameters] Parameter 15 is set to 77.
+[DACParameters] Parameter 16 is set to 50.
+[DACParameters] Parameter 17 is set to 120.
+[DACParameters] Parameter 18 is set to 130.
+[DACParameters] Parameter 19 is set to 220.
+[DACParameters] Parameter 20 is set to 80.
+[DACParameters] Parameter 21 is set to 220.
+[DACParameters] Parameter 22 is set to 99.
+[DACParameters] Parameter 23 is set to 0.
+[DACParameters] Parameter 24 is set to 0.
+[DACParameters] Parameter 25 is set to 119.
+[DACParameters] Parameter 26 is set to 80.
+[DACParameters] Parameter 27 is set to 0.
+[DACParameters] Parameter 253 is set to 0.
+[DACParameters] Parameter 254 is set to 99.
+[DACParameters] Parameter 254 is set to 100.
+===
+Add the histograms at WBC and WBC-1 
+[DACParameters] Parameter 254 is set to 98.
+Scan Vthr vs Vcal at WBC-1, CalDel = 80
+Old WBC= 100 now use WBC-1 = 98
+[DACParameters] Parameter 1 is set to 6.
+[DACParameters] Parameter 2 is set to 154.
+[DACParameters] Parameter 3 is set to 150.
+[DACParameters] Parameter 4 is set to 10.
+[DACParameters] Parameter 5 is set to 0.
+[DACParameters] Parameter 6 is set to 0.
+[DACParameters] Parameter 7 is set to 35.
+[DACParameters] Parameter 8 is set to 0.
+[DACParameters] Parameter 9 is set to 35.
+[DACParameters] Parameter 10 is set to 160.
+[DACParameters] Parameter 11 is set to 7.
+[DACParameters] Parameter 12 is set to 105.
+[DACParameters] Parameter 13 is set to 30.
+[DACParameters] Parameter 14 is set to 10.
+[DACParameters] Parameter 15 is set to 77.
+[DACParameters] Parameter 16 is set to 50.
+[DACParameters] Parameter 17 is set to 120.
+[DACParameters] Parameter 18 is set to 130.
+[DACParameters] Parameter 19 is set to 220.
+[DACParameters] Parameter 20 is set to 80.
+[DACParameters] Parameter 21 is set to 220.
+[DACParameters] Parameter 22 is set to 99.
+[DACParameters] Parameter 23 is set to 0.
+[DACParameters] Parameter 24 is set to 0.
+[DACParameters] Parameter 25 is set to 119.
+[DACParameters] Parameter 26 is set to 80.
+[DACParameters] Parameter 27 is set to 0.
+[DACParameters] Parameter 253 is set to 0.
+[DACParameters] Parameter 254 is set to 98.
+[DACParameters] Parameter 254 is set to 100.
+===
+
+Add the histograms at WBC and WBC-1 
+into VthrCompVcal_c0r0_C1_tot
+============================
+Scan Vcal vs CalDel at Vthr = 133
+[DACParameters] Parameter 12 is set to 133.
+[DACParameters] Parameter 1 is set to 6.
+[DACParameters] Parameter 2 is set to 154.
+[DACParameters] Parameter 3 is set to 150.
+[DACParameters] Parameter 4 is set to 10.
+[DACParameters] Parameter 5 is set to 0.
+[DACParameters] Parameter 6 is set to 0.
+[DACParameters] Parameter 7 is set to 35.
+[DACParameters] Parameter 8 is set to 0.
+[DACParameters] Parameter 9 is set to 35.
+[DACParameters] Parameter 10 is set to 160.
+[DACParameters] Parameter 11 is set to 7.
+[DACParameters] Parameter 12 is set to 133.
+[DACParameters] Parameter 13 is set to 30.
+[DACParameters] Parameter 14 is set to 10.
+[DACParameters] Parameter 15 is set to 77.
+[DACParameters] Parameter 16 is set to 50.
+[DACParameters] Parameter 17 is set to 120.
+[DACParameters] Parameter 18 is set to 130.
+[DACParameters] Parameter 19 is set to 220.
+[DACParameters] Parameter 20 is set to 80.
+[DACParameters] Parameter 21 is set to 220.
+[DACParameters] Parameter 22 is set to 99.
+[DACParameters] Parameter 23 is set to 0.
+[DACParameters] Parameter 24 is set to 0.
+[DACParameters] Parameter 25 is set to 119.
+[DACParameters] Parameter 26 is set to 80.
+[DACParameters] Parameter 27 is set to 0.
+[DACParameters] Parameter 253 is set to 0.
+[DACParameters] Parameter 254 is set to 100.
+[DACParameters] Parameter 12 is set to 105.
+Scan Vthr vs CalDel finished
+
+============================
+
+The Pixel is : PH_C0_R0
+The number of bins is 256
+The nTrig is 5
+The minThreshold is 133
+  t_0 is at CalDel 122
+  cal width is 57.8665
+  The y interscept of the Vthrcomp vs. Vcal is 294.184
+  The slope of the V thrcomp vs. Vcal is -1.58603
+The rise time is: 19.0093
+==============================
+psi46expert> exit
+
