@@ -1,0 +1,56 @@
+AC_INIT([psi46expert], [1.1], [marco.rossini@phys.ethz.ch])
+AC_CONFIG_MACRO_DIR([m4])
+AM_INIT_AUTOMAKE([foreign -Wall])
+LT_INIT
+AC_PROG_CXX
+
+AC_CHECK_HEADER([ftd2xx.h], [FTD2XX_H=true], [FTD2XX_H=false])
+if test "$FTD2XX_H" = "false"
+then
+	AC_MSG_ERROR([Could not find ftd2xx.h. Install the header file (from htt://www.ftdichip.com) and set CPATH correctly.])
+fi
+
+AC_CHECK_HEADER([WinTypes.h], [WINTYPES_H=true], [WINTYPES_H=false])
+if test "$WINTYPES_H" = "false"
+then
+	AC_MSG_ERROR([Could not find WinTypes.h. Install the header file (from htt://www.ftdichip.com) and set CPATH correctly.])
+fi
+
+AC_CHECK_LIB([ftd2xx], [FT_Open], [LIBFTD2XX=-lftd2xx], [LIBFTD2XX=none])
+if test "$LIBFTD2XX" = "none"
+then
+	AC_MSG_ERROR([Could not find libftd2xx. Install libftdsxx (from http://www.ftdichip.com/) or set LIBRARY_PATH environment variable correctly.])
+fi
+AC_SUBST([LIBFTD2XX])
+
+AC_CHECK_LIB([usb], [usb_init], [LIBUSB=-lusb], [LIBUSB=none])
+if test "$LIBUSB" = "none"
+then
+	AC_CHECK_LIB([usb], [libusb_init], [LIBUSB=-lusb], [LIBUSB=none])
+fi
+if test "$LIBUSB" = "none"
+then
+	AC_MSG_ERROR([Could not find libusb. Install libusb or set LIBRARY_PATH environment variable correctly.])
+fi
+AC_SUBST([LIBUSB])
+
+AC_CHECK_PROGS([ROOT], [root-config], [/])
+if test "$ROOT" = /
+then
+	AC_MSG_ERROR([Could not find ROOT. Install ROOT or set PATH environment variable correctly.])
+fi
+ROOTLIBS=$(root-config --glibs)
+ROOTLIBS=$(root-config --glibs)
+ROOTFLAGS=$(root-config --cflags)
+
+AC_CHECK_PROGS([ROOTCINT], [rootcint], [/])
+if test "$ROOTCINT" = /
+then
+	AC_MSG_ERROR([Could not find ROOTCINT. Install ROOTCINT or set PATH environment variable correctly.])
+fi
+
+AC_SUBST([ROOTLIBS])
+AC_SUBST([ROOTFLAGS])
+AC_CONFIG_HEADERS([src/config.h])
+AC_CONFIG_FILES([Makefile src/Makefile src/interface/Makefile src/BasePixel/Makefile src/psi46expert/Makefile])
+AC_OUTPUT

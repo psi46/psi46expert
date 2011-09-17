@@ -3,7 +3,7 @@
 #ifndef USB_H
 #define USB_H
 
-#include "interface/ftd2xx.h"
+#include "ftd2xx.h"
 
 
 #define USBWRITEBUFFERSIZE  150000
