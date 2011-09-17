@@ -1,8 +1,4 @@
-//
-// Author: Peter Trüb
-// 
 // Code to fit PHCalibrationFits
-//
 
 #ifndef PHCalibrationFit_H
 #define PHCalibrationFit_H

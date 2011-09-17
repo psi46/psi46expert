@@ -1,11 +1,4 @@
-//
-// Author: Peter Trüb
-//
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-//
 // Defines for which entities a test should be performed
-// >>>>>>>>>>>>>> Still in developement !!
-// 
 
 #ifndef TESTRANGE
 #define TESTRANGE

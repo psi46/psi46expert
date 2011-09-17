@@ -1,9 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // Class provides basic module functionality, contains a TBM and several ROCs
-// 
-
 
 #ifndef MODULE
 #define MODULE

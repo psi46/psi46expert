@@ -1,9 +1,4 @@
-//
-// Author: Christian Veelken
-//         05/23/06
-//
 // Calibration and Test of last DAC temperature readout of ROCs
-// 
 
 #ifndef TEMPERATURECALIBRATION_H
 #define TEMPERATURECALIBRATION_H

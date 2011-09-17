@@ -1,8 +1,4 @@
-//
-// Author: Sarah Dambach
-//
 // Adjust VhldDel by optimizing the Linearity in the low range
-// 
 
 #ifndef VHLDDELOPTIMIZATION_H
 #define VHLDDELOPTIMIZATION_H

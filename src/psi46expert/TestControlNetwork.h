@@ -1,10 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // This class provides support for the tests on the ControlNetwork level
-//
-//
-
 
 #ifndef TESTCONTROLNETWORK
 #define TESTCONTROLNETWORK

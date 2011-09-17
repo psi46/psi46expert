@@ -1,5 +1,3 @@
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-
 #include <iostream>
 #include <string.h>
 #include <fstream>

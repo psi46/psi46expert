@@ -1,6 +1,3 @@
-// Author : Samvel Khalatyan (samvel at cern dot ch)
-// Created: 1 May '09
-//
 // Logging System Implementation. Defined Logs:
 //    psi::LogDebug
 //    psi::LogInfo

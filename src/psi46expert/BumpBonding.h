@@ -1,8 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // Bumpbonding test
-// 
 
 #ifndef BUMPBONDING
 #define BUMPBONDING

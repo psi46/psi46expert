@@ -1,6 +1,3 @@
-// Author : Samvel Khalatyan (samvel at cern dot ch)
-// Created: 20 Mar 09
-
 #include <cmath>
 
 #include <algorithm>

@@ -1,8 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // Trim bit test
-// 
 
 #ifndef TRIMBITTEST
 #define TRIMBITTEST

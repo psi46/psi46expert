@@ -1,6 +1,3 @@
-// Author  : Peter Trüb
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-//
 // This class provides the functionality to program the analog testboard via USB
 // This class is mainly a dummy class which forwards the commands to Beat's 
 // testboard class CTestboard. A USB read buffer was added, because problems 

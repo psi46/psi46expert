@@ -1,14 +1,7 @@
+// A class to decode a pixel data packet (TBM+ROCs)
+
 #ifndef RAWPACKETDECODER_H
 #define RAWPACKETDECODER_H
-
-//////////////////////////////////////////////////////////////////////////
-//
-// A class to decode a pixel data packet (TBM+ROCs)
-//
-// Danek Kotlinski (PSI), 03/08/05
-// modified by Christian Veelken (UC Davis), 05/11/06
-// 
-/////////////////////////////////////////////////////////////////////////
 
 #include "DecodedReadout.h"
 

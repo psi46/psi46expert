@@ -1,5 +1,3 @@
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-
 #include "BasePixel/TBInterface.h"
 #include "interface/Log.h"
 

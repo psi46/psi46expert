@@ -1,8 +1,4 @@
-//
-// Author: Lukas Wehrli
-//
 // Time Walk Studies
-//  
 
 #ifndef TIMEWALKSTUDIES
 #define TIMEWALKSTUDIES

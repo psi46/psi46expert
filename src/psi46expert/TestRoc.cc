@@ -1,9 +1,3 @@
-//-----------------------------------------------------//
-// Modified: Samvel Khalatyan (UIC) 2009 (samvel at cern dot ch)
-// Modified by Tilman Rohe (PSI) and Hank Lamm (KState) 2010 to include the Pulse Shape measurements
-//-----------------------------------------------------//
- 
-
 #include <stdio.h>
 #include <unistd.h>
 #include <time.h>

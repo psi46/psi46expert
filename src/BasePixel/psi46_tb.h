@@ -1,14 +1,4 @@
-/*---------------------------------------------------------------------
- *
- *  filename:    psi46_tb.h
- *
- *  description: PSI46 testboard API 
- *	author:      Beat Meier ETH
- *	date:        17.1.2007
- *	rev:
- *
- *---------------------------------------------------------------------
- */
+// PSI46 testboard API 
 
 #ifndef PSI46TB_H
 #define PSI46TB_H

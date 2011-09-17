@@ -1,8 +1,4 @@
-//
-// Author: Sarah Dambach
-//
 // Sets the VIbias_roc and the VOffsetOp DAC so that PH is within the range -tbmublevel+safety ... +tbmublevel
-// 
 
 #ifndef PHRANGE_H
 #define PHRANGE_H

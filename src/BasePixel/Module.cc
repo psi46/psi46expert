@@ -1,5 +1,3 @@
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-
 #include "interface/Log.h"
 #include "BasePixel/Module.h"
 #include "BasePixel/TBAnalogInterface.h"

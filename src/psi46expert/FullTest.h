@@ -1,10 +1,4 @@
-//
-// Author: Peter Trüb
-//
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-//
 // Full test of a module
-// 
 
 #ifndef FULLTEST
 #define FULLTEST

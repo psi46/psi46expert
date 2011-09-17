@@ -1,9 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // Provides a minimal set of basic constants of the project
-//
-
 
 #ifndef GLOBALCONSTANTS
 #define GLOBALCONSTANTS

@@ -1,9 +1,4 @@
-//
-// Author: Sarah Dambach
-//
 // pulse height - Vcal overview for different DACs
-// 
-
 
 #ifndef PHDACOVERVIEW
 #define PHDACOVERVIEW

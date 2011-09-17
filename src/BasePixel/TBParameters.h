@@ -1,6 +1,3 @@
-// Author: Peter Trüb
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-//
 // The class represents the settings of a testboard
 
 #ifndef TBPARAMETERS

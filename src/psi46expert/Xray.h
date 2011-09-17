@@ -1,8 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // Vcal calibration with xray
-// 
 
 #ifndef XRAY
 #define XRAY

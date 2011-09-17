@@ -1,9 +1,4 @@
-//
-// Author: Danek Kotlinski
-//
 // Class provides the TBM functionalities
-// 
-
 
 #ifndef TBMCLASS
 #define TBMCLASS

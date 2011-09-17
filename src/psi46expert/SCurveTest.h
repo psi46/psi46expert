@@ -1,8 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // SCurve measurements
-// 
 
 #ifndef SCURVETEST
 #define SCURVETEST

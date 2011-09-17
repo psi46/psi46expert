@@ -1,9 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // Implementation of the tests at DoubleColumn level
-//
-//
 
 #ifndef DOUBLECOLUMNTEST
 #define DOUBLECOLUMNTEST

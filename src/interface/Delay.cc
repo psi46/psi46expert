@@ -1,5 +1,3 @@
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-
 #include <unistd.h>
 #include <time.h>
 #include <stdio.h>

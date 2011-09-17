@@ -1,8 +1,3 @@
-// Authors : Sarah Dambach,
-//           Christian Veelken
-//
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-
 #include <iostream>
 #include <string>
 

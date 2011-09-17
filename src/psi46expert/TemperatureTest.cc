@@ -1,5 +1,3 @@
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-
 #include <TGraph.h>
 #include <TF1.h>
 

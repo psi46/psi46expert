@@ -1,10 +1,5 @@
-//
-// Author: Peter Trüb
 // Vcal calibration data provided and measured by Wolfram Erdmann
-//
 // Class provides calibration data for DACs
-// 
-
 
 #ifndef CALIBRATIONTABLE
 #define CALIBRATIONTABLE

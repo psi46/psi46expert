@@ -1,6 +1,3 @@
-// Author  : Peter Trüb
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-//
 // Central definition point of the parameters which control the test bahaviour
 
 #ifndef TESTPARAMETERS

@@ -1,8 +1,4 @@
-// Author  : Peter Trüb
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-//
 // Class provides basic readout chip functionalities, contains the double columns of a ROC
-// 
 
 #ifndef ROC
 #define ROC

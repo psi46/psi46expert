@@ -1,5 +1,3 @@
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-
 #include <TGraphErrors.h>
 #include <TMath.h>
 

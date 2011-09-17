@@ -1,6 +1,3 @@
-// Author  : Peter Trüb
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-//
 // Configuration parameters
 
 #ifndef CONFIGPARAMETERS

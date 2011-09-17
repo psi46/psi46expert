@@ -1,7 +1,3 @@
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-
-// usb.cpp
-
 #include "USBInterface.h"
 
 const char* CUSB::GetErrorMsg(int error)

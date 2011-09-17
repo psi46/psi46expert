@@ -1,8 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // Pulse height calibration functions
-// 
 
 #ifndef PHCALIBRATION_H
 #define PHCALIBRATION_H

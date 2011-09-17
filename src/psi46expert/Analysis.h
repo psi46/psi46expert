@@ -1,9 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // Utilities to analyse histograms
-// 
-
 
 #ifndef ANALYSIS
 #define ANALYSIS

@@ -1,8 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // Trim functions
-// 
 
 #ifndef THRESHOLDMAP
 #define THRESHOLDMAP

@@ -1,15 +1,4 @@
-//
-// Author: Beat Meier
-//
 // Class provides basic functionalities to use the USB interface
-// 
-// Modifications by Peter Trüb
-//
-//  - changed the file name to USBInterface
-//  - increased the sizes of the write and read buffers
-//  - increased the timeouts for reading and writing to get better stability under linux
-//  - removed some code not needed under linux
-//
 
 #ifndef USB_H
 #define USB_H

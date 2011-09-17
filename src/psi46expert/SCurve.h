@@ -1,8 +1,4 @@
-//
-// Author: Peter Trüb
-// 
 // Code to fit SCurves
-//
 
 #ifndef SCurve_H
 #define SCurve_H

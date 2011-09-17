@@ -1,8 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // Class provides basic pixel functionalities, contains the trim information
-// 
 
 #ifndef PIXEL
 #define PIXEL

@@ -1,9 +1,4 @@
-//
-// Author: Sarah Dambach
-//
 // pulse height - Vcal overview for different chips / pixels
-// 
-
 
 #ifndef CHIPVARIATION
 #define CHIPVARIATION

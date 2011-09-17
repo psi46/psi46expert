@@ -1,10 +1,4 @@
-//
-// Author: Peter Trüb
-//
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-//
 // Pixel alive test, analog testboard version
-// 
 
 #ifndef ADDRESSDECODING
 #define ADDRESSDECODING

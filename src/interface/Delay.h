@@ -1,15 +1,5 @@
-//
-// Author: (mainly) Beat Meier
-//
 // Class provides basic delay and time analysis functionalities
 // The delays occur on the PC, not on the testboard
-// 
-// Modifications by Peter Trüb
-//
-//  - put the functions into a class
-//  - added StartUsecs(), PrintUsecs() and TimeStamps to find time consuming parts of the code
-// 
-
 
 #ifndef DELAY
 #define DELAY

@@ -1,9 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // The class represents the settings of an analog testboard
-// 
-
 
 #ifndef TBANALOGPARAMETERS
 #define TBANALOGPARAMETERS

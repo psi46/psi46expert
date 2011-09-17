@@ -1,8 +1,4 @@
-//
-// Author: Sarah Dambach
-//
 // Ensures that the pulse height is below the ultra black
-// 
 
 #ifndef UBCHECK_H
 #define UBCKECK_H

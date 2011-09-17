@@ -1,10 +1,3 @@
-//-----------------------------------------------------//
-// Modified: Samvel Khalatyan (UIC) 2009 for SLC5
-// Modified by Jose Lazo-Flores(UNL), Beat Meier (PSI) and Valeria Radicci (KU) 2010
-// to be compatible with the last version of the Firmware and the TBM Emulator  
-//-----------------------------------------------------//
-
-
 #include "psi46_tb.h"
 #include <stdio.h>
 #include "BasePixel/GlobalConstants.h"

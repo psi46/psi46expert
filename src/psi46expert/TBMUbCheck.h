@@ -1,8 +1,4 @@
-//
-// Author: Christian Veelken
-//
 // Tests ultra-black levels of tbms
-// 
 
 #ifndef TBMUBCHECK
 #define TBMUBCHECK

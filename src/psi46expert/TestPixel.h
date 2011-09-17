@@ -1,9 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // Implementation of the tests at pixel level
-//
-//
 
 #ifndef PIXELTEST
 #define PIXELTEST

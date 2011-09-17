@@ -1,9 +1,3 @@
-//
-// Author: Peter Trüb
-//
-// Trim functions
-// 
-
 #ifndef SCURVETESTBEAM
 #define SCURVETESTBEAM
 

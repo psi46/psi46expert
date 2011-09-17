@@ -1,9 +1,3 @@
-//
-// Author: P. Trueb
-//
-// 
-// 
-
 #ifndef CALDEL_H
 #define CALDEL_H
 

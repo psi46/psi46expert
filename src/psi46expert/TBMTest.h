@@ -1,9 +1,4 @@
-//
-// Author: Peter Trueb
-//
 // Tests address levels and both tbms
-// 
-
 
 #ifndef TBMTEST
 #define TBMTEST

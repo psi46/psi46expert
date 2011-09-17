@@ -1,9 +1,3 @@
-//
-// Author: C. Veelken
-//
-// 
-// 
-
 #ifndef THRCOMP_H
 #define THRCOMP_H
 

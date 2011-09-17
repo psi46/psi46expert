@@ -1,9 +1,4 @@
-//
-// Author: Peter Trueb
-//
 // Measures an empty analog readout
-// 
-
 
 #ifndef ANALOGREADOUT
 #define ANALOGREADOUT

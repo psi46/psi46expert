@@ -1,20 +1,7 @@
-//
-// Author: Wolfram Erdmann
-//
 // Class provides functionalities to run commands from a file or the command line
-// 
-
 
 #ifndef SYSCOMMAND
 #define SYSCOMMAND
-
-
-/*************************************************************
- *
- * 
- *
- *
- *************************************************************/
 
 #include <iostream>
 #include <fstream>

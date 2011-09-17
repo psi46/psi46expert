@@ -1,9 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // To control the Keithley high voltage source
-// 
-
 
 #ifndef KEITHLEY
 #define KEITHLEY

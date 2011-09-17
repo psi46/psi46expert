@@ -1,8 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // Pixel alive test, analog testboard version
-// 
 
 #ifndef PIXELALIVE
 #define PIXELALIVE

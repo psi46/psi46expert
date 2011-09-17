@@ -1,8 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // Test of the address levels
-// 
 
 #ifndef ADDRESSLEVELS_H
 #define ADDRESSLEVELS_H

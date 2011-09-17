@@ -1,6 +1,3 @@
-// Authors : Urs Langenegger, Peter Trüb
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-//
 // The GUI
 
 #ifndef MAINFRAME

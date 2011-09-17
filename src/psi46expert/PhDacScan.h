@@ -1,9 +1,4 @@
-//
-// Author: Sarah Dambach
-//
 // Pulse height dependency on different DACs
-// 
-
 
 #ifndef PHDACSCAN
 #define PHDACSCAN

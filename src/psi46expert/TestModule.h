@@ -1,11 +1,4 @@
-//
-// Author: Peter Trüb
-//
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-//
 // This class provides support for the tests on the Module level
-//
-//
 
 #ifndef TESTMODULE
 #define TESTMODULE

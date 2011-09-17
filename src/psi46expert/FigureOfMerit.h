@@ -1,9 +1,4 @@
-//
-// Author: Sarah Dambach
-//
 // 2 DACs can be scanned as a function of various criteria
-// 
-
 
 #ifndef FIGUREOFMERIT
 #define FIGUREOFMERIT

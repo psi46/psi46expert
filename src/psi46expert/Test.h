@@ -1,11 +1,4 @@
-//
-// Author  : Peter Trüb
-//
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-//
 // Basic test functionalities
-// >>>>>>>>>>>>>> Still in developement !!
-// 
 
 #ifndef TEST
 #define TEST

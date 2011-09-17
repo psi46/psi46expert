@@ -1,9 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // Provides ControlNetwork functionalities, mainly a module container
-// 
-
 
 #ifndef CONTROLNETWORK
 #define CONTROLNETWORK

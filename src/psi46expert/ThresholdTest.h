@@ -1,8 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // Trim functions
-// 
 
 #ifndef THRESHOLDTEST
 #define THRESHOLDTEST

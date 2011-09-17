@@ -1,8 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // Class provides basic double column functionalities, contains the pixel objects
-// 
 
 #ifndef DOUBLECOLUMN
 #define DOUBLECOLUMN

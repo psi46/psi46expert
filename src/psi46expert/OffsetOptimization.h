@@ -1,9 +1,4 @@
-//
-// Author: Sarah Dambach
-//
 // Optimization of the Dynamic Range for VoffsetOp and VOffsetR0
-// 
-
 
 #ifndef OFFSETOPTIMIZATION
 #define OFFSETOPTIMIZATION

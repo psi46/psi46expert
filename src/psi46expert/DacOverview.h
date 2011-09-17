@@ -1,10 +1,3 @@
-//
-// Author: Sarah Dambach
-//
-//
-// 
-
-
 #ifndef DACOVERVIEW
 #define DACOVERVIEW
 

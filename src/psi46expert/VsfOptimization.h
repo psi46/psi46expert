@@ -1,11 +1,4 @@
-//
-// Authors: Sarah Dambach,
-//          Christian Veelken
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-//
 // Pulse height dependency on Vsf and VhldDel DACs
-// 
-
 
 #ifndef VSFOPTIMIZATION
 #define VSFOPTIMIZATION

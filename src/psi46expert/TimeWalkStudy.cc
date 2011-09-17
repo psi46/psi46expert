@@ -1,6 +1,3 @@
-// Author  : Lukas Wehrli
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-// 
 // Time Walk Studies
 
 #include <math.h>

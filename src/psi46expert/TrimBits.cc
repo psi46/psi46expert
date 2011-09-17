@@ -1,5 +1,3 @@
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-
 #include "TrimBits.h"
 #include "ThresholdMap.h"
 #include "Analysis.h"

@@ -1,11 +1,4 @@
-//
-// Author: Peter Trüb
-//
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-//
 // Implementation of the tests at ROC level
-//
-//
 
 #ifndef ROCTEST
 #define ROCTEST

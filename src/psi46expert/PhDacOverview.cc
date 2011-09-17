@@ -1,5 +1,3 @@
-// Modified: Samvel Khalatyan (samvel at cern dot ch)
-
 #include "PhDacOverview.h"
 #include "TestRoc.h"
 #include "TestModule.h"

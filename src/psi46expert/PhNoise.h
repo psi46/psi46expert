@@ -1,8 +1,4 @@
-//
-// Author: Peter Trüb
-//
 // Measure the noise on the pulse height in the analog out signal
-// 
 
 #ifndef PHNOISE_H
 #define PHNOISE_H
