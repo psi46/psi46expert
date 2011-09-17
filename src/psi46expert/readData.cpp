@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include "psi46expert/UsbDaq.h"
 #include "BasePixel/RawPacketDecoder.h"
 #include "BasePixel/DecoderCalibration.h"
@@ -7,6 +8,7 @@
 #include <TApplication.h>
 #include <TStyle.h>
 
+using namespace std;
 using namespace DecoderCalibrationConstants;
 using namespace DecodedReadoutConstants;
 

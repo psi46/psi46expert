@@ -3,7 +3,7 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/TBM.h"
 #include "TestModule.h"
-#include <iostream.h>
+#include <iostream>
 
 
 TBMUbCheck::TBMUbCheck(TestRange* aTestRange, TestParameters* testParameters, TBInterface* aTBInterface)

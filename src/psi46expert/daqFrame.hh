@@ -31,7 +31,7 @@ class TestControlNetwork;
 class daqFrame: public TGMainFrame { 
 
 public: 
-  daqFrame(const TGWindow *p, UInt_t w = 600, UInt_t h = 600, daqLoggingManager *p =0, bool batchMode = false); 
+  daqFrame(const TGWindow *p, UInt_t w = 600, UInt_t h = 600, daqLoggingManager *q =0, bool batchMode = false); 
   virtual ~daqFrame(); 
 
   Keithley *Power_supply; 

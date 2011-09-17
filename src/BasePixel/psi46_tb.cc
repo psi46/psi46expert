@@ -5,7 +5,7 @@
 
 #ifndef _WIN32
 #include <unistd.h>
-#include <iostream.h>
+#include <iostream>
 #endif
 
 // --- begin command table -----------------------------------------------

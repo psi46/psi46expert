@@ -2,6 +2,7 @@
 #define SLOW_READOUT  // read data at 20MHz
 #define PRINT 1
 
+#include <cstdlib>
 #include <iostream>
 #include <TSystem.h>
 

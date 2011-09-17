@@ -1,5 +1,7 @@
 #include "psi46expert/daqLoggingManager.hh"
 
+#include <cstdlib>
+
 #include "TSystem.h"
 #include "TUnixSystem.h"
 

@@ -1,4 +1,4 @@
-#include <iostream.h>
+#include <iostream>
 #include "daqMultiDACSettings.hh"
 
 daqMultiDACSettings::daqMultiDACSettings(const TGWindow *p, const TGWindow *main) {

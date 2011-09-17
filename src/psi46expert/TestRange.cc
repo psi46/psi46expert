@@ -1,7 +1,9 @@
 #include "TestRange.h"
 #include <stdio.h>
-#include <iostream.h>
+#include <iostream>
 #include <fstream>
+
+using namespace std;
 
 ClassImp(TestRange) 
 

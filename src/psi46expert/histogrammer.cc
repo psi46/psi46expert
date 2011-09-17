@@ -1,5 +1,6 @@
-
 #include "psi46expert/histogrammer.h"
+
+using namespace std;
 
 // ----------------------------------------------------------------------
 histogrammer::histogrammer() {

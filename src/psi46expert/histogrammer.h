@@ -2,7 +2,7 @@
 #define HISTOGRAMMER_H
 
 #include <fstream>
-#include <iostream.h>
+#include <iostream>
 #include <stdio.h>
 
 #include <TROOT.h>

@@ -1,4 +1,4 @@
-#include <iostream.h>
+#include <iostream>
 #include "daqTBSettings.hh"
 
 #include "BasePixel/TBAnalogInterface.h"

@@ -2,7 +2,7 @@
 #define USBDAQ_H
 
 #include <fstream>
-#include <iostream.h>
+#include <iostream>
 #include <stdio.h>
 
 #include "BasePixel/DecodedReadout.h"

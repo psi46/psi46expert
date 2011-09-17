@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include "BasePixel/TBAnalogInterface.h"
 #include "psi46expert/TestParameters.h"
 #include "psi46expert/TestControlNetwork.h"

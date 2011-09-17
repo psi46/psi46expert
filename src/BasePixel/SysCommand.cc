@@ -137,7 +137,7 @@ int SysCommand::StrToI(const char* word, const int len, int* v)
   }
 
   int a=0;
-  char* d;
+  const char* d;
   while( (i<len) && ( (d=index(digits,word[i]))!=NULL) ){
     a=base*a+d-d0;
     i++;

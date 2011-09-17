@@ -1,8 +1,8 @@
 #ifndef DAQLOGGINGMANAGER_H
 #define DAQLOGGINGMANAGER_H
 
-#include <fstream.h>
-#include <iostream.h>
+#include <fstream>
+#include <iostream>
 #include <stdio.h>
 #include <time.h>
 
@@ -42,7 +42,7 @@ class daqLoggingManager {
   void               setMTBConfigParameters(ConfigParameters *cfg) {fpMTB = cfg;}
   ConfigParameters*  getMTBConfigParameters() {return fpMTB;}
 
-  void        setRunNumber(int irun) {fRunNumber = irun; cout << "LM: runnumber set to " << irun << endl;}
+  void        setRunNumber(int irun) {fRunNumber = irun; std::cout << "LM: runnumber set to " << irun << std::endl;}
   int         getRunNumber() {return fRunNumber;}
   int         incrementRunNumber();  
 

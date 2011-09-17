@@ -1,4 +1,4 @@
-#include <iostream.h>
+#include <iostream>
 #include "daqDACSettings.hh"
 #include "daqFrame.hh"
 #include "psi46expert/TestControlNetwork.h"
