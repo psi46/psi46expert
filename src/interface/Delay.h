@@ -13,14 +13,14 @@ class Delay {
 
 // == Delays ================================================
 	void Mdelay(unsigned int ms);
-	void Udelay(unsigned long us);
+	void Udelay(unsigned int us);
 
 // == Calibration ===========================================
 	int Median(unsigned int n, int x[]);
 	int Cpu_MHz();
 	int Calibrate();
 	int GetCPU_MHz();
-	unsigned long Usecs();
+	unsigned int Usecs();
 	QWORD Rdtsc();
 
 // == Runtime analysis =======================================
@@ -30,7 +30,7 @@ class Delay {
 	
  protected:
 
- 	 unsigned long uscount, usecsStart;
+ 	 unsigned int uscount, usecsStart;
  
 };
 

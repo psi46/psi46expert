@@ -64,7 +64,7 @@ public:
   void doExit();
 
   void doDraw();
-  void readout(FILE *file, unsigned long filledMem);
+  void readout(FILE *file, unsigned int filledMem);
 
    void doVdown(int V);
     void doVup(int V); 
@@ -102,7 +102,7 @@ private:
   TestControlNetwork  *fCN; //! (note that //! is a magic comment)
 
   static const int dataBuffer_numWords = 30000000; 
-  unsigned short *dataBuffer_fpga1;
+  unsigned int dataBuffer_fpga1;
   
   SysCommand          *fpSysCommand1;
 

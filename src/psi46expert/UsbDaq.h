@@ -18,10 +18,10 @@ class UsbDaq {
   void pause();  // do for each run pause
   void resume(); // do for each run resume
   int clear();
-  int  read(unsigned long data[]); // read data 
+  int  read(unsigned int data[]); // read data 
   
   void reset();         // send a reset 
-  void print(const int size, const unsigned long data[]);//print
+  void print(const int size, const unsigned int data[]);//print
 
   void print();
   void setInputFileName(const char *f) { sprintf(fInputFileName,"%s", f); }
@@ -62,9 +62,9 @@ class UsbDaq {
   int* getRawData() {return fData;}
   int  getRawDataSize() {return fBufferSize;}
   int  getHeader() {return fHeader;}
-  unsigned long getLower() {return fLowerTime;}
-  unsigned long getUpper() {return fUpperTime;}
-  long long int getTime()  {return fTime;}
+  unsigned int getLower() {return fLowerTime;}
+  unsigned int getUpper() {return fUpperTime;}
+  long long getTime()  {return fTime;}
 
   void doNotWrite() {fDoWrite = 0;}
 
@@ -76,8 +76,8 @@ class UsbDaq {
   int        fRunMode;   // -1 ASCII, 0 Binary, >0 TB memory
   int        fEvent;     // Event counter
   int        fMaxEvent;  // Event number limitation
-  unsigned long fUpperTime, fLowerTime;
-  long long int fTime;
+  unsigned int fUpperTime, fLowerTime;
+  long long fTime;
 
   int        fHeader, fNextHeader;
 

@@ -18,13 +18,13 @@ class CUSB
 
 	unsigned int enumPos, enumCount;
 
-	unsigned long m_posW;
+	unsigned int m_posW;
 	unsigned char m_bufferW[USBWRITEBUFFERSIZE];
 
-	unsigned long m_posR, m_sizeR;
+	unsigned int m_posR, m_sizeR;
 	unsigned char m_bufferR[USBREADBUFFERSIZE];
 
-	bool FillBuffer(unsigned long minBytesToRead);
+	bool FillBuffer(unsigned int minBytesToRead);
 
 public:
 	CUSB()
@@ -42,16 +42,16 @@ public:
 	bool Open(char serialNumber[]);
 	void Close();
 	bool Connected() { return isUSB_open; };
-	bool Write(unsigned long bytesToWrite, const void *buffer);
+	bool Write(unsigned int bytesToWrite, const void *buffer);
 	bool Flush();
-	bool Read(unsigned long bytesToRead, void *buffer, unsigned long &bytesRead);
-	bool _Read(void *buffer, unsigned long bytesToRead)
+	bool Read(unsigned int bytesToRead, void *buffer, unsigned int &bytesRead);
+	bool _Read(void *buffer, unsigned int bytesToRead)
 	{
-		unsigned long bytesRead;
+		unsigned int bytesRead;
 		if (!Read(bytesToRead, (unsigned char *)buffer, bytesRead)) return false;
 		return bytesRead == bytesToRead;
 	}
-	bool _Write(const void *buffer, unsigned long bytesToWrite)
+	bool _Write(const void *buffer, unsigned int bytesToWrite)
 	{ return Write(bytesToWrite, buffer); }
 
 	bool Clear();
@@ -81,17 +81,17 @@ public:
 	bool Read_USHORTS(unsigned short *x, unsigned short count)
   	{ return _Read(x, count*sizeof(short)); }
 
-	bool Read_LONG(long &x)
-	{ return _Read((unsigned char *)(&x), sizeof(long)); }
+	bool Read_INT(int &x)
+	{ return _Read((unsigned char *)(&x), sizeof(int)); }
 
-	bool Read_LONGS(long *x, unsigned short count)
-  	{ return _Read(x, count*sizeof(long)); }
+	bool Read_INTS(int *x, unsigned short count)
+  	{ return _Read(x, count*sizeof(int)); }
 
-	bool Read_ULONG(unsigned long &x)
-	{ return _Read((unsigned char *)(&x), sizeof(long)); }
+	bool Read_UINT(unsigned int &x)
+	{ return _Read((unsigned char *)(&x), sizeof(int)); }
 
-	bool Read_ULONGS(unsigned long *x, unsigned short count)
-  	{ return _Read(x, count*sizeof(long)); }
+	bool Read_UINTS(unsigned int *x, unsigned short count)
+  	{ return _Read(x, count*sizeof(int)); }
 
 	bool Read_String(char *s, unsigned short maxlength);
 
@@ -119,15 +119,15 @@ public:
 	bool Write_USHORTS(const unsigned short *x, unsigned short count)
   	{ return _Write(x, count*sizeof(short)); }
 
-	bool Write_LONG(const long x) { return _Write(&x, sizeof(long)); }
+	bool Write_INT(const int x) { return _Write(&x, sizeof(int)); }
 
-	bool Write_LONGS(const long *x, unsigned short count)
-  	{ return _Write(x, count*sizeof(long)); }
+	bool Write_INTS(const int *x, unsigned short count)
+  	{ return _Write(x, count*sizeof(int)); }
 
-	bool Write_ULONG(const unsigned long x) { return _Write(&x, sizeof(long)); }
+	bool Write_UINT(const unsigned int x) { return _Write(&x, sizeof(int)); }
 
-	bool Write_ULONGS(const unsigned long *x, unsigned short count)
-  	{ return _Write(x, count*sizeof(long)); }
+	bool Write_UINTS(const unsigned int *x, unsigned short count)
+  	{ return _Write(x, count*sizeof(int)); }
 
 	bool Write_String(const char *s);
 };

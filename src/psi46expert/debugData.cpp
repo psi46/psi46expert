@@ -220,7 +220,7 @@ int main(int argc, char* argv[])
   const int dataBuffer_numWords = 1000;
 
   cout << "starting data-taking" << endl;
-  unsigned short* dataBuffer_fpga = tbInterface->getCTestboard()->Daq_Init(dataBuffer_numWords*sizeof(unsigned short));
+  unsigned int dataBuffer_fpga = tbInterface->getCTestboard()->Daq_Init(dataBuffer_numWords*sizeof(unsigned short));
   tbInterface->getCTestboard()->Daq_Enable();
 
   tbInterface->DataCtrl(false, false, true);
@@ -236,7 +236,7 @@ int main(int argc, char* argv[])
   cout << "data-taking finished." << endl;
   
   unsigned char dataBuffer_char[dataBuffer_numWords*sizeof(unsigned short)];
-  tbInterface->getCTestboard()->MemRead((unsigned long)dataBuffer_fpga, dataBuffer_numWords*sizeof(unsigned short), dataBuffer_char);
+  tbInterface->getCTestboard()->MemRead((unsigned int)dataBuffer_fpga, dataBuffer_numWords*sizeof(unsigned short), dataBuffer_char);
 
   unsigned short dataBuffer_short[dataBuffer_numWords];
   for ( int iword = 0; iword < dataBuffer_numWords; iword++ ){

@@ -547,7 +547,7 @@ void daqFrame::doStart() {
     fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("VthrComp", vthrcomp[iRoc]);
   }
 
-  unsigned long filledMem1;
+  unsigned int filledMem1;
 
   fRunning = 1;
 
@@ -758,12 +758,12 @@ void daqFrame::doExit(){
 
 
 // ----------------------------------------------------------------------
-void daqFrame::readout(FILE *file, unsigned long filledMem1) 
+void daqFrame::readout(FILE *file, unsigned int filledMem1) 
 {
   fTB->Flush();
   fTB->Clear();
   fpLM->log(Form("==>daqf: read mtb, words = %d", filledMem1));
-  fTB->Mem_ReadOut(file, (unsigned long)dataBuffer_fpga1, filledMem1);
+  fTB->Mem_ReadOut(file, dataBuffer_fpga1, filledMem1);
 } 
 
 
@@ -1051,7 +1051,7 @@ void daqFrame::wbcScan() {
   TH1D *h1 = new TH1D("w0", "wbc scan", 256, 0., 256.);
   TH1D *h2 = new TH1D("w1", "ntrig", 256, 0., 256.);
   
-  unsigned long filledMem1(99);
+  unsigned int filledMem1(99);
   unsigned short BLOCKSIZE = 32767; 
   unsigned char bbuffer[BLOCKSIZE];
   unsigned short size;
@@ -1105,7 +1105,7 @@ void daqFrame::wbcScan() {
       else size = BLOCKSIZE;
       if (size > 0)
       {
-        fTB->getCTestboard()->MemRead((unsigned long)(dataBuffer_fpga1 + k*BLOCKSIZE), size, bbuffer);
+        fTB->getCTestboard()->MemRead((unsigned int)(dataBuffer_fpga1 + k*BLOCKSIZE), size, bbuffer);
         fwrite(bbuffer, size, 1, f);               // Write to disk
         fpDAQ->setBinaryBuffer(size, &bbuffer[0]); // setup analysis
         fpDAQ->singleStep();                            // histogramm
@@ -1161,7 +1161,7 @@ void daqFrame::dacScan()
 
   TLatex *tl = new TLatex(); tl->SetNDC(kTRUE);
 
-  unsigned long filledMem1(99);
+  unsigned int filledMem1(99);
   unsigned short BLOCKSIZE = 32767; 
   unsigned char bbuffer[BLOCKSIZE];
   
@@ -1199,7 +1199,7 @@ void daqFrame::dacScan()
 	  
     
     for (int k = 0; k < filledMem1/BLOCKSIZE; ++k)  {
-      fTB->getCTestboard()->MemRead((unsigned long)(dataBuffer_fpga1 + k*BLOCKSIZE), BLOCKSIZE, bbuffer);
+      fTB->getCTestboard()->MemRead((unsigned int)(dataBuffer_fpga1 + k*BLOCKSIZE), BLOCKSIZE, bbuffer);
       fwrite(bbuffer, BLOCKSIZE, 1, f);               // Write to disk
       fpDAQ->setBinaryBuffer(BLOCKSIZE, &bbuffer[0]); // setup analysis
       fpDAQ->singleStep();                            // histogramm

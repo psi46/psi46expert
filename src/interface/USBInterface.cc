@@ -81,11 +81,11 @@ void CUSB::Close()
 }
 
 
-bool CUSB::Write(unsigned long bytesToWrite, const void *buffer)
+bool CUSB::Write(unsigned int bytesToWrite, const void *buffer)
 {
   if (!isUSB_open) return false;
 
-  unsigned long k=0;
+  unsigned int k=0;
   for (k=0; k < bytesToWrite; k++)
   {
     if (m_posW >= USBWRITEBUFFERSIZE) { if (!Flush()) return false; }
@@ -97,8 +97,8 @@ bool CUSB::Write(unsigned long bytesToWrite, const void *buffer)
 
 bool CUSB::Flush()
 {
-  unsigned long bytesWritten;
-  unsigned long bytesToWrite = m_posW;
+  unsigned int bytesWritten;
+  unsigned int bytesToWrite = m_posW;
   m_posW = 0;
 
   if (!isUSB_open) return false;
@@ -113,11 +113,11 @@ bool CUSB::Flush()
   return true;
 }
 
-bool CUSB::FillBuffer(unsigned long minBytesToRead)
+bool CUSB::FillBuffer(unsigned int minBytesToRead)
 {
   if (!isUSB_open) return false;
 
-  unsigned long bytesAvailable, bytesToRead;
+  unsigned int bytesAvailable, bytesToRead;
 
   ftStatus = FT_GetQueueStatus(ftHandle, &bytesAvailable);
   if (ftStatus != FT_OK) return false;
@@ -138,14 +138,14 @@ bool CUSB::FillBuffer(unsigned long minBytesToRead)
 }
 
 
-bool CUSB::Read(unsigned long bytesToRead, void *buffer, unsigned long &bytesRead)
+bool CUSB::Read(unsigned int bytesToRead, void *buffer, unsigned int &bytesRead)
 {
   bool timeout = false;
   bytesRead = 0;
 
   if (!isUSB_open) return false;
 
-  unsigned long i;
+  unsigned int i;
 
   for (i=0; i<bytesToRead; i++)
   {
@@ -154,7 +154,7 @@ bool CUSB::Read(unsigned long bytesToRead, void *buffer, unsigned long &bytesRea
 
     else if (!timeout)
     {
-      unsigned long n = bytesToRead-i;
+      unsigned int n = bytesToRead-i;
       if (n>USBREADBUFFERSIZE) n = USBREADBUFFERSIZE;
 
       if (!FillBuffer(n)) return false;
