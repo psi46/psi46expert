@@ -7,13 +7,13 @@ AC_PROG_CXX
 AC_CHECK_HEADER([ftd2xx.h], [FTD2XX_H=true], [FTD2XX_H=false])
 if test "$FTD2XX_H" = "false"
 then
-	AC_MSG_ERROR([Could not find ftd2xx.h. Install the header file (from htt://www.ftdichip.com) and set CPATH correctly.])
+	AC_MSG_ERROR([Could not find ftd2xx.h. Install the header file (from http://www.ftdichip.com) and set CPATH correctly.])
 fi
 
 AC_CHECK_HEADER([WinTypes.h], [WINTYPES_H=true], [WINTYPES_H=false])
 if test "$WINTYPES_H" = "false"
 then
-	AC_MSG_ERROR([Could not find WinTypes.h. Install the header file (from htt://www.ftdichip.com) and set CPATH correctly.])
+	AC_MSG_ERROR([Could not find WinTypes.h. Install the header file (from http://www.ftdichip.com) and set CPATH correctly.])
 fi
 
 AC_CHECK_LIB([ftd2xx], [FT_Open], [LIBFTD2XX=-lftd2xx], [LIBFTD2XX=none])
