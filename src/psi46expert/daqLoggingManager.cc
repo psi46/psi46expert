@@ -27,10 +27,8 @@ daqLoggingManager::daqLoggingManager(const char *d) {
 int daqLoggingManager::initialRunNumber() {
   float run, maxRun(-1);
   const char *file;
-  //  void *pDir = gSystem->OpenDirectory("/home/testbeam/log/tb2006/realdata");
-  void *pDir = gSystem->OpenDirectory("/home/l_tester/log");
+  void *pDir = gSystem->OpenDirectory("/tmp");
   while (file = gSystem->GetDirEntry(pDir)) {
-    //    if (sscanf(file, "rtb_run_%f", &run)) {
     if (sscanf(file, "bt05r%f", &run)) {
       if (run > maxRun) maxRun = run; 
     }
