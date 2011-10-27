@@ -614,8 +614,8 @@ void daqFrame::doStart() {
       sleep(1);     
       seconds++;
       
-      // -- memory address counter
-      filledMem1 = fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1;
+      /* get number of WORDs written to RAM by the DMA controller */
+      filledMem1 = (fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1) / 2;
       if (stepSize == 0) stepSize = filledMem1;
       fpLM->log(Form("==>daqf: %4i: MTB: %8d",  seconds, filledMem1));
       fwMemMtb->SetText(Form("%8i", filledMem1));
@@ -1087,14 +1087,16 @@ void daqFrame::wbcScan() {
       sleep(1);
       // -- memory address counter
       Clear();
-      filledMem1 = (fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1);
+      /* get number of WORDs written to RAM by the DMA controller */
+      filledMem1 = (fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1) / 2;
       fpLM->log(Form("memory fill: %8d", filledMem1));
     }
 
     stopTriggers();  // stop triggers during readout
 
     // -- readout TB memory
-    filledMem1 = (fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1);
+    /* get number of WORDs written to RAM by the DMA controller */
+    filledMem1 = (fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1) / 2;
     fpLM->log(Form("... read out memory till address = %d", filledMem1));
 
     fTB->Flush();
@@ -1193,7 +1195,8 @@ void daqFrame::dacScan()
 
       // -- memory address counter
       Clear();
-      filledMem1 = (fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1);
+      /* get number of WORDs written to RAM by the DMA controller */
+      filledMem1 = (fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1) / 2;
       fpLM->log(Form("memory fill: %8d", filledMem1));
     }	  
 	  
