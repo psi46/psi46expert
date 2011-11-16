@@ -829,7 +829,7 @@ int TBAnalogInterface::GetTBMChannel()
 
 
 // ----------------------------------------------------------------------
-bool TBAnalogInterface::Mem_ReadOut(FILE *f, unsigned long addr, unsigned long size) {
+bool TBAnalogInterface::Mem_ReadOut(FILE *f, unsigned int addr, unsigned int size) {
 
   unsigned short BLOCKSIZE = 32767;
   unsigned char buffer[BLOCKSIZE];
@@ -837,8 +837,8 @@ bool TBAnalogInterface::Mem_ReadOut(FILE *f, unsigned long addr, unsigned long s
 
   Flush();
   Clear();
-  unsigned long bound= static_cast<unsigned long>( 2. * size / BLOCKSIZE);
-  unsigned long start=addr;
+  unsigned int bound= static_cast<unsigned int>( 2. * size / BLOCKSIZE);
+  unsigned int start=addr;
   
 //   cout << "r/o of " << 2.*size  << " bytes with blocksize " << BLOCKSIZE << " starting from memory address " << addr << endl;
   for(unsigned int j=0;j<bound;++j) {
@@ -1034,7 +1034,7 @@ void TBAnalogInterface::ProbeSelect(unsigned char port, unsigned char signal){
 }
 
 
-long TBAnalogInterface::demo(short x)
+int TBAnalogInterface::demo(short x)
 {
   return cTestboard->demo(x);
 }
@@ -1057,7 +1057,7 @@ void TBAnalogInterface::CdVc(unsigned short chip, unsigned char wbcmin, unsigned
   DataEnable(true);
 }
 
-char TBAnalogInterface::CountAllReadouts(int nTrig, long counts[], long amplitudes[])
+char TBAnalogInterface::CountAllReadouts(int nTrig, int counts[], int amplitudes[])
 {
   return cTestboard->CountAllReadouts(nTrig, counts, amplitudes);
 }

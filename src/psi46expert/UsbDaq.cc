@@ -367,7 +367,7 @@ void UsbDaq::setHistogrammer(histogrammer *p)
 //***********************************************************
 // All modules with data are read here.
 // Data is stored in a global array data[].
-int UsbDaq::read(unsigned long data[])
+int UsbDaq::read(unsigned int data[])
 {
   int count = 0;  // return  data size
   int halfSpeed=0; // readout at full speed, 0-40MHz, 1-20MHz
@@ -384,8 +384,8 @@ int UsbDaq::read(unsigned long data[])
 #elif defined(BLOCK_READOUT)
   // Block readout, faster but we need to know the length
   // make it static so we do not use time to create it each time.
-  static unsigned int long array[LENGTH];
-  //static unsigned int long array24[LENGTH];
+  static unsigned int array[LENGTH];
+  //static unsigned int array24[LENGTH];
   int status = readBlockADC(BlockLength,array);  // Read adc
   //status = readBlockADC24(Blocklength,array24); // Read adc chanel 2&4
 
@@ -409,8 +409,8 @@ int UsbDaq::read(unsigned long data[])
     }//half-speed
   }//loop
 #else // Programmed IO (slower!)
-  unsigned int long dataWord;
-  //unsigned int long dataWord24;
+  unsigned int dataWord;
+  //unsigned int dataWord24;
   //int j=0;
   for (int i=0;i<LENGTH;i++)
   {
@@ -451,7 +451,7 @@ int UsbDaq::read(unsigned long data[])
 
 
 //********** DAQ PRINT ******************************************
-void UsbDaq::print(const int size, const unsigned long data[])
+void UsbDaq::print(const int size, const unsigned int data[])
 {
   cout<<" size = "<<size<<endl;
   for(int i=0;i<size;i++)

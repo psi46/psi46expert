@@ -245,12 +245,12 @@ public:
 	void GetModRoCntAll(unsigned short *counts);
 
 
-	unsigned short * Daq_Init(unsigned long size);
+	unsigned int Daq_Init(unsigned int size);
 	void Daq_Enable();
 	void Daq_Disable();
 	bool Daq_Ready();
-	unsigned short * Daq_GetPointer();
-	unsigned long Daq_GetSize();
+	unsigned int Daq_GetPointer();
+	unsigned int Daq_GetSize();
 	void Daq_Done();
 
 	void ProbeSelect(unsigned char port, unsigned char signal);
@@ -279,7 +279,7 @@ public:
 
 	bool tbm_Get(unsigned char reg, unsigned char &value);
 
-	bool tbm_GetRaw(unsigned char reg, long &value);
+	bool tbm_GetRaw(unsigned char reg, int &value);
 
 
 	// == ROC functions =====================================================
@@ -330,51 +330,51 @@ public:
 	void Tbm2Write(int hubAddr, int addr, int value);
 
 private:
-	bool Write(unsigned long bytesToWrite, void *buffer)
+	bool Write(unsigned int bytesToWrite, void *buffer)
 	{ return usb.Write(bytesToWrite, buffer); }
 
-	bool Read(unsigned long bytesToRead, void *buffer, unsigned long &bytesRead)
+	bool Read(unsigned int bytesToRead, void *buffer, unsigned int &bytesRead)
 	{ return usb.Read(bytesToRead, buffer, bytesRead); }
 
 	// === old function ==================================================
 public:
-	bool Mem_SetAddr(unsigned long addr) { return false; }
+	bool Mem_SetAddr(unsigned int addr) { return false; }
 	bool Mem_WriteWord(unsigned int data, bool incr=false) { return false; }
 	bool Mem_ReadWord(unsigned int& data, bool incr=false) { return false; }
-	bool Mem_ReadBlock(unsigned long start, unsigned long size, unsigned short* buffer)
+	bool Mem_ReadBlock(unsigned int start, unsigned int size, unsigned short* buffer)
 	{ return false; }
 	
-	bool Mem_GetFillState(unsigned long& size) { return false; }
+	bool Mem_GetFillState(unsigned int& size) { return false; }
 	
         void SetOrbit(unsigned int periode) {printf(">>>>>>> dummy function\n");};
-        void SetTriggerScaler(unsigned long rate) {printf(">>>>>>> dummy function\n");};
+        void SetTriggerScaler(unsigned int rate) {printf(">>>>>>> dummy function\n");};
         void SetTriggerScaler(double rate) {printf(">>>>>>> dummy function\n");};
-        long GetTriggerRate() {printf(">>>>>>> dummy function\n"); return 0;};
+        int GetTriggerRate() {printf(">>>>>>> dummy function\n"); return 0;};
 	
 
 	// === debug commands ================================================
-	void IoRead8(unsigned long addr, unsigned short size, unsigned char step,
+	void IoRead8(unsigned int addr, unsigned short size, unsigned char step,
 		unsigned char *value);
-	void IoRead16(unsigned long addr, unsigned short size, unsigned char step,
+	void IoRead16(unsigned int addr, unsigned short size, unsigned char step,
 		unsigned short *value);
-	void IoRead32(unsigned long addr, unsigned short size, unsigned char step,
-		unsigned long *value);
-	void IoWrite8(unsigned long addr, unsigned short size, unsigned char step,
+	void IoRead32(unsigned int addr, unsigned short size, unsigned char step,
+		unsigned int *value);
+	void IoWrite8(unsigned int addr, unsigned short size, unsigned char step,
 		const unsigned char *value);
-	void IoWrite16(unsigned long addr, unsigned short size, unsigned char step,
+	void IoWrite16(unsigned int addr, unsigned short size, unsigned char step,
 		const unsigned short *value);
-	void IoWrite32(unsigned long addr, unsigned short size, unsigned char step,
-		const unsigned long *value);
+	void IoWrite32(unsigned int addr, unsigned short size, unsigned char step,
+		const unsigned int *value);
 
-	void MemWrite(unsigned long addr, unsigned short size,
+	void MemWrite(unsigned int addr, unsigned short size,
 		unsigned char *x);
-	void MemRead(unsigned long addr, unsigned short size,
+	void MemRead(unsigned int addr, unsigned short size,
 		unsigned char *s);
-	void MemFill(unsigned long addr, unsigned short size,
+	void MemFill(unsigned int addr, unsigned short size,
 		unsigned char x);
-	unsigned char FlashRead(unsigned long addr, unsigned short size,
+	unsigned char FlashRead(unsigned int addr, unsigned short size,
 		unsigned char *x);
-	unsigned char FlashWrite(unsigned long addr, unsigned short size,
+	unsigned char FlashWrite(unsigned int addr, unsigned short size,
 		unsigned char *x);
 	// === high level functions for wafer test ===========================
 
@@ -392,7 +392,7 @@ public:
 	int FindLevel();
 	unsigned char test_PUC(unsigned char col, unsigned char row, unsigned char trim);
 	void testColPixel(int col, int trimbit, unsigned char *res);
-	bool GetLastDac(unsigned char count, long &ldac);
+	bool GetLastDac(unsigned char count, int &ldac);
 	bool ScanDac(unsigned char dac, unsigned char count,
 		unsigned char min, unsigned char max, short *ldac);
 	
@@ -428,7 +428,7 @@ public:
 	
 // =======================================================================
 
-	long demo(short x);
+	int demo(short x);
 
 
 
@@ -441,7 +441,7 @@ public:
 		  wbcmax, unsigned char vcalstep, unsigned char cdinit, 
 		  unsigned short &lres, unsigned short res[]);
 	
-	char CountAllReadouts(int nTrig, long counts[], long amplitudes[]);
+	char CountAllReadouts(int nTrig, int counts[], int amplitudes[]);
 
 
 private:

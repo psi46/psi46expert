@@ -13,7 +13,7 @@ Delay::Delay() {
 // == Delays ================================================
 
 // -- Microseconds delay
-void Delay::Udelay(unsigned long us)
+void Delay::Udelay(unsigned int us)
 {
 	unsigned long long int t;
 	t = Rdtsc() + us*uscount;
@@ -30,11 +30,11 @@ void Delay::Mdelay(unsigned int ms)
 // == Calibration ===========================================
 
 
-unsigned long Delay::Usecs()
+unsigned int Delay::Usecs()
 {
 	unsigned long long t;
 	t = Rdtsc();
-	return (unsigned long)(t/uscount);
+	return (unsigned int)(t/uscount);
 }
 
 
@@ -125,7 +125,7 @@ void Delay::Timestamp()
 // -- Prints the microseconds since StartUsecs()
 void Delay::PrintUsecs()
 {
-	unsigned long u = Usecs();
+	unsigned int u = Usecs();
 	printf("usecs: %lu\n",u - usecsStart);
 }
 

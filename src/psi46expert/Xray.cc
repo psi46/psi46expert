@@ -43,7 +43,7 @@ void Xray::ReadTestParameters(TestParameters *testParameters)
 void Xray::ModuleAction()
 {
   TBAnalogInterface *tb = ((TBAnalogInterface*)tbInterface);
-  long counts[MODULENUMROCS], amplitudes[MODULENUMROCS], countsTemp[MODULENUMROCS], amplitudesTemp[MODULENUMROCS];
+  int counts[MODULENUMROCS], amplitudes[MODULENUMROCS], countsTemp[MODULENUMROCS], amplitudesTemp[MODULENUMROCS];
   int sum, nRocs = module->NRocs();
   
   module->AdjustDTL();

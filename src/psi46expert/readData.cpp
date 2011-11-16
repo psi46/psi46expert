@@ -48,8 +48,8 @@ void fillHistograms(int header = 1) {
   static int oldSize(0);
   static int oldDSize(0);
 
-  static unsigned long oldDTime(0);
-  static unsigned long oldTTime(0);
+  static unsigned int oldDTime(0);
+  static unsigned int oldTTime(0);
 
   // -- data
   if (header == 1) {
@@ -64,7 +64,7 @@ void fillHistograms(int header = 1) {
 
   // -- trigger time compared to previous event
   if (header == 4) {
-    long deltaT = daqMTB->getLower() - oldTTime;
+    int deltaT = daqMTB->getLower() - oldTTime;
     cout << "..: " << deltaT << endl;
     ((TH1D*)gFile->Get("m33"))->Fill(deltaT);
 

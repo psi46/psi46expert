@@ -92,7 +92,7 @@ public:
     void ResetOff();  // switch RESET-line to not reset state (high)
     int CountADCReadouts(int count);
 
-          bool Mem_ReadOut(FILE *file, unsigned long addr, unsigned long size);
+          bool Mem_ReadOut(FILE *file, unsigned int addr, unsigned int size);
     
     void SetReg41();
 
@@ -143,7 +143,7 @@ public:
     void ProbeSelect(unsigned char port, unsigned char signal);
 
 
-    long demo(short x);
+    int demo(short x);
 
 
 
@@ -152,7 +152,7 @@ public:
     
     void CdVc(unsigned short chip, unsigned char wbcmin, unsigned char wbcmax, unsigned char vcalstep, unsigned char cdinit, unsigned short &lres, unsigned short res[]);
     
-    char CountAllReadouts(int nTrig, long counts[], long amplitudes[]);
+    char CountAllReadouts(int nTrig, int counts[], int amplitudes[]);
 	bool GetVersion(char *s, unsigned int n);
 
 private:
