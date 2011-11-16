@@ -1,0 +1,86 @@
+Build and installation of psi46expert
+=====================================
+
+1. Dependencies
+---------------
+To install psi46expert a few libraries and programs are required:
+
+  - libusb 1.0
+  - libftd2xx	(http://www.ftdichip.com/Drivers/D2XX.htm)
+  - ROOT	(http://root.cern.ch)
+  - libtool, autoconf, automake
+
+If these are installed in special directories (not /usr or /usr/local)
+then you have to take measures that the compiler finds your files
+(set and export PATH, CPATH, LIBRARY_PATH environment variables).
+
+2. Preparing the sources after SVN (subversion) checkout
+--------------------------------------------------------
+After checking out the sources from SVN, run the following command
+in the working directory:
+
+	./autogen
+
+3. Compiling the sources
+------------------------
+Run
+
+	./configure [--prefix=SOMEDIR]
+	make
+
+with the option [--prefix=SOMEDIR] optional, then
+
+5. Installing the software
+--------------------------
+The software is installed by typing
+
+	make install
+
+4. Running the software
+-----------------------
+You will need a configuration directory for Modules/ROCs:
+
+	cp -r data/defaultParameters<X> WHEREVER
+
+Then you can run
+
+	psi46expert -dir WHEREVER
+
+5. Frequent problems
+--------------------
+  1.	If ./autogen does not work, you probably don't have
+  	libtool installed. Or autoconf, automake. These are
+  	standard package in a linux system.
+  2.	If ./configure doesn't find some header or library,
+	install what is requested and make sure it can be found
+	by the compiler. The libraries libusb-1.0.so may require
+	a symbolic link to libusb.so. This may also be true for
+	libftd2xx. Make sure you follow the instructions of the
+	libftd2xx library! Libusb comes as a package in all linux
+	distributions. There are two versions: 0.1 and 1.0. Install
+	version 1.0.
+  3.	If make fails, you should talk to a code maintainer.
+  4.	If psi46expert won't start because a library is missing,
+  	set your custom library path with
+  	
+  		export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:YOURPATH
+  
+  5.	If psi46expert cannot open a port to the testboard, then
+  	make sure the testboard name is correct in the configParameters.dat
+  	file in you config directory. If this is the case, make
+  	sure that you have write access to your usb devices:
+  	
+  		ls -l /dev/bus/usb/00?/*
+  	
+  	You can change these permissions permanently if you create a file
+  	/etc/udev/rules.d/10-testboard.rules which contains
+  	
+  		SUBSYSTEM == "usb", ATTR{product} == "DLP-USB245M", GROUP="usb", MODE="0664"
+  	
+  	and create a group "usb" and add yourself to that group. Newly
+  	plugged devices will have the correct permissions. If it still
+  	does not work, check whether you have the kernel modules
+  	ftdi_sio and usbserial loaded. These MUST NOT be loaded, you
+  	can blacklist them by googling 'modprobe blacklist' and
+  	following any instructions.
+  6.	If all things fail, you should talk to a code maintainer.
