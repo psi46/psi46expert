@@ -57,8 +57,7 @@ int main(int argc, char* argv[])
   if (maskArg) mtbConfigParameters->SetMaskFileName(maskFile);
   
   //logging manager
-  //  daqLoggingManager *lm = new daqLoggingManager("/home/testbeam/log/tb2006/realdata");
-  daqLoggingManager *lm = new daqLoggingManager("/home/l_tester/log");
+  daqLoggingManager *lm = new daqLoggingManager("/tmp");
   lm->setRunMode(mode);
   lm->setMTBConfigParameters(mtbConfigParameters);
 
