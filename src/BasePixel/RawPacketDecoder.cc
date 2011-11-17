@@ -555,10 +555,10 @@ int RawPacketDecoder::decodeROCaddress(int rocId, ADCword rawADC[], int& columnR
 
   Return value is 0 if the decoding has been succesfull
 
-  Error codes: 1 wrong pixel address
-               2 wrong double column address
-               3 wrong row address
-	       4 wrong column address
+  Error codes: -1 wrong pixel address
+               -2 wrong double column address
+               -3 wrong row address
+	       -4 wrong column address
 */
 {
 //--- decode raw column address
@@ -573,7 +573,7 @@ int RawPacketDecoder::decodeROCaddress(int rocId, ADCword rawADC[], int& columnR
     rawColumn = -1;
     rawPixel = 0;
 
-    return 2;
+    return -2;
   }
   
 //--- decode raw row address
@@ -589,7 +589,7 @@ int RawPacketDecoder::decodeROCaddress(int rocId, ADCword rawADC[], int& columnR
     rawColumn = 0;
     rawPixel = -1;
     
-    return 2;
+    return -1;
   }
 
   if ( fPrintDebug ){
@@ -610,7 +610,7 @@ int RawPacketDecoder::decodeROCaddress(int rocId, ADCword rawADC[], int& columnR
     columnROC = -1;
     rowROC = 0;
 
-    return 3;
+    return -4;
   }
 
   rowROC = abs((rawPixel / 2) - 80) + 1; // row address (starting from index 1)
@@ -620,7 +620,7 @@ int RawPacketDecoder::decodeROCaddress(int rocId, ADCword rawADC[], int& columnR
     columnROC = 0;
     rowROC = -1;
     
-    return 4;
+    return -3;
   }
 
   if ( fPrintDebug ) cout << "column = " << columnROC << ", row = " << rowROC << endl;

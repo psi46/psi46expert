@@ -77,7 +77,11 @@ libpsi46expert_la_SOURCES = AddressDecoding.cc \
 			    VhldDelOptimization.cc \
 			    VsfOptimization.cc \
 			    VsfScan.cc \
-			    Xray.cc
+			    Xray.cc \
+			    pipe.cc \
+			    DataFilter.cc \
+			    HighRatePixelMap.cc \
+			    HighRateEfficiency.cc
 
 nodist_libpsi46expert_la_SOURCES = MainFrameDict.cc \
 				   TestRangeDict.cc
@@ -189,7 +193,11 @@ noinst_HEADERS = AddressDecoding.h \
 		 VhldDelOptimization.h \
 		 VsfOptimization.h \
 		 VsfScan.h \
-		 Xray.h
+		 Xray.h \
+		 pipe.h \
+		 DataFilter.h \
+		 HighRatePixelMap.h \
+		 HighRateEfficiency.h
 
 # ADDITIONAL CLEANING RULES -----------------------------------------------------------------------------------------------------------------------------------
 

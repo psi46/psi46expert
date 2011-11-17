@@ -46,6 +46,8 @@
 #include "VsfOptimization.h"
 #include "VsfScan.h"
 #include "Xray.h"
+#include "HighRateEfficiency.h"
+#include "HighRatePixelMap.h"
 
 ClassImp(MainFrame)
 
@@ -686,7 +688,7 @@ void MainFrame::DoTest()
 	
 	for (int iTest = 0; iTest < nTests; iTest++)
 	{
-    std::cout << "Test #" << iTest << ": " << ( test[iTest] ? "yes" : "no") << std::endl;
+    //std::cout << "Test #" << iTest << ": " << ( test[iTest] ? "yes" : "no") << std::endl;
 		if (test[iTest]) 
 		{
       switch( iTest)
@@ -710,8 +712,8 @@ void MainFrame::DoTest()
         case 16: testToDo = new VhldDelOptimization(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
         case 17: testToDo = new TimeWalkStudy(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
         case 18: testToDo = new Xray(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 19: testToDo = new VsfScan( testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 20: testToDo = new AddressDecoding(testRangeFull, controlNetwork->GetTestParameters(), tbInterface, true); break;
+        case 19: testToDo = new HRPixelMap(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
+        case 20: testToDo = new HREfficiency(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
       }
 
 			testToDo->ControlNetworkAction(controlNetwork);
