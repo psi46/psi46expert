@@ -1,7 +1,7 @@
 void FitSCurves(char *dirName)
 {
         gSystem->Load("libMinuit.so");
-	gSystem->Load("../lib/libana.so");
+	gSystem->Load("../psi46expert/.libs/libpsi46ana.so");
 	
 	SCurve sCurve;
 	sCurve.FitSCurves(dirName);
@@ -10,7 +10,7 @@ void FitSCurves(char *dirName)
 
 void FitSCurve(char *dirName, int roc, int col, int row)
 {
-	gSystem->Load("../lib/libana.so");
+	gSystem->Load("../psi46expert/.libs/libpsi46ana.so");
 	
 	SCurve sCurve;
 	sCurve.FitSCurve(dirName, roc, col, row);

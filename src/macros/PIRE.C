@@ -59,7 +59,7 @@ void PIRE()
   const char *dirName="../output/CCEStudy/currentModule";
   int chipId=0;
   
-  gSystem->Load("../lib/libana.so");
+  gSystem->Load("../psi46expert/.libs/libpsi46ana.so");
   
   PHCalibrationFit phFit = PHCalibrationFit(3);
   phFit.FitAllCurves(dirName);	
