@@ -9,6 +9,7 @@ using namespace std;
 #include "interface/Delay.h"
 #include "BasePixel/RawPacketDecoder.h"
 #include "DataFilter.h"
+#include "interface/Log.h"
 
 #include <TMath.h>
 
@@ -113,7 +114,7 @@ void HREfficiency::RocAction(void)
 	
 	/* Number of words in memory */
 	int nwords = (data_end - data_pointer) / 2;
-	cout << "Megabytes in RAM: " << nwords * 2. / 1024. / 1024. << endl;
+	psi::LogInfo() << "Megabytes in RAM: " << nwords * 2. / 1024. / 1024. << psi::endl;
 
 	/* Prepare data decoding */
 	RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
@@ -133,12 +134,12 @@ void HREfficiency::RocAction(void)
 	histograms->Add(effdist);
 	TH2I * bkgmap = (TH2I *) em.getBackgroundMap(0)->Clone();
 	histograms->Add(bkgmap);
-	cout << "Number of triggers: " << ntrig * 4160 << endl;
-	cout << "Number of hits: " << bkgmap->GetEntries() << endl;
-	cout << "Rate: " << (bkgmap->GetEntries() / (ntrig * 4160)) * 40e6 / 1e6 / (0.79*0.77);
-	cout << " +/- " << (TMath::Sqrt(bkgmap->GetEntries()) / (ntrig * 4160)) * 40e6 / 1e6 / (0.79*0.77);
-	cout << " megahits / s / cm2" << endl;
-	cout << "Overall efficiency: " << effdist->GetMean() << " %" << endl;
+	psi::LogInfo() << "Number of triggers: " << ntrig * 4160 << psi::endl;
+	psi::LogInfo() << "Number of hits: " << bkgmap->GetEntries() << psi::endl;
+	psi::LogInfo() << "Rate: " << (bkgmap->GetEntries() / (ntrig * 4160)) * 40e6 / 1e6 / (0.79*0.77);
+	psi::LogInfo() << " +/- " << (TMath::Sqrt(bkgmap->GetEntries()) / (ntrig * 4160)) * 40e6 / 1e6 / (0.79*0.77);
+	psi::LogInfo() << " megahits / s / cm2" << psi::endl;
+	psi::LogInfo() << "Overall efficiency: " << effdist->GetMean() << " %" << psi::endl;
 	
 	/* Free the memory in the RAM */
 	ai->getCTestboard()->Daq_Done();

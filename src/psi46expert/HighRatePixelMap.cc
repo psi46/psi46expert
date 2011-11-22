@@ -9,6 +9,7 @@ using namespace std;
 #include "interface/Delay.h"
 #include "BasePixel/RawPacketDecoder.h"
 #include "DataFilter.h"
+#include "interface/Log.h"
 
 #include <TMath.h>
 
@@ -98,7 +99,7 @@ void HRPixelMap::RocAction(void)
 	
 	/* Number of words stored in memory */
 	int nwords = (data_end - data_pointer) / 2;
-	cout << "Megabytes in RAM: " << nwords * 2. / 1024. / 1024. << endl;
+	psi::LogInfo() << "Megabytes in RAM: " << nwords * 2. / 1024. / 1024. << psi::endl;
 
 	/* Prepare data decoding */
 	RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
@@ -119,12 +120,12 @@ void HRPixelMap::RocAction(void)
 	histograms->Add(multi);
 	TH1I * pulse = (TH1I *) phh.getPulseHeightHistogram()->Clone();
 	histograms->Add(pulse);
-	cout << "Number of triggers: " << count.TriggerCounter << endl;
-	cout << "Number of hits: " << map->GetEntries() << endl;
-	cout << "Rate: " << (map->GetEntries() / (count.TriggerCounter)) * 40e6 / 1e6 / (0.79*0.77);
-	cout << " +/- " << (TMath::Sqrt(map->GetEntries()) / (count.TriggerCounter)) * 40e6 / 1e6 / (0.79*0.77);
-	cout << " megahits / s / cm2" << endl;
-	cout << "Number of ROC sequence errors: " << count.RocSequenceErrorCounter << endl;
+	psi::LogInfo() << "Number of triggers: " << count.TriggerCounter << psi::endl;
+	psi::LogInfo() << "Number of hits: " << map->GetEntries() << psi::endl;
+	psi::LogInfo() << "Rate: " << (map->GetEntries() / (count.TriggerCounter)) * 40e6 / 1e6 / (0.79*0.77);
+	psi::LogInfo() << " +/- " << (TMath::Sqrt(map->GetEntries()) / (count.TriggerCounter)) * 40e6 / 1e6 / (0.79*0.77);
+	psi::LogInfo() << " megahits / s / cm2" << psi::endl;
+	psi::LogInfo() << "Number of ROC sequence errors: " << count.RocSequenceErrorCounter << psi::endl;
 
 	float mean = multi->GetMean();
 	int entries = multi->GetEntries();
