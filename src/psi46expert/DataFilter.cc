@@ -121,12 +121,13 @@ PipeObjectShort * RAMRawDataReader::Write()
 	} else if (buffersize > 0 && bufferpos >= buffersize || buffersize == 0) {
 		/* All data was read from the buffer or buffer empty. Get new data from the RAM */
 		
-		cout << "\rMegabytes left to read: " << (dataend - dataptr) / 1024 / 1024 << " ";
+		cout << "> Megabytes left to read: " << (dataend - dataptr) / 1024 / 1024 << " \r";
 		cout.flush();
 		
 		/* Check whether there is data left to read */
 		if (dataptr >= dataend) {
-			cout << endl;
+			cout << "                              \r";
+			cout.flush();
 			return NULL;
 		}
 		

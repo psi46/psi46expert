@@ -37,6 +37,7 @@
 #include "SCurveTest.h"
 #include "HighRatePixelMap.h"
 #include "HighRateEfficiency.h"
+#include "HighRateTrimLow.h"
 #include <TFile.h>
 #include <iostream>
 #include <string.h>
@@ -111,6 +112,7 @@ void TestRoc::Execute(SysCommand &command)
   //  else if (command.Keyword("IV")) {DoIV(new IVCurve(GetRange(), testParameters, tbInterface));}
   else if (strcmp("HighRatePixelMap", command.carg[0]) == 0) DoTest(new HRPixelMap(GetRange(), testParameters, tbInterface));
   else if (strcmp("HighRateEfficiency", command.carg[0]) == 0) DoTest(new HREfficiency(GetRange(), testParameters, tbInterface));
+  else if (strcmp("HighRateTrimLow", command.carg[0]) == 0) DoTest(new HRTrimLow(GetRange(), testParameters, tbInterface));
   else {cerr << "Unknown ROC command " << command.carg[0] << endl;}
 }
 
