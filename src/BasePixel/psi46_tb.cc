@@ -1,5 +1,6 @@
 #include "psi46_tb.h"
 #include <stdio.h>
+#include <cstring>
 #include "BasePixel/GlobalConstants.h"
 #include "interface/Delay.h"
 
@@ -90,7 +91,58 @@ bool CTestboard::GetVersion(char *s, unsigned int n)
 
 bool CTestboard::Open(char name[], bool init)
 {
-	if (!usb.Open(name)) return false;
+	int list_boards = false;
+	char actual_name [256];
+	
+	/* Check whether we are using a wildcard */
+	if (strcmp(name, "*") == 0) {
+		/* Check the number of devices connected */
+		unsigned int devices;
+		usb.EnumFirst(devices);
+		
+		if (devices == 1) {
+			/* Get the name of the testboard */
+			usb.EnumNext(actual_name);
+			std::cout << "Using wildcard: Opening connection to testboard " << actual_name << std::endl;
+		} else {
+			if (devices > 1)
+				std::cout << "Error using testboard wildcard: More than one testboard connected." << std::endl;
+			list_boards = true;
+		}
+	} else {
+		/* Not using the wildcard */
+		strcpy(actual_name, name);
+		std::cout << "Opening connection to testboard " << actual_name << std::endl;
+	}
+	
+	/* Open and check for errors */
+	if (!usb.Open(actual_name) && !list_boards) {
+		int status = usb.GetLastError();
+		std::cout << "USB error: " << usb.GetErrorMsg(status) << std::endl;
+		list_boards = true;
+	}
+	
+	/* List the boards connected to the computer */
+	if (list_boards) {
+		unsigned int devices;
+		usb.EnumFirst(devices);
+		if (devices == 0) {
+			std::cout << "No testboards connected." << std::endl;
+		} else {
+			/* Iterate over the testboard names and print them */
+			char name [256];
+			std::cout << "Connected testboards: ";
+			for (unsigned int i = 0; i < devices; i++) {
+				usb.EnumNext(name);
+				std::cout << name;
+				if (i != devices - 1)
+					std::cout << ", ";
+				else
+					std::cout << std:: endl;
+			}
+		}
+		return false;
+	}
 
 	if (init) Init();
 	return true;

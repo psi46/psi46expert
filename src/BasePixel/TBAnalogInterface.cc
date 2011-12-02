@@ -160,12 +160,7 @@ void TBAnalogInterface::Initialize(ConfigParameters *configParameters)
 
 	cTestboard = new CTestboard();
 	if (!cTestboard->Open(configParameters->testboardName))
-	{
-    psi::LogInfo() << "[TBAnalogInterface] Testboard " 
-                   << configParameters->testboardName
-                   << ": Can not open port." << psi::endl;
 		return;
-	}
 	fIsPresent = 1;
 
 	cTestboard->Welcome();

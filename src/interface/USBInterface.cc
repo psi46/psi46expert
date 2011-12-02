@@ -31,7 +31,7 @@ const char* CUSB::GetErrorMsg(int error)
 bool CUSB::EnumFirst(unsigned int &nDevices)
 {
   ftStatus = FT_ListDevices(&enumCount,
-    NULL,FT_LIST_NUMBER_ONLY|FT_OPEN_BY_SERIAL_NUMBER);
+    NULL,FT_LIST_NUMBER_ONLY);
   if (ftStatus != FT_OK)
   {
     nDevices = enumCount = enumPos = 0;
