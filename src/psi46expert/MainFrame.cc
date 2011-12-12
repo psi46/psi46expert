@@ -49,6 +49,7 @@
 #include "HighRateEfficiency.h"
 #include "HighRatePixelMap.h"
 #include "HighRateTrimLow.h"
+#include "HighRateSCurve.h"
 
 ClassImp(MainFrame)
 
@@ -711,7 +712,8 @@ void MainFrame::DoTest()
         case 14: testToDo = new VsfOptimization(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
         case 15: testToDo = new ChipVariation(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
         case 16: testToDo = new VhldDelOptimization(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 17: testToDo = new TimeWalkStudy(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
+        //case 17: testToDo = new TimeWalkStudy(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
+        case 17: testToDo = new HRSCurve(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
         //case 18: testToDo = new Xray(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
         case 18: testToDo = new HRTrimLow(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
         //case 19: testToDo = new VsfScan( testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
