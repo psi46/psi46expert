@@ -127,6 +127,26 @@ void HRPixelMap::RocAction(void)
 	psi::LogInfo() << " megahits / s / cm2" << psi::endl;
 	psi::LogInfo() << "Number of ROC sequence errors: " << count.RocSequenceErrorCounter << psi::endl;
 
+	TH1I * dcol_map = new TH1I("dcol_map", "DCol hit map", 26, 0, 26);
+	int x, y, z;
+	map->GetMaximumBin(x, y, z);
+	z = map->GetBinContent(x, y);
+	TH1I * hit_dist = new TH1I("hit_dist", "Hit distribution", 100, 0, z);
+	for (int dcol = 0; dcol < 26; dcol++) {
+		int sum = 0;
+		for (int row = 0; row < 80; row++) {
+			sum += map->GetBinContent(2 * dcol + 1, row + 1);
+			sum += map->GetBinContent(2 * dcol + 2, row + 1);
+			hit_dist->Fill(map->GetBinContent(2 * dcol + 1, row + 1));
+			hit_dist->Fill(map->GetBinContent(2 * dcol + 2, row + 1));
+		}
+		dcol_map->SetBinContent(dcol + 1, sum);
+	}
+	dcol_map->Sumw2();
+	dcol_map->SetMinimum(0);
+	histograms->Add(dcol_map);
+	histograms->Add(hit_dist);
+	
 	float mean = multi->GetMean();
 	int entries = multi->GetEntries();
 	multi = new TH1I(Form("roc_multiplicity_%i_p", 0), Form("ROC %i hit multiplicity (poisson)", 0), 40, 0, 40);
