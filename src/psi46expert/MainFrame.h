@@ -116,7 +116,7 @@ class MainFrame: public TGMainFrame
 
     // == Tests ===========================================================================
 
-    static const Int_t nTests = 21;
+    static const Int_t nTests = 24;
 
     TList *histograms[nTests + 1];
     Int_t currentTest;
