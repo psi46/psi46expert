@@ -82,7 +82,16 @@ TestParameters::TestParameters( const char *_file)
   XrayVthrCompMin( 40 ),
   XrayVthrCompMax( 110 ),
 
-  XrayMaxEff( 0.01)
+	XrayMaxEff( 0.01),
+  
+	HRPixelMapTriggerRate(5),
+	HRPixelMapAquisitionTime(10),
+
+	HREfficiencyTriggers(100),
+
+	HRSCurveThrStart(80),
+	HRSCurveThrEnd(130),
+	HRSCurveTriggers(50)
 {
 	ReadTestParameterFile( _file);
 }
@@ -194,7 +203,16 @@ bool TestParameters::ReadTestParameterFile( const char *_file)
     else if( 0 == _name.compare( "XrayVthrCompMin" ) ) { XrayVthrCompMin = static_cast<int>( _value ); }
     else if( 0 == _name.compare( "XrayVthrCompMax" ) ) { XrayVthrCompMax = static_cast<int>( _value ); }
     else if( 0 == _name.compare( "XrayMaxEff"      ) ) { XrayMaxEff      = _value; }
-    
+
+    else if( 0 == _name.compare( "HRPixelMapTriggerRate")) { HRPixelMapTriggerRate = static_cast<int>(_value); }
+    else if( 0 == _name.compare( "HRPixelMapAquisitionTime")) { HRPixelMapAquisitionTime = static_cast<int>(_value); }
+
+    else if( 0 == _name.compare( "HREfficiencyTriggers")) { HREfficiencyTriggers = static_cast<int>(_value); }
+
+    else if( 0 == _name.compare( "HRSCurveThrStart")) { HRSCurveThrStart = static_cast<int>(_value); }
+    else if( 0 == _name.compare( "HRSCurveThrEnd")) { HRSCurveThrEnd = static_cast<int>(_value); }
+    else if( 0 == _name.compare( "HRSCurveTriggers")) { HRSCurveTriggers = static_cast<int>(_value); }
+
     else {
       psi::LogInfo() << "[TestParameter] Did not understand '" << _name << "'."
                      << psi::endl;

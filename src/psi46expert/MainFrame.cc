@@ -235,7 +235,7 @@ MainFrame::MainFrame( const TGWindow *p, UInt_t w, UInt_t h,
 					     "AdrLev", "PhScan", "PH", "Thr", "AdrDec", "CalDel",
 					     "ThrComp", "Temp", "TempCal", "VsfOpt", "LinRange",
 					     "HldDelOpti", "TimeWalk", "Xray", "VsfScan", "AdrDec2",
-					     "HR Hitmap", "HR Efficiency", "HR SCurve"};
+					     "HR PixelMap", "HR Efficiency", "HR SCurve"};
 
 	for( int i = nTests - 1; i >= 0; i--)
 	{

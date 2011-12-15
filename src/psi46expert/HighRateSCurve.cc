@@ -17,7 +17,7 @@ HRSCurve::HRSCurve(TestRange *aTestRange, TestParameters *testParameters, TBInte
 {
 	testRange = aTestRange;
 	tbInterface = aTBInterface;
-	ReadTestParameters(testParameters);
+	this->testParameters = testParameters;
 }
 
 HRSCurve::~HRSCurve()
@@ -35,7 +35,7 @@ void HRSCurve::RocAction(void)
 	}
 
 	psi::LogInfo() << "Determining rough threshold" << psi::endl;
-	for (int vcal = 82; vcal < 130; vcal += 4) {
+	for (int vcal = testParameters->HRSCurveThrStart; vcal <= testParameters->HRSCurveThrEnd; vcal += 4) {
 		psi::LogInfo() << "Testing vcal " << vcal << " ..." <<  psi::endl;
 		roc->SetDAC("Vcal", vcal);
 		TakeEfficiencyMap(4, false, 0);
@@ -53,7 +53,7 @@ void HRSCurve::RocAction(void)
 	psi::LogInfo() << "Determining SCurve" << psi::endl;
 	for (int offset = -16; offset <= 16; offset++) {
 		psi::LogInfo() << "Testing offset " << offset << " ..." <<  psi::endl;
-		TakeEfficiencyMap(50, true, offset);
+		TakeEfficiencyMap(testParameters->HRSCurveTriggers, true, offset);
 		efficiency_map->SetNameTitle(Form("effmap_offset%i", offset), Form("Efficiency map offset %i", offset));
 		histograms->Add(efficiency_map);
 		for (int col = 0; col < 52; col++) {
@@ -64,8 +64,8 @@ void HRSCurve::RocAction(void)
 	}
 	
 
-	rough_threshold->SetMinimum(81);
-	rough_threshold->SetMaximum(130);
+	rough_threshold->SetMinimum(testParameters->HRSCurveThrStart - 1);
+	rough_threshold->SetMaximum(testParameters->HRSCurveThrEnd);
 	histograms->Add(rough_threshold);
 }
 
@@ -80,7 +80,6 @@ void HRSCurve::TakeEfficiencyMap(int ntrig, bool set_vcal, int vcal_offset)
 	
 	/* Unmask ROC */
 	roc->EnableAllPixels();
-	//roc->Mask();
 	ai->Flush();
 
 	/* Set local trigger and tbm present */
@@ -154,7 +153,6 @@ void HRSCurve::TakeEfficiencyMap(int ntrig, bool set_vcal, int vcal_offset)
 	
 	/* Number of words in memory */
 	int nwords = (data_end - data_pointer) / 2;
-	//psi::LogInfo() << "Megabytes in RAM: " << nwords * 2. / 1024. / 1024. << psi::endl;
 
 	/* Prepare data decoding */
 	RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
@@ -171,8 +169,6 @@ void HRSCurve::TakeEfficiencyMap(int ntrig, bool set_vcal, int vcal_offset)
 	efficiency_map->SetMaximum(ntrig);
 	TH1I * effdist = (TH1I *) em.getEfficiencyDist(0);
 	TH2I * bkgmap = (TH2I *) em.getBackgroundMap(0);
-	//psi::LogInfo() << "Number of triggers: " << ntrig * 4160 << psi::endl;
-	//psi::LogInfo() << "Number of hits: " << bkgmap->GetEntries() << psi::endl;
 	psi::LogInfo() << "Rate: " << (bkgmap->GetEntries() / (ntrig * 4160)) * 40e6 / 1e6 / (0.79*0.77);
 	psi::LogInfo() << " +/- " << (TMath::Sqrt(bkgmap->GetEntries()) / (ntrig * 4160)) * 40e6 / 1e6 / (0.79*0.77);
 	psi::LogInfo() << " megahits / s / cm2" << psi::endl;

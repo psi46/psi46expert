@@ -17,7 +17,7 @@ HRPixelMap::HRPixelMap(TestRange *aTestRange, TestParameters *testParameters, TB
 {
 	testRange = aTestRange;
 	tbInterface = aTBInterface;
-	ReadTestParameters(testParameters);
+	this->testParameters = testParameters;
 }
 
 HRPixelMap::~HRPixelMap()
@@ -59,7 +59,7 @@ void HRPixelMap::RocAction(void)
 	
 	/* Set the trigger frequency (f = 40000000 / (256 * n)) */
 	//ai->getCTestboard()->Set(T_Periode, 5);
-	ai->getCTestboard()->Set(21, 5); // T_Periode has the wrong value. Should be fixed.
+	ai->getCTestboard()->Set(21, testParameters->HRPixelMapTriggerRate); // T_Periode has the wrong value. Should be fixed.
 	
 	/* Issue continuous Reset-(Calibrate-)Trigger-Token pattern */
 	ai->Intern(TRG|TOK);
@@ -71,7 +71,7 @@ void HRPixelMap::RocAction(void)
 	/* Reset the aquisition on the testboard */
 	ai->SetReg(43, (1 << 0));
 	
-	float seconds = 25;
+	float seconds = testParameters->HRPixelMapAquisitionTime;
 	for (float t = seconds; t > 0; t--) {
 		cout << "\rTaking data (" << t << " seconds) ... ";
 		cout.flush();

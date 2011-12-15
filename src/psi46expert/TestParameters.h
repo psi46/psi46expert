@@ -86,6 +86,15 @@ class TestParameters
     int XrayVthrCompMax;
 
     double XrayMaxEff;
+    
+    int HRPixelMapTriggerRate;
+    float HRPixelMapAquisitionTime;
+
+    int HREfficiencyTriggers;
+    
+    int HRSCurveThrStart;
+    int HRSCurveThrEnd;
+    int HRSCurveTriggers;
 };
 
 #endif

@@ -17,7 +17,7 @@ HREfficiency::HREfficiency(TestRange *aTestRange, TestParameters *testParameters
 {
 	testRange = aTestRange;
 	tbInterface = aTBInterface;
-	ReadTestParameters(testParameters);
+	this->testParameters = testParameters;
 }
 
 HREfficiency::~HREfficiency()
@@ -71,7 +71,7 @@ void HREfficiency::RocAction(void)
 	ai->SetReg(43, (1 << 0));
 	
 	/* Set the number of triggers. Total triggers for all pixels: 4160 * ntrig */
-	int ntrig = 100;
+	int ntrig = testParameters->HREfficiencyTriggers;
 	
 	/* iterate over columns and rows to get each pixel efficiency */
 	for (int col = 0; col < 52; col++) {
