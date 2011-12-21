@@ -94,14 +94,17 @@ class RawEventDecoder : public Pipe {
 };
 
 class HitMapper : public Pipe {
-	TH2I * hitmap;
+	TH2I ** hitmap_roc;
+	TH2I * hitmap_module;
+	TH2F * hitmap_module2;
+	unsigned int nroc;
 	
 	public:
-	HitMapper();
+	HitMapper(unsigned int nroc);
 	~HitMapper();
 	CEvent * Read();
 	CEvent * Write();
-	TH2I * getHitMap(unsigned int iroc);
+	TH2 * getHitMap(int iroc);
 };
 
 class EfficiencyMapper : public Pipe {

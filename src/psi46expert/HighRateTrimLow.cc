@@ -116,6 +116,7 @@ void HRTrimLow::RocAction(void)
 	map->SetMinimum(0);
 	map->SetMaximum(100);
 	histograms->Add(map->Clone());
+	histograms->Add(roc->TrimMap());
 }
 
 #define COLA 0
@@ -300,7 +301,7 @@ void HRTrimLow::MakeMap(void)
 	RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
 	RawData2RawEvent rs;
 	RawEventDecoder ed(1);
-	HitMapper hm;
+	HitMapper hm(1);
 	EventCounter count;
 	
 	/* Decoding chain */

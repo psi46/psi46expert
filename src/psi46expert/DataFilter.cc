@@ -274,14 +274,52 @@ CEvent * RawEventDecoder::Write()
 
 /* Filter pipe that stores hits in a 2D histogram ----------------------------------------------------------- */
 
-HitMapper::HitMapper()
+HitMapper::HitMapper(unsigned int nroc)
 {
-	hitmap = new TH2I("hitmap", "Pixel hit map", 52, 0, 52, 80, 0, 80);
+	int rows, cols;
+	if (nroc % 2 != 0) {
+		/* odd number of ROCs, make one row */
+		rows = 80;
+		cols = nroc * 52;
+	} else if (nroc == 2) {
+		rows = 80;
+		cols = 2 * 52;
+	} else {
+		/* even number of ROCs, make two rows */
+		rows = 2 * 80;
+		cols = nroc / 2 * 52;
+	}
+	hitmap_module = new TH2I("hitmap_module", "Pixel hit map module", cols, 0, cols, rows, 0, rows);
+	double * xbins = new double [cols + 1];
+	double * ybins = new double [rows + 1];
+	double pos = 0;
+	for (int i = 0; i <= cols; i++) {
+		xbins[i] = pos;
+		pos += ((i % 52) == 0 || (i % 52) == 51) ? 2 : 1;
+	}
+	pos = 0;
+	for (int i = 0; i <= rows; i++) {
+		ybins[i] = pos;
+		pos += (i == 79 || i == 80) ? 2 : 1;
+	}
+	hitmap_module2 = new TH2F("hitmap_module2", "Pixel hit map module (double edge)", cols, xbins, rows, ybins);
+	delete xbins;
+	delete ybins;
+
+	hitmap_roc = new TH2I * [nroc];
+	for (int i = 0; i < nroc; i++) {
+		hitmap_roc[i] = new TH2I(Form("hitmap_C%i", i), Form("Pixel hit map ROC %i", i), 52, 0, 52, 80, 0, 80);
+	}
+	this->nroc = nroc;
 }
 
 HitMapper::~HitMapper()
 {
-	delete hitmap;
+	delete hitmap_module;
+	delete hitmap_module2;
+	for (int i = 0; i < nroc; i++) {
+		delete hitmap_roc[i];
+	}
 }
 
 CEvent * HitMapper::Read()
@@ -295,9 +333,44 @@ CEvent * HitMapper::Write()
 	if (event) {
 		if (event->nHits > 0) {
 			for (int r = 0; r < event->nRocs; r++) {
+				if (r >= nroc) {
+					cout << "Warning: Event with more ROCs than expected from HitMapper" << endl;
+					continue;
+				}
 				int h = event->hits.roc[r].numPixelHits;
 				for (int i = 0; i < h; i++) {
-					hitmap->Fill(event->hits.roc[r].pixelHit[i].columnROC, event->hits.roc[r].pixelHit[i].rowROC);
+					int col, row;
+					col = event->hits.roc[r].pixelHit[i].columnROC;
+					row = event->hits.roc[r].pixelHit[i].rowROC;
+					hitmap_roc[r]->Fill(col, row);
+					
+					bool edge, corner;
+					edge = (row == 79 || col == 0 || col == 51);
+					corner = (row == 79 && (col == 0 || col == 51));
+					if (nroc % 2 != 0) {
+						/* odd number of ROCs */
+						col += r * 52;
+					} else if (nroc == 2) {
+						/* two ROCs (smallest plaquette) */
+						col += (2 - r - 1) * 52;
+					} else {
+						/* even number of ROCs */
+						if (r < nroc / 2) {
+							col = (nroc / 2 - r) * 52 - col - 1;
+							row = 2 * 80 - row - 1;
+						} else {
+							col += (r - nroc / 2) * 52;
+						}
+					}
+					hitmap_module->Fill(col, row);
+					float hits = hitmap_module2->GetBinContent(col + 1, row + 1);
+					if (corner)
+						hits += 0.25;
+					else if (edge)
+						hits += 0.5;
+					else
+						hits += 1.0;
+					hitmap_module2->SetBinContent(col + 1, row + 1, hits);
 				}
 			}
 		}
@@ -305,9 +378,16 @@ CEvent * HitMapper::Write()
 	return event;
 }
 
-TH2I * HitMapper::getHitMap(unsigned int iroc)
+TH2 * HitMapper::getHitMap(int iroc)
 {
-	return hitmap;
+	if (iroc == -1)
+		return hitmap_module;
+	else if (iroc == -2)
+		return hitmap_module2;
+	else if (iroc >= 0 && iroc < nroc)
+		return hitmap_roc[iroc];
+	else
+		return NULL;
 }
 
 /* Filter pipe that stores hits in a 2D histogram ------------------------------------------------------------ */

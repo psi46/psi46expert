@@ -102,10 +102,11 @@ void HRPixelMap::RocAction(void)
 	psi::LogInfo() << "Megabytes in RAM: " << nwords * 2. / 1024. / 1024. << psi::endl;
 
 	/* Prepare data decoding */
+	int nroc = module->NRocs();
 	RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
 	RawData2RawEvent rs;
 	RawEventDecoder ed(1);
-	HitMapper hm;
+	HitMapper hm(nroc);
 	EventCounter count;
 	MultiplicityHistogrammer mh;
 	PulseHeightHistogrammer phh;
@@ -114,19 +115,27 @@ void HRPixelMap::RocAction(void)
 	rd >> rs >> ed >> hm >> count >> mh >> phh >> end;
 
 	/* Store histograms */
-	TH2I * map = (TH2I *) hm.getHitMap(0)->Clone();
+	TH2I * map = (TH2I *) hm.getHitMap(-2)->Clone();
 	histograms->Add(map);
+	map = (TH2I *) hm.getHitMap(-1)->Clone();
+	histograms->Add(map);
+	for (int i = 0; i < nroc; i++) {
+		map = (TH2I *) hm.getHitMap(i)->Clone();
+		histograms->Add(map);
+	}
 	TH1I * multi = (TH1I *) mh.getRocMultiplicity(0)->Clone();
 	histograms->Add(multi);
 	TH1I * pulse = (TH1I *) phh.getPulseHeightHistogram()->Clone();
 	histograms->Add(pulse);
+	map = (TH2I *) hm.getHitMap(-1);
 	psi::LogInfo() << "Number of triggers: " << count.TriggerCounter << psi::endl;
 	psi::LogInfo() << "Number of hits: " << map->GetEntries() << psi::endl;
-	psi::LogInfo() << "Rate: " << (map->GetEntries() / (count.TriggerCounter)) * 40e6 / 1e6 / (0.79*0.77);
-	psi::LogInfo() << " +/- " << (TMath::Sqrt(map->GetEntries()) / (count.TriggerCounter)) * 40e6 / 1e6 / (0.79*0.77);
+	psi::LogInfo() << "Rate: " << (map->GetEntries() / (count.TriggerCounter)) * 40e6 / 1e6 / (0.79*0.77 * nroc);
+	psi::LogInfo() << " +/- " << (TMath::Sqrt(map->GetEntries()) / (count.TriggerCounter)) * 40e6 / 1e6 / (0.79*0.77 * nroc);
 	psi::LogInfo() << " megahits / s / cm2" << psi::endl;
 	psi::LogInfo() << "Number of ROC sequence errors: " << count.RocSequenceErrorCounter << psi::endl;
 
+	map = (TH2I *) hm.getHitMap(0);
 	TH1I * dcol_map = new TH1I("dcol_map", "DCol hit map", 26, 0, 26);
 	int x, y, z;
 	map->GetMaximumBin(x, y, z);
