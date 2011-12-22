@@ -25,7 +25,7 @@ HREfficiency::~HREfficiency()
 	
 }
 
-void HREfficiency::RocAction(void)
+void HREfficiency::ModuleAction(void)
 {
 	TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
 	ai->Flush();
@@ -34,8 +34,9 @@ void HREfficiency::RocAction(void)
 	ai->getCTestboard()->DataBlockSize(100);
 	ai->Flush();
 	
-	/* Unmask ROC */
-	roc->EnableAllPixels();
+	/* Unmask all ROCs */
+	for (int i = 0; i < module->NRocs(); i++)
+		module->GetRoc(i)->EnableAllPixels();
 	ai->Flush();
 
 	/* Set local trigger and tbm present */
@@ -59,10 +60,6 @@ void HREfficiency::RocAction(void)
 	/* Reset the clock counter on the testboard */
 	ai->SetReg(43, (1 << 1));
 	
-	/* Set the trigger frequency (f = 40000000 / (256 * n)) */
-	//ai->getCTestboard()->Set(T_Periode, 5);
-	//ai->getCTestboard()->Set(21, 5); // T_Periode has the wrong value. Should be fixed.
-	
 	/* Set local trigger, tbm present, and run data aquisition */
 	ai->SetReg(41, 0x20 | 0x02 | 0x08);
 	ai->Flush();
@@ -77,7 +74,8 @@ void HREfficiency::RocAction(void)
 	for (int col = 0; col < 52; col++) {
 		for (int row = 0; row < 80; row++) {
 			/* Arm the pixel */
-			roc->ArmPixel(col, row);
+			for (int i = 0; i < module->NRocs(); i++)
+				module->GetRoc(i)->ArmPixel(col, row);
 			ai->CDelay(5000);
 			ai->Flush();
 
@@ -89,8 +87,10 @@ void HREfficiency::RocAction(void)
 			ai->Flush();
 			
 			/* Disarm the pixel */
-			roc->DisarmPixel(col, row);
-			roc->EnablePixel(col, row);
+			for (int i = 0; i < module->NRocs(); i++) {
+				module->GetRoc(i)->DisarmPixel(col, row);
+				module->GetRoc(i)->EnablePixel(col, row);
+			}
 			ai->Flush();
 		}
 	}
@@ -117,29 +117,38 @@ void HREfficiency::RocAction(void)
 	psi::LogInfo() << "Megabytes in RAM: " << nwords * 2. / 1024. / 1024. << psi::endl;
 
 	/* Prepare data decoding */
+	int nroc = module->NRocs();
 	RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
 	RawData2RawEvent rs;
 	RawEventDecoder ed(1);
-	EfficiencyMapper em(ntrig);
+	EfficiencyMapper em(nroc, ntrig);
 	
 	/* Decoding chain */
 	rd >> rs >> ed >> em >> end;
 
 	/* Store histograms */
-	TH2I * effmap = (TH2I *) em.getEfficiencyMap(0)->Clone();
-	effmap->SetMinimum(0);
-	effmap->SetMaximum(ntrig);
-	histograms->Add(effmap);
-	TH1I * effdist = (TH1I *) em.getEfficiencyDist(0)->Clone();
-	histograms->Add(effdist);
-	TH2I * bkgmap = (TH2I *) em.getBackgroundMap(0)->Clone();
-	histograms->Add(bkgmap);
+	float background = 0;
+	float efficiency = 0;
+	for (int i = -1; i < nroc; i++) {
+		TH2I * effmap = (TH2I *) em.getEfficiencyMap(i)->Clone();
+		effmap->SetMinimum(0);
+		effmap->SetMaximum(ntrig);
+		histograms->Add(effmap);
+		TH1I * effdist = (TH1I *) em.getEfficiencyDist(i)->Clone();
+		histograms->Add(effdist);
+		TH2I * bkgmap = (TH2I *) em.getBackgroundMap(i)->Clone();
+		histograms->Add(bkgmap);
+		if (i == -1) {
+			efficiency= effdist->GetMean();
+			background = bkgmap->GetEntries();
+		}
+	}
 	psi::LogInfo() << "Number of triggers: " << ntrig * 4160 << psi::endl;
-	psi::LogInfo() << "Number of hits: " << bkgmap->GetEntries() << psi::endl;
-	psi::LogInfo() << "Rate: " << (bkgmap->GetEntries() / (ntrig * 4160)) * 40e6 / 1e6 / (0.79*0.77);
-	psi::LogInfo() << " +/- " << (TMath::Sqrt(bkgmap->GetEntries()) / (ntrig * 4160)) * 40e6 / 1e6 / (0.79*0.77);
+	psi::LogInfo() << "Number of hits: " << background << psi::endl;
+	psi::LogInfo() << "Rate: " << (background / (ntrig * 4160)) * 40e6 / 1e6 / (0.79*0.77 * nroc);
+	psi::LogInfo() << " +/- " << (TMath::Sqrt(background) / (ntrig * 4160)) * 40e6 / 1e6 / (0.79*0.77 * nroc);
 	psi::LogInfo() << " megahits / s / cm2" << psi::endl;
-	psi::LogInfo() << "Overall efficiency: " << effdist->GetMean() << " %" << psi::endl;
+	psi::LogInfo() << "Overall efficiency: " << efficiency << " %" << psi::endl;
 	
 	/* Free the memory in the RAM */
 	ai->getCTestboard()->Daq_Done();

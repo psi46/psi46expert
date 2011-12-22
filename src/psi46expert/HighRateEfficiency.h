@@ -10,7 +10,7 @@ class HREfficiency : public Test {
 	public:
 		HREfficiency(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
 		~HREfficiency();
-		virtual void RocAction();
+		virtual void ModuleAction();
 };
 
 #endif

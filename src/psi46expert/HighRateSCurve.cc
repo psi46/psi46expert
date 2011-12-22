@@ -158,7 +158,7 @@ void HRSCurve::TakeEfficiencyMap(int ntrig, bool set_vcal, int vcal_offset)
 	RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
 	RawData2RawEvent rs;
 	RawEventDecoder ed(1);
-	EfficiencyMapper em(ntrig);
+	EfficiencyMapper em(1, ntrig);
 	
 	/* Decoding chain */
 	rd >> rs >> ed >> em >> end;

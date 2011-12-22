@@ -108,20 +108,24 @@ class HitMapper : public Pipe {
 };
 
 class EfficiencyMapper : public Pipe {
-	TH2I * effmap;
-	TH2I * bkgmap;
-	TH1I * effdist;
+	TH2I ** effmap_roc;
+	TH2I ** bkgmap_roc;
+	TH1I ** effdist_roc;
+	TH2I * effmap_module;
+	TH2I * bkgmap_module;
+	TH1I * effdist_module;
 	unsigned int TrigPerPixel;
 	unsigned int EventCounter;
+	unsigned int NRoc;
 	
 	public:
-	EfficiencyMapper(unsigned int ntrig);
+	EfficiencyMapper(unsigned int nroc, unsigned int ntrig);
 	~EfficiencyMapper();
 	CEvent * Read();
 	CEvent * Write();
-	TH2I * getEfficiencyMap(unsigned int iroc);
-	TH1I * getEfficiencyDist(unsigned int iroc);
-	TH2I * getBackgroundMap(unsigned int iroc);
+	TH2I * getEfficiencyMap(int iroc);
+	TH1I * getEfficiencyDist(int iroc);
+	TH2I * getBackgroundMap(int iroc);
 	void setTrigPerPixel(int ntrig);
 };
 

@@ -392,20 +392,51 @@ TH2 * HitMapper::getHitMap(int iroc)
 
 /* Filter pipe that stores hits in a 2D histogram ------------------------------------------------------------ */
 
-EfficiencyMapper::EfficiencyMapper(unsigned int ntrig)
+EfficiencyMapper::EfficiencyMapper(unsigned int nroc, unsigned int ntrig)
 {
-	effmap = new TH2I("effmap", "Pixel efficiency map", 52, 0, 52, 80, 0, 80);
-	bkgmap = new TH2I("bkgmap", "Pixel efficiency background map", 52, 0, 52, 80, 0, 80);
-	effdist = new TH1I("effdist", "Pixel efficiency distribution", 101, 0, 101);
+	effmap_roc = new TH2I * [nroc];
+	bkgmap_roc = new TH2I * [nroc];
+	effdist_roc = new TH1I * [nroc];
+	for (int i = 0; i < nroc; i++) {
+		effmap_roc[i] = new TH2I(Form("effmap_C%i", i), Form("Pixel efficiency map ROC %i", i), 52, 0, 52, 80, 0, 80);
+		bkgmap_roc[i] = new TH2I(Form("bkgmap_C%i", i), Form("Pixel efficiency background map ROC %i", i), 52, 0, 52, 80, 0, 80);
+		effdist_roc[i] = new TH1I(Form("effdist_C%i", i), Form("Pixel efficiency distribution ROC %i", i), 101, 0, 101);
+	}
+	int rows, cols;
+	if (nroc % 2 != 0) {
+		/* odd number of ROCs, make one row */
+		rows = 80;
+		cols = nroc * 52;
+	} else if (nroc == 2) {
+		rows = 80;
+		cols = 2 * 52;
+	} else {
+		/* even number of ROCs, make two rows */
+		rows = 2 * 80;
+		cols = nroc / 2 * 52;
+	}
+	effmap_module = new TH2I("effmap_module", "Pixel efficiency map module", cols, 0, cols, rows, 0, rows);
+	bkgmap_module = new TH2I("bkgmap_module", "Pixel efficiency background map module", cols, 0, cols, rows, 0, rows);
+	effdist_module = new TH1I("effdist_module", "Pixel efficiency distribution module", 101, 0, 101);
+	
 	TrigPerPixel = ntrig;
 	EventCounter = 0;
+	NRoc = nroc;
 }
 
 EfficiencyMapper::~EfficiencyMapper()
 {
-	delete effmap;
-	delete bkgmap;
-	delete effdist;
+	for (int i = 0; i < NRoc; i++) {
+		delete effmap_roc[i];
+		delete bkgmap_roc[i];
+		delete effdist_roc[i];
+	}
+	delete effmap_roc;
+	delete bkgmap_roc;
+	delete effdist_roc;
+	delete effmap_module;
+	delete bkgmap_module;
+	delete effdist_module;
 }
 
 CEvent * EfficiencyMapper::Read()
@@ -425,12 +456,40 @@ CEvent * EfficiencyMapper::Write()
 		}
 		if (event->nHits > 0) {
 			for (int r = 0; r < event->nRocs; r++) {
+				if (r > NRoc) {
+					cout << "Warning: Event with more ROCs than expected from EfficiencyMapper" << endl;
+					continue;
+				}
 				int h = event->hits.roc[r].numPixelHits;
 				for (int i = 0; i < h; i++) {
-					if (event->hits.roc[r].pixelHit[i].columnROC == testcol && event->hits.roc[r].pixelHit[i].rowROC == testrow)
-						effmap->Fill(event->hits.roc[r].pixelHit[i].columnROC, event->hits.roc[r].pixelHit[i].rowROC);
-					else
-						bkgmap->Fill(event->hits.roc[r].pixelHit[i].columnROC, event->hits.roc[r].pixelHit[i].rowROC);
+					/* calculate module coordinates */
+					int x, y;
+					x = event->hits.roc[r].pixelHit[i].columnROC;
+					y = event->hits.roc[r].pixelHit[i].rowROC;
+					if (NRoc % 2 != 0) {
+						/* odd number of ROCs */
+						x += r * 52;
+					} else if (NRoc == 2) {
+						/* two ROCs (smallest plaquette) */
+						x += (2 - r - 1) * 52;
+					} else {
+						/* even number of ROCs */
+						if (r < NRoc / 2) {
+							x = (NRoc / 2 - r) * 52 - x - 1;
+							y = 2 * 80 - y - 1;
+						} else {
+							x += (r - NRoc / 2) * 52;
+						}
+					}
+					
+					/* Fill histograms */
+					if (event->hits.roc[r].pixelHit[i].columnROC == testcol && event->hits.roc[r].pixelHit[i].rowROC == testrow) {
+						effmap_roc[r]->Fill(event->hits.roc[r].pixelHit[i].columnROC, event->hits.roc[r].pixelHit[i].rowROC);
+						effmap_module->Fill(x, y);
+					} else {
+						bkgmap_roc[r]->Fill(event->hits.roc[r].pixelHit[i].columnROC, event->hits.roc[r].pixelHit[i].rowROC);
+						bkgmap_module->Fill(x, y);
+					}
 				}
 			}
 		}
@@ -438,26 +497,66 @@ CEvent * EfficiencyMapper::Write()
 	return event;
 }
 
-TH2I * EfficiencyMapper::getEfficiencyMap(unsigned int iroc)
+TH2I * EfficiencyMapper::getEfficiencyMap(int iroc)
 {
-	return effmap;
+	if (iroc >= 0 && iroc < NRoc)
+		return effmap_roc[iroc];
+	else if (iroc == -1)
+		return effmap_module;
+	else
+		return NULL;
 }
 
-TH1I * EfficiencyMapper::getEfficiencyDist(unsigned int iroc)
+TH1I * EfficiencyMapper::getEfficiencyDist(int iroc)
 {
-	effdist->Clear();
-	effdist->SetNameTitle("effdist", "Pixel efficiency distribution");
-	for (int col = 0; col < 52; col++) {
-		for (int row = 0; row < 80; row++) {
-			effdist->Fill(effmap->GetBinContent(col + 1, row + 1) * 100.0 / TrigPerPixel);
+	if (iroc < -1 || iroc >= (signed int) NRoc)
+		return NULL;
+
+	if (iroc == -1) {
+		/* module */
+		effdist_module->Clear();
+		effdist_module->SetNameTitle("effdist_module", "Pixel efficiency distribution module");
+
+		int rows, cols;
+		if (NRoc % 2 != 0) {
+			/* odd number of ROCs, make one row */
+			rows = 80;
+			cols = NRoc * 52;
+		} else if (NRoc == 2) {
+			rows = 80;
+			cols = 2 * 52;
+		} else {
+			/* even number of ROCs, make two rows */
+			rows = 2 * 80;
+			cols = NRoc / 2 * 52;
 		}
+
+		for (int x = 0; x < cols; x++) {
+			for (int y = 0; y < rows; y++) {
+				effdist_module->Fill(effmap_module->GetBinContent(x + 1, y + 1) * 100 / TrigPerPixel);
+			}
+		}
+		return effdist_module;
+	} else {
+		effdist_roc[iroc]->Clear();
+		effdist_roc[iroc]->SetNameTitle(Form("effdist_C%i", iroc), Form("Pixel efficiency distribution ROC %i", iroc));
+		for (int col = 0; col < 52; col++) {
+			for (int row = 0; row < 80; row	++) {
+				effdist_roc[iroc]->Fill(effmap_roc[iroc]->GetBinContent(col + 1, row + 1) * 100.0 / TrigPerPixel);
+			}
+		}
+		return effdist_roc[iroc];
 	}
-	return effdist;
 }
 
-TH2I * EfficiencyMapper::getBackgroundMap(unsigned int iroc)
+TH2I * EfficiencyMapper::getBackgroundMap(int iroc)
 {
-	return bkgmap;
+	if (iroc >= 0 && iroc < NRoc)
+		return bkgmap_roc[iroc];
+	else if (iroc == -1)
+		return bkgmap_module;
+	else
+		return NULL;
 }
 
 /* Filter pipe which counts things related to events --------------------------------------------------------------- */
