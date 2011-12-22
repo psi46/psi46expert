@@ -47,64 +47,7 @@ void HRPixelMap::ModuleAction(void)
 	/* Send a reset to the chip */
 	ai->Single(RES);
 	
-	/* Prepare the data aquisition (store to testboard RAM) */
-	unsigned int data_pointer = ai->getCTestboard()->Daq_Init(30000000);
-
-	/* Enable DMA (direct memory access) controller */
-	ai->getCTestboard()->Daq_Enable();
-	
-	/* Set data aquisition to no clear buffer, multi trigger, continuous. */
-	ai->DataCtrl(false, false, true);
-	
-	/* Reset the clock counter on the testboard */
-	ai->SetReg(43, (1 << 1));
-	
-	/* Set the trigger frequency (f = 40000000 / (256 * n)) */
-	//ai->getCTestboard()->Set(T_Periode, 5);
-	ai->getCTestboard()->Set(21, testParameters->HRPixelMapTriggerRate); // T_Periode has the wrong value. Should be fixed.
-	
-	/* Issue continuous Reset-(Calibrate-)Trigger-Token pattern */
-	ai->Intern(TRG|TOK);
-	
-	/* Set local trigger, tbm present, and run data aquisition */
-	ai->SetReg(41, 0x20 | 0x02 | 0x08);
-	ai->Flush();
-	
-	/* Reset the aquisition on the testboard */
-	ai->SetReg(43, (1 << 0));
-	
-	float seconds = testParameters->HRPixelMapAquisitionTime;
-	for (float t = seconds; t > 0; t--) {
-		cout << "\rTaking data (" << t << " seconds) ... ";
-		cout.flush();
-		gDelay->Mdelay(1000);
-	}
-	cout << "\rTaking data (" << (seconds - (int)(seconds)) << " seconds) ... done" << endl;
-	gDelay->Mdelay((int)((seconds - (int)(seconds)) * 1000));
-	
-	/* Stop triggering */
-	ai->Single(RES);
-	ai->Flush();
-
-	/* Wait for data aquisition to finish */
-	gDelay->Mdelay(100);
-	
-	/* Get pointer to the end of the data block */
-	int data_end = ai->getCTestboard()->Daq_GetPointer();
-	ai->Flush();
-	
-	/* Disable data aquisition */
-	ai->SetReg(41, 0x20 | 0x02);
-	ai->getCTestboard()->Daq_Disable();
-	ai->DataCtrl(false, false, false);
-	ai->Flush();
-	
-	/* Number of words stored in memory */
-	int nwords = (data_end - data_pointer) / 2;
-	psi::LogInfo() << "Megabytes in RAM: " << nwords * 2. / 1024. / 1024. << psi::endl;
-
-	/* Prepare data decoding */
-	RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
+	/* Data filters */
 	RawData2RawEvent rs;
 	RawEventDecoder ed(nroc);
 	HitMapper hm(nroc);
@@ -112,8 +55,73 @@ void HRPixelMap::ModuleAction(void)
 	MultiplicityHistogrammer mh;
 	PulseHeightHistogrammer phh;
 	
-	/* Decoding chain */
-	rd >> rs >> ed >> hm >> count >> mh >> phh >> end;
+	/* Repeat measurements multiple times to collect statistics */
+	for (int rep = 0; rep < testParameters->HRPixelMapRepetitions; rep++) {
+		/* Prepare the data aquisition (store to testboard RAM) */
+		unsigned int data_pointer = ai->getCTestboard()->Daq_Init(30000000);
+
+		/* Enable DMA (direct memory access) controller */
+		ai->getCTestboard()->Daq_Enable();
+
+		/* Set data aquisition to no clear buffer, multi trigger, continuous. */
+		ai->DataCtrl(false, false, true);
+
+		/* Reset the clock counter on the testboard */
+		ai->SetReg(43, (1 << 1));
+
+		/* Set the trigger frequency (f = 40000000 / (256 * n)) */
+		//ai->getCTestboard()->Set(T_Periode, 5);
+		ai->getCTestboard()->Set(21, testParameters->HRPixelMapTriggerRate); // T_Periode has the wrong value. Should be fixed.
+
+		/* Issue continuous Reset-(Calibrate-)Trigger-Token pattern */
+		ai->Intern(TRG|TOK);
+
+		/* Set local trigger, tbm present, and run data aquisition */
+		ai->SetReg(41, 0x20 | 0x02 | 0x08);
+		ai->Flush();
+
+		/* Reset the aquisition on the testboard */
+		ai->SetReg(43, (1 << 0));
+
+		float seconds = testParameters->HRPixelMapAquisitionTime;
+		for (float t = seconds; t > 0; t--) {
+			cout << "\rTaking data (" << t << " seconds) ... ";
+			cout.flush();
+			gDelay->Mdelay(1000);
+		}
+		cout << "\rTaking data (" << (seconds - (int)(seconds)) << " seconds) ... done" << endl;
+		gDelay->Mdelay((int)((seconds - (int)(seconds)) * 1000));
+
+		/* Stop triggering */
+		ai->Single(RES);
+		ai->Flush();
+
+		/* Wait for data aquisition to finish */
+		gDelay->Mdelay(100);
+
+		/* Get pointer to the end of the data block */
+		int data_end = ai->getCTestboard()->Daq_GetPointer();
+		ai->Flush();
+
+		/* Disable data aquisition */
+		ai->SetReg(41, 0x20 | 0x02);
+		ai->getCTestboard()->Daq_Disable();
+		ai->DataCtrl(false, false, false);
+		ai->Flush();
+
+		/* Number of words stored in memory */
+		int nwords = (data_end - data_pointer) / 2;
+		psi::LogInfo() << "Megabytes in RAM: " << nwords * 2. / 1024. / 1024. << psi::endl;
+
+		/* Prepare data decoding */
+		RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
+
+		/* Decoding chain */
+		rd >> rs >> ed >> hm >> count >> mh >> phh >> end;
+
+		/* Free the memory in the RAM */
+		ai->getCTestboard()->Daq_Done();
+	}
 
 	/* Store histograms */
 	for (int i = -2; i < nroc; i++) {
@@ -157,9 +165,6 @@ void HRPixelMap::ModuleAction(void)
 	psi::LogInfo() << " +/- " << (TMath::Sqrt(map->GetEntries()) / (count.TriggerCounter)) * 40e6 / 1e6 / (0.79*0.77 * nroc);
 	psi::LogInfo() << " megahits / s / cm2" << psi::endl;
 	psi::LogInfo() << "Number of ROC sequence errors: " << count.RocSequenceErrorCounter << psi::endl;
-
-	/* Free the memory in the RAM */
-	ai->getCTestboard()->Daq_Done();
 
 	/* Reset the chip */
 	ai->Single(RES);

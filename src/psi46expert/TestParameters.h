@@ -88,6 +88,7 @@ class TestParameters
     double XrayMaxEff;
     
     int HRPixelMapTriggerRate;
+    int HRPixelMapRepetitions;
     float HRPixelMapAquisitionTime;
 
     int HREfficiencyTriggers;

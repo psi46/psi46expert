@@ -110,6 +110,8 @@ XrayMaxEff 0.01
 
 # Seconds (floating point number, resolution: ms)
 HRPixelMapAquisitionTime 10.0
+# Number of consecutive measurements
+HRPixelMapRepetitions 1
 # Trigger rate (40000 / (256 * N)) kHz
 HRPixelMapTriggerRate 5
 
