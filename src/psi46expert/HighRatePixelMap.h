@@ -10,7 +10,7 @@ class HRPixelMap : public Test {
 	public:
 		HRPixelMap(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
 		~HRPixelMap();
-		virtual void RocAction();
+		virtual void ModuleAction();
 };
 
 #endif

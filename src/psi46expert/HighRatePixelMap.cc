@@ -25,7 +25,7 @@ HRPixelMap::~HRPixelMap()
 	
 }
 
-void HRPixelMap::RocAction(void)
+void HRPixelMap::ModuleAction(void)
 {
 	TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
 	ai->Flush();
@@ -35,7 +35,9 @@ void HRPixelMap::RocAction(void)
 	ai->Flush();
 	
 	/* Unmask the ROC */
-	roc->EnableAllPixels();
+	int nroc = module->NRocs();
+	for (int i = 0; i < nroc; i++)
+		module->GetRoc(i)->EnableAllPixels();
 	ai->Flush();
 
 	/* Set local trigger and tbm present */
@@ -102,10 +104,9 @@ void HRPixelMap::RocAction(void)
 	psi::LogInfo() << "Megabytes in RAM: " << nwords * 2. / 1024. / 1024. << psi::endl;
 
 	/* Prepare data decoding */
-	int nroc = module->NRocs();
 	RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
 	RawData2RawEvent rs;
-	RawEventDecoder ed(1);
+	RawEventDecoder ed(nroc);
 	HitMapper hm(nroc);
 	EventCounter count;
 	MultiplicityHistogrammer mh;
@@ -115,19 +116,41 @@ void HRPixelMap::RocAction(void)
 	rd >> rs >> ed >> hm >> count >> mh >> phh >> end;
 
 	/* Store histograms */
-	TH2I * map = (TH2I *) hm.getHitMap(-2)->Clone();
-	histograms->Add(map);
-	map = (TH2I *) hm.getHitMap(-1)->Clone();
-	histograms->Add(map);
-	for (int i = 0; i < nroc; i++) {
-		map = (TH2I *) hm.getHitMap(i)->Clone();
+	for (int i = -2; i < nroc; i++) {
+		/* -2: Module with double sized edges, -1: Module */
+		TH2I * map = (TH2I *) hm.getHitMap(i)->Clone();
 		histograms->Add(map);
+		
+		/* Make dcol map and hit distribution */
+		if (i >= 0) {
+			TH1I * dcol_map = new TH1I(Form("dcol_map_C%i", i), Form("DCol hit map ROC %i", i), 26, 0, 26);
+			int x, y, z;
+			map->GetMaximumBin(x, y, z);
+			z = map->GetBinContent(x, y);
+			TH1I * hit_dist = new TH1I(Form("hit_dist_C%i", i), Form("Hit distribution ROC %i", i), z > 100 ? 100 : z, 0, z);
+			for (int dcol = 0; dcol < 26; dcol++) {
+				int sum = 0;
+				for (int row = 0; row < 80; row++) {
+					sum += map->GetBinContent(2 * dcol + 1, row + 1);
+					sum += map->GetBinContent(2 * dcol + 2, row + 1);
+					hit_dist->Fill(map->GetBinContent(2 * dcol + 1, row + 1));
+					hit_dist->Fill(map->GetBinContent(2 * dcol + 2, row + 1));
+				}
+				dcol_map->SetBinContent(dcol + 1, sum);
+			}
+			dcol_map->Sumw2();
+			dcol_map->SetMinimum(0);
+			histograms->Add(dcol_map);
+			histograms->Add(hit_dist);
+			
+			TH1I * multi = (TH1I *) mh.getRocMultiplicity(i)->Clone();
+			histograms->Add(multi);
+		}
 	}
-	TH1I * multi = (TH1I *) mh.getRocMultiplicity(0)->Clone();
-	histograms->Add(multi);
 	TH1I * pulse = (TH1I *) phh.getPulseHeightHistogram()->Clone();
 	histograms->Add(pulse);
-	map = (TH2I *) hm.getHitMap(-1);
+	
+	TH2I * map = (TH2I *) hm.getHitMap(-1);
 	psi::LogInfo() << "Number of triggers: " << count.TriggerCounter << psi::endl;
 	psi::LogInfo() << "Number of hits: " << map->GetEntries() << psi::endl;
 	psi::LogInfo() << "Rate: " << (map->GetEntries() / (count.TriggerCounter)) * 40e6 / 1e6 / (0.79*0.77 * nroc);
@@ -135,49 +158,6 @@ void HRPixelMap::RocAction(void)
 	psi::LogInfo() << " megahits / s / cm2" << psi::endl;
 	psi::LogInfo() << "Number of ROC sequence errors: " << count.RocSequenceErrorCounter << psi::endl;
 
-	map = (TH2I *) hm.getHitMap(0);
-	TH1I * dcol_map = new TH1I("dcol_map", "DCol hit map", 26, 0, 26);
-	int x, y, z;
-	map->GetMaximumBin(x, y, z);
-	z = map->GetBinContent(x, y);
-	TH1I * hit_dist = new TH1I("hit_dist", "Hit distribution", 100, 0, z);
-	for (int dcol = 0; dcol < 26; dcol++) {
-		int sum = 0;
-		for (int row = 0; row < 80; row++) {
-			sum += map->GetBinContent(2 * dcol + 1, row + 1);
-			sum += map->GetBinContent(2 * dcol + 2, row + 1);
-			hit_dist->Fill(map->GetBinContent(2 * dcol + 1, row + 1));
-			hit_dist->Fill(map->GetBinContent(2 * dcol + 2, row + 1));
-		}
-		dcol_map->SetBinContent(dcol + 1, sum);
-	}
-	dcol_map->Sumw2();
-	dcol_map->SetMinimum(0);
-	histograms->Add(dcol_map);
-	histograms->Add(hit_dist);
-	
-	float mean = multi->GetMean();
-	int entries = multi->GetEntries();
-	multi = new TH1I(Form("roc_multiplicity_%i_p", 0), Form("ROC %i hit multiplicity (poisson)", 0), 40, 0, 40);
-	for (int j = 0; j < 15; j++) {
-		multi->SetBinContent(j + 1, TMath::Power(mean, j) * TMath::Exp(-mean) / TMath::Factorial(j) * entries);
-	}
-	//histograms->Add(multi);
-	
-	for (int i = 0; i < 26; i++) {
-		TH1I * hist = (TH1I *) mh.getDColMultiplicity(0, i)->Clone();
-		hist->SetMinimum(1);
-		//histograms->Add(hist);
-		float mean = hist->GetMean();
-		int entries = hist->GetEntries();
-		hist = new TH1I(Form("dcol_multiplicity_0_%i_p", i), Form("DCol %i hit multiplicity (ROC 0) (poisson)", i), 15, 0, 15);
-		for (int j = 0; j < 15; j++) {
-			hist->SetBinContent(j + 1, TMath::Power(mean, j) * TMath::Exp(-mean) / TMath::Factorial(j) * entries);
-		}
-		hist->SetMinimum(1);
-		//histograms->Add(hist);
-	}
-	
 	/* Free the memory in the RAM */
 	ai->getCTestboard()->Daq_Done();
 
