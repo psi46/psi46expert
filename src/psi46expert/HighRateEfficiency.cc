@@ -120,7 +120,7 @@ void HREfficiency::ModuleAction(void)
 	int nroc = module->NRocs();
 	RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
 	RawData2RawEvent rs;
-	RawEventDecoder ed(1);
+	RawEventDecoder ed(nroc);
 	EfficiencyMapper em(nroc, ntrig);
 	
 	/* Decoding chain */
