@@ -12,6 +12,7 @@ using namespace std;
 #include "interface/Log.h"
 
 #include <TMath.h>
+#include <TParameter.h>
 
 HRSCurve::HRSCurve(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
 {
@@ -44,6 +45,18 @@ void HRSCurve::ModuleAction(void)
 			}
 		}
 	}
+
+	/* Get the digital and analog voltages / currents */
+	psi::LogInfo() << "Measuring chip voltages and currents ..." << psi::endl;
+	TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
+	TParameter<float> vd("hr_scurve_digital_voltage", ai->GetVD());
+	TParameter<float> id("hr_scurve_digital_current", ai->GetID());
+	TParameter<float> va("hr_scurve_analog_voltage", ai->GetVA());
+	TParameter<float> ia("hr_scurve_analog_current", ai->GetIA());
+	vd.Write();
+	id.Write();
+	va.Write();
+	ia.Write();
 
 	psi::LogInfo() << "Determining rough threshold" << psi::endl;
 	for (int vcal = testParameters->HRSCurveThrStart; vcal <= testParameters->HRSCurveThrEnd; vcal += 4) {

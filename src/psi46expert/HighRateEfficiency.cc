@@ -12,6 +12,7 @@ using namespace std;
 #include "interface/Log.h"
 
 #include <TMath.h>
+#include <TParameter.h>
 
 HREfficiency::HREfficiency(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
 {
@@ -66,6 +67,17 @@ void HREfficiency::ModuleAction(void)
 	
 	/* Reset the aquisition on the testboard */
 	ai->SetReg(43, (1 << 0));
+	
+	/* Get the digital and analog voltages / currents */
+	psi::LogInfo() << "Measuring chip voltages and currents ..." << psi::endl;
+	TParameter<float> vd("hr_efficiency_digital_Voltage", ai->GetVD());
+	TParameter<float> id("hr_efficiency_digital_current", ai->GetID());
+	TParameter<float> va("hr_efficiency_analog_voltage", ai->GetVA());
+	TParameter<float> ia("hr_efficiency_analog_current", ai->GetIA());
+	vd.Write();
+	id.Write();
+	va.Write();
+	ia.Write();
 	
 	/* Set the number of triggers. Total triggers for all pixels: 4160 * ntrig */
 	int ntrig = testParameters->HREfficiencyTriggers;

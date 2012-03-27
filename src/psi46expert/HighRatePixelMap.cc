@@ -12,6 +12,7 @@ using namespace std;
 #include "interface/Log.h"
 
 #include <TMath.h>
+#include <TParameter.h>
 
 HRPixelMap::HRPixelMap(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
 {
@@ -46,6 +47,17 @@ void HRPixelMap::ModuleAction(void)
 	
 	/* Send a reset to the chip */
 	ai->Single(RES);
+	
+	/* Get the digital and analog voltages / currents */
+	psi::LogInfo() << "Measuring chip voltages and currents ..." << psi::endl;
+	TParameter<float> vd("hr_pixelmap_digital_voltage", ai->GetVD());
+	TParameter<float> id("hr_pixelmap_digital_current", ai->GetID());
+	TParameter<float> va("hr_pixelmap_analog_voltage", ai->GetVA());
+	TParameter<float> ia("hr_pixelmap_analog_current", ai->GetIA());
+	vd.Write();
+	id.Write();
+	va.Write();
+	ia.Write();
 	
 	/* Data filters */
 	RawData2RawEvent rs;
@@ -165,6 +177,9 @@ void HRPixelMap::ModuleAction(void)
 	psi::LogInfo() << " +/- " << (TMath::Sqrt(map->GetEntries()) / (count.TriggerCounter)) * 40e6 / 1e6 / (0.79*0.77 * nroc);
 	psi::LogInfo() << " megahits / s / cm2" << psi::endl;
 	psi::LogInfo() << "Number of ROC sequence errors: " << count.RocSequenceErrorCounter << psi::endl;
+	
+	TParameter<float> triggers("pixelmap_triggers", count.TriggerCounter);
+	triggers.Write();
 
 	/* Reset the chip */
 	ai->Single(RES);
