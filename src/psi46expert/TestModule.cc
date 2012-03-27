@@ -28,6 +28,9 @@
 #include "TrimLow.h"
 #include "PHRange.h"
 #include "Xray.h"
+#include "HighRatePixelMap.h"
+#include "HighRateEfficiency.h"
+#include "HighRateSCurve.h"
 
 
 TestModule::TestModule(ConfigParameters *aConfigParameters, int aCNId, TBInterface *aTBInterface, TestParameters *aTestParameters)
@@ -109,6 +112,9 @@ void TestModule::Execute(SysCommand &command)
     else if (command.Keyword("AnaReadout")) {AnaReadout();}
     else if (command.Keyword("DACProgramming")) {TestDACProgramming();}
  		else if (command.Keyword("Scurves")) {Scurves();}
+    else if (strcmp("HighRatePixelMap", command.carg[0]) == 0) DoTest(new HRPixelMap(GetRange(command), testParameters, tbInterface));
+    else if (strcmp("HighRateEfficiency", command.carg[0]) == 0) DoTest(new HREfficiency(GetRange(command), testParameters, tbInterface));
+    else if (strcmp("HighRateSCurve", command.carg[0]) == 0) DoTest(new HRSCurve(GetRange(command), testParameters, tbInterface));
     else 
     {
       bool done = false;
