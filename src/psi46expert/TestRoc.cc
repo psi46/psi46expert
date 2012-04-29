@@ -104,6 +104,7 @@ void TestRoc::Execute(SysCommand &command)
   else if (command.Keyword("chipTest")) {ChipTest();}
   else if (command.Keyword("CalDelVthrComp")) {AdjustCalDelVthrComp();}
   else if (command.Keyword("TrimVerification")) {TrimVerification();}
+  else if (strcmp("effloop", command.carg[0]) == 0) effloop();
   else if (strcmp("PhCalibration", command.carg[0]) == 0) DoPhCalibration();
   else if (strcmp("PulseShape", command.carg[0]) == 0) DoPulseShape(); 
   //  else if (command.Keyword("IV")) {DoIV(new IVCurve(GetRange(), testParameters, tbInterface));}
@@ -1632,4 +1633,264 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 	int fitRight(TH2D *his, int line, int maxEntries){
 
 
+}
+
+
+void TestRoc::effloop()
+{
+	/*
+	 *	effloop can be used aid in proof of concept stage of developing a 
+	 *	new test. It could also be used by students to quickly learn the
+	 *	effects of changing DAC parameters on the ROC. The difference between
+	 *	the absolute at in-time thershold can be measured quickly using effloop.
+	 *	effloop.dat can be opened and written to while the loop is running. 
+	 *	The only way to exit the loop is to write a 1 at end? in effloop.dat.
+	 *	
+	 *	By: Cameron Bravo 
+	 *	April 29th 2012
+	 *
+	 */
+	bool laser, ebool, testpixe, injpixe, epixe;
+	int testpixtrim, injpixtrim, epixtrim, vtrim, vcal, ctrlreg, vthrcomp, caldel, wbc, numinj, fwbc1, fwbc2, fwbc3, fwbc4;
+	int eff1, eff2, eff3, eff4, eff5, eff6, eff7, eff8, eff9, eff10;
+	double ratio1, ratio2, ratio3, ratio4, ratio5, ratio6, ratio7, ratio8, ratio9, ratio10;
+   	int injtrim;
+
+	int probe1, probe2;
+	
+	char filebuf[100] = "";
+	
+	ebool = false;
+	
+  	int testPixcol = 21;
+  	int testPixrow = 78;
+  	int injPixcol = 20;
+  	int injPixrow = 42;
+  	int ePixcol = 20;
+  	int ePixrow = 42;
+	
+	for (int i = 0; i < ROCNUMCOLS; i++)
+	{
+		for (int k = 0; k < ROCNUMROWS; k++)
+		{
+			GetPixel(i, k)->SetTrim(15);
+			GetPixel(i, k)->DisablePixel();
+		}
+	}
+  
+	while(!ebool)
+	{
+
+		//Read in the parameters to set for this loop from effloop.dat
+  		ifstream fpixset ("effloop.dat");
+
+  		if (fpixset.is_open())
+  		{
+	  		fpixset >> filebuf;
+	  		fpixset >> testpixe;
+			
+	  		fpixset >> filebuf;
+	  		fpixset >> testPixcol;
+			
+			fpixset >> filebuf;	  
+	  		fpixset >> testPixrow;
+			
+			fpixset >> filebuf;	  
+	  		fpixset >> testpixtrim;
+			
+			fpixset >> filebuf;	  
+	  		fpixset >> injpixe;
+			
+	  		fpixset >> filebuf;
+	  		fpixset >> injPixcol;
+			
+	  		fpixset >> filebuf;
+	  		fpixset >> injPixrow;
+			
+			fpixset >> filebuf;	  
+	  		fpixset >> injpixtrim;
+			
+			fpixset >> filebuf;	  
+	  		fpixset >> epixe;
+			
+	  		fpixset >> filebuf;
+	  		fpixset >> ePixcol;
+			
+	  		fpixset >> filebuf;
+	  		fpixset >> ePixrow;
+			
+			fpixset >> filebuf;	  
+	  		fpixset >> epixtrim;
+			
+	  		fpixset >> filebuf;
+	  		fpixset >> laser;
+			
+	  		fpixset >> filebuf;
+	  		fpixset >> wbc;
+
+	  		fpixset >> filebuf;
+	  		fpixset >> fwbc1;
+
+	  		fpixset >> filebuf;
+	  		fpixset >> fwbc2;
+
+	  		fpixset >> filebuf;
+	  		fpixset >> fwbc3;
+
+	  		fpixset >> filebuf;
+	  		fpixset >> fwbc4;
+			
+		  	fpixset >> filebuf;
+	  		fpixset >> vthrcomp;
+			
+	  		fpixset >> filebuf;
+	  		fpixset >> vtrim;
+			
+	  		fpixset >> filebuf;
+	 		fpixset >> caldel;
+
+	  		fpixset >> filebuf;
+	 		fpixset >> ctrlreg;
+			
+	  		fpixset >> filebuf;
+	 		fpixset >> vcal;
+			
+	  		fpixset >> filebuf;
+	 		fpixset >> numinj;
+			
+	  		fpixset >> filebuf;
+	 		fpixset >> probe1;
+			
+	  		fpixset >> filebuf;
+	 		fpixset >> probe2;
+			
+	  		fpixset >> filebuf;
+	 		fpixset >> ebool;
+			
+		  	fpixset.close();
+  		}
+  		else cout << "Unable to open xtalkeffloop.dat! Does it exist?\n";
+		
+		//Set parameters using what was read from the .dat file
+  		if(laser)
+  		{
+ 			((TBAnalogInterface*)tbInterface)->ProbeSelect(0,7);  //This connects the adaptor output to the Vcal signal, thus triggering the laser pulser on the Vcal signal.
+    			((TBAnalogInterface*)tbInterface)->ProbeSelect(1,13);
+    			((TBAnalogInterface*)tbInterface)->ProbeSelect(2,probe1); //This will connect the signal on the testboard you want to output from the attachment.
+    			((TBAnalogInterface*)tbInterface)->ProbeSelect(3,probe2);
+			numinj = -1 * numinj;
+	  	}
+		else
+  		{
+ 			((TBAnalogInterface*)tbInterface)->ProbeSelect(0,0);  //This connects the adaptor output to the Vcal signal, thus triggering the laser pulser on the Vcal signal.
+    			((TBAnalogInterface*)tbInterface)->ProbeSelect(1,13);
+    			((TBAnalogInterface*)tbInterface)->ProbeSelect(2,probe1);  //This will connect the signal on the testboard you want to output from the attachment.
+    			((TBAnalogInterface*)tbInterface)->ProbeSelect(3,probe2);  
+	  	}
+	
+		if(testpixe)
+		{
+			GetPixel(testPixcol, testPixrow)->EnablePixel();
+			GetPixel(testPixcol, testPixrow)->SetTrim(testpixtrim);
+		} 
+		else
+		{
+			GetPixel(testPixcol, testPixrow)->SetTrim(testpixtrim);
+			GetPixel(testPixcol, testPixrow)->DisablePixel();
+		}
+
+		if(injpixe)
+		{
+			GetPixel(injPixcol, injPixrow)->EnablePixel();
+			GetPixel(injPixcol, injPixrow)->SetTrim(injpixtrim);
+		} 
+		else
+		{
+			GetPixel(injPixcol, injPixrow)->SetTrim(injpixtrim);
+			GetPixel(injPixcol, injPixrow)->DisablePixel();
+		}
+
+		if(epixe)
+		{
+			GetPixel(ePixcol, ePixrow)->EnablePixel();
+			GetPixel(ePixcol, ePixrow)->SetTrim(epixtrim);
+		} 
+		else
+		{
+			GetPixel(ePixcol, ePixrow)->SetTrim(epixtrim);
+			GetPixel(ePixcol, ePixrow)->DisablePixel();
+		}
+	
+    		((TBAnalogInterface*)tbInterface)->DataEnable(0);
+		SetDAC("Vcal", vcal);
+		SetDAC("CtrlReg",ctrlreg);
+		SetDAC("Vtrim",vtrim);
+		SetDAC("VthrComp",vthrcomp);
+		SetDAC("CalDel",caldel);
+		SetDAC("WBC",wbc-2);
+      		ArmPixel(testPixcol,testPixrow);
+		//Call the CountReadouts testboard command and save the number of hits for the selected WBCs
+		eff1 = ((TBAnalogInterface*)tbInterface)->CountReadouts(numinj,0);
+		SetDAC("WBC",wbc-1);
+		eff2 = ((TBAnalogInterface*)tbInterface)->CountReadouts(numinj,0);
+		SetDAC("WBC",wbc);
+		eff3 = ((TBAnalogInterface*)tbInterface)->CountReadouts(numinj,0);
+		SetDAC("WBC",wbc+1);
+		eff4 = ((TBAnalogInterface*)tbInterface)->CountReadouts(numinj,0);
+		SetDAC("WBC",wbc+2);
+		eff5 = ((TBAnalogInterface*)tbInterface)->CountReadouts(numinj,0);
+		SetDAC("WBC",wbc+3);
+		eff6 = ((TBAnalogInterface*)tbInterface)->CountReadouts(numinj,0);
+		SetDAC("WBC",fwbc1);
+		eff7 = ((TBAnalogInterface*)tbInterface)->CountReadouts(numinj,0);
+		SetDAC("WBC",fwbc2);
+		eff8 = ((TBAnalogInterface*)tbInterface)->CountReadouts(numinj,0);
+		SetDAC("WBC",fwbc3);
+		eff9 = ((TBAnalogInterface*)tbInterface)->CountReadouts(numinj,0);
+		SetDAC("WBC",fwbc4);
+		eff10 = ((TBAnalogInterface*)tbInterface)->CountReadouts(numinj,0);
+		
+		//Calculate the total ratio of all injections seen summing over WBCs
+		if(numinj > 0) ratio1 = double(eff1)/double(numinj);
+		else ratio1 = double(eff1)/double(-1*numinj);
+
+		if(numinj > 0) ratio2 = double(eff2)/double(numinj);
+		else ratio2 = double(eff2)/double(-1*numinj);
+
+		if(numinj > 0) ratio3 = double(eff3)/double(numinj);
+		else ratio3 = double(eff3)/double(-1*numinj);
+
+		if(numinj > 0) ratio4 = double(eff4)/double(numinj);
+		else ratio4 = double(eff4)/double(-1*numinj);
+
+		if(numinj > 0) ratio5 = double(eff5)/double(numinj);
+		else ratio5 = double(eff5)/double(-1*numinj);
+
+		if(numinj > 0) ratio6 = double(eff6)/double(numinj);
+		else ratio6 = double(eff6)/double(-1*numinj);
+
+		if(numinj > 0) ratio7 = double(eff7)/double(numinj);
+		else ratio7 = double(eff7)/double(-1*numinj);
+
+		if(numinj > 0) ratio8 = double(eff8)/double(numinj);
+		else ratio8 = double(eff8)/double(-1*numinj);
+
+		if(numinj > 0) ratio9 = double(eff9)/double(numinj);
+		else ratio9 = double(eff9)/double(-1*numinj);
+
+		if(numinj > 0) ratio10 = double(eff10)/double(numinj);
+		else ratio10 = double(eff10)/double(-1*numinj);
+		
+		double ratio = ratio2 + ratio3 + ratio4 + ratio5;
+
+		// Output line of the number of hits in each WBC in readable way
+		cout << eff6 << "\t" << eff5 << "\t" << eff4 << "\t" << eff3 << "\t" << eff2 << "\t" << eff1 << "\t\t" << ratio << "\t\t\t" << eff7 << "\t" << eff8 << "\t" << eff9 << "\t" << eff10 << endl;
+	}
+
+	// Set WBC to the WBC in the file during the final loop performed
+	SetDAC("WBC",wbc);
+
+	
+	cout << "effloop has been ended." << endl;
+	
 }

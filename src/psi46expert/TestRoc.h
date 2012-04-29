@@ -55,6 +55,7 @@ public:
   void ThrMaps();
   void DoPulseShape();
   double DoPulseShape(int column, int row, int vcal); 
+	void effloop();
 
 // == Helper routines ====================================
 
