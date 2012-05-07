@@ -113,11 +113,7 @@ Then you can run
   		SUBSYSTEM == "usb", ATTR{product} == "DLP-USB245M", GROUP="usb", MODE="0664"
   	
   	and create a group "usb" and add yourself to that group. Newly
-  	plugged devices will have the correct permissions. If it still
-  	does not work, check whether you have the kernel modules
-  	ftdi_sio and usbserial loaded. These MUST NOT be loaded if you
-  	are using libftd2xx-1.0.x, you can blacklist them by googling
-  	'modprobe blacklist' and following any instructions. For the
+  	plugged devices will have the correct permissions. For the
   	libftd2xx-0.4.x library version it may be that you need the
   	usbfs. You can get this by putting the following line into your
   	/etc/fstab file:
