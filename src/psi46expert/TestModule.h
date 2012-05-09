@@ -47,6 +47,7 @@ public:
 	
 	bool TestDACProgramming(int dacReg, int max);
 	void TestDACProgramming();
+	bool TestVanaProgramming();
 	void IanaScan();
 			
 protected:

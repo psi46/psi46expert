@@ -108,6 +108,7 @@ void TestModule::Execute(SysCommand &command)
     else if (command.Keyword("TBMTest")) {DoTBMTest();}
     else if (command.Keyword("AnaReadout")) {AnaReadout();}
     else if (command.Keyword("DACProgramming")) {TestDACProgramming();}
+    else if (command.Keyword("VanaProgramming")) {TestVanaProgramming();}
  		else if (command.Keyword("Scurves")) {Scurves();}
     else 
     {
@@ -488,7 +489,9 @@ void TestModule::AdjustAllDACParameters()
 
 void TestModule::AdjustDACParameters()
 {
-  bool tbmPresent = dynamic_cast<TBAnalogInterface *>( tbInterface)->TBMPresent();
+  TBAnalogInterface * ai = dynamic_cast<TBAnalogInterface *>(tbInterface);
+  bool tbmPresent = ai->TBMPresent();
+  bool is_analog = ai->IsAnalog();
 
   psi::LogInfo() << "[TestModule] Pretest: Start." << psi::endl;
 
@@ -497,19 +500,34 @@ void TestModule::AdjustDACParameters()
 
   if (tbmPresent)
   {
-    ((TBAnalogInterface*)tbInterface)->SetTriggerMode(TRIGGER_MODULE1); // trigger mode 2 only works correctly after adjusting tbm and roc ultrablacks to the same level
+    /* TBM not supported yet for digital readout */
+    ai->SetTriggerMode(TRIGGER_MODULE1); // trigger mode 2 only works correctly after adjusting tbm and roc ultrablacks to the same level
   	if(!configParameters->tbmEmulator)   AdjustTBMUltraBlack();
     AdjustDTL();
   }
-  TestDACProgramming();
+  
+  /* The DAC programming is tested in the analog readout chip by using the
+     lastDAC from the analog readout. This does not work with the digital
+     chip because the last programmed DAC cannot be read out. As an alternative
+     Vana is programmed and the change in current consumption is measured. */
+  if (is_analog)
+    TestDACProgramming();
+  else
+    TestVanaProgramming();
+
+  /* Adjust Vana to 24 mA per Chip. This is a magic number. */
+  psi::LogInfo << "[TestModule] Pretest: Adjusting Vana ..." << psi::endl;
   AdjustVana(0.024);
   MeasureCurrents();
   if (tbmPresent) 
   {
+    /* TBM not supported yet for digital readout */
     AdjustUltraBlackLevel();
     ((TBAnalogInterface*)tbInterface)->SetTriggerMode(TRIGGER_MODULE2);
     AdjustSamplingPoint();
   }
+  
+  psi::LogInfo << "[TestModule] Pretest: Adjusting CalDel, VthrComp ..." << psi::endl;
   for (int iRoc = 0; iRoc < nRocs; iRoc++)
   { 
     psi::LogDebug() << "[TestModule] Roc #" << GetRoc(iRoc)->GetChipId()
@@ -517,12 +535,18 @@ void TestModule::AdjustDACParameters()
 
     GetRoc(iRoc)->AdjustCalDelVthrComp();
   }
-  AdjustVOffsetOp();
+
+  if (is_analog) {
+    psi::LogInfo << "[TestModule] Pretest: Adjusting VOffsetOp ..." << psi::endl;
+    AdjustVOffsetOp();
+  }
 
   gDelay->Timestamp();
   WriteDACParameterFile(configParameters->GetDacParametersFileName());
-  CalibrateDecoder();
-  ADCHisto();
+  if (is_analog)
+    CalibrateDecoder();
+  if (is_analog)
+    ADCHisto();
 
   psi::LogInfo() << "[TestModule] Pretest: End." << psi::endl;
 }
@@ -831,6 +855,44 @@ void TestModule::TestDACProgramming()
   result &= TestDACProgramming(25, 255);
   
   if (!result) printf(">>>>>> Error: DAC programming error\n");
+}
+
+bool TestModule::TestVanaProgramming()
+{
+	psi::LogInfo() << "[TestModule] Test if ROC DACs are programmable." << psi::endl;
+	/* Sets Vana to maximum and minimum values and compares the current difference
+	   for each ROC */
+	TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
+	double analog_current [2];
+	bool success = true;
+	for (int iRoc = 0; iRoc < nRocs; iRoc++) {
+		/* Save old value of Vana */
+		int Vana_save = GetRoc(iRoc)->GetDAC("Vana");
+		/* Set to maximum */
+		GetRoc(iRoc)->SetDAC(Vana, 255);
+		ai->Flush();
+		gDelay->Mdelay(500);
+		analog_current[1] = ai->GetIA();
+
+		/* Set to minimum */
+		GetRoc(iRoc)->SetDAC(Vana, 0);
+		ai->Flush();
+		gDelay->Mdelay(500);
+		analog_current[0] = ai->GetIA();
+
+		/* Compare */
+		if (analog_current[1] - analog_current[0] < 0.010 /* Amperes */) {
+			psi::LogInfo << ">>>>>> Error ROC " << iRoc << ": DAC programming error" << psi::endl;
+			success = false;
+		}
+		
+		/* Restore old value of Vana */
+		GetRoc(iRoc)->SetDAC(Vana, Vana_save);
+	}
+
+	if (!success)
+		psi::LogInfo << ">>>>>> Error: DAC programming error" << psi::endl;
+	return success;
 }
 
 

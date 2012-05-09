@@ -947,12 +947,32 @@ void  MainFrame::DoADC()
 {
 	unsigned short count;
 	short data[FIFOSIZE];
-	((TBAnalogInterface*)tbInterface)->ADCRead(data, count);
+	bool is_analog = ((TBAnalogInterface*)tbInterface)->IsAnalog();
+	if (is_analog)
+		((TBAnalogInterface*)tbInterface)->ADCRead(data, count);
+	else
+		((TBAnalogInterface*)tbInterface)->ADCRead_digital(data, count);
+
 	TH1D *hist = new TH1D("ADC","ADC",count,0,count);
-	
- 	for (unsigned int n = 0; n < count; n++)
- 	{
-	  hist->SetBinContent(n+1,data[n]);
+
+ 	for (unsigned int n = 0; n < count; n++) {
+ 		if (is_analog)
+			hist->SetBinContent(n + 1, data[n]);
+		else {
+			hist->SetBinContent(n + 1, (data[n / 16] & (1 << (16 - n % 16 - 1))) ? 1 : 0);
+		}
+ 	}
+
+ 	if (is_analog) {
+	 	hist->SetMinimum(-2048);
+	 	hist->SetMaximum(+2048);
+	 	hist->GetYaxis()->SetTitle("ADC value");
+	 	hist->GetXaxis()->SetTitle("40 MHz clock cycle");
+ 	} else {
+	 	hist->SetMinimum(-1);
+	 	hist->SetMaximum(+2);
+	 	hist->GetYaxis()->SetTitle("Bit");
+	 	hist->GetXaxis()->SetTitle("160 MHz clock cycle");
  	}
 
 	if (clearOldHistos) Clear();

@@ -35,6 +35,43 @@ void TBAnalogInterface::Execute(SysCommand &command)
 	else if (command.Keyword("single")) {Single(rctk_flag);}
 	else if (command.Keyword("setreg",&reg,&value)) {SetReg(*reg,*value);}
 	else if (command.Keyword("ext"))    {Extern(rctk_flag);}
+	else if (command.Keyword("GetRoCntEx")) {psi::LogInfo << cTestboard->GetRoCntEx() << psi::endl;}
+	else if (command.Keyword("SetEmptyReadoutLength", &value)) {cTestboard->SetEmptyReadoutLength(*value);}
+	else if (command.Keyword("TBMDisable")) {Tbmenable(false);}
+	else if (command.Keyword("TBMChannel",&value)) {SetTBMChannel(*value);}
+	else if (command.Keyword("TBMEnable")) {Tbmenable(true);}
+	else if (command.Keyword("CountReadouts")) { psi::LogInfo << CountReadouts(10, 0) << " / 10" << psi::endl;}
+	else if (command.Keyword("CountReadouts", &value)) {psi::LogInfo << CountReadouts(*value,0 ) << " / " << *value << psi::endl;}
+	else if (command.Keyword("dclear")) {DataCtrl(true,  false, false);} /* clear FIFO */
+	else if (command.Keyword("dtrig"))  {DataCtrl(false, true,  false);} /* enable ADC gate once */
+	else if (command.Keyword("dstart")) {DataCtrl(false, false, true );} /* enable ADC gate continuously */
+	else if (command.Keyword("dstop"))  {DataCtrl(false, false, false);} /* disable ADC gate */
+	else if (command.Keyword("dena"))   {DataEnable(true);}  /* enable FIFO */
+	else if (command.Keyword("ddis"))   {DataEnable(false);} /* disable FIFO */
+	else if (command.Keyword("probe", &reg, &value)) {
+		unsigned char port=*reg;
+		unsigned char signal=*value;
+		ProbeSelect(port, signal);
+	}
+	else if (command.Keyword("gate")) {ProbeSelect(0, PROBE_ADC_GATE);}
+	else if (command.Keyword("version")){
+		char s[260];
+		if (GetVersion(s, 260))
+			psi::LogInfo << s << psi::endl;
+		else
+			psi::LogInfo << "Unable to aquire firmware version." << psi::endl;
+	}
+	else if (command.Keyword("scurve")){
+		int nTrig = 100;
+		int dacReg = 25;
+		int threshold = 60;
+		int res[10000] = {0};
+		int n = SCurve(nTrig, dacReg, threshold, res);
+		psi::LogInfo << "SCurve:";
+		for(int i = 0; i < n; i++)
+			psi::LogInfo << " " << res[i];
+		psi::LogInfo << psi::endl;
+	}
 	else if (command.Keyword("ia"))    {
     psi::LogInfo() << "[TBAnalogInterface] Analog current " << GetIA() << psi::endl;
   }
@@ -558,26 +595,26 @@ bool TBAnalogInterface::ADCData(short buffer[], unsigned short &wordsread)
 
 unsigned short TBAnalogInterface::ADC()
 {
+	/* sends a single trigger and displays the raw readout on the console */
 	unsigned short count;
 	short data[FIFOSIZE];
-	ADCRead(data, count);
-	//cTestboard->ProbeSelect(0,PROBE_ADC_COMP);
-	//cTestboard->ProbeSelect(1,PROBE_ADC_GATE);
+	bool is_analog = IsAnalog();
+	if (is_analog)
+		ADCRead(data, count);
+	else
+		ADCRead_digital(data, count);
 
-  psi::LogDebug() << "[TBAnalogInterface] Count " << count << psi::endl;
-  cout<<"[TBAnalogInterface] Count " << count << endl;
+	psi::LogInfo << "[TBAnalogInterface] Count: " << count << (is_analog ? "" : " bits") << psi::endl;
 
-  //	for (unsigned int n = 0; n < count; n++) data[n] &= 0xf000;
-  psi::LogDebug << "[TBAnalogInterface] Data: ";
-  cout<< "[TBAnalogInterface] Data: "<<endl;
-	for (unsigned int n = 0; n < count; n++)
-	{
-	  psi::LogDebug<<" "<< data[n];
-	  cout<<" "<< data[n];
+	psi::LogInfo << "[TBAnalogInterface] Data: ";
+	for (unsigned int n = 0; n < count; n++) {
+		if (is_analog)
+			psi::LogInfo << " " << data[n];
+		else
+			psi::LogInfo << ((n % 8 == 0) ? "|" : "") << ((data[n / 16] & (1 << (16 - n % 16 - 1))) ? 1 : 0);
 	}
 
-  psi::LogDebug << psi::endl;
-  cout<<endl;
+	psi::LogInfo << psi::endl;
 	return count;
 }
 
@@ -601,7 +638,10 @@ unsigned short TBAnalogInterface::ADC(int nbsize)
 	if(nbsize>0)
 	  { 
 	    // run adc with fix trigger mode
-	    cTestboard->SetReg(41,32);
+	    if (IsAnalog())
+	      cTestboard->SetReg(41,32);
+	    else
+	      cTestboard->SetReg(41,33);
 	    cTestboard->SetTriggerMode(TRIGGER_FIXED);
 	    cTestboard->DataBlockSize(200);
 	    cTestboard->DataCtrl(0, false, true, false);
@@ -822,6 +862,11 @@ int TBAnalogInterface::GetTBMChannel()
         return TBMChannel;
 }
 
+bool TBAnalogInterface::IsAnalog()
+{
+	return (TBMChannel == 0);
+}
+
 
 // ----------------------------------------------------------------------
 bool TBAnalogInterface::Mem_ReadOut(FILE *f, unsigned int addr, unsigned int size) {
@@ -985,7 +1030,32 @@ int TBAnalogInterface::SCurveColumn(int column, int nTrig, int dacReg, int thr[]
 
 void TBAnalogInterface::ADCRead(short buffer[], unsigned short &wordsread, short nTrig)
 {
+	/* send nTrig calibrates and record the raw analog readout into buffer */
 	cTestboard->ADCRead(buffer, wordsread, nTrig);
+}
+
+
+void TBAnalogInterface::ADCRead_digital(short buffer[], unsigned short &bitsread, short nTrig)
+{
+	/* send nTrig calibrates and record the raw digital readout into buffer */
+	if (!buffer)
+		return;
+
+	/* Read the data as you would read the analog data */
+	unsigned short wordsread;
+	cTestboard->ADCRead(buffer, wordsread, nTrig);
+
+	/* compactify: bit shift the data to remove the leading 12 bits in each word */
+	/* data: 1000|0000|0000|XXXX (only XXXX is significant data) */
+	int nibble = 0;
+	for (int i = 0; i < wordsread; i++) {
+		int word = i / 4;
+		buffer[word] &= ~(0xf << ((4 - nibble - 1) * 4));
+		buffer[word] |= (buffer[i] & 0xf) << ((4 - nibble - 1) * 4);
+		nibble = (nibble + 1) % 4;
+	}
+
+	bitsread = 4 * wordsread;
 }
 
 
