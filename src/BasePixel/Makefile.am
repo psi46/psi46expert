@@ -6,6 +6,7 @@ libpsi46BasePixel_la_SOURCES = CalibrationTable.cc \
 			       ControlNetwork.cc \
 			       DACParameters.cc \
 			       DecoderCalibration.cc \
+			       DigitalReadoutDecoder.cc \
 			       DoubleColumn.cc \
 			       Keithley.cc \
 			       Module.cc \
@@ -32,6 +33,7 @@ noinst_HEADERS = CalibrationTable.h \
 		 DACParameters.h \
 		 DecodedReadout.h \
 		 DecoderCalibration.h \
+		 DigitalReadoutDecoder.h \
 		 DoubleColumn.h \
 		 GlobalConstants.h \
 		 Keithley.h \
