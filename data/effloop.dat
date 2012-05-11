@@ -1,0 +1,29 @@
+testPixE: 1
+testPixcol: 21
+testPixrow: 77
+testPixTrim: 15
+injPixE: 0
+injPixcol: 20
+injPixrow: 42
+injPixTrim: 15
+extraPixE: 0
+extraPixcol: 20
+extraPixrow: 32
+extraPixTrim: 0
+laserEnabled: 0
+wbc: 44
+fwbc1: 67
+fwbc2: 11
+fwbc3: 12
+fwbc4: 25
+vthrcomp: 117
+vtrim: 119
+caldel: 119
+ctrlreg: 0
+vcal: 34
+numinj: 1000
+probe1: 7
+probe3: 7
+end? 1	
+ 
+Leave a space between the parameter name and the number. Also, leave them in this order.
