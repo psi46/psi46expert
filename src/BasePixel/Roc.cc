@@ -642,34 +642,62 @@ void Roc::WriteTrimConfiguration(const char* filename)
 }
 
 
-void Roc::ReadTrimConfiguration( const char *filename)
+void Roc::ReadTrimConfiguration(const char * filename)
 {
-	char fname[1000], string[100];
-	int a,b;
-	if (strstr(filename, ".dat")) sprintf(fname, "%s", filename);
-	else sprintf(fname, "%s_C%i.dat", filename, chipId);
+	if (!filename)
+		return;
 
+	/* Add a filename extension if necessary */
+	char * fname;
+	int fname_len = strlen(filename);
 
-	FILE *file = fopen(fname, "r");
-	if (!file) 
-	{
-    psi::LogInfo() << "[Roc] Can not open file '" << fname 
-                   << "' to read trim configuration." << psi::endl;
+	char * extension = (char *) strstr(filename, ".dat");
+	if (extension && (extension - filename == fname_len - 4)) {
+		fname = new char [fname_len + 1];
+		strcpy(fname, filename);
+	} else {
+		fname = new char [fname_len + 8 + 1];
+		sprintf(fname, "%s_C%i.dat", filename, chipId);
+	}
+
+	/* Open the file */
+	FILE * file = fopen(fname, "r");
+	if (!file) {
+		psi::LogInfo() << "[Roc] Can not open file '" << fname << "' to read trim configuration." << psi::endl;
 		return;
 	}
-  psi::LogInfo() << "[Roc] Reading Trim configuration from '" << fname << "'."
-                 << psi::endl;
 
-	int trim;	
-	for (int iCol = 0; iCol < ROCNUMCOLS; iCol++)
-	{
-		for (int iRow = 0; iRow < ROCNUMROWS; iRow++)
-		{
-			fscanf(file, "%2i %s %2i %2i", &trim, string, &a, &b);
-			if (trim >= 0 && trim < 16) GetPixel(iCol, iRow)->SetTrim(trim);
-			else GetPixel(iCol, iRow)->MaskCompletely();
+	psi::LogInfo() << "[Roc] Reading Trim configuration from '" << fname << "'." << psi::endl;
+
+	/* Set default trim values (trimming off = 15) */
+	int col, row;
+	for (int col = 0; col < ROCNUMCOLS; col++) {
+		for (int row = 0; row < ROCNUMROWS; row++) {
+			GetPixel(col, row)->SetTrim(15);
 		}
 	}
 
+	/* Read the trim values from the file */
+	int trim, retval;
+	while ((retval = fscanf(file, "%2d Pix %2d %2d", &trim, &col, &row)) != EOF) {
+		if (retval != 3) {
+			/* There were less than 3 integers read */
+			psi::LogInfo() << "[Roc] Error reading from file '" << fname << "': Invalid syntax." << psi::endl;
+			break;
+		}
+
+		if (col < 0 || col >= ROCNUMCOLS || row < 0 || row >= ROCNUMROWS) {
+			psi::LogInfo() << "[Roc] Skipping trim bits for invalid pixel " << col << ":" << row << psi::endl;
+			continue;
+		}
+
+		if (trim >= 0 || trim <= 15)
+			GetPixel(col, row)->SetTrim(trim);
+		else
+			GetPixel(col, row)->MaskCompletely();
+	}
+
+	/* Clean up */
 	fclose(file);
+	delete [] fname;
 }
