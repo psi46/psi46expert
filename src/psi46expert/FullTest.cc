@@ -56,7 +56,7 @@ void FullTest::ModuleAction()
 		gDelay->Timestamp();
 		if (iTest == 0) test = new SCurveTest(testRange, testParameters, tbInterface);
 		if (iTest == 1 && !(configParameters->tbmEmulator)) test = new TBMTest(testRange, testParameters, tbInterface);
-		else continue;
+		else if (iTest == 1) continue;
 		if (iTest == 2) test = new AnalogReadout(testRange, testParameters, tbInterface);
 		test->ModuleAction(module);
 		TIter next(test->GetHistos());

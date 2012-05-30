@@ -39,11 +39,29 @@ where the installed files would go. By default this is /usr/local
 (binaries would go to /usr/local/bin, libraries to /usr/local/lib
 and so on).
 
+Multiple versions (e.g. branches) of the software can be installed
+in parallel by changing the names of the produced programs by
+running
+
+	./configure [--prefix=SOMEDIR] --program-suffix=SUFFIX
+
+Program names will then be for example psi46expertSUFFIX. Beware
+that library names will not be affected by this (see below).
+
 5. Installing the software
 --------------------------
 The software is installed by typing
 
 	make install
+
+If multiple versions of the software should be installed in
+parallel (see above) then the installation will overwrite
+previously installed library versions (like libpsi46ana for
+example). You can avoid this by specifying
+
+	./configure <other args> --libdir=$PWD
+
+which doesn't really install the libraries at all.
 
 4. Running the software
 -----------------------
@@ -113,11 +131,7 @@ Then you can run
   		SUBSYSTEM == "usb", ATTR{product} == "DLP-USB245M", GROUP="usb", MODE="0664"
   	
   	and create a group "usb" and add yourself to that group. Newly
-  	plugged devices will have the correct permissions. If it still
-  	does not work, check whether you have the kernel modules
-  	ftdi_sio and usbserial loaded. These MUST NOT be loaded if you
-  	are using libftd2xx-1.0.x, you can blacklist them by googling
-  	'modprobe blacklist' and following any instructions. For the
+  	plugged devices will have the correct permissions. For the
   	libftd2xx-0.4.x library version it may be that you need the
   	usbfs. You can get this by putting the following line into your
   	/etc/fstab file:
