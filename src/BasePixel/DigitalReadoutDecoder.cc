@@ -167,14 +167,15 @@ int decode_hit(short data [], int nwords, int bit_offset, int * col, int * row, 
 	if (retval < 0)
 		return DRO_ERROR_NO_MORE_DATA;
 	ph_tmp = retval << 3;
-	bit_offset += PULSE_HEIGHT_BITS_A + 1;
+	bit_offset += PULSE_HEIGHT_BITS_A;
+	bit_offset += 1;
 
 	/* Read the second part of the pulse height integer. */
 	retval = extract_integer(data, nwords, bit_offset, PULSE_HEIGHT_BITS_B);
 	if (retval < 0)
 		return DRO_ERROR_NO_MORE_DATA;
 	ph_tmp |= retval;
-	bit_offset += PULSE_HEIGHT_BITS_B + 1;
+	bit_offset += PULSE_HEIGHT_BITS_B;
 
 	/* Decode the column and row address. */
 	*col = 2 * col_tmp + (row_tmp & 1);
@@ -228,17 +229,16 @@ int decode_digital_readout(DecodedReadoutModule * obj, short data [], int nwords
 				break;
 
 			/* Fill the data structure. */
-			obj->roc[i].pixelHit[0].rocId = i;
-			obj->roc[i].pixelHit[0].columnROC = y;
-			obj->roc[i].pixelHit[0].rowROC = x;
-			obj->roc[i].pixelHit[0].analogPulseHeight = ph;
-			//obj->roc[i].pixelHit[0].columnModule;
-			//obj->roc[i].pixelHit[0].rowModule;
-			//obj->roc[i].pixelHit[0].ADCword rawADC[6];
+			obj->roc[i].pixelHit[nhits].rocId = i;
+			obj->roc[i].pixelHit[nhits].columnROC = y;
+			obj->roc[i].pixelHit[nhits].rowROC = x;
+			obj->roc[i].pixelHit[nhits].analogPulseHeight = ph;
+			//obj->roc[i].pixelHit[nhits].columnModule;
+			//obj->roc[i].pixelHit[nhits].rowModule;
+			//obj->roc[i].pixelHit[nhits].ADCword rawADC[6];
 			nhits++;
 
-			bit_offset += retval;
-			break;
+			bit_offset = retval;
 		}
 		obj->roc[i].numPixelHits = nhits;
 	}
