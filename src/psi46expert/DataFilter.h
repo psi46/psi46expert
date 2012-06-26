@@ -7,7 +7,7 @@
 
 #include <TH2I.h>
 
-typedef long long int uint64_t;
+typedef unsigned long long int uint64_t;
 
 /* Pipe Objects -------------------------------------------------------- */
 
@@ -159,13 +159,20 @@ class MultiplicityHistogrammer : public Pipe {
 
 class PulseHeightHistogrammer : public Pipe {
 	protected:
-		TH1I * pulseheight;
+		TH1I * pulse_height_dist;
+		TH2F * pulse_height_map;
+		TH2F * pulse_height_width_map;
+		TH2F * ph_map_w;
+		TH2F * ph_map_w2;
+		TH2F * ph_map_n;
 	public:
 		CEvent * Read();
 		CEvent * Write();
 		PulseHeightHistogrammer();
 		~PulseHeightHistogrammer();
-		TH1I * getPulseHeightHistogram();
+		TH1I * getPulseHeightDistribution();
+		TH2F * getPulseHeightMap();
+		TH2F * getPulseHeightWidthMap();
 };
 
 #endif

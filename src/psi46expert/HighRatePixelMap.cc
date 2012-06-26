@@ -96,7 +96,7 @@ void HRPixelMap::ModuleAction(void)
 		ai->SetReg(43, (1 << 0));
 
 		float seconds = testParameters->HRPixelMapAquisitionTime;
-		for (float t = seconds; t > 0; t--) {
+		for (float t = seconds; t >= 1; t--) {
 			cout << "\rTaking data (" << t << " seconds) ... ";
 			cout.flush();
 			gDelay->Mdelay(1000);
@@ -167,8 +167,9 @@ void HRPixelMap::ModuleAction(void)
 			histograms->Add(multi);
 		}
 	}
-	TH1I * pulse = (TH1I *) phh.getPulseHeightHistogram()->Clone();
-	histograms->Add(pulse);
+	histograms->Add((TH1I *) phh.getPulseHeightDistribution()->Clone());
+	histograms->Add((TH2F *) phh.getPulseHeightMap()->Clone());
+	histograms->Add((TH2F *) phh.getPulseHeightWidthMap()->Clone());
 	
 	TH2I * map = (TH2I *) hm.getHitMap(-1);
 	psi::LogInfo() << "Number of triggers: " << count.TriggerCounter << psi::endl;

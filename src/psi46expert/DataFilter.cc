@@ -2,7 +2,9 @@
 #include <iostream>
 #include <cstdio>
 #include <cstring>
+#include <TMath.h>
 #include "BasePixel/RawPacketDecoder.h"
+
 
 using namespace std;
 
@@ -684,12 +686,24 @@ TH1I * MultiplicityHistogrammer::getDColMultiplicity(int roc, int dcol)
 
 PulseHeightHistogrammer::PulseHeightHistogrammer()
 {
-	pulseheight = new TH1I("pulseheight", "Pulse height", 2048, -1024, 1024);
+	pulse_height_dist = new TH1I("pulse_height_dist", "Pulse height", 2048, -1024, 1024);
+	pulse_height_map = NULL;
+	pulse_height_width_map = NULL;
+	ph_map_w = new TH2F("ph_map_w", "ph_map_w", 52, 0, 52, 80, 0, 80);
+	ph_map_w2 = new TH2F("ph_map_w2", "ph_map_w2", 52, 0, 52, 80, 0, 80);
+	ph_map_n = new TH2F("ph_map_n", "ph_map_n", 52, 0, 52, 80, 0, 80);
 }
 
 PulseHeightHistogrammer::~PulseHeightHistogrammer()
 {
-	delete pulseheight;
+	delete pulse_height_dist;
+	delete ph_map_w;
+	delete ph_map_w2;
+	delete ph_map_n;
+	if (pulse_height_map)
+		delete pulse_height_map;
+	if (pulse_height_width_map)
+		delete pulse_height_width_map;
 }
 
 CEvent * PulseHeightHistogrammer::Read()
@@ -709,14 +723,68 @@ CEvent * PulseHeightHistogrammer::Write()
 	for (int roc = 0; roc < ev->nRocs; roc++) {
 		int h = ev->hits.roc[roc].numPixelHits;
 		for (int i = 0; i < h; i++) {
-			pulseheight->Fill(ev->hits.roc[roc].pixelHit[i].analogPulseHeight);
+			int ph = ev->hits.roc[roc].pixelHit[i].analogPulseHeight;
+			int col = ev->hits.roc[roc].pixelHit[i].columnROC;
+			int row = ev->hits.roc[roc].pixelHit[i].rowROC;
+
+			float w, w2;
+			w = ph_map_w->GetBinContent(col + 1, row + 1) + ph;
+			w2 = ph_map_w2->GetBinContent(col + 1, row + 1) + ph * ph;
+			ph_map_w->SetBinContent(col + 1, row + 1, w);
+			ph_map_w2->SetBinContent(col + 1, row + 1, w2);
+			ph_map_n->Fill(col, row);
+			pulse_height_dist->Fill(ph);
 		}
 	}
 
 	return ev;
 }
 
-TH1I * PulseHeightHistogrammer::getPulseHeightHistogram()
+TH1I * PulseHeightHistogrammer::getPulseHeightDistribution()
 {
-	return pulseheight;
+	return pulse_height_dist;
+}
+
+TH2F * PulseHeightHistogrammer::getPulseHeightMap()
+{
+	if (pulse_height_map)
+		return pulse_height_map;
+
+	pulse_height_map = new TH2F("pulse_height_map", "Pulse height map", 52, 0, 52, 80, 0, 80);
+
+	float w, n;
+	for (int col = 0; col < 52; col++) {
+		for (int row = 0; row < 80; row++) {
+			n = ph_map_n->GetBinContent(col + 1, row + 1);
+			if (n < 1)
+				continue;
+			w = ph_map_w->GetBinContent(col + 1, row + 1);
+			pulse_height_map->SetBinContent(col + 1, row + 1, w / (float) n);
+		}
+	}
+
+	return pulse_height_map;
+}
+
+TH2F * PulseHeightHistogrammer::getPulseHeightWidthMap()
+{
+	if (pulse_height_width_map)
+		return pulse_height_width_map;
+
+	pulse_height_width_map = new TH2F("pulse_height_width_map", "Pulse height width map", 52, 0, 52, 80, 0, 80);
+
+	float s0, s1, s2, err;
+	for (int col = 0; col < 52; col++) {
+		for (int row = 0; row < 80; row++) {
+			s0 = ph_map_n->GetBinContent(col + 1, row + 1);
+			if (s0 < 1)
+				continue;
+			s1 = ph_map_w->GetBinContent(col + 1, row + 1);
+			s2 = ph_map_w2->GetBinContent(col + 1, row + 1);
+			float err = TMath::Sqrt((s0 * s2 - s1 * s1) / (s0 * (s0 - 1)));
+			pulse_height_width_map->SetBinContent(col + 1, row + 1, err);
+		}
+	}
+
+	return pulse_height_width_map;
 }
