@@ -35,6 +35,7 @@
 #include "IVCurve.h"
 #include "OffsetOptimization.h"
 #include "SCurveTest.h"
+#include "HighRateTrimLow.h"
 #include <TFile.h>
 #include <iostream>
 #include <string.h>
@@ -107,6 +108,7 @@ void TestRoc::Execute(SysCommand &command)
   else if (strcmp("PhCalibration", command.carg[0]) == 0) DoPhCalibration();
   else if (strcmp("PulseShape", command.carg[0]) == 0) DoPulseShape(); 
   //  else if (command.Keyword("IV")) {DoIV(new IVCurve(GetRange(), testParameters, tbInterface));}
+  else if (strcmp("HighRateTrimLow", command.carg[0]) == 0) DoTest(new HRTrimLow(GetRange(), testParameters, tbInterface));
   else {cerr << "Unknown ROC command " << command.carg[0] << endl;}
 }
 

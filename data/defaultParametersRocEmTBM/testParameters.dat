@@ -105,3 +105,26 @@ XrayNTrig 20000
 XrayVthrCompMin 40
 XrayVthrCompMax 110
 XrayMaxEff 0.01
+
+-- High rate pixel map
+
+# Seconds (floating point number, resolution: ms)
+HRPixelMapAquisitionTime 10.0
+# Number of consecutive measurements
+HRPixelMapRepetitions 1
+# Trigger rate (40000 / (256 * N)) kHz
+HRPixelMapTriggerRate 5
+
+-- High rate efficiency
+
+# Calibrates per pixel
+HREfficiencyTriggers 100
+
+-- High rate SCurve
+
+# Start of rough threshold scan
+HRSCurveThrStart 40
+# End of rough threshold scan
+HRSCurveThrEnd 130
+# Calibrates per pixel per threshold setting
+HRSCurveTriggers 50

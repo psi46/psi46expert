@@ -88,7 +88,7 @@ int find_roc_header(short data [], int nwords, int bit_offset)
 		retval = extract_integer(data, nwords, bit_offset, ROC_HEADER_BITS);
 
 		/* In 15 of 16 cases the header is 0x7f8, the other time it is 0x7fa. */
-		if ((retval | 2) == 0x7fa)
+		if ((retval | 3) == 0x7fa)
 			return bit_offset;
 		else if (retval < 0)
 			return DRO_ERROR_NO_MORE_DATA;

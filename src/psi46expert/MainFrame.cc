@@ -46,6 +46,10 @@
 #include "VsfOptimization.h"
 #include "VsfScan.h"
 #include "Xray.h"
+#include "HighRateEfficiency.h"
+#include "HighRatePixelMap.h"
+#include "HighRateTrimLow.h"
+#include "HighRateSCurve.h"
 
 ClassImp(MainFrame)
 
@@ -221,42 +225,26 @@ MainFrame::MainFrame( const TGWindow *p, UInt_t w, UInt_t h,
 	TGHorizontalFrame *testFrame = new TGHorizontalFrame(this,w,40);
 	TGHorizontalFrame *testFrame2 = new TGHorizontalFrame(this,w,40);
 	TGHorizontalFrame *testFrame3 = new TGHorizontalFrame(this,w,40);
+	TGHorizontalFrame *testFrame4 = new TGHorizontalFrame(this,w,40);
 	TGHorizontalFrame *frame;
 
 	TGCheckButton *testButton;
-	char* testName;
+	const char* testName;
+	
+	const char testNames [nTests][14] = {"PixMap", "DacDac", "SCurve", "BondMap", "TrimBits",
+					     "AdrLev", "PhScan", "PH", "Thr", "AdrDec", "CalDel",
+					     "ThrComp", "Temp", "TempCal", "VsfOpt", "LinRange",
+					     "HldDelOpti", "TimeWalk", "Xray", "VsfScan", "AdrDec2",
+					     "HR PixelMap", "HR Efficiency", "HR SCurve"};
 
 	for( int i = nTests - 1; i >= 0; i--)
 	{
-    switch( i)
-    {
-      case 0 : testName = "PixMap";     break;
-      case 1 : testName = "DacDac";     break;
-      case 2 : testName = "SCurve";     break;
-      case 3 : testName = "BondMap";    break;
-      case 4 : testName = "TrimBits";   break;
-      case 5 : testName = "AdrLev";     break;
-      case 6 : testName = "PhScan";     break;
-      case 7 : testName = "PH";         break;
-      case 8 : testName = "Thr";        break;
-      case 9 : testName = "AdrDec";     break;
-      case 10: testName = "CalDel";     break;
-      case 11: testName = "ThrComp";    break;
-      case 12: testName = "Temp";       break;
-      case 13: testName = "TempCal";    break;
-      case 14: testName = "VsfOpt";     break;
-      case 15: testName = "LinRange";   break;
-      case 16: testName = "HldDelOpti"; break;
-      case 17: testName = "TimeWalk";   break;
-      case 18: testName = "Xray";       break;
-      case 19: testName = "VsfScan";    break;
-      case 20: testName = "AdrDec2";    break;
-      default: testName = "";           break;
-    }
+		testName = testNames[i];
 
 		if (i < 6) frame = testFrame;
 		else if (i < 13) frame = testFrame2;
-		else frame = testFrame3;
+		else if (i < 21) frame = testFrame3;
+		else frame = testFrame4;
 		
 		testButton = new TGCheckButton(frame, testName, i);
 		testButton->Connect("Clicked()", "MainFrame", this, "TestN()");
@@ -271,6 +259,7 @@ MainFrame::MainFrame( const TGWindow *p, UInt_t w, UInt_t h,
 	AddFrame(testFrame, new TGLayoutHints(kLHintsCenterX, 2, 2, 2, 2));
 	AddFrame(testFrame2, new TGLayoutHints(kLHintsCenterX, 2, 2, 2, 2));
 	AddFrame(testFrame3, new TGLayoutHints(kLHintsCenterX, 2, 2, 2, 2));
+	AddFrame(testFrame4, new TGLayoutHints(kLHintsCenterX, 2, 2, 2, 2));
 
 	// == Parameters ========================================================================================
 
@@ -440,7 +429,7 @@ void MainFrame::SetParameter()
 {
 	bool inputOk = true;
 	int dacValue, reg, rocMin, rocMax, moduleMin, moduleMax, colMin, colMax, rowMin, rowMax;
-	char *name;
+	const char *name;
 
 	fInterpreter->SetString(parameterTextBuffer->GetString());
 	if (!fInterpreter->GetInt(dacValue,0,255)) {inputOk = false;}
@@ -684,40 +673,41 @@ void MainFrame::DoTest()
 
 	Test *testToDo;
 	
-	for (int iTest = 0; iTest < nTests; iTest++)
-	{
-    std::cout << "Test #" << iTest << ": " << ( test[iTest] ? "yes" : "no") << std::endl;
-		if (test[iTest]) 
-		{
-      switch( iTest)
-      {
-        case 0 : testToDo = new PixelAlive(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 1 : testToDo = new DacDependency(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 2 : testToDo = new SCurveTest(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 3 : testToDo = new BumpBonding(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 4 : testToDo = new TrimBits(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 5 : testToDo = new AddressLevels(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 6 : testToDo = new PhDacOverview(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 7 : testToDo = new PHTest(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 8 : testToDo = new ThresholdTest(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 9 : testToDo = new AddressDecoding(testRangeFull, controlNetwork->GetTestParameters(), tbInterface, false); break;
-        case 10: testToDo = new CalDelay(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 11: testToDo = new ThrComp(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 12: testToDo = new TemperatureTest(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 13: testToDo = new TemperatureCalibration(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 14: testToDo = new VsfOptimization(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 15: testToDo = new ChipVariation(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 16: testToDo = new VhldDelOptimization(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 17: testToDo = new TimeWalkStudy(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 18: testToDo = new Xray(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 19: testToDo = new VsfScan( testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
-        case 20: testToDo = new AddressDecoding(testRangeFull, controlNetwork->GetTestParameters(), tbInterface, true); break;
-      }
+	for (int iTest = 0; iTest < nTests; iTest++) {
+		if (!test[iTest])
+			continue;
 
-			testToDo->ControlNetworkAction(controlNetwork);
-			TIter next(testToDo->GetHistos());
-			while (TH1 *histo = (TH1*)next()) AddLast(histo, iTest);
+		switch(iTest) {
+			case 0 : testToDo = new PixelAlive(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 1 : testToDo = new DacDependency(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 2 : testToDo = new SCurveTest(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 3 : testToDo = new BumpBonding(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 4 : testToDo = new TrimBits(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 5 : testToDo = new AddressLevels(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 6 : testToDo = new PhDacOverview(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 7 : testToDo = new PHTest(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 8 : testToDo = new ThresholdTest(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 9 : testToDo = new AddressDecoding(testRangeFull, controlNetwork->GetTestParameters(), tbInterface, false); break;
+			case 10: testToDo = new CalDelay(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 11: testToDo = new ThrComp(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 12: testToDo = new TemperatureTest(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 13: testToDo = new TemperatureCalibration(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 14: testToDo = new VsfOptimization(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 15: testToDo = new ChipVariation(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 16: testToDo = new VhldDelOptimization(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 17: testToDo = new TimeWalkStudy(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 18: testToDo = new Xray(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 19: testToDo = new VsfScan( testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 20: testToDo = new AddressDecoding(testRangeFull, controlNetwork->GetTestParameters(), tbInterface, true); break;
+			case 21: testToDo = new HRPixelMap(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 22: testToDo = new HREfficiency(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
+			case 23: testToDo = new HRSCurve(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
+			//case 24: testToDo = new HRTrimLow(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
 		}
+
+		testToDo->ControlNetworkAction(controlNetwork);
+		TIter next(testToDo->GetHistos());
+		while (TH1 *histo = (TH1*)next()) AddLast(histo, iTest);
 	}
 	DrawUpdate();
 	gDelay->Timestamp();

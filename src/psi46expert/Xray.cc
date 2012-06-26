@@ -81,7 +81,7 @@ void Xray::ModuleAction()
   
   tb->DataEnable(false);  
   // max stretching is 1022 (Beat)
-  tb->SetClockStretch(STRETCH_AFTER_CAL, 5, 65535);
+  tb->SetClockStretch(STRETCH_AFTER_CAL, 0, 100);
   tb->Flush();
   
   // Check for noisy pixels
