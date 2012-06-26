@@ -555,7 +555,10 @@ void TestRoc::AdjustCalDelVthrComp()
 
   //AS 24/05/06 - to be fixed Row:Col below
 
-  AdjustCalDelVthrComp(20, 20, 200, -50);
+  if (GetTBAnalogInterface()->IsAnalog())
+    AdjustCalDelVthrComp(20, 20, 200, -50);
+  else
+    AdjustCalDelVthrComp(20, 20, 200, 20);
 
   calDel += GetDAC("CalDel"); 
   vthrComp += GetDAC("VthrComp");
@@ -572,8 +575,8 @@ void TestRoc::AdjustCalDelVthrComp()
   SetDAC("VoffsetOp", vOffsetOp);
   Flush();
   
-  psi::LogDebug() << "[TestRoc] CalDel   is set to " << calDel   << psi::endl; 
-  psi::LogDebug() << "[TestRoc] VthrComp is set to " << vthrComp << psi::endl; 
+  psi::LogInfo() << "[TestRoc] CalDel   is set to " << calDel   << psi::endl; 
+  psi::LogInfo() << "[TestRoc] VthrComp is set to " << vthrComp << psi::endl; 
 }
 
 

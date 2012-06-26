@@ -45,9 +45,10 @@ void Xray::ModuleAction()
   TBAnalogInterface *tb = ((TBAnalogInterface*)tbInterface);
   int counts[MODULENUMROCS], amplitudes[MODULENUMROCS], countsTemp[MODULENUMROCS], amplitudesTemp[MODULENUMROCS];
   int sum, nRocs = module->NRocs();
-  
-  module->AdjustDTL();
-  
+
+  if (tb->IsAnalog())
+    module->AdjustDTL();
+
   for (int iRoc = 0; iRoc < nRocs; iRoc++)
   {
     int chipId = module->GetRoc(iRoc)->GetChipId();
@@ -79,12 +80,16 @@ void Xray::ModuleAction()
     }
   }
   
-  tb->DataEnable(false);  
-  // max stretching is 1022 (Beat)
-  tb->SetClockStretch(STRETCH_AFTER_CAL, 0, 100);
+  tb->DataEnable(false);
+  if (tb->IsAnalog()) {
+    // max stretching is 1022 (Beat)
+    tb->SetClockStretch(STRETCH_AFTER_CAL, 0, 100);
+  }
   tb->Flush();
   
   // Check for noisy pixels
+  
+  psi::LogInfo() << "Checking for noisy pixels ..." << psi::endl;
   
   int nTrigs = 10000;
   for (int iRoc = 0; iRoc < nRocs; iRoc++) module->GetRoc(iRoc)->SetDAC("VthrComp", vthrCompMin);
@@ -124,6 +129,8 @@ void Xray::ModuleAction()
   }  
   
   // Start scan
+
+  psi::LogInfo() << "Starting VcThr scan [" << vthrCompMin << ":" << vthrCompMax - 1 << "] ..." << psi::endl;
   
   sum = 0;
   for (int vthrComp = vthrCompMin; vthrComp < vthrCompMax; vthrComp++)
@@ -173,8 +180,9 @@ void Xray::ModuleAction()
     }
     printf("VthrComp %i Sum %i\n", vthrComp, sum);
   }
-  
-  tb->SetClockStretch(0, 0, 0);
+
+  if (tb->IsAnalog())
+    tb->SetClockStretch(0, 0, 0);
   tb->DataEnable(true);
   for (int iRoc = 0; iRoc < nRocs; iRoc++) 
   {

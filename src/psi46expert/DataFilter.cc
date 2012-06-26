@@ -2,9 +2,8 @@
 #include <iostream>
 #include <cstdio>
 #include <cstring>
-#include <TMath.h>
 #include "BasePixel/RawPacketDecoder.h"
-
+#include "BasePixel/DigitalReadoutDecoder.h"
 
 using namespace std;
 
@@ -232,7 +231,7 @@ CRawEvent * RawData2RawEvent::Write()
 
 /* Pipe that decodes the analog readout from raw events ------------------------------------------------- */
 
-RawEventDecoder::RawEventDecoder(unsigned int n)
+RawEventDecoder::RawEventDecoder(unsigned int n, bool analog)
 {
 	nROCs = n;
 }
@@ -260,13 +259,27 @@ CEvent * RawEventDecoder::Write()
 	
 	/* Decode the analog data, if available */
 	if (decoded_event.isData && rawevent->length > 0) {
-		RawPacketDecoder * decoder = RawPacketDecoder::Singleton();
-		decoded_event.nHits = decoder->decode(rawevent->length, (short *) rawevent->data, decoded_event.hits, nROCs);
+		if (analog) {
+			RawPacketDecoder * decoder = RawPacketDecoder::Singleton();
+			decoded_event.nHits = decoder->decode(rawevent->length, (short *) rawevent->data, decoded_event.hits, nROCs);
+		} else {
+			int ret;
+			ret = decode_digital_readout(&(decoded_event.hits), (short *) rawevent->data, rawevent->length, nROCs, 0);
+			decoded_event.nHits = (ret >= 0) ? decoded_event.hits.roc[0].numPixelHits : ret;
+		}
 		/* go through the hits to find address decoding errors */
 		if (decoded_event.nHits < 0) {
 			for (int q = 0; q < rawevent->length; q++) {
-				cout << rawevent->data[q] << " ";
+				if (analog) {
+					cout << rawevent->data[q] << " ";
+				} else {
+					for (int r = 3; r >= 0; r--) {
+						cout << ((rawevent->data[q] & (1 << r)) ? 1 : 0);
+					}
+					cout << "|";
+				}
 			}
+			cout << " (" << decoded_event.nHits << ")";
 			cout << endl;
 		}
 	}

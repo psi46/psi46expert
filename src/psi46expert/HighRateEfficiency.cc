@@ -62,7 +62,10 @@ void HREfficiency::ModuleAction(void)
 	ai->SetReg(43, (1 << 1));
 	
 	/* Set local trigger, tbm present, and run data aquisition */
-	ai->SetReg(41, 0x20 | 0x02 | 0x08);
+	if (ai->IsAnalog())
+		ai->SetReg(41, 0x20 | 0x02 | 0x08);
+	else
+		ai->SetReg(41, 0x20 | 0x01 | 0x08);
 	ai->Flush();
 	
 	/* Reset the aquisition on the testboard */
@@ -84,16 +87,17 @@ void HREfficiency::ModuleAction(void)
 	
 	/* iterate over columns and rows to get each pixel efficiency */
 	for (int col = 0; col < 52; col++) {
+		cout << "\rSending calibrate signals ... " << ((int)(100 * col / 52.)) << " % " << flush;
 		for (int row = 0; row < 80; row++) {
 			/* Arm the pixel */
 			for (int i = 0; i < module->NRocs(); i++)
 				module->GetRoc(i)->ArmPixel(col, row);
-			ai->CDelay(5000);
+			ai->CDelay(500);
 			ai->Flush();
 
 			/* send ntrig triggers with calibrates */
 			for (int t = 0; t < ntrig; t++) {
-				ai->Single(CAL|TRG|TOK);
+				ai->Single(RES|CAL|TRG|TOK);
 				ai->CDelay(500);
 			}
 			ai->Flush();
@@ -106,6 +110,7 @@ void HREfficiency::ModuleAction(void)
 			ai->Flush();
 		}
 	}
+	cout << endl;
 	
 	/* Stop triggering */
 	ai->Single(RES);
@@ -132,7 +137,7 @@ void HREfficiency::ModuleAction(void)
 	int nroc = module->NRocs();
 	RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
 	RawData2RawEvent rs;
-	RawEventDecoder ed(nroc);
+	RawEventDecoder ed(nroc, ai->IsAnalog());
 	EfficiencyMapper em(nroc, ntrig);
 	
 	/* Decoding chain */

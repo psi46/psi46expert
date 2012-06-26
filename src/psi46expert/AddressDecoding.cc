@@ -87,6 +87,7 @@ void AddressDecoding::AnalyseResult(int pixel)
   int readoutStart = 0, nDecodedPixels;
   DecodedReadoutModule decodedModuleReadout;
   if (pixel > 0) readoutStart = readoutStop[pixel-1];
+  int error;
 
   ConfigParameters *configParameters = ConfigParameters::Singleton();
   int nRocs = configParameters->nRocs;
@@ -94,17 +95,21 @@ void AddressDecoding::AnalyseResult(int pixel)
   if (readoutStop[pixel] - readoutStart == ((TBAnalogInterface*)tbInterface)->GetEmptyReadoutLengthADC() + 6) 
   {
     if (((TBAnalogInterface *) tbInterface)->IsAnalog()) {
-    nDecodedPixels = gDecoder->decode( readoutStop[pixel] - readoutStart,
+    error = nDecodedPixels = gDecoder->decode( readoutStop[pixel] - readoutStart,
                                        &data[readoutStart], 
                                        decodedModuleReadout, 
                                        nRocs);
     } else {
-      decode_digital_readout(&decodedModuleReadout, data + readoutStart, readoutStop[pixel] - readoutStart, nRocs, 0);
-      nDecodedPixels = decodedModuleReadout.roc[roc->GetAoutChipPosition()].numPixelHits;
+      error = decode_digital_readout(&decodedModuleReadout, data + readoutStart, readoutStop[pixel] - readoutStart, nRocs, 0);
+      if (error < 0)
+        nDecodedPixels = error;
+      else
+        nDecodedPixels = decodedModuleReadout.roc[roc->GetAoutChipPosition()].numPixelHits;
     }
   }
   else 
   {
+    psi::LogInfo() << "[AddressDecoding] Error: Invalid readout length (" << readoutStop[pixel] - readoutStart << ")" << psi::endl;
     if ( fPrintDebug )
     {
       cout << "ADC values = { ";

@@ -175,7 +175,10 @@ void HRSCurve::TakeEfficiencyMap(int ntrig, bool set_vcal, int vcal_offset)
 	ai->Flush();
 	
 	/* Disable data aquisition */
-	ai->SetReg(41, 0x20 | 0x02);
+	if (ai->IsAnalog())
+		ai->SetReg(41, 0x20 | 0x02);
+	else
+		ai->SetReg(41, 0x20 | 0x01);
 	ai->getCTestboard()->Daq_Disable();
 	ai->DataCtrl(false, false, false);
 	ai->Flush();
@@ -186,7 +189,7 @@ void HRSCurve::TakeEfficiencyMap(int ntrig, bool set_vcal, int vcal_offset)
 	/* Prepare data decoding */
 	RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
 	RawData2RawEvent rs;
-	RawEventDecoder ed(module->NRocs());
+	RawEventDecoder ed(module->NRocs(), ai->IsAnalog());
 	EfficiencyMapper em(module->NRocs(), ntrig);
 	
 	/* Decoding chain */

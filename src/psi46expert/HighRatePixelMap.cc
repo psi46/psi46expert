@@ -42,7 +42,10 @@ void HRPixelMap::ModuleAction(void)
 	ai->Flush();
 
 	/* Set local trigger and tbm present */
-	ai->SetReg(41, 0x20 | 0x02);
+	if (ai->IsAnalog())
+		ai->SetReg(41, 0x20 | 0x02);
+	else
+		ai->SetReg(41, 0x20 | 0x01);
 	ai->Flush();
 	
 	/* Send a reset to the chip */
@@ -61,7 +64,7 @@ void HRPixelMap::ModuleAction(void)
 	
 	/* Data filters */
 	RawData2RawEvent rs;
-	RawEventDecoder ed(nroc);
+	RawEventDecoder ed(nroc, ai->IsAnalog());
 	HitMapper hm(nroc);
 	EventCounter count;
 	MultiplicityHistogrammer mh;
@@ -86,10 +89,14 @@ void HRPixelMap::ModuleAction(void)
 		ai->getCTestboard()->Set(21, testParameters->HRPixelMapTriggerRate); // T_Periode has the wrong value. Should be fixed.
 
 		/* Issue continuous Reset-(Calibrate-)Trigger-Token pattern */
-		ai->Intern(TRG|TOK);
+		ai->Intern(RES|TRG|TOK);
 
 		/* Set local trigger, tbm present, and run data aquisition */
-		ai->SetReg(41, 0x20 | 0x02 | 0x08);
+		if (ai->IsAnalog())
+			ai->SetReg(41, 0x20 | 0x02 | 0x08);
+		else
+			ai->SetReg(41, 0x20 | 0x01 | 0x08);
+
 		ai->Flush();
 
 		/* Reset the aquisition on the testboard */
