@@ -87,6 +87,8 @@ TestParameters::TestParameters( const char *_file)
 	HRPixelMapTriggerRate(5),
 	HRPixelMapRepetitions(1),
 	HRPixelMapAquisitionTime(10),
+	HRPixelMapClockStretch(0),
+	HRPixelMapStretchDelay(6),
 
 	HREfficiencyTriggers(100),
 
@@ -208,6 +210,8 @@ bool TestParameters::ReadTestParameterFile( const char *_file)
     else if( 0 == _name.compare( "HRPixelMapTriggerRate")) { HRPixelMapTriggerRate = static_cast<int>(_value); }
     else if( 0 == _name.compare( "HRPixelMapRepetitions")) { HRPixelMapRepetitions = static_cast<int>(_value); }
     else if( 0 == _name.compare( "HRPixelMapAquisitionTime")) { HRPixelMapAquisitionTime = static_cast<float>(_value); }
+    else if( 0 == _name.compare( "HRPixelMapClockStretch")) { HRPixelMapClockStretch = static_cast<int>(_value); }
+    else if( 0 == _name.compare( "HRPixelMapStretchDelay")) { HRPixelMapStretchDelay = static_cast<int>(_value); }
 
     else if( 0 == _name.compare( "HREfficiencyTriggers")) { HREfficiencyTriggers = static_cast<int>(_value); }
 

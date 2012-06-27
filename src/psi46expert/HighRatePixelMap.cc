@@ -47,7 +47,11 @@ void HRPixelMap::ModuleAction(void)
 	
 	/* Send a reset to the chip */
 	ai->Single(RES);
-	
+
+	/* Set clock stretch */
+	if (testParameters->HRPixelMapClockStretch > 1)
+		ai->SetClockStretch(STRETCH_AFTER_CAL, testParameters->HRPixelMapStretchDelay, testParameters->HRPixelMapClockStretch);
+
 	/* Get the digital and analog voltages / currents */
 	psi::LogInfo() << "Measuring chip voltages and currents ..." << psi::endl;
 	TParameter<float> vd("hr_pixelmap_digital_voltage", ai->GetVD());
@@ -88,7 +92,7 @@ void HRPixelMap::ModuleAction(void)
 		ai->getCTestboard()->Set(21, testParameters->HRPixelMapTriggerRate); // T_Periode has the wrong value. Should be fixed.
 
 		/* Issue continuous Reset-(Calibrate-)Trigger-Token pattern */
-		ai->Intern(TRG|TOK);
+		ai->Intern(CAL|TRG|TOK);
 
 		/* Set local trigger, tbm present, and run data aquisition */
 		ai->SetReg(41, 0x20 | 0x02 | 0x08);
@@ -186,6 +190,10 @@ void HRPixelMap::ModuleAction(void)
 	
 	TParameter<float> triggers("pixelmap_triggers", count.TriggerCounter);
 	triggers.Write();
+
+	/* Disable clock stretch */
+	if (testParameters->HRPixelMapClockStretch > 1)
+		ai->SetClockStretch(0, 0, 0);
 
 	/* Reset the chip */
 	ai->Single(RES);

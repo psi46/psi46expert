@@ -114,6 +114,10 @@ HRPixelMapAquisitionTime 10.0
 HRPixelMapRepetitions 1
 # Trigger rate (40000 / (256 * N)) kHz
 HRPixelMapTriggerRate 5
+# Clock stretch factor (Disabled if < 2)
+HRPixelMapClockStretch 0
+# Clock stretch follows Calibrate after N clock cycles (can be negative)
+HRPixelMapStretchDelay 6
 
 -- High rate efficiency
 
