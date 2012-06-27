@@ -5,6 +5,7 @@
 #include <TMath.h>
 #include "BasePixel/RawPacketDecoder.h"
 
+#include "TLinearFitter.h"
 
 using namespace std;
 
@@ -686,24 +687,37 @@ TH1I * MultiplicityHistogrammer::getDColMultiplicity(int roc, int dcol)
 
 PulseHeightHistogrammer::PulseHeightHistogrammer()
 {
-	pulse_height_dist = new TH1I("pulse_height_dist", "Pulse height", 2048, -1024, 1024);
+	pulse_height_dist = new TH1F("pulse_height_dist", "Pulse height", 2048, -1024, 1024);
+	pulse_height_dist_cal = new TH1F("pulseheight_cal", "Pulse height (VCal units)", 255, 0, 255);
 	pulse_height_map = NULL;
+	pulse_height_map_cal = NULL;
 	pulse_height_width_map = NULL;
+	pulse_height_width_map_cal = NULL;
 	ph_map_w = new TH2F("ph_map_w", "ph_map_w", 52, 0, 52, 80, 0, 80);
+	ph_map_w_cal = new TH2F("ph_map_w_cal", "ph_map_w_cal", 52, 0, 52, 80, 0, 80);
 	ph_map_w2 = new TH2F("ph_map_w2", "ph_map_w2", 52, 0, 52, 80, 0, 80);
+	ph_map_w2_cal = new TH2F("ph_map_w2_cal", "ph_map_w2_cal", 52, 0, 52, 80, 0, 80);
 	ph_map_n = new TH2F("ph_map_n", "ph_map_n", 52, 0, 52, 80, 0, 80);
+	calibration = NULL;
 }
 
 PulseHeightHistogrammer::~PulseHeightHistogrammer()
 {
 	delete pulse_height_dist;
+	delete pulse_height_dist_cal;
 	delete ph_map_w;
+	delete ph_map_w_cal;
 	delete ph_map_w2;
+	delete ph_map_w2_cal;
 	delete ph_map_n;
 	if (pulse_height_map)
 		delete pulse_height_map;
+	if (pulse_height_map_cal)
+		delete pulse_height_map_cal;
 	if (pulse_height_width_map)
 		delete pulse_height_width_map;
+	if (pulse_height_width_map_cal)
+		delete pulse_height_width_map_cal;
 }
 
 CEvent * PulseHeightHistogrammer::Read()
@@ -734,15 +748,29 @@ CEvent * PulseHeightHistogrammer::Write()
 			ph_map_w2->SetBinContent(col + 1, row + 1, w2);
 			ph_map_n->Fill(col, row);
 			pulse_height_dist->Fill(ph);
+
+			if (calibration && calibration[roc] && calibration[roc][col] && calibration[roc][col][row]) {
+				float ph_cal = (ph - calibration[roc][col][row][0]) / calibration[roc][col][row][1];
+				w = ph_map_w_cal->GetBinContent(col + 1, row + 1) + ph_cal;
+				w2 = ph_map_w2_cal->GetBinContent(col + 1, row + 1) + ph_cal * ph_cal;
+				ph_map_w_cal->SetBinContent(col + 1, row + 1, w);
+				ph_map_w2_cal->SetBinContent(col + 1, row + 1, w2);
+				pulse_height_dist_cal->Fill(ph_cal);
+			}
 		}
 	}
 
 	return ev;
 }
 
-TH1I * PulseHeightHistogrammer::getPulseHeightDistribution()
+TH1F * PulseHeightHistogrammer::getPulseHeightDistribution()
 {
 	return pulse_height_dist;
+}
+
+TH1F * PulseHeightHistogrammer::getCalPulseHeightDistribution()
+{
+	return pulse_height_dist_cal;
 }
 
 TH2F * PulseHeightHistogrammer::getPulseHeightMap()
@@ -766,6 +794,27 @@ TH2F * PulseHeightHistogrammer::getPulseHeightMap()
 	return pulse_height_map;
 }
 
+TH2F * PulseHeightHistogrammer::getCalPulseHeightMap()
+{
+	if (pulse_height_map_cal)
+		return pulse_height_map_cal;
+
+	pulse_height_map_cal = new TH2F("pulse_height_map_cal", "Pulse height map (Vcal units)", 52, 0, 52, 80, 0, 80);
+
+	float w, n;
+	for (int col = 0; col < 52; col++) {
+		for (int row = 0; row < 80; row++) {
+			n = ph_map_n->GetBinContent(col + 1, row + 1);
+			if (n < 1)
+				continue;
+			w = ph_map_w_cal->GetBinContent(col + 1, row + 1);
+			pulse_height_map_cal->SetBinContent(col + 1, row + 1, w / (float) n);
+		}
+	}
+
+	return pulse_height_map_cal;
+}
+
 TH2F * PulseHeightHistogrammer::getPulseHeightWidthMap()
 {
 	if (pulse_height_width_map)
@@ -777,7 +826,7 @@ TH2F * PulseHeightHistogrammer::getPulseHeightWidthMap()
 	for (int col = 0; col < 52; col++) {
 		for (int row = 0; row < 80; row++) {
 			s0 = ph_map_n->GetBinContent(col + 1, row + 1);
-			if (s0 < 1)
+			if (s0 < 2)
 				continue;
 			s1 = ph_map_w->GetBinContent(col + 1, row + 1);
 			s2 = ph_map_w2->GetBinContent(col + 1, row + 1);
@@ -787,4 +836,89 @@ TH2F * PulseHeightHistogrammer::getPulseHeightWidthMap()
 	}
 
 	return pulse_height_width_map;
+}
+
+TH2F * PulseHeightHistogrammer::getCalPulseHeightWidthMap()
+{
+	if (pulse_height_width_map_cal)
+		return pulse_height_width_map_cal;
+
+	pulse_height_width_map_cal = new TH2F("pulse_height_width_map_cal", "Pulse height width map (Vcal units)", 52, 0, 52, 80, 0, 80);
+
+	float s0, s1, s2, err;
+	for (int col = 0; col < 52; col++) {
+		for (int row = 0; row < 80; row++) {
+			s0 = ph_map_n->GetBinContent(col + 1, row + 1);
+			if (s0 < 2)
+				continue;
+			s1 = ph_map_w_cal->GetBinContent(col + 1, row + 1);
+			s2 = ph_map_w2_cal->GetBinContent(col + 1, row + 1);
+			float err = TMath::Sqrt((s0 * s2 - s1 * s1) / (s0 * (s0 - 1)));
+			pulse_height_width_map_cal->SetBinContent(col + 1, row + 1, err);
+		}
+	}
+
+	return pulse_height_width_map_cal;
+}
+
+void PulseHeightHistogrammer::LoadCalibration(int nRoc, const char * dirfilebase)
+{
+	char tmp [100];
+	double y [5];
+	double x [5] = {50, 100, 150, 200, 250};
+	calibration = new float *** [nRoc];
+	for (int iroc = 0; iroc < nRoc; iroc++) {
+		/* open calibration file */
+		FILE * f = fopen(Form("%s/phCalibration_C0.dat", dirfilebase), "r");
+		if (!f) {
+			calibration[iroc] = NULL;
+			continue;
+		}
+
+		/* allocate space for calibration data */
+		calibration[iroc] = new float ** [52];
+		for (int col = 0; col < 52; col++) {
+			for (int row = 0; row < 80; row++) {
+				/* store two parameters per calibration */
+			}
+		}
+
+		/* skip 4 lines */
+		fgets(tmp, 100, f);
+		fgets(tmp, 100, f);
+		fgets(tmp, 100, f);
+		fgets(tmp, 100, f);
+
+		/* read calibration for each pixel */
+		for (int col = 0; col < 52; col++) {
+			calibration[iroc][col] = new float * [80];
+			for (int row = 0; row < 80; row++) {
+				calibration[iroc][col][row] = NULL;
+
+				fgets(tmp, 100, f);
+				int n = sscanf(tmp, "%lf %lf %lf %lf %lf", &(y[0]), &(y[1]), &(y[2]), &(y[3]), &(y[4]));
+				if (n != 5)
+					continue;
+
+				/* fit the data with a line */
+				TLinearFitter lf;
+				lf.SetFormula("pol2");
+				lf.AssignData(5, 1, x, y);
+				int ret = lf.Eval();
+
+				if (ret != 0)
+					continue;
+
+				calibration[iroc][col][row] = new float [2];
+				calibration[iroc][col][row][0] = lf.GetParameter(0);
+				calibration[iroc][col][row][1] = lf.GetParameter(1);
+				if (lf.GetParameter(2) > 0.002) {
+				cout << calibration[iroc][col][row][0] << " ";
+				cout << calibration[iroc][col][row][1] << " ";
+				cout << lf.GetParameter(2) << endl;
+				}
+			}
+		}
+		fclose(f);
+	}
 }

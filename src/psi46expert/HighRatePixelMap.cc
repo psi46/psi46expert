@@ -66,6 +66,8 @@ void HRPixelMap::ModuleAction(void)
 	EventCounter count;
 	MultiplicityHistogrammer mh;
 	PulseHeightHistogrammer phh;
+	ConfigParameters * configParameters = ConfigParameters::Singleton();
+	phh.LoadCalibration(nroc, configParameters->directory);
 	
 	/* Repeat measurements multiple times to collect statistics */
 	for (int rep = 0; rep < testParameters->HRPixelMapRepetitions; rep++) {
@@ -170,6 +172,9 @@ void HRPixelMap::ModuleAction(void)
 	histograms->Add((TH1I *) phh.getPulseHeightDistribution()->Clone());
 	histograms->Add((TH2F *) phh.getPulseHeightMap()->Clone());
 	histograms->Add((TH2F *) phh.getPulseHeightWidthMap()->Clone());
+	histograms->Add((TH1I *) phh.getCalPulseHeightDistribution()->Clone());
+	histograms->Add((TH2F *) phh.getCalPulseHeightMap()->Clone());
+	histograms->Add((TH2F *) phh.getCalPulseHeightWidthMap()->Clone());
 	
 	TH2I * map = (TH2I *) hm.getHitMap(-1);
 	psi::LogInfo() << "Number of triggers: " << count.TriggerCounter << psi::endl;
