@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cstdio>
 #include <cstring>
+#include <TMath.h>
 #include "BasePixel/RawPacketDecoder.h"
 #include "BasePixel/DigitalReadoutDecoder.h"
 

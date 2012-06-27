@@ -1,4 +1,6 @@
 #include "DigitalReadoutDecoder.h"
+#include <iostream>
+using namespace std;
 
 #define BITS_PER_WORD	4
 #define TBM_HEADER_BITS 0 // FIXME
@@ -9,8 +11,8 @@
 #define PIXEL_ADDRESS_GROUP_BITS 3
 #define PULSE_HEIGHT_BITS 8
 #define PULSE_HEIGHT_FIELD 9
-#define PULSE_HEIGHT_BITS_A 5
-#define PULSE_HEIGHT_BITS_B 3
+#define PULSE_HEIGHT_BITS_A 4
+#define PULSE_HEIGHT_BITS_B 4
 
 /* Extract a unsigned integer from a bit field which is stored in the array
    of 16 bit integers 'data'. It is possible to specify the offset within
@@ -88,10 +90,10 @@ int find_roc_header(short data [], int nwords, int bit_offset)
 		retval = extract_integer(data, nwords, bit_offset, ROC_HEADER_BITS);
 
 		/* In 15 of 16 cases the header is 0x7f8, the other time it is 0x7fa. */
-		if ((retval | 3) == 0x7fa)
+		if ((retval | 3) == 0x7fb)
 			return bit_offset;
 		else if (retval < 0)
-			return DRO_ERROR_NO_MORE_DATA;
+			return DRO_ERROR_NO_ROC_HEADER;
 		bit_offset++;
 	}
 	return DRO_ERROR_NO_ROC_HEADER;
@@ -166,7 +168,7 @@ int decode_hit(short data [], int nwords, int bit_offset, int * col, int * row, 
 	retval = extract_integer(data, nwords, bit_offset, PULSE_HEIGHT_BITS_A);
 	if (retval < 0)
 		return DRO_ERROR_NO_MORE_DATA;
-	ph_tmp = retval << 3;
+	ph_tmp = retval << PULSE_HEIGHT_BITS_B;
 	bit_offset += PULSE_HEIGHT_BITS_A;
 	bit_offset += 1;
 
