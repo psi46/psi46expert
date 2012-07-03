@@ -37,8 +37,20 @@ void HRPixelMap::ModuleAction(void)
 	
 	/* Unmask the ROC */
 	int nroc = module->NRocs();
-	for (int i = 0; i < nroc; i++)
-		module->GetRoc(i)->EnableAllPixels();
+	for (int i = 0; i < nroc; i++) {
+		if (!testRange->IncludesRoc(i))
+			continue;
+		for (int col = 0; col < ROC_NUMCOLS; col++) {
+			if (!testRange->IncludesColumn(i, col))
+				continue;
+			for (int row = 0; row < ROC_NUMROWS; row++) {
+				if (testRange->IncludesPixel(i, col, row))
+					module->GetRoc(i)->EnablePixel(col, row);
+				else
+					psi::LogInfo() << "Excluding pixel " << col << ":" << row << psi::endl;
+			}
+		}
+	}
 	ai->Flush();
 
 	/* Set local trigger and tbm present */
