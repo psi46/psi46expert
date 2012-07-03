@@ -236,6 +236,7 @@ CRawEvent * RawData2RawEvent::Write()
 RawEventDecoder::RawEventDecoder(unsigned int n)
 {
 	nROCs = n;
+	decoding_errors = 0;
 }
 
 CRawEvent * RawEventDecoder::Read()
@@ -269,10 +270,16 @@ CEvent * RawEventDecoder::Write()
 				cout << rawevent->data[q] << " ";
 			}
 			cout << endl;
+			decoding_errors++;
 		}
 	}
 
 	return &decoded_event;
+}
+
+unsigned int RawEventDecoder::GetDecodingErrors()
+{
+	return decoding_errors;
 }
 
 /* Filter pipe that stores hits in a 2D histogram ----------------------------------------------------------- */

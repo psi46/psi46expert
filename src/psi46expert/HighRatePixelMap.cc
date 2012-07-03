@@ -199,6 +199,7 @@ void HRPixelMap::ModuleAction(void)
 	psi::LogInfo() << " +/- " << (TMath::Sqrt(map->GetEntries()) / (count.TriggerCounter)) * 40e6 / 1e6 / (0.79*0.77 * nroc);
 	psi::LogInfo() << " megahits / s / cm2" << psi::endl;
 	psi::LogInfo() << "Number of ROC sequence errors: " << count.RocSequenceErrorCounter << psi::endl;
+	psi::LogInfo() << "Number of decoding errors: " << ed.GetDecodingErrors() << psi::endl;
 	
 	TParameter<float> triggers("pixelmap_triggers", count.TriggerCounter);
 	triggers.Write();

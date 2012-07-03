@@ -88,9 +88,13 @@ class RawEventDecoder : public Pipe {
 		CEvent decoded_event;
 		CRawEvent * Read();
 		CEvent * Write();
-		unsigned int nROCs;
 		
 		RawEventDecoder(unsigned int nROCs);
+		unsigned int GetDecodingErrors();
+
+	protected:
+		unsigned int nROCs;
+		unsigned int decoding_errors;
 };
 
 class HitMapper : public Pipe {
