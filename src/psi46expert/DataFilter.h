@@ -88,10 +88,14 @@ class RawEventDecoder : public Pipe {
 		CEvent decoded_event;
 		CRawEvent * Read();
 		CEvent * Write();
-		unsigned int nROCs;
-		bool analog;
 
 		RawEventDecoder(unsigned int nROCs, bool analog);
+		unsigned int GetDecodingErrors();
+
+	protected:
+		bool analog;
+		unsigned int nROCs;
+		unsigned int decoding_errors;
 };
 
 class HitMapper : public Pipe {
@@ -160,20 +164,33 @@ class MultiplicityHistogrammer : public Pipe {
 
 class PulseHeightHistogrammer : public Pipe {
 	protected:
-		TH1I * pulse_height_dist;
+		TH1F * pulse_height_dist;
+		TH1F * pulse_height_dist_cal;
 		TH2F * pulse_height_map;
+		TH2F * pulse_height_map_cal;
 		TH2F * pulse_height_width_map;
+		TH2F * pulse_height_width_map_cal;
 		TH2F * ph_map_w;
+		TH2F * ph_map_w_cal;
 		TH2F * ph_map_w2;
+		TH2F * ph_map_w2_cal;
 		TH2F * ph_map_n;
+		float **** calibration;
 	public:
 		CEvent * Read();
 		CEvent * Write();
+
 		PulseHeightHistogrammer();
 		~PulseHeightHistogrammer();
-		TH1I * getPulseHeightDistribution();
+
+		void LoadCalibration(int nRoc, const char * dirfilebase);
+
+		TH1F * getPulseHeightDistribution();
 		TH2F * getPulseHeightMap();
 		TH2F * getPulseHeightWidthMap();
+		TH1F * getCalPulseHeightDistribution();
+		TH2F * getCalPulseHeightMap();
+		TH2F * getCalPulseHeightWidthMap();
 };
 
 #endif

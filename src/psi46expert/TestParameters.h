@@ -90,6 +90,8 @@ class TestParameters
     int HRPixelMapTriggerRate;
     int HRPixelMapRepetitions;
     float HRPixelMapAquisitionTime;
+    int HRPixelMapClockStretch;
+    int HRPixelMapStretchDelay;
 
     int HREfficiencyTriggers;
     

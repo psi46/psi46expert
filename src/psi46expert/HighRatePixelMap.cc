@@ -37,8 +37,20 @@ void HRPixelMap::ModuleAction(void)
 	
 	/* Unmask the ROC */
 	int nroc = module->NRocs();
-	for (int i = 0; i < nroc; i++)
-		module->GetRoc(i)->EnableAllPixels();
+	for (int i = 0; i < nroc; i++) {
+		if (!testRange->IncludesRoc(i))
+			continue;
+		for (int col = 0; col < ROC_NUMCOLS; col++) {
+			if (!testRange->IncludesColumn(i, col))
+				continue;
+			for (int row = 0; row < ROC_NUMROWS; row++) {
+				if (testRange->IncludesPixel(i, col, row))
+					module->GetRoc(i)->EnablePixel(col, row);
+				else
+					psi::LogInfo() << "Excluding pixel " << col << ":" << row << psi::endl;
+			}
+		}
+	}
 	ai->Flush();
 
 	/* Set local trigger and tbm present */
@@ -50,7 +62,11 @@ void HRPixelMap::ModuleAction(void)
 	
 	/* Send a reset to the chip */
 	ai->Single(RES);
-	
+
+	/* Set clock stretch */
+	if (testParameters->HRPixelMapClockStretch > 1)
+		ai->SetClockStretch(STRETCH_AFTER_CAL, testParameters->HRPixelMapStretchDelay, testParameters->HRPixelMapClockStretch);
+
 	/* Get the digital and analog voltages / currents */
 	psi::LogInfo() << "Measuring chip voltages and currents ..." << psi::endl;
 	TParameter<float> vd("hr_pixelmap_digital_voltage", ai->GetVD());
@@ -69,6 +85,8 @@ void HRPixelMap::ModuleAction(void)
 	EventCounter count;
 	MultiplicityHistogrammer mh;
 	PulseHeightHistogrammer phh;
+	ConfigParameters * configParameters = ConfigParameters::Singleton();
+	phh.LoadCalibration(nroc, configParameters->directory);
 	
 	/* Repeat measurements multiple times to collect statistics */
 	for (int rep = 0; rep < testParameters->HRPixelMapRepetitions; rep++) {
@@ -89,7 +107,7 @@ void HRPixelMap::ModuleAction(void)
 		ai->getCTestboard()->Set(21, testParameters->HRPixelMapTriggerRate); // T_Periode has the wrong value. Should be fixed.
 
 		/* Issue continuous Reset-(Calibrate-)Trigger-Token pattern */
-		ai->Intern(RES|TRG|TOK);
+		ai->Intern(RES|CAL|TRG|TOK);
 
 		/* Set local trigger, tbm present, and run data aquisition */
 		if (ai->IsAnalog())
@@ -177,6 +195,9 @@ void HRPixelMap::ModuleAction(void)
 	histograms->Add((TH1I *) phh.getPulseHeightDistribution()->Clone());
 	histograms->Add((TH2F *) phh.getPulseHeightMap()->Clone());
 	histograms->Add((TH2F *) phh.getPulseHeightWidthMap()->Clone());
+	histograms->Add((TH1I *) phh.getCalPulseHeightDistribution()->Clone());
+	histograms->Add((TH2F *) phh.getCalPulseHeightMap()->Clone());
+	histograms->Add((TH2F *) phh.getCalPulseHeightWidthMap()->Clone());
 	
 	TH2I * map = (TH2I *) hm.getHitMap(-1);
 	psi::LogInfo() << "Number of triggers: " << count.TriggerCounter << psi::endl;
@@ -185,9 +206,14 @@ void HRPixelMap::ModuleAction(void)
 	psi::LogInfo() << " +/- " << (TMath::Sqrt(map->GetEntries()) / (count.TriggerCounter)) * 40e6 / 1e6 / (0.79*0.77 * nroc);
 	psi::LogInfo() << " megahits / s / cm2" << psi::endl;
 	psi::LogInfo() << "Number of ROC sequence errors: " << count.RocSequenceErrorCounter << psi::endl;
+	psi::LogInfo() << "Number of decoding errors: " << ed.GetDecodingErrors() << psi::endl;
 	
 	TParameter<float> triggers("pixelmap_triggers", count.TriggerCounter);
 	triggers.Write();
+
+	/* Disable clock stretch */
+	if (testParameters->HRPixelMapClockStretch > 1)
+		ai->SetClockStretch(0, 0, 0);
 
 	/* Reset the chip */
 	ai->Single(RES);

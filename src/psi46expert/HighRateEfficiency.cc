@@ -166,6 +166,7 @@ void HREfficiency::ModuleAction(void)
 	psi::LogInfo() << " +/- " << (TMath::Sqrt(background) / (ntrig * 4160)) * 40e6 / 1e6 / (0.79*0.77 * nroc);
 	psi::LogInfo() << " megahits / s / cm2" << psi::endl;
 	psi::LogInfo() << "Overall efficiency: " << efficiency << " %" << psi::endl;
+	psi::LogInfo() << "Number of decoding errors: " << ed.GetDecodingErrors() << psi::endl;
 	
 	/* Free the memory in the RAM */
 	ai->getCTestboard()->Daq_Done();
