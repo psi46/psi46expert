@@ -235,6 +235,7 @@ CRawEvent * RawData2RawEvent::Write()
 RawEventDecoder::RawEventDecoder(unsigned int n, bool analog)
 {
 	nROCs = n;
+	this->analog = analog;
 }
 
 CRawEvent * RawEventDecoder::Read()
