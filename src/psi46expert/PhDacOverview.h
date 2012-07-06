@@ -24,6 +24,7 @@ class PhDacOverview : public PhDacScan
   void DoVsfScan();
 
  protected:
+  void PHDac(TH1D * histo);
 
   int NumberOfSteps;
 
