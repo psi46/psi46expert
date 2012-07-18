@@ -2,7 +2,7 @@ AM_CPPFLAGS = -I$(srcdir)/.. $(ROOTFLAGS)
 
 # PROGRAMS ----------------------------------------------------------------------------------------------------------------------------------------------------
 
-bin_PROGRAMS = psi46expert psi46hvOff psi46hvOn psi46hvRead psi46takeData psi46debugData psi46readData
+bin_PROGRAMS = psi46expert psi46hvOff psi46hvOn psi46hvRead psi46takeData psi46debugData psi46readData psi46tuneReadout
 
 psi46expert_SOURCES = psi46expert.cpp
 psi46expert_LDADD = libpsi46expert.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB) -lMinuit
@@ -27,6 +27,10 @@ psi46takeData_LDFLAGS = -static
 psi46debugData_SOURCES = debugData.cpp
 psi46debugData_LDADD = libpsi46daq.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB) -lMinuit
 psi46debugData_LDFLAGS = -static
+
+psi46tuneReadout_SOURCES = tuneReadout.cpp
+psi46tuneReadout_LDADD = libpsi46daq.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB) -lMinuit
+psi46tuneReadout_LDFLAGS = -static
 
 psi46readData_SOURCES = readData.cpp
 psi46readData_LDADD = libpsi46readdata.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB)
