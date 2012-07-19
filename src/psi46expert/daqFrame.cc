@@ -446,7 +446,7 @@ void daqFrame::initializeHardware() {
   
   fTB->ProbeSelect(0,1);
 
-  fTB->SetTriggerMode(TRIGGER_MODULE1);
+  fTB->SetTriggerMode(TRIGGER_ROC); // for testbeam setup
   fTB->getCTestboard()->DataBlockSize(100);
 
 /*  fpLM->log("Enable all pixels");
@@ -524,6 +524,7 @@ void daqFrame::runStart() {
   fpLM->log("==>daqf: --> MTB DataCtrl ADC ");
 
   int tbmc = fpLM->getMTBConfigParameters()->tbmChannel;
+  std::cout << "KHDEBUG: tbm channel = " << tbmc << std::endl;
   fTB->Flush();
   dataBuffer_fpga1 = fTB->getCTestboard()->Daq_Init(dataBuffer_numWords);
   fTB->getCTestboard()->Daq_Enable();  
@@ -764,6 +765,7 @@ void daqFrame::readout(FILE *file, unsigned int filledMem1)
   fTB->Clear();
   fpLM->log(Form("==>daqf: read mtb, words = %d", filledMem1));
   fTB->Mem_ReadOut(file, dataBuffer_fpga1, filledMem1);
+  fpLM->log(Form("==>daqf: done reading"));
 } 
 
 
