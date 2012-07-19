@@ -96,7 +96,7 @@ bool CUSB::Open(char serialNumber[])
         continue;
 
       /* we're only interested in devices with one vendor and product ID */
-      if (descriptor.idVendor != 0x0403 || descriptor.idProduct != 0x6001)
+      if (descriptor.idVendor != 0x0403 || (descriptor.idProduct != 0x6001 && descriptor.idProduct != 0x6010) )
         continue;
 
       /* open the device */
