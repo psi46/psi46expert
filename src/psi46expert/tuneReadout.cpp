@@ -7,16 +7,22 @@
 #include <cmath>
 
 #define DIGITAL 1
+#define NCHIPS 8
 
-double check_Vana(TBAnalogInterface* tbInterface) {
+double check_Vana(TBAnalogInterface* tbInterface,
+		  TestControlNetwork* controlNetwork) {
 
   // check whether we can program Vana
-  tbInterface->RocSetDAC(Vana, 0);
+  for (int i=0; i<NCHIPS; i++) {
+    controlNetwork->GetModule(0)->GetRoc(i)->SetDAC("Vana", 0);
+  }
   tbInterface->Flush();
   sleep(0.2);        
   double currentBefore = tbInterface->GetIA();
 
-  tbInterface->RocSetDAC(Vana, 200);
+  for (int i=0; i<NCHIPS; i++) {
+    controlNetwork->GetModule(0)->GetRoc(i)->SetDAC("Vana", 200);
+  }
   tbInterface->Flush();
   sleep(0.2);        
   double currentAfter = tbInterface->GetIA();
@@ -26,7 +32,8 @@ double check_Vana(TBAnalogInterface* tbInterface) {
 }
 
 
-int scan_i2c(TBAnalogInterface* tbInterface) {
+int scan_i2c(TBAnalogInterface* tbInterface,
+	     TestControlNetwork* controlNetwork) {
 
   // find middle of longest stretch of sda phases that work
 
@@ -41,7 +48,7 @@ int scan_i2c(TBAnalogInterface* tbInterface) {
   for (int sda=0; sda<50; sda++) {
     tbInterface->SetTBParameter("sda", sda%25);
     tbInterface->Flush();
-    double current_ratio=check_Vana(tbInterface);
+    double current_ratio=check_Vana(tbInterface,controlNetwork);
     bool this_worked=(current_ratio>1.5);
     if (this_worked) {
       ++num_good;
@@ -72,7 +79,7 @@ int get_num_pixels_ana(short* data, unsigned short count) {
 
   // use 6 for original firmware and analogue chips
   // use 2 for digital firmware and analogue chips
-  int empty_readout_length=1;
+  int empty_readout_length=3*NCHIPS-2;
   if (count<empty_readout_length) return -1;
   return (count-empty_readout_length)/6;
 }
@@ -107,7 +114,7 @@ int get_num_pixels_dig(short* data, unsigned short count) {
 int get_num_pixels(short* data, unsigned short count) {
   if (DIGITAL)
     //return get_num_pixels_dig(data,count);
-    return get_num_pixels_ana(data,count);
+    return get_num_pixels_dig(data,count);
   else
     return get_num_pixels_ana(data,count);
 }
@@ -231,8 +238,7 @@ int main(int argc, char* argv[]) {
   tbInterface->SetTBParameter("tcc", 6);
 
   // set delay between cal and trigger (5-255). we need this value later to determine wbc.
-  int tct=25;
-  if (!DIGITAL) tct=104;
+  int tct=104;
   tbInterface->SetTBParameter("tct", tct);
 
   // delay between trigger and token (5-255)
@@ -257,7 +263,7 @@ int main(int argc, char* argv[]) {
 
     // find suitable sda setting.
     // only if sda is right, we can see chip currents change with DAC settings
-    int sda=scan_i2c(tbInterface);
+    int sda=scan_i2c(tbInterface,controlNetwork);
     if (sda<0) {
       std::cout << "could not find working sda setting. skipping." << std::endl;
       continue;
@@ -394,11 +400,13 @@ int main(int argc, char* argv[]) {
 	  tbInterface->Flush();
 
 	  // arm a few pixels
-	  for (int i=0; i<26; i++) {
-	    controlNetwork->GetModule(0)->GetRoc(0)->GetDoubleColumn(i)->EnableDoubleColumn();
+	  for (int ichip=0; ichip<NCHIPS; ichip++) {
+	    for (int i=0; i<26; i++) {
+	      controlNetwork->GetModule(0)->GetRoc(ichip)->GetDoubleColumn(i)->EnableDoubleColumn();
+	    }
+	    controlNetwork->GetModule(0)->GetRoc(ichip)->ArmPixel(5,10);
+	    controlNetwork->GetModule(0)->GetRoc(ichip)->ArmPixel(3,8);
 	  }
-	  controlNetwork->GetModule(0)->GetRoc(0)->ArmPixel(5,10);
-	  controlNetwork->GetModule(0)->GetRoc(0)->ArmPixel(3,8);
 
 	  tbInterface->Flush();
        	  tbInterface->ADCRead(data, count);
@@ -432,8 +440,10 @@ int main(int argc, char* argv[]) {
 	  }
 
 	  // disarm pixels again
-	  controlNetwork->GetModule(0)->GetRoc(0)->DisarmPixel(5,10);
-	  controlNetwork->GetModule(0)->GetRoc(0)->DisarmPixel(3,8);
+	  for (int ichip=0; ichip<NCHIPS; ichip++) {
+	    controlNetwork->GetModule(0)->GetRoc(ichip)->DisarmPixel(5,10);
+	    controlNetwork->GetModule(0)->GetRoc(ichip)->DisarmPixel(3,8);
+	  }
 
 	}
       }
