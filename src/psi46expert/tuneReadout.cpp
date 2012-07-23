@@ -79,7 +79,7 @@ int get_num_pixels_ana(short* data, unsigned short count) {
 
   // use 6 for original firmware and analogue chips
   // use 2 for digital firmware and analogue chips
-  int empty_readout_length=3*NCHIPS-2;
+  int empty_readout_length=3*NCHIPS;
   if (count<empty_readout_length) return -1;
   return (count-empty_readout_length)/6;
 }
