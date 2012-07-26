@@ -1,0 +1,13 @@
+
+  8        clk  0
+  9        sda  14
+ 10        ctr  15
+ 11        tin  42
+ 12        rda  34
+ 17        trc  20
+ 18        tcc   6
+ 19        tct  104
+ 20        ttk  16
+ 21       trep  40
+ 22         cc   1
+ 77        spd   0
