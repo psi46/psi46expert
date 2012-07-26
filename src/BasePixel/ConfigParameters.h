@@ -20,6 +20,7 @@ class ConfigParameters
 	int customModule;
 	int emptyReadoutLength, emptyReadoutLengthADC, emptyReadoutLengthADCDual, tbmChannel;
 	double ia, id, va, vd;
+	float rocZeroAnalogCurrent;
 
 	char directory[1000];
 	char testboardName[1000];

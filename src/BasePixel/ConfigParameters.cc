@@ -60,6 +60,8 @@ void ConfigParameters::Initialize()
 	id = 1.;
 	va = 1.7;
 	vd = 2.5;
+
+	rocZeroAnalogCurrent = 0.0;
 }
 
 ConfigParameters* ConfigParameters::Singleton()
@@ -134,6 +136,8 @@ bool ConfigParameters::ReadConfigParameterFile( const char *_file)
     else if( 0 == _name.compare( "id") ) { id = .001 * _ivalue; }
     else if( 0 == _name.compare( "va") ) { va = .001 * _ivalue; }
     else if( 0 == _name.compare( "vd") ) { vd = .001 * _ivalue; }
+
+    else if( 0 == _name.compare( "rocZeroAnalogCurrent") ) { rocZeroAnalogCurrent = .001 * _ivalue; }
 
     else { psi::LogInfo() << "[ConfigParameters] Did not understand '" 
                           << _name << "'." << psi::endl; }
@@ -241,6 +245,8 @@ bool ConfigParameters::WriteConfigParameterFile()
 	fprintf(file, "id %i\n"  , static_cast<int>( id * 1000));
 	fprintf(file, "va %i\n"  , static_cast<int>( va * 1000));
 	fprintf(file, "vd %i\n\n", static_cast<int>( vd * 1000));
+
+	fprintf(file, "rocZeroAnalogCurrent %i\n\n", static_cast<int>(rocZeroAnalogCurrent * 1000));
 	
 	fprintf(file, "-- adc parameters\n\n");
 	
