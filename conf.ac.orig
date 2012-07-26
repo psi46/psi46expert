@@ -34,11 +34,14 @@ then
 fi
 AC_SUBST([LIBUSB])
 
+AC_CHECK_HEADERS([libusb-1.0/libusb.h], [], [AC_MSG_WARN([libusb-1.0 headers not found. Automatic detachment of kernel modules from testboard disabled.])])
+
 AC_CHECK_PROGS([ROOT], [root-config], [/])
 if test "$ROOT" = /
 then
 	AC_MSG_ERROR([Could not find ROOT. Install ROOT or set PATH environment variable correctly.])
 fi
+
 ROOTLIBS=$(root-config --glibs)
 ROOTLIBS=$(root-config --glibs)
 ROOTFLAGS=$(root-config --cflags)

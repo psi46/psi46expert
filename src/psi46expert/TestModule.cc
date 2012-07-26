@@ -639,6 +639,10 @@ void TestModule::AdjustVana(double goalCurrent)
   int vana[nRocs];
   int vsf[nRocs];
 
+  /* The ROC may still draw some current when Vana is 0. To adjust
+     the current correctly this zero-current is taken into account. */
+  goalCurrent -= configParameters->rocZeroAnalogCurrent;
+
   for (int iRoc = 0; iRoc < nRocs; iRoc++)
   {
     vsf[iRoc] = GetRoc(iRoc)->GetDAC("Vsf");

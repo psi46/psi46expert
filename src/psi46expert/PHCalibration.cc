@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 
 #include <TSystem.h>
 #include <TRandom.h>
@@ -14,6 +15,9 @@
 #include "PHCalibration.h"
 #include "pipe.h"
 #include "DataFilter.h"
+#include "BasePixel/DigitalReadoutDecoder.h"
+#include "BasePixel/DecodedReadout.h"
+#include "TestModule.h"
 
 
 PHCalibration::PHCalibration()
@@ -168,6 +172,7 @@ void PHCalibration::RocAction()
 	if (debug) {calDel50 = 44; calDel100 = 63; calDel200 = 66; vthrComp50 = 114; vthrComp100 = 99; vthrComp200 = 85;}
 	else if (calDelVthrComp)
 	{
+		psi::LogInfo() << "Determining CalDel values ..." << psi::endl;
 		SetDAC("CtrlReg", 0);
 		calDel200 = GetDAC("CalDel"); vthrComp200 = GetDAC("VthrComp"); // from Pretest
 		roc->AdjustCalDelVthrComp(15, 15, 50, -0); calDel50 = GetDAC("CalDel"); vthrComp50 = GetDAC("VthrComp");
@@ -194,7 +199,9 @@ void PHCalibration::RocAction()
 		SetDAC("VthrComp", GetVthrComp(i));
 		SetDAC("Vcal", vcal[i]);
 		Flush();
-		
+
+		cout << "Calibrating with Vcal " << setw(3) << vcal[i] << (ctrlReg[i] == 4 ? "H" : "L") << " ... " << endl;
+
 		if (numPixels >= 4160) {
 			if (((TBAnalogInterface *) tbInterface)->IsAnalog())
 				roc->AoutLevelChip(phPosition, nTrig, data);
@@ -208,7 +215,7 @@ void PHCalibration::RocAction()
 		}
 
 		for (int k = 0; k < ROCNUMROWS*ROCNUMCOLS; k++) ph[i][k] = data[k];
-	}	
+	}
 
 	for (int col = 0; col < 52; col++)
 	{	
@@ -227,7 +234,26 @@ void PHCalibration::RocAction()
 			}
 		}
 	}
-			
+
+	for (int i = 0; i < vcalSteps; i++) {
+		TH2F * ph_map = new TH2F(Form("ph_cal_map_vcal%i%s_C%i", vcal[i], ctrlReg[i] == 4 ? "H" : "L", chipId), Form("Pulse height calibration map ROC %i (Vcal %i%s)", chipId, vcal[i], ctrlReg[i] == 4 ? "H" : "L"), 52, 0, 52, 80, 0, 80);
+		ph_map->GetXaxis()->SetTitle("Column");
+		ph_map->GetYaxis()->SetTitle("Row");
+
+		for (int col = 0; col < 52; col++) {
+		        for (int row = 0; row < 80; row++) {
+				SetPixel(GetPixel(col, row));
+				if (testRange->IncludesPixel(chipId, column, row) && ph[i][col*ROCNUMROWS + row] != 7777) {
+					ph_map->SetBinContent(col + 1, row + 1, ph[i][col * ROCNUMROWS + row]);
+					//if (ph[i][col*ROCNUMROWS + row] != 7777) fprintf(file, "%5i ", ph[i][col*ROCNUMROWS + row]);
+					//else fprintf(file, "  N/A ");
+				}
+			}
+		}
+
+		histograms->Add(ph_map);
+	}
+
 	fclose(file);
 	RestoreDacParameters();
 	gDelay->Timestamp();
@@ -258,40 +284,21 @@ void PHCalibration::PulseHeightRocDigital(int data [])
 	TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
 	ai->Flush();
 
-	/* ??? */
-	ai->getCTestboard()->DataBlockSize(100);
-	ai->Flush();
+	/* Structure that holds the decoded readout */
+	DecodedReadoutModule * drm = new DecodedReadoutModule;
 
-	/* Send a reset to the chip */
-	ai->Single(RES);
-	ai->Flush();
-	gDelay->Mdelay(10);
+	/* Set local trigger and channel */
+	ai->SetReg(41, 0x20 | 0x01);
 
-	/* Prepare the data aquisition (store to testboard RAM) */
-	unsigned int data_pointer = ai->getCTestboard()->Daq_Init(30000000);
-
-	/* Enable DMA (direct memory access) controller */
-	ai->getCTestboard()->Daq_Enable();
-
-	/* Set data aquisition to no clear buffer, multi trigger, continuous. */
+	/* Enable the FIFO gate */
 	ai->DataCtrl(false, false, true);
 
-	/* Reset the clock counter on the testboard */
-	ai->SetReg(43, (1 << 1));
-
-	/* Set local trigger, tbm present, and run data aquisition */
-	if (ai->IsAnalog())
-		ai->SetReg(41, 0x20 | 0x02 | 0x08);
-	else
-		ai->SetReg(41, 0x20 | 0x01 | 0x08);
-	ai->Flush();
-
-	/* Reset the aquisition on the testboard */
-	ai->SetReg(43, (1 << 0));
+	/* Buffer for the ADC data */
+	short * buffer = new short [256];
+	unsigned short nwords;
 
 	/* iterate over columns and rows to get each pixel efficiency */
 	for (int col = 0; col < 52; col++) {
-		cout << "\rSending calibrate signals ... " << ((int)(100 * col / 52.)) << " % " << flush;
 		for (int row = 0; row < 80; row++) {
 			/* Arm the pixel */
 			roc->ArmPixel(col, row);
@@ -305,60 +312,48 @@ void PHCalibration::PulseHeightRocDigital(int data [])
 			}
 			ai->Flush();
 
+			ai->getCTestboard()->DataRead(ai->GetTBMChannel(), buffer, 256, nwords);
+
+			/* Calculate the mean pulseheight from nTrig measurements by analysing the data */
+			float ph_mean = 0.0;
+			int measurement_num = 0;
+			int data_pos = 0;
+			for (int trig = 0; trig < nTrig; trig++) {
+				int retval = decode_digital_readout(drm, buffer + data_pos, nwords, module->NRocs(), 0);
+				if (retval >= 0) {
+					/* Successful decoding */
+					int hits = drm->roc[roc->GetChipId()].numPixelHits;
+					if (hits == 1) {
+						/* Record the pulse height and move to the next block of data */
+						ph_mean += drm->roc[roc->GetChipId()].pixelHit[0].analogPulseHeight;
+						data_pos += ai->GetEmptyReadoutLengthADC() + hits * 6;
+						measurement_num++;
+					} else if (hits > 1) {
+						/* More hits than expected. Move to the next block of data. */
+						data_pos += ai->GetEmptyReadoutLengthADC() + hits * 6;
+					} else {
+						/* No hits, move to the next block of data. */
+						data_pos += ai->GetEmptyReadoutLengthADC();
+					}
+				} else {
+					/* Decoding failed. Try next block of data. */
+					data_pos += ai->GetEmptyReadoutLengthADC();
+				}
+			}
+
+			/* Finalize the mean value of the pulseheight */
+			if (measurement_num > 0)
+				ph_mean /= measurement_num;
+
+			data[80 * col + row] = ph_mean;
+
 			/* Disarm the pixel */
 			roc->DisarmPixel(col, row);
 			ai->Flush();
 		}
 	}
-	cout << endl;
 
-	/* Wait for data aquisition to finish */
-	gDelay->Mdelay(100);
-
-	/* Get pointer to the end of the data block */
-	int data_end = ai->getCTestboard()->Daq_GetPointer();
-	ai->Flush();
-
-	/* Disable data aquisition */
-	ai->SetReg(41, 0x20 | 0x02);
-	ai->getCTestboard()->Daq_Disable();
-	ai->DataCtrl(false, false, false);
-	ai->Flush();
-
-	/* Number of words in memory */
-	int nwords = (data_end - data_pointer) / 2;
-	psi::LogInfo() << "Megabytes in RAM: " << nwords * 2. / 1024. / 1024. << psi::endl;
-
-	/* Prepare data decoding */
-	int nroc = 1;
-	RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
-	RawData2RawEvent rs;
-	RawEventDecoder ed(nroc, ai->IsAnalog());
-	PulseHeightHistogrammer ph;
-
-	/* Decoding chain */
-	rd >> rs >> ed >> ph >> end;
-
-	/* Store histograms */
-	TH1I * dist = (TH1I *) ph.getPulseHeightDistribution()->Clone();
-	TH2F * map = (TH2F *) ph.getPulseHeightMap()->Clone();
-	TH2F * width = (TH2F *) ph.getPulseHeightWidthMap()->Clone();
-	int vcal = roc->GetDAC("Vcal");
-	int ctrl = roc->GetDAC("CtrlReg");
-	dist->SetNameTitle(Form("pulse_height_dist_vcal%i%c", vcal, (ctrl == 4) ? 'h' : 'l'), Form("Pulse height distribution (Vcal %i%c)", vcal, (ctrl == 4) ? 'H' : 'L'));
-	map->SetNameTitle(Form("pulse_height_map_vcal%i%c", vcal, (ctrl == 4) ? 'h' : 'l'), Form("Pulse height map (Vcal %i%c)", vcal, (ctrl == 4) ? 'H' : 'L'));
-	width->SetNameTitle(Form("pulse_height_width_map_vcal%i%c", vcal, (ctrl == 4) ? 'h' : 'l'), Form("Pulse height with map (Vcal %i%c)", vcal, (ctrl == 4) ? 'H' : 'L'));
-	histograms->Add(dist);
-	histograms->Add(map);
-	histograms->Add(width);
-
-	for (int col = 0; col < 52; col++) {
-		for (int row = 0; row < 80; row++) {
-			data[80 * col + row] = map->GetBinContent(col + 1, row + 1);
-		}
-	}
-
-	/* Free the memory in the RAM */
-	ai->getCTestboard()->Daq_Done();
-	ai->Flush();
+	delete buffer;
+	delete drm;
+	return;
 }
