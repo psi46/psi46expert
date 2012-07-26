@@ -90,69 +90,80 @@ Then you can run
 	both to be safe. (Your favourite distribution should provide
 	the packages.)
 	For libraries in special directories you can use
-	
+
 		export PATH=$PATH:whatever
 		export CPATH=$CPATH:whatever
 		export LIBRARY_PATH=$LIBRARY_PATH:whatever
-	
+
 	before calling ./configure . This is best put in your .bashrc
 	file in your home directory.
 
   3.	If 'make' fails, you should talk to a code maintainer. There
-  	is one case which is known to fail: If you try to compile
+  	are two cases which is known to fail: On is that the call to
+  	rootcint fails because it cannot find the libraries. Make sure
+  	that you set LD_LIBRARY_PATH correctly:
+
+  		export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:YOURPATH
+
+  	The other case is if you try to compile
   	the software against the older version libftd2xx-0.4.x
-  	on a 32 bit machine, then there may be a compilation error
+  	on a 32 bit machine. Then there may be a compilation error
   	in USBInterface.cc, depending on which compiler version you
   	are using. It might say something about being unable to
   	convert a 'unsigned long *' into a 'unsigned int *'. On a
   	32 bit Linux system, they are actually exactly the same, so
   	you can pass the variable
-  	
+
   		./configure CFLAGS=-fpermissive
-  	
+
   	to the configuration script, which should make the compiler
   	ignore the problem.
 
   4.	If psi46expert won't start because a library is missing,
   	set your custom library path with
-  	
+
   		export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:YOURPATH
-  
+
   5.	If psi46expert cannot open a port to the testboard, then
   	make sure the testboard name is correct in the configParameters.dat
   	file in you config directory. If this is the case, make
   	sure that you have write access to your USB devices:
-  	
+
   		ls -l /dev/bus/usb/00?/*
-  	
+
   	You can change these permissions permanently if you create a file
   	/etc/udev/rules.d/10-testboard.rules which contains
-  	
+
   		SUBSYSTEM == "usb", ATTR{product} == "DLP-USB245M", GROUP="usb", MODE="0664"
-  	
+
   	and create a group "usb" and add yourself to that group. Newly
   	plugged devices will have the correct permissions. For the
   	libftd2xx-0.4.x library version it may be that you need the
   	usbfs. You can get this by putting the following line into your
   	/etc/fstab file:
-  	
+
   		none /proc/bus/usb usbfs devgid=1000,devmode=0660 0 0
-  	
+
   	where you should replace the number 1000 with the group id of
   	your group 'usb'. You can then either reboot the machine or
   	do a
-  	
+
   		mount -a
-  	
+
   	as root.
+  	Lastly, it is possible that the automatic detachment of the
+  	usb serial kernel modules was not enabled during compilation.
+  	This happens if the libusb-1.0 headers are missing on the
+  	system. Some systems have -devel packages for their libraries
+  	and you should install such package and then recompile and
+  	reinstall psi46expert.
 
   6.	If you wish to use other devices with FTDI chips that require
-  	the bit bang mode and/or the kernel modules usbserial and
-  	ftdi_sio, then you should install libftd2xx-0.4.x.
+  	the bit bang mode then you should install libftd2xx-0.4.x.
 
   7.	If all things fail, you should talk to a code maintainer. Post
   	a message to the hypernews list 'Pixel psi46 Testboard':
-  	
+
   		hn-cms-pixel-psi46-testboard@cern.ch
-  	
+
   	This requires a CERN account.
