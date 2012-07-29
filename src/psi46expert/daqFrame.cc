@@ -517,7 +517,10 @@ void daqFrame::runStart() {
   if (fLocalTrigger) {
     fTB->Intern(15);  // BasePixel/TBAnalogInterface.cc:  else if (command.Keyword("loop"))   {Intern(rctk_flag);}
   }
-  //fTB->Intern(RES);
+  else {
+    fpLM->log("==>daqf: starting run for external trigger, NO CAL PULSES!!!");
+    fTB->Single(11);
+  }
   fTB->Flush();
 
   // -- start ADC of RTB and MTB
