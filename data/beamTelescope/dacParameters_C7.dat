@@ -23,7 +23,7 @@
  23      Vnpix   0
  24    VSumCol   0
  25       Vcal 199
- 26     CalDel 100
+ 26     CalDel  50
  27  RangeTemp   7
 253    CtrlReg   0
-254        WBC 100
+254        WBC 101
