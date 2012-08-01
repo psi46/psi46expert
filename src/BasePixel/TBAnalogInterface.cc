@@ -609,7 +609,7 @@ unsigned short TBAnalogInterface::ADC()
 	psi::LogInfo << "[TBAnalogInterface] Data: ";
 	for (unsigned int n = 0; n < count; n++) {
 		if (is_analog)
-			psi::LogInfo << " " << data[n];
+		  psi::LogInfo << hex << (data[n]&0xf) << dec;
 		else
 			psi::LogInfo << ((n % 8 == 0) ? "|" : "") << ((data[n / 16] & (1 << (16 - n % 16 - 1))) ? 1 : 0);
 	}
