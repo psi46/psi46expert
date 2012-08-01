@@ -615,6 +615,22 @@ unsigned short TBAnalogInterface::ADC()
 	}
 
 	psi::LogInfo << psi::endl;
+	// interpret digital data
+	if (is_analog) {
+	  int pos=0;
+	  int nheaders=0;
+	  while (pos<count) {
+	    if (pos<count-2) {
+	      if ((data[pos]&0xf)==7 && (data[pos+1]&0xf)==0xf && (data[pos+2]&0x8)==8) {
+		psi::LogInfo << "  ROC header " << nheaders << psi::endl;
+		nheaders+=1;
+		pos+=3;
+		continue;
+	      }
+	    }
+	    pos+=1;
+	  }
+	}
 	return count;
 }
 
