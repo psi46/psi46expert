@@ -93,21 +93,17 @@ int get_num_pixels_dig(short* data, unsigned short count) {
   bool found_header=0;
   unsigned short ipos=0;
   while (!found_header && ipos<count-2) {
-    found_header=(data[ipos]==0x07 && data[ipos+1]==0x0f && (data[ipos+2]&8)==0x08);
+    int dataword=(data[ipos]&15);
+    found_header=(dataword==0x7 && (data[ipos+1]&0xf)==0xf && (data[ipos+2]&8)==0x8);
     ++ipos;
   }
   if (!found_header) return -1;
 
   // now check remaining data for pixels
-  ipos+=2;
-  int npixels=0;
-  while (count-ipos>=6) {
-    // enough bits for another pixel, but is this really one or just trailing 0s?
-    // column and row can never be zero, so we need to check that
-    if (data[ipos]!=0 || data[ipos+1]!=0 || data[ipos+2]!=0 || data[ipos+3]!=0) ++npixels;
-    ipos+=6;
-  }
-  return npixels;
+  int empty_readout_length=3*NCHIPS;
+  if (count<empty_readout_length) return -1;
+  return (count-empty_readout_length)/6;
+
 }
 
 
@@ -168,6 +164,9 @@ int scan_tin(TBAnalogInterface* tbInterface) {
   }
   std::cout << "scan_tin: fraction of good settings is " << 1.0*num_good/(num_good+num_bad)
 	    << std::endl;
+  if (lowest_valid>0 && best_num_valid==0) {
+    best_tin=(lowest_valid+26)/2;
+  }
   if (num_bad==0) best_tin=42;
   return best_tin; 
 }
