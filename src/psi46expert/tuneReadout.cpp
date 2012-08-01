@@ -414,20 +414,16 @@ int main(int argc, char* argv[]) {
        	  tbInterface->ADCRead(data, count);
 	  int mincount=count;
 	  int maxcount=count;
-	  double npixels=get_num_pixels(data,count);
-          if (npixels > 0)
-		       {
-          for(int i=0; i<100;i++)
-	    {
-              tbInterface->ADCRead(data, count);
-              if (count>maxcount)
-		maxcount=count;
-              if (count<mincount)
-                mincount=count;
-            }
-		       }
-	  npixels=get_num_pixels(data,maxcount);
-	  if (npixels>0 && maxcount<4000) {
+	  int min_npixels=get_num_pixels(data,count);
+	  int numtries=0;
+	  while ((numtries<100) && (min_npixels>0)) {
+	    tbInterface->ADCRead(data, count);
+	    int npixels=get_num_pixels(data,count);
+	    if (count>maxcount) maxcount=count;
+	    if (count<mincount) mincount=count;
+	    if (npixels<min_npixels) min_npixels=npixels;
+	  }
+	  if (min_npixels>0 && maxcount<4000) {
 	    std::cout << "wbc=" << wbc << ", caldel=" << caldelay
 		      << ", clk=" << clk << ", sda=" << sda
 		      << ", tin=" << tin << ", ctr=" << ctr
