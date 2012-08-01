@@ -66,7 +66,6 @@ int main(int argc, char* argv[])
   TString fileName = TString(mtbConfigParameters->directory).Append("/addressParameters.dat");
   cout << "Reading Address Level-Parameters from " << fileName << endl;
   DecoderCalibrationModule *decoderCalibrationModule = new DecoderCalibrationModule(fileName, 3, 0, DecodedReadoutConstants::NUM_ROCSMODULE);
-  decoderCalibrationModule->Print(&cout);
   gDecoder->SetCalibration(decoderCalibrationModule);
 
   UsbDaq *daq = new UsbDaq(mode);
