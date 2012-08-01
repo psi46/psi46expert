@@ -272,61 +272,63 @@ int main(int argc, char* argv[]) {
     std::cout << "clk=" << clk << ", sda=" << sda << std::endl;
 
     // now that I2C is configured properly, program DACs
-    if (DIGITAL) {
-      // Wolfram's values
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("Vdig", 4);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("Vana", 70);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("Vsf", 40);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("Vcomp", 12);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VwllPr", 35);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VwllSh", 35);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VhldDel", 117);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("Vtrim", 29);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VthrComp", 75);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VIBias_Bus", 30);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("Vbias_sf", 6);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VoffsetOp", 40);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VOffsetR0", 140);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VIon", 130);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VIbias_PH", 100);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("Ibias_DAC", 80);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VIbias_roc", 150);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VIColOr", 99);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("Vcal", 200);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("CalDel", 100);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("CtrlReg", 0);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("WBC", 20);
-    } else {
-      // analogue settings that work without adapter
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("Vdig", 6);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("Vana", 124);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("Vsf", 150);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("Vcomp", 10);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("Vleak_comp", 0);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VrgPr", 0);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VwllPr", 35);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VrgSh", 0);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VwllSh", 35);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VhldDel", 160);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("Vtrim", 7);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VthrComp", 80);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VIBias_Bus", 30);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("Vbias_sf", 6);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VoffsetOp", 24);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VIbiasOp", 50);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VOffsetR0", 120);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VIon", 130);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VIbias_PH", 120);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("Ibias_DAC", 110);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VIbias_roc", 150);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VIColOr", 99);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("Vnpix", 0);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("VSumCol", 0);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("Vcal", 199);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("CalDel", 81);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("RangeTemp", 7);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("CtrlReg", 0);
-      controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("WBC", 100);
+    for (int ichip=0; ichip<NCHIPS; ichip++) {
+      if (DIGITAL) {
+	// Wolfram's values
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("Vdig", 4);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("Vana", 70);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("Vsf", 40);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("Vcomp", 12);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VwllPr", 35);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VwllSh", 35);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VhldDel", 117);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("Vtrim", 29);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VthrComp", 75);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VIBias_Bus", 30);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("Vbias_sf", 6);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VoffsetOp", 40);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VOffsetR0", 140);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VIon", 130);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VIbias_PH", 100);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("Ibias_DAC", 80);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VIbias_roc", 150);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VIColOr", 99);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("Vcal", 200);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("CalDel", 100);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("CtrlReg", 0);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("WBC", 20);
+      } else {
+	// analogue settings that work without adapter
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("Vdig", 6);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("Vana", 124);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("Vsf", 150);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("Vcomp", 10);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("Vleak_comp", 0);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VrgPr", 0);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VwllPr", 35);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VrgSh", 0);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VwllSh", 35);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VhldDel", 160);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("Vtrim", 7);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VthrComp", 80);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VIBias_Bus", 30);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("Vbias_sf", 6);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VoffsetOp", 24);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VIbiasOp", 50);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VOffsetR0", 120);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VIon", 130);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VIbias_PH", 120);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("Ibias_DAC", 110);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VIbias_roc", 150);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VIColOr", 99);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("Vnpix", 0);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("VSumCol", 0);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("Vcal", 199);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("CalDel", 81);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("RangeTemp", 7);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("CtrlReg", 0);
+	controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("WBC", 100);
+      }
     }
 
 
@@ -394,8 +396,10 @@ int main(int argc, char* argv[]) {
       for (int wbc=tct-10; wbc<tct; wbc+=1) {
 	for (int caldelay=0; caldelay<150; caldelay+=20) { // steps of 10 correspond to 3.2ns
 	  tbInterface->SetTBParameter("ctr", ctr);
-	  controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("WBC", wbc);
-	  controlNetwork->GetModule(0)->GetRoc(0)->SetDAC("CalDel", caldelay);
+	  for (int ichip=0; ichip<NCHIPS; ichip++) {
+	    controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("WBC", wbc);
+	    controlNetwork->GetModule(0)->GetRoc(ichip)->SetDAC("CalDel", caldelay);
+	  }
 	  tbInterface->Flush();
 
 	  // arm a few pixels
