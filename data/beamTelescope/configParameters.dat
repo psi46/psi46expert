@@ -1,4 +1,8 @@
-testboardName *
+--testboardName *
+--testboardName DPUFWOUNA
+testboardName FT123451A
+--testboardName DPEKP0JM
+
 
 -- parameter files
 
@@ -31,6 +35,6 @@ vd 2500
 -- adc parameters
 
 dataTriggerLevel -650
-emptyReadoutLength 24
+emptyReadoutLength 23
 emptyReadoutLengthADC 24
 emptyReadoutLengthADCDual 24
