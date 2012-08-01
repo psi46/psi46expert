@@ -109,7 +109,6 @@ int get_num_pixels_dig(short* data, unsigned short count) {
 
 int get_num_pixels(short* data, unsigned short count) {
   if (DIGITAL)
-    //return get_num_pixels_dig(data,count);
     return get_num_pixels_dig(data,count);
   else
     return get_num_pixels_ana(data,count);
