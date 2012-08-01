@@ -1,0 +1,11 @@
+nDeadPixel: 0
+nNoisyPixel: 0
+nDeadTrimbits: 0
+nDeadBumps: 0
+nMaskDefect: 0
+nAddressProblems: 0
+nRootFileProblems: 11
+SCurve 0 0 0
+Threshold 0 0 0
+Gain 0 0 0
+Pedestal 0 0 0
