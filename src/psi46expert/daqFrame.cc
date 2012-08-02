@@ -438,8 +438,8 @@ void daqFrame::initializeHardware() {
   fTB->Flush();
 
   if (fExternalTrigger) {
-    //fTB->SetReg(21, 200);  //t_periode
-    //fTB->SetReg(26, 85);  //trigger delay on testboard in units of 25ns
+    fTB->SetReg(21, 200);  //t_periode
+    fTB->SetReg(26, 85);  //trigger delay on testboard in units of 25ns
     fTB->Intern(RES);
     fTB->Flush();
   }
@@ -458,15 +458,15 @@ void daqFrame::initializeHardware() {
   for (int i = 0; i < fCN->GetModule(0)->NRocs(); i++)
   {
     fCN->GetModule(0)->GetRoc(i)->EnableAllPixels();
-    //fCN->GetModule(0)->GetRoc(i)->SetDAC("WBC", 106);
+    fCN->GetModule(0)->GetRoc(i)->SetDAC("WBC", 106);
   }
   
   for (int iRoc = 0; iRoc < fCN->GetModule(0)->NRocs(); ++iRoc) 
   {
     vtrim[iRoc] = fCN->GetModule(0)->GetRoc(iRoc)->GetDAC("Vtrim");
-    //fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("Vtrim", 0);
+    fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("Vtrim", 0);
     vthrcomp[iRoc] = fCN->GetModule(0)->GetRoc(iRoc)->GetDAC("VthrComp");
-    //fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("VthrComp", 0);
+    fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("VthrComp", 0);
   }
   
   sleep(1);
@@ -505,10 +505,10 @@ void daqFrame::runStart() {
 
   if (fLocalTrigger) {
     fpLM->log("==>daqf: ........ using local CTR of MTB.........");
-    fReg41 = 0x22; // tbm present and intern ctr
+    fReg41 = 0x21; // tbm present and intern ctr
     // -- BEAT MEINT: Hier ist noch das Aequivalent zu "tb loop" zu programmieren...
   } else {
-    fReg41 = 0x61; // no tbm present, "adc2" input, intern and extern ctr
+    fReg41 = 0x41; // no tbm present, "adc2" input, intern and extern ctr
   }
 
   // -- Set up MTB 
