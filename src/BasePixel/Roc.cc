@@ -691,7 +691,7 @@ void Roc::ReadTrimConfiguration(const char * filename)
 			continue;
 		}
 
-		if (trim >= 0 || trim <= 15)
+		if (trim >= 0 && trim <= 15)
 			GetPixel(col, row)->SetTrim(trim);
 		else
 			GetPixel(col, row)->MaskCompletely();
