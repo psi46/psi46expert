@@ -134,7 +134,6 @@ int scan_tin(TBAnalogInterface* tbInterface) {
     tbInterface->SetTBParameter("tin", tin);
     tbInterface->Flush();
     tbInterface->ADCRead(data, count);
-    std::cout << "         tin=" << tin << ", count=" << count << std::endl;
     //std::cout << "         data:";
     //for (int i=0; i<count; i++) std::cout << " " << data[i];
     //std::cout << std::endl;
@@ -142,6 +141,8 @@ int scan_tin(TBAnalogInterface* tbInterface) {
     // digital chip: check whether header is there (nPixels>0)
     // analogue chip: check whether readout stopped due to tout (count<4096ish)
     bool found_header=(nPixels>=0 && count<4000);
+    std::cout << "         tin=" << tin << ", count=" << count
+	      << (found_header ? " (good)" : " (bad)" ) << std::endl;
     if (found_header) {
       ++num_good;
       if (!previous_worked) {
