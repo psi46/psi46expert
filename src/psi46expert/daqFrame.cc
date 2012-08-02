@@ -438,8 +438,8 @@ void daqFrame::initializeHardware() {
   fTB->Flush();
 
   if (fExternalTrigger) {
-    fTB->SetReg(21, 200);  //t_periode
-    fTB->SetReg(26, 85);  //trigger delay on testboard in units of 25ns
+    //fTB->SetReg(21, 200);  //t_periode
+    //fTB->SetReg(26, 85);  //trigger delay on testboard in units of 25ns
     fTB->Intern(RES);
     fTB->Flush();
   }
@@ -453,20 +453,20 @@ void daqFrame::initializeHardware() {
   fpLM->log(">>>>>>>> Skip chip 3 <<<<<<<<<<<<");
   TestModule *module = fCN->GetModule(0);*/
   
-  fTB->SetClockStretch(STRETCH_AFTER_CAL, 5, 1000);
+  //fTB->SetClockStretch(STRETCH_AFTER_CAL, 5, 1000);
 
   for (int i = 0; i < fCN->GetModule(0)->NRocs(); i++)
   {
     fCN->GetModule(0)->GetRoc(i)->EnableAllPixels();
-    fCN->GetModule(0)->GetRoc(i)->SetDAC("WBC", 106);
+    //fCN->GetModule(0)->GetRoc(i)->SetDAC("WBC", 106);
   }
   
   for (int iRoc = 0; iRoc < fCN->GetModule(0)->NRocs(); ++iRoc) 
   {
     vtrim[iRoc] = fCN->GetModule(0)->GetRoc(iRoc)->GetDAC("Vtrim");
-    fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("Vtrim", 0);
+    //fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("Vtrim", 0);
     vthrcomp[iRoc] = fCN->GetModule(0)->GetRoc(iRoc)->GetDAC("VthrComp");
-    fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("VthrComp", 0);
+    //fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("VthrComp", 0);
   }
   
   sleep(1);
@@ -508,7 +508,7 @@ void daqFrame::runStart() {
     fReg41 = 0x22; // tbm present and intern ctr
     // -- BEAT MEINT: Hier ist noch das Aequivalent zu "tb loop" zu programmieren...
   } else {
-    fReg41 = 0x42; // tbm present and extern ctr
+    fReg41 = 0x61; // no tbm present, "adc2" input, intern and extern ctr
   }
 
   // -- Set up MTB 
@@ -518,8 +518,8 @@ void daqFrame::runStart() {
     fTB->Intern(15);  // BasePixel/TBAnalogInterface.cc:  else if (command.Keyword("loop"))   {Intern(rctk_flag);}
   }
   else {
-    fpLM->log("==>daqf: starting run for external trigger, NO CAL PULSES!!!");
-    fTB->Single(11);
+    fpLM->log("==>daqf: starting run for external trigger (only trig, tok)");
+    fTB->Single(3);
   }
   fTB->Flush();
 
@@ -547,8 +547,8 @@ void daqFrame::doStart() {
 
   for (int iRoc = 0; iRoc < fCN->GetModule(0)->NRocs(); ++iRoc) 
   {
-    fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("Vtrim", vtrim[iRoc]);
-    fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("VthrComp", vthrcomp[iRoc]);
+    //fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("Vtrim", vtrim[iRoc]);
+    //fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("VthrComp", vthrcomp[iRoc]);
   }
 
   unsigned int filledMem1;
