@@ -410,6 +410,7 @@ int main(int argc, char* argv[]) {
 	    controlNetwork->GetModule(0)->GetRoc(ichip)->ArmPixel(5,10);
 	    controlNetwork->GetModule(0)->GetRoc(ichip)->ArmPixel(3,8);
 	  }
+	  tbInterface->Intern(RES);
 
 	  tbInterface->Flush();
        	  tbInterface->ADCRead(data, count);
