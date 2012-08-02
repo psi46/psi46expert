@@ -1,6 +1,10 @@
-#include <libusb-1.0/libusb.h>
 #include <cstdio>
 #include <cstring>
+
+#include "config.h"
+#if HAVE_LIBUSB_1_0_LIBUSB_H
+#  include <libusb-1.0/libusb.h>
+#endif
 
 #include "USBInterface.h"
 
@@ -70,6 +74,7 @@ bool CUSB::Open(char serialNumber[])
   m_posR = m_sizeR = m_posW = 0;
   ftStatus = FT_OpenEx(serialNumber, FT_OPEN_BY_SERIAL_NUMBER, &ftHandle);
   if (ftStatus != FT_OK) {
+#if HAVE_LIBUSB_1_0_LIBUSB_H
     /* maybe the ftdi_sio and usbserial kernel modules are attached to the device */
     /* try to detach them using the libusb library directly */
 
@@ -136,6 +141,9 @@ bool CUSB::Open(char serialNumber[])
     ftStatus = FT_OpenEx(serialNumber, FT_OPEN_BY_SERIAL_NUMBER, &ftHandle);
     if (ftStatus != FT_OK)
       return false;
+#else
+    return false;
+#endif /* HAVE_LIBUSB_1_0_LIBUSB_H */
   }
 
   FT_SetTimeouts(ftHandle,300000,300000);
