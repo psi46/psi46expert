@@ -23,7 +23,7 @@ HRPixelMap::HRPixelMap(TestRange *aTestRange, TestParameters *testParameters, TB
 
 HRPixelMap::~HRPixelMap()
 {
-	
+
 }
 
 void HRPixelMap::ModuleAction(void)
@@ -34,7 +34,7 @@ void HRPixelMap::ModuleAction(void)
 	/* ??? */
 	ai->getCTestboard()->DataBlockSize(100);
 	ai->Flush();
-	
+
 	/* Unmask the ROC */
 	int nroc = module->NRocs();
 	for (int i = 0; i < nroc; i++) {
@@ -59,7 +59,7 @@ void HRPixelMap::ModuleAction(void)
 	else
 		ai->SetReg(41, 0x20 | 0x01);
 	ai->Flush();
-	
+
 	/* Send a reset to the chip */
 	ai->Single(RES);
 
@@ -77,7 +77,7 @@ void HRPixelMap::ModuleAction(void)
 	id.Write();
 	va.Write();
 	ia.Write();
-	
+
 	/* Data filters */
 	RawData2RawEvent rs;
 	RawEventDecoder ed(nroc, ai->IsAnalog());
@@ -87,7 +87,7 @@ void HRPixelMap::ModuleAction(void)
 	PulseHeightHistogrammer phh;
 	ConfigParameters * configParameters = ConfigParameters::Singleton();
 	phh.LoadCalibration(nroc, configParameters->directory);
-	
+
 	/* Repeat measurements multiple times to collect statistics */
 	for (int rep = 0; rep < testParameters->HRPixelMapRepetitions; rep++) {
 		/* Prepare the data aquisition (store to testboard RAM) */
@@ -161,13 +161,20 @@ void HRPixelMap::ModuleAction(void)
 	}
 
 	/* Store histograms */
+	int core_hits = 0;
 	for (int i = -2; i < nroc; i++) {
 		/* -2: Module with double sized edges, -1: Module */
 		TH2I * map = (TH2I *) hm.getHitMap(i)->Clone();
 		histograms->Add(map);
-		
+
 		/* Make dcol map and hit distribution */
 		if (i >= 0) {
+			for (int c = 3; c <= 50; c++) {
+				for (int r = 1; r <= 79; r++) {
+					core_hits += map->GetBinContent(c, r);
+				}
+			}
+
 			TH1I * dcol_map = new TH1I(Form("dcol_map_C%i", i), Form("DCol hit map ROC %i", i), 26, 0, 26);
 			int x, y, z;
 			map->GetMaximumBin(x, y, z);
@@ -187,7 +194,7 @@ void HRPixelMap::ModuleAction(void)
 			dcol_map->SetMinimum(0);
 			histograms->Add(dcol_map);
 			histograms->Add(hit_dist);
-			
+
 			TH1I * multi = (TH1I *) mh.getRocMultiplicity(i)->Clone();
 			histograms->Add(multi);
 		}
@@ -198,16 +205,20 @@ void HRPixelMap::ModuleAction(void)
 	histograms->Add((TH1I *) phh.getCalPulseHeightDistribution()->Clone());
 	histograms->Add((TH2F *) phh.getCalPulseHeightMap()->Clone());
 	histograms->Add((TH2F *) phh.getCalPulseHeightWidthMap()->Clone());
-	
+
+	float active_area = nroc * (52 - 2 * 2) * (80 - 1) * 0.01 * 0.015; /* cm2 */
+	float active_time = count.TriggerCounter * 25e-9; /* s */
+	if (testParameters->HRPixelMapClockStretch > 1)
+		active_time *= testParameters->HRPixelMapClockStretch;
 	TH2I * map = (TH2I *) hm.getHitMap(-1);
 	psi::LogInfo() << "Number of triggers: " << count.TriggerCounter << psi::endl;
 	psi::LogInfo() << "Number of hits: " << map->GetEntries() << psi::endl;
-	psi::LogInfo() << "Rate: " << (map->GetEntries() / (count.TriggerCounter)) * 40e6 / 1e6 / (0.79*0.77 * nroc);
-	psi::LogInfo() << " +/- " << (TMath::Sqrt(map->GetEntries()) / (count.TriggerCounter)) * 40e6 / 1e6 / (0.79*0.77 * nroc);
+	psi::LogInfo() << "Rate: " << (core_hits / active_time / active_area / 1e6);
+	psi::LogInfo() << " +/- " << (TMath::Sqrt(core_hits) / active_time / active_area / 1e6);
 	psi::LogInfo() << " megahits / s / cm2" << psi::endl;
 	psi::LogInfo() << "Number of ROC sequence errors: " << count.RocSequenceErrorCounter << psi::endl;
 	psi::LogInfo() << "Number of decoding errors: " << ed.GetDecodingErrors() << psi::endl;
-	
+
 	TParameter<float> triggers("pixelmap_triggers", count.TriggerCounter);
 	triggers.Write();
 
