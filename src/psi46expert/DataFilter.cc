@@ -496,7 +496,8 @@ CEvent * EfficiencyMapper::Write()
 					if (event->hits.roc[r].pixelHit[i].columnROC == testcol && event->hits.roc[r].pixelHit[i].rowROC == testrow) {
 						effmap_roc[r]->Fill(event->hits.roc[r].pixelHit[i].columnROC, event->hits.roc[r].pixelHit[i].rowROC);
 						effmap_module->Fill(x, y);
-					} else {
+					} else if (event->hits.roc[r].pixelHit[i].columnROC / 2 != testcol / 2) {
+						/* Exclude double column under test because it will show a higher rate */
 						bkgmap_roc[r]->Fill(event->hits.roc[r].pixelHit[i].columnROC, event->hits.roc[r].pixelHit[i].rowROC);
 						bkgmap_module->Fill(x, y);
 					}

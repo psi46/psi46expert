@@ -169,7 +169,8 @@ void HREfficiency::ModuleAction(void)
 	}
 	core_efficiency /= nroc * (52 - 2 * 2) * 80;
 
-	float active_area = nroc * ((52 - 2 * 2) * (80 - 1) - 1) * 0.01 * 0.015; /* cm2 */
+	/* Sensor area, edge double columns, top row, and double column under test excluded */
+	float active_area = nroc * (52 - 2 - 2 * 2) * (80 - 1) * 0.01 * 0.015; /* cm2 */
 	float active_time = ntrig * 4160 * 25e-9; /* s */
 	psi::LogInfo() << "Number of triggers: " << ntrig * 4160 << psi::endl;
 	psi::LogInfo() << "Number of hits: " << background << psi::endl;
