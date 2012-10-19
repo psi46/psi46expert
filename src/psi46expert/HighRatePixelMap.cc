@@ -107,7 +107,8 @@ void HRPixelMap::ModuleAction(void)
 		ai->getCTestboard()->Set(21, testParameters->HRPixelMapTriggerRate); // T_Periode has the wrong value. Should be fixed.
 
 		/* Issue continuous Reset-(Calibrate-)Trigger-Token pattern */
-		ai->Intern(RES|CAL|TRG|TOK);
+		ai->Single(RES);
+		ai->Intern(TRG|TOK);
 
 		/* Set local trigger, tbm present, and run data aquisition */
 		if (ai->IsAnalog())
