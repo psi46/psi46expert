@@ -129,7 +129,10 @@ void HRSCurve::TakeEfficiencyMap(int ntrig, bool set_vcal, int vcal_offset)
 	ai->SetReg(43, (1 << 1));
 	
 	/* Set local trigger, tbm present, and run data aquisition */
-	ai->SetReg(41, 0x20 | 0x02 | 0x08);
+	if (ai->IsAnalog())
+		ai->SetReg(41, 0x20 | 0x02 | 0x08);
+	else
+		ai->SetReg(41, 0x20 | 0x01 | 0x08);
 	ai->Flush();
 	
 	/* Reset the aquisition on the testboard */
@@ -149,7 +152,7 @@ void HRSCurve::TakeEfficiencyMap(int ntrig, bool set_vcal, int vcal_offset)
 
 			/* send ntrig triggers with calibrates */
 			for (int t = 0; t < ntrig; t++) {
-				ai->Single(CAL|TRG|TOK);
+				ai->Single(RES|CAL|TRG|TOK);
 				ai->CDelay(500);
 			}
 			ai->Flush();
