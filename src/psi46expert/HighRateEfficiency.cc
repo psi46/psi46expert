@@ -92,20 +92,24 @@ void HREfficiency::ModuleAction(void)
 			/* Arm the pixel */
 			for (int i = 0; i < module->NRocs(); i++)
 				module->GetRoc(i)->ArmPixel(col, row);
+			ai->CDelay(5000);
+			ai->Flush();
+
+			/* Send a reset to the chip */
+			ai->Single(RES);
 			ai->CDelay(500);
 			ai->Flush();
 
 			/* send ntrig triggers with calibrates */
 			for (int t = 0; t < ntrig; t++) {
-				ai->Single(RES|CAL|TRG|TOK);
+				ai->Single(CAL|TRG|TOK);
 				ai->CDelay(500);
 			}
 			ai->Flush();
-			
+
 			/* Disarm the pixel */
 			for (int i = 0; i < module->NRocs(); i++) {
-				module->GetRoc(i)->DisarmPixel(col, row);
-				module->GetRoc(i)->EnablePixel(col, row);
+				module->GetRoc(i)->ClrCal();
 			}
 			ai->Flush();
 		}
