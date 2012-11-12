@@ -2,7 +2,7 @@ AM_CPPFLAGS = -I$(srcdir)/.. $(ROOTFLAGS)
 
 # PROGRAMS ----------------------------------------------------------------------------------------------------------------------------------------------------
 
-bin_PROGRAMS = psi46expert psi46hvOff psi46hvOn psi46hvRead psi46takeData psi46debugData psi46readData
+bin_PROGRAMS = psi46expert psi46hvOff psi46hvOn psi46hvRead psi46takeData psi46debugData psi46readData psi46takeData_telescope
 
 psi46expert_SOURCES = psi46expert.cpp
 psi46expert_LDADD = libpsi46expert.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB)
@@ -31,6 +31,10 @@ psi46debugData_LDFLAGS = -static
 psi46readData_SOURCES = readData.cpp
 psi46readData_LDADD = libpsi46readdata.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB)
 psi46readData_LDFLAGS = -static
+
+psi46takeData_telescope_SOURCES = takeData_telescope.cpp telescopeFrame.cc telescopeFrame.h telescopeFrameDict.cc telescopeFrameDict.h
+psi46takeData_telescope_LDADD =  ../BasePixel/libpsi46telescope.la  ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB)
+psi46takeData_telescope_LDFLAGS = -static
 
 # LIBRARIES ---------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -126,6 +130,8 @@ PHCalibrationFitDict.cc: PHCalibrationFit.h PHCalibrationFitLinkDef.h
 	rootcint -f $@ -c -I$(srcdir)/../../src $^
 daqFrameDict.cc: daqFrame.hh daqFrameLinkDef.h
 	rootcint -f $@ -c -I$(srcdir)/../../src $^
+telescopeFrameDict.cc: telescopeFrame.h telescopeFrameLinkDef.h
+	rootcint -f $@ -c -I$(srcdir)/../../src $^
 
 # MENTION ALL HEADERS SO THEY GET DISTRIBUTED -----------------------------------------------------------------------------------------------------------------
 
@@ -173,6 +179,8 @@ noinst_HEADERS = AddressDecoding.h \
 		 SCurveTest.h \
 		 TBMTest.h \
 		 TBMUbCheck.h \
+		 telescopeFrame.h \
+		 telescopeFrameLinkDef.h \
 		 TemperatureCalibration.h \
 		 TemperatureTest.h \
 		 TestControlNetwork.h \
@@ -209,4 +217,6 @@ CLEANFILES = MainFrameDict.cc \
              PHCalibrationFitDict.cc \
              PHCalibrationFitDict.h \
              daqFrameDict.cc \
-             daqFrameDict.h
+             daqFrameDict.h \
+	     telescopeFrameDict.cc \
+	     telescopeFrameDict.h

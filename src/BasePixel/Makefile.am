@@ -1,4 +1,4 @@
-lib_LTLIBRARIES = libpsi46BasePixel.la
+lib_LTLIBRARIES = libpsi46BasePixel.la libpsi46telescope.la
 
 # Program source declarations
 libpsi46BasePixel_la_SOURCES = CalibrationTable.cc \
@@ -24,7 +24,13 @@ libpsi46BasePixel_la_SOURCES = CalibrationTable.cc \
 			       remotecalls.inc \
 			       remotecalls_modultest.inc \
 			       remotecalls_xraytest.inc
+
+libpsi46telescope_la_SOURCES = psi46_tbts.cc \
+			       ConfigParameters.cc\
+			       remotecalls_ts.inc
+
 libpsi46BasePixel_la_CPPFLAGS = -I$(srcdir)/..
+libpsi46telescope_la_CPPFLAGS = -I$(srcdir)/.. $(ROOTFLAGS)
 
 noinst_HEADERS = CalibrationTable.h \
 		 ConfigParameters.h \
@@ -38,6 +44,7 @@ noinst_HEADERS = CalibrationTable.h \
 		 Module.h \
 		 Pixel.h \
 		 psi46_tb.h \
+		 psi46_tbts.h \
 		 RawPacketDecoder.h \
 		 Roc.h \
 		 SysCommand.h \
