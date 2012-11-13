@@ -9,7 +9,7 @@
 #include "../BasePixel/psi46_tbts.h"
 #include <TString.h>
 #include <TApplication.h>
-#include "../BasePixel/telescopeFrame.h"
+#include "telescopeFrame.h"
 
 using namespace std;
 
