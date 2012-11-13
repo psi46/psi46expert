@@ -25,7 +25,7 @@ VsfOptimization::VsfOptimization( TestRange      *aTestRange,
 
   ReadTestParameters( testParameters);
 
-  debug = false;
+  debug = true;
 }
 
 void VsfOptimization::ReadTestParameters(TestParameters *testParameters)
@@ -219,7 +219,8 @@ int VsfOptimization::Par1Opt()
   // Get Column # that will be used for testing
   col = TestCol();
 
-  TF1 *phFit = new TF1( "phFit", FitfcnTan, 50., 1500., 4);
+  //TF1 *phFit = new TF1( "phFit", FitfcnTan, 50., 1500., 4);
+  TF1 *phFit = new TF1( "phFit", FitfcnTan, 0., 1500., 4);
   phFit->SetNpx( 1000);
 
   TH1D *hist = new TH1D( Form( "hist%i_ROC%i", dacRegister, chipId),
@@ -252,16 +253,37 @@ int VsfOptimization::Par1Opt()
 
     // Find Bin with MINIMUM
     double minFit = histo->GetBinCenter( histo->GetMinimumBin() );
+	
+    // you also need to cut off the upper part!
+    float delta;
+    int bin;
+    for( bin = histo->GetMinimumBin();bin<255;bin++){
 
+	delta = histo->GetBinContent(bin+1)-histo->GetBinContent(bin);
+	if (delta > 1000) break;
+}
+    if( debug ) cout<< "upper BIN = " << bin << "bin center " << histo->GetBinCenter(bin)-1 << endl;
+    if( debug ) cout<< "lower BIN = " <<  histo->GetMinimumBin() << "bin center " << minFit << endl;
     // Fit Histogram 
-    phFit->SetParameter( 0, 0.013);
-    phFit->SetParameter( 1, 1.0);
-    phFit->SetParameter( 2, 800.);
-    phFit->SetParameter( 3, 150.);
-    phFit->SetRange    ( minFit, 250.);
-    phFit->SetParLimits( 2, 0, 10000);
+    phFit->SetParameter( 0, 0.004);
+    phFit->SetParameter( 1, 1.4);
+    phFit->SetParameter( 2, 500.);
+    phFit->SetParameter( 3, -200.);
+    //set the fitting range such that the step is excluded
+    phFit->SetRange    ( minFit, histo->GetBinCenter(bin)-1);
+    //phFit->SetParLimits( 2, 0, 10000);
+
+    // maybe this is the ptoblem why fit is failing?
+    // Fit Histogram 
+    //phFit->SetParameter( 0, 0.013);
+    //phFit->SetParameter( 1, 1.0);
+    //phFit->SetParameter( 2, 800.);
+    //phFit->SetParameter( 3, 150.);
+    //phFit->SetRange    ( minFit, 250.);
+    //phFit->SetParLimits( 2, 0, 10000);
     
-    histo->Fit( "phFit", "RQ","", minFit + 10, 255);
+    histo->Fit( "phFit", "RQ","");//, minFit + 10, 255);
+    //histo->Fit( "phFit", "RQ","", minFit + 10, 255);
 
     par1 = phFit->GetParameter( 1);
 
