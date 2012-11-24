@@ -8,7 +8,7 @@
 void FitAllCurves(char *dirName, int fitMode = 0)
 {
         gSystem->Load("libMinuit.so");
-	gSystem->Load("../psi46expert/.libs/libpsi46ana.so");
+	gSystem->Load("libpsi46ana.so");
 	
 	PHCalibrationFit phFit = PHCalibrationFit(fitMode);
 	phFit.FitAllCurves(dirName);
@@ -17,7 +17,7 @@ void FitAllCurves(char *dirName, int fitMode = 0)
 
 void FitCurve(char *dirName, int chip, int col, int row, int fitMode = 0)
 {
-	gSystem->Load("../psi46expert/.libs/libpsi46ana.so");
+	gSystem->Load("libpsi46ana.so");
 	
 	PHCalibrationFit phFit = PHCalibrationFit(fitMode);
 	phFit.FitCurve(dirName, chip, col, row);

@@ -74,7 +74,8 @@ int main(int argc, char* argv[])
        cout << "Open failed." << endl;
        //return 0;
      }
-  cout << "Open succeeded!" << endl;
+  else
+     cout << "Open succeeded!" << endl;
 
   
   TApplication *application = new TApplication("App", 0, 0, 0, -1);

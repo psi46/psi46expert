@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <string>
 #include <fstream>
+#include <iomanip>
 #include "telescopeFrame.h"
 
 #define DATA_HDR 46029
@@ -94,7 +95,7 @@ CTelescopeFrame::CTelescopeFrame(const TGWindow* p) : TGMainFrame( p, 700,700)
 
   // -- Directory for output
   fwOutputDir = new TGTextEntry(wRunCtrl, fwOutputDirBuffer = new TGTextBuffer(100));
-  fwOutputDirBuffer->AddText(0,"/home/l_tester/log");
+  fwOutputDirBuffer->AddText(0,"/tmp");
   setPath();
   TGLabel *wOutputDirLabel = new TGLabel(wRunCtrl, "Directory:");
   wOutputDirLabel->MoveResize(150, 80, 55, fwOutputDir->GetDefaultHeight());
@@ -106,7 +107,7 @@ CTelescopeFrame::CTelescopeFrame(const TGWindow* p) : TGMainFrame( p, 700,700)
   //Pedestal
 
   fwPedestalFile = new TGTextEntry(wRunCtrl, fwPedestalFileBuffer = new TGTextBuffer(100));
-  fwPedestalFileBuffer->AddText(0,"/home/l_tester/dmitry/projects/psi46expert/src/psi46expert/ped2513.root");
+  fwPedestalFileBuffer->AddText(0,"/tmp/ped2513.root");
   setPedestal();
   TGLabel *wPedestalFileLabel = new TGLabel(wRunCtrl, "Pedestal:");
   wPedestalFileLabel->MoveResize(150, 110, 55, fwPedestalFile->GetDefaultHeight());
@@ -343,6 +344,8 @@ CTelescopeFrame::CTelescopeFrame(const TGWindow* p) : TGMainFrame( p, 700,700)
   canvas0->GetCanvas()->cd();
   hSensor0->Draw();
 
+  SetWindowName("takeData telescope");
+
   MapSubwindows();
   MapWindow();
 }
@@ -446,9 +449,10 @@ void CTelescopeFrame::doStart()
   cout <<	"Start run: "<<fMemSize << endl;
   ts->StartRun(fMemSize,atoi(fEvtTextBuffer->GetString()));
   
+
   if(ts->GetDaqSize() != fMemSize)
 	ts->StartRun(fMemSize,atoi(fEvtTextBuffer->GetString()));
- 
+
   if(ts->GetDaqSize() != fMemSize)
   {
  	cout << "Can't start run!?!?" <<endl;
@@ -460,20 +464,20 @@ void CTelescopeFrame::doStart()
   {
     while(bRunning)
     {
-        cout << "Size " << ts->GetDaqSize()<< endl;  
+        cout << "\rSize " << setw(4) << ts->GetDaqSize() / (1024. * 1024.) << " MB";  
 	if(ts->ReadyForReadout())
 	{
-	cout << "I think you're ready.." << endl;
+		cout << endl << "I think you're ready ..." << endl;
 		GetData(buffer);
 		ParseData(buffer);
 	}
 	
 	else
 	{
-	//	cout << " Not Ready." << endl; 
-		cout << " Status: " << ts->GetStatus() << endl;
-		cout << " Daq Ready "<< ts->DaqReady() << endl;
+		cout << " Status: " << ts->GetStatus();
+		cout << " Daq Ready "<< ts->DaqReady();
 	}
+	cout << " " << flush;
 	UpdateStatus();
 	gSystem->ProcessEvents();	
 	gSystem->Sleep(1);
@@ -484,7 +488,7 @@ void CTelescopeFrame::doStart()
 	cout << "An error occured. Stopping run." << endl;
 	doStop();
   }
-
+  cout << endl;
 }
 
 int CTelescopeFrame::ParseData(UShort_t* buffer)

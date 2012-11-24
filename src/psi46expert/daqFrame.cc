@@ -38,7 +38,7 @@ daqFrame::daqFrame(const TGWindow *p, UInt_t w, UInt_t h, daqLoggingManager *pLM
   fMtbLogging      = 1;
   fFillMem         = 0;
   fTemperature     = 0;
-  fRunDuration     = 10;
+  fRunDuration     = 1;
   fRunning         = 0;
 
 
@@ -418,6 +418,7 @@ daqFrame::daqFrame(const TGWindow *p, UInt_t w, UInt_t h, daqLoggingManager *pLM
 
   if (!batchMode)
   {
+   SetWindowName("takeData");
    MapSubwindows();
    MapWindow();
   }
