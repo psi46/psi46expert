@@ -13,7 +13,7 @@ using namespace std;
 
 ClassImp(CTelescopeFrame)
 
-CTelescopeFrame::CTelescopeFrame(const TGWindow* p) : TGMainFrame( p, 700,700)
+CTelescopeFrame::CTelescopeFrame(const TGWindow* p, const char * dataDir) : TGMainFrame( p, 700,700)
 {
   
  fp = 0;
@@ -95,7 +95,7 @@ CTelescopeFrame::CTelescopeFrame(const TGWindow* p) : TGMainFrame( p, 700,700)
 
   // -- Directory for output
   fwOutputDir = new TGTextEntry(wRunCtrl, fwOutputDirBuffer = new TGTextBuffer(100));
-  fwOutputDirBuffer->AddText(0,"/tmp");
+  fwOutputDirBuffer->AddText(0, dataDir);
   setPath();
   TGLabel *wOutputDirLabel = new TGLabel(wRunCtrl, "Directory:");
   wOutputDirLabel->MoveResize(150, 80, 55, fwOutputDir->GetDefaultHeight());
@@ -107,7 +107,9 @@ CTelescopeFrame::CTelescopeFrame(const TGWindow* p) : TGMainFrame( p, 700,700)
   //Pedestal
 
   fwPedestalFile = new TGTextEntry(wRunCtrl, fwPedestalFileBuffer = new TGTextBuffer(100));
-  fwPedestalFileBuffer->AddText(0,"/tmp/ped2513.root");
+  string defaultPedestalFile(dataDir);
+  defaultPedestalFile.append("pedestal.root");
+  fwPedestalFileBuffer->AddText(0, defaultPedestalFile.c_str());
   setPedestal();
   TGLabel *wPedestalFileLabel = new TGLabel(wRunCtrl, "Pedestal:");
   wPedestalFileLabel->MoveResize(150, 110, 55, fwPedestalFile->GetDefaultHeight());

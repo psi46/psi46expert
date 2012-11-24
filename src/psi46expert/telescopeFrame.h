@@ -49,7 +49,7 @@ class CTelescopeFrame: public TGMainFrame
 {
 
 public:
-	CTelescopeFrame(const TGWindow *p);
+	CTelescopeFrame(const TGWindow *p, const char * dataDir = "/tmp");
 
 
   void doGetRaw();

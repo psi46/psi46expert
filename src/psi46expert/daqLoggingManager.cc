@@ -18,8 +18,9 @@ daqLoggingManager::daqLoggingManager(const char *d) {
   system("/bin/rm -f daqLM.123456789");
   fOUT = new ofstream("daqLM.123456789");
 
-  init();
   setBaseDir(d);
+  init();
+  fOutputDir = fBaseDir + TString("bt05r") + TString(Form("%06i", fRunNumber)); // FIXME is this a feature??
 
 }
 
@@ -27,7 +28,8 @@ daqLoggingManager::daqLoggingManager(const char *d) {
 int daqLoggingManager::initialRunNumber() {
   float run, maxRun(-1);
   const char *file;
-  void *pDir = gSystem->OpenDirectory("/tmp");
+  void *pDir = gSystem->OpenDirectory(fBaseDir);
+  cout << "<<<<<<<<<<<<<<<<<<<<<<<" << fBaseDir << endl;
   while (file = gSystem->GetDirEntry(pDir)) {
     if (sscanf(file, "bt05r%f", &run)) {
       if (run > maxRun) maxRun = run; 
@@ -57,8 +59,6 @@ void daqLoggingManager::close() {
 // ----------------------------------------------------------------------
 void daqLoggingManager::setBaseDir(const char *s) {
   fBaseDir   = TString(s);
-  //  fOutputDir = fBaseDir + TString("/rtb_run_") + TString(Form("%06i", getRunNumber())); // FIXME is this a feature??
-  fOutputDir = fBaseDir + TString("/bt05r") + TString(Form("%06i", getRunNumber())); // FIXME is this a feature??
 }
 
 
@@ -128,7 +128,7 @@ void daqLoggingManager::copyHardwareInitialization() {
 // ----------------------------------------------------------------------
 int daqLoggingManager::incrementRunNumber() {
   ++fRunNumber;
-  setBaseDir(getBaseDir());
+  fOutputDir = fBaseDir + TString("bt05r") + TString(Form("%06i", fRunNumber)); // FIXME is this a feature??
   return fRunNumber;
 }
 

@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
   if (maskArg) mtbConfigParameters->SetMaskFileName(maskFile);
   
   //logging manager
-  daqLoggingManager *lm = new daqLoggingManager("/tmp");
+  daqLoggingManager *lm = new daqLoggingManager(mtbConfigParameters->GetDataDirName());
   lm->setRunMode(mode);
   lm->setMTBConfigParameters(mtbConfigParameters);
 

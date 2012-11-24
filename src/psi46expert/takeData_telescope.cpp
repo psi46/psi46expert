@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 
   
   TApplication *application = new TApplication("App", 0, 0, 0, -1);
-  CTelescopeFrame* frame = new CTelescopeFrame(gClient->GetRoot());
+  CTelescopeFrame* frame = new CTelescopeFrame(gClient->GetRoot(), mtbConfigParameters->GetDataDirName());
 
   frame->SetTB(tb);
 

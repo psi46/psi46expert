@@ -33,6 +33,7 @@ class ConfigParameters
 	const char *GetRootFileName();
 	const char *GetLogFileName();
 	const char *GetMaskFileName();
+	const char *GetDataDirName();
 
   const std::string GetDebugFileName();
 	
@@ -43,8 +44,9 @@ class ConfigParameters
 	void SetTestParameterFileName( const std::string &filename);
 	void SetRootFileName         ( const std::string &filename);
 	void SetLogFileName          ( const std::string &filename);
-  void SetDebugFileName        ( const std::string &filename);
+	void SetDebugFileName        ( const std::string &filename);
 	void SetMaskFileName         ( const std::string &filename);
+	void SetDataDirName          ( const std::string &filename);
 
 			
 // == file input / output ===================================================	
@@ -62,6 +64,7 @@ class ConfigParameters
   std::string debugFileName;
   std::string testParametersFileName;
   std::string maskFileName;
+  std::string dataDirName;
 
 	static ConfigParameters *instance;
 };
@@ -74,6 +77,7 @@ inline const char *ConfigParameters::GetTestParametersFileName() { return testPa
 inline const char *ConfigParameters::GetRootFileName          () { return rootFileName.c_str(); }
 inline const char *ConfigParameters::GetLogFileName           () { return logFileName.c_str(); }
 inline const char *ConfigParameters::GetMaskFileName          () { return maskFileName.c_str(); }
+inline const char *ConfigParameters::GetDataDirName          () { return dataDirName.c_str(); }
 
 inline const std::string ConfigParameters::GetDebugFileName() { return debugFileName; }
 

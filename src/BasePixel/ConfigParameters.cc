@@ -52,6 +52,7 @@ void ConfigParameters::Initialize()
 	trimParametersFileName = "defaultTrimParameters.dat";
 	testParametersFileName = "defaultTestParameters.dat";
 	maskFileName           = "defaultMaskFile.dat";	
+	dataDirName            = "/tmp";	
 	logFileName            = "log.txt";
   debugFileName          = "debug.log";
 	rootFileName           = "expert.root";
@@ -114,6 +115,7 @@ bool ConfigParameters::ReadConfigParameterFile( const char *_file)
     else if( 0 == _name.compare( "dacParameters"             ) ) { SetDacParameterFileName ( _value); }
     else if( 0 == _name.compare( "rootFileName"              ) ) { SetRootFileName         ( _value); }
     else if( 0 == _name.compare( "trimParameters"            ) ) { SetTrimParameterFileName( _value); }
+    else if( 0 == _name.compare( "dataDirectory"             ) ) { SetDataDirName          ( _value); }
 
     else if( 0 == _name.compare( "nModules"                  ) ) { nModules                  = _ivalue; }
     else if( 0 == _name.compare( "nRocs"                     ) ) { nRocs                     = _ivalue; }
@@ -196,6 +198,11 @@ void ConfigParameters::SetMaskFileName( const std::string &_file)
   maskFileName.assign( directory).append(  "/").append( _file);
 }
 
+void ConfigParameters::SetDataDirName( const std::string &_file)
+{
+  dataDirName.assign(_file).append("/");
+}
+
 bool ConfigParameters::WriteConfigParameterFile()
 {
 	char filename[1000];
@@ -221,6 +228,7 @@ bool ConfigParameters::WriteConfigParameterFile()
 	fprintf(file, "trimParameters %s\n", &trimParametersFileName[strlen(directory)+1]);
 	fprintf(file, "testParameters %s\n", &testParametersFileName[strlen(directory)+1]);
 	fprintf(file, "rootFileName %s\n\n", &rootFileName[strlen(directory)+1]);
+	fprintf(file, "dataDirectory %s\n\n", dataDirName.c_str());
 
 	fprintf(file, "-- configuration\n\n");
 
