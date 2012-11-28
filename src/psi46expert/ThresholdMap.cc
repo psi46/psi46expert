@@ -10,41 +10,62 @@ ThresholdMap::ThresholdMap()
 }
 
 
-void ThresholdMap::SetParameters(char* mapName)
+void ThresholdMap::SetParameters(char* mapName, int mode)
 {
 	cals = false;
 	xtalk = false;
 	reverseMode = false;
+    //This is anoying bullshit
+    //i set it now to 25 instead of 12
 	dacReg = 12; //VthrComp
 	
-	if (strcmp(mapName, "VcalThresholdMap") == 0)
+	if (strcmp(mapName, "VcalThresholdMap") == 0 || mode == 0)
 	{
 		dacReg = 25; //Vcal
 	}
-	else if (strcmp(mapName, "VcalsThresholdMap") == 0)
+	else if (strcmp(mapName, "VcalsThresholdMap") == 0 || mode == 1)
 	{
 		dacReg = 25; //Vcal
 		cals = true;
 	}
-	else if (strcmp(mapName, "XTalkMap") == 0)
+	else if (strcmp(mapName, "XTalkMap") == 0 || mode == 2)
 	{
 		dacReg = 25; //Vcal
 		xtalk = true;
 	}
-	else if (strcmp(mapName, "NoiseMap") == 0)
+	else if (strcmp(mapName, "NoiseMap") == 0 || mode == 3)
 	{
 		reverseMode = true;
 	}
-	else if (strcmp(mapName, "CalXTalkMap") == 0)
+	else if (strcmp(mapName, "CalXTalkMap") == 0 || mode == 4)
 	{
 		xtalk = true;
 	}
+    else if (strcmp(mapName, "TimeWalk") == 0 || mode == 5)
+    {
+        dacReg = 26;
+    }
+
+    else if (strcmp(mapName, "VcalXTalkMap") == 0 || mode == 6)
+    {
+        dacReg = 25; //Vcal
+        xtalk = true;
+
+    }
+
+    else if (strcmp(mapName, "CalsThresholdMap") == 0 || mode == 7)
+    {
+        dacReg = 12; //Vcal
+        cals = true;
+    }
+
+
 }
 
 
-TH2D* ThresholdMap::GetMap(char* mapName, TestRoc *roc, TestRange *testRange, int nTrig)
+TH2D* ThresholdMap::GetMap(char* mapName, TestRoc *roc, TestRange *testRange, int nTrig, int mode)
 {
-	SetParameters(mapName);
+	SetParameters(mapName,mode);
 	MeasureMap(mapName, roc, testRange, nTrig);
 	return histo;
 }
