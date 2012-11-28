@@ -25,7 +25,7 @@ VsfOptimization::VsfOptimization( TestRange      *aTestRange,
 
   ReadTestParameters( testParameters);
 
-  debug = true;
+  debug = false;
 }
 
 void VsfOptimization::ReadTestParameters(TestParameters *testParameters)
@@ -270,10 +270,9 @@ int VsfOptimization::Par1Opt()
     phFit->SetParameter( 2, 500.);
     phFit->SetParameter( 3, -200.);
     //set the fitting range such that the step is excluded
-    phFit->SetRange    ( minFit, histo->GetBinCenter(bin)-1);
+    phFit->SetRange(minFit+10, histo->GetBinCenter(bin)-1);
     //phFit->SetParLimits( 2, 0, 10000);
 
-    // maybe this is the ptoblem why fit is failing?
     // Fit Histogram 
     //phFit->SetParameter( 0, 0.013);
     //phFit->SetParameter( 1, 1.0);

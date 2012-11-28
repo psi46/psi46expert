@@ -129,8 +129,22 @@ void VsfScan::scan()
                                       : _pulseHeights[_bin]);
     }
 
-    _hist->Fit( _fit, "RQ", "", 
-                _hist->GetBinCenter( _hist->GetMinimumBin() ) + 10, 255);
+    //Find Bin with MINIMUM
+    double minFit = _hist->GetBinCenter( _hist->GetMinimumBin() );
+
+    // you also need to cut off the upper part!
+    float delta;
+    int bin;
+    for( bin = _hist->GetMinimumBin();bin<255;bin++)
+    {
+    delta = _hist->GetBinContent(bin+1)-_hist->GetBinContent(bin);
+    if (delta > 1000) break;
+    }
+
+    _fit->SetRange(minFit+10, _hist->GetBinCenter(bin)-1);
+
+    _hist->Fit( _fit, "RQ", ""); 
+     //,_hist->GetBinCenter( _hist->GetMinimumBin() ) + 10, 255);
 
     // Add new Linearity Parameter into Histogram
     _linearityHist->SetBinContent( _vsfBin, _fit->GetParameter( 1) );
@@ -227,7 +241,25 @@ int VsfScan::getTestColumn()
                                       : _pulseHeights[_bin]);
     }
 
-    _hist->Fit( _fit, "RQ", "", _hist->GetBinCenter( _hist->GetMinimumBin() ) + 10, 255);
+
+    //Find Bin with MINIMUM
+    double minFit = _hist->GetBinCenter( _hist->GetMinimumBin() );
+
+    // you also need to cut off the upper part!
+    float delta;
+    int bin;
+    for( bin = _hist->GetMinimumBin();bin<255;bin++)
+    {
+    delta = _hist->GetBinContent(bin+1)-_hist->GetBinContent(bin);
+    if (delta > 1000) break;
+    }
+
+    _fit->SetRange(minFit+10, _hist->GetBinCenter(bin)-1);
+
+    _hist->Fit( _fit, "RQ", ""); 
+
+
+    //_hist->Fit( _fit, "RQ", "", _hist->GetBinCenter( _hist->GetMinimumBin() ) + 10, 255);
     _linearities.push_back( _fit->GetParameter( 1) );
 
     delete _hist;
