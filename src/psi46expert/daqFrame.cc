@@ -1058,7 +1058,7 @@ void daqFrame::wbcScan() {
 
   //  for (int iwbc = 98; iwbc < 103; ++iwbc) {
   for (int iwbc = 95; iwbc < 105; ++iwbc) {
-    char *filename = new char[100];
+    char *filename = new char[1000];
     sprintf(filename, "%s/wbc-scan-%d.bin", fpLM->getOutputDir(), iwbc);
     FILE *f = fopen(filename, "wb");
 
@@ -1171,7 +1171,7 @@ void daqFrame::dacScan()
   int VcalMin = 10;
   int VcalMax = 100;
   for (int idac = VcalMin; idac < VcalMax; idac +=10) {
-    char* filename=new char[30];
+    char* filename=new char[1000];
     sprintf(filename,"scan%d.bin",idac);
     FILE *f = fopen(filename, "wb");
 

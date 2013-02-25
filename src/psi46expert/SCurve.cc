@@ -30,7 +30,7 @@ SCurve::SCurve()
 
 bool SCurve::OpenInputFile(char *dirName, int roc)
 {
-	char fname[200], string[500];
+	char fname[1000], string[500];
 
 	sprintf(fname, "%s/SCurveData_C%i.dat", dirName, roc);
 	inputFile = fopen(fname, "r");
@@ -111,7 +111,7 @@ void SCurve::FitSCurves(char *dirName, int nRocs)
 	printf("Fitting SCurves %s\n", dirName);
 	double x[255], y[255], xErr[255], yErr[255];
 	int n;
-	char fname[100];
+	char fname[1000];
 	
 	for (int iroc = 0; iroc < nRocs; iroc++)
 	{
