@@ -410,7 +410,7 @@ int DecoderCalibrationModule::ReadCalibrationFile3(const char* fileName, int mod
   }
 
 //--- skip reading labels and separating lines
-  char dummyString[100];
+  char dummyString[1000];
   for ( int iskip = 0; iskip < NUM_LEVELSTBM + 8; iskip++ ){
     *file >> dummyString;
     if ( fPrintDebug ) cout << "READ (dummyString): " << dummyString << endl;
