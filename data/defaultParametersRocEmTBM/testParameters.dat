@@ -53,7 +53,7 @@ SCurveBeamNTrig 5
 
 ThresholdVcal 200
 ThresholdVthr -1
-ThresholdMode 4
+ThresholdMode 1
 # 0: CalThresholdMap 1: VcalThresholdMap 2: VcalsThresholdMap 3: NoiseMap 4: CalXTalkMap
 ThresholdNTrig 50
 
