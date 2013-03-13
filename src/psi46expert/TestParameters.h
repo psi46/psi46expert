@@ -48,6 +48,8 @@ class TestParameters
     int TrimVcal;
     int TrimNTrig;
     int TrimDoubleWbc;
+    int TrimVtrim;
+    int TrimVthrcomp;
 
     int Dac1;
     int Dac2;

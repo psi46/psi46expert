@@ -11,6 +11,8 @@ DacRange2 256
 TrimVcal 60
 TrimNTrig 5
 TrimDoubleWbc 1
+TrimVtrim -1
+TrimVthrcomp -1
 
 -- PH --
 
