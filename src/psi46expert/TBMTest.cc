@@ -54,7 +54,7 @@ void TBMTest::ReadoutTest()
 	if (!res)
 	{
 		result[0] += 4;
-    psi::LogInfo() << "[TBMTest] Error: TBM1 readout test failed." << psi::endl;
+    psi::LogInfo() << "[TBMTest] Warning: TBM1 readout test failed." << psi::endl;
 	}
 	
 	res = tbm->GetReg(245, value);
@@ -63,7 +63,7 @@ void TBMTest::ReadoutTest()
 	if (!res)
 	{
 		result[1] += 4;
-    psi::LogInfo() << "[TBMTest] Error: TBM2 readout test failed." << psi::endl;
+    psi::LogInfo() << "[TBMTest] Warning: TBM2 readout test failed." << psi::endl;
 	}
 	
 		
@@ -105,11 +105,11 @@ void TBMTest::DualModeTest()
 		{
 			result[k] += 1;
 
-      psi::LogInfo() << "[TBMTest] Error: test failed for TBM #" << k
+      psi::LogInfo() << "[TBMTest] Warning: test failed for TBM #" << k
                      << ". No valid analog readout." << psi::endl;
 
 			if (k == 1)
-        psi::LogInfo() << "[TBMTest] Error: test failed. Does testboard "
+        psi::LogInfo() << "[TBMTest] Warning: test failed. Does testboard "
                        << "have 2 ADCs?" << psi::endl;
 
 			for (int i = 0; i < count; i++) printf(" %i", data[i]);
@@ -132,11 +132,11 @@ void TBMTest::DualModeTest()
 		{
 			result[k] += 2;
 
-      psi::LogInfo() << "[TBMTest] Error: test failed for TBM #" << k
+      psi::LogInfo() << "[TBMTest] Warning: test failed for TBM #" << k
                      << ". No valid dual analog readout." << psi::endl;
 
 			if (k == 1)
-        psi::LogInfo() << "[TBMTest] Error: test failed. Does testboard "
+        psi::LogInfo() << "[TBMTest] Warning: test failed. Does testboard "
                        << "have 2 ADCs?" << psi::endl;
 
 			for (int i = 0; i < count; i++) printf(" %i", data[i]);

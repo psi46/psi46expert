@@ -42,7 +42,7 @@ void PixelAlive::RocAction()
       {
         GetPixel(i,k)->SetAlive(false);
 
-        psi::LogInfo() << "[PixelAlive] Error: Mask Defect. n = " << n
+        psi::LogInfo() << "[PixelAlive] Warning: Mask Defect. n = " << n
                        << " for Pixel( " << i << ", " << k << ")." << psi::endl;
 
         histo->SetBinContent(i+1, k+1, -1);
@@ -58,7 +58,7 @@ void PixelAlive::RocAction()
   {
     double value = data[i]*nTrig;
     if (value == 0)
-      psi::LogInfo() << "[PixelAlive] Error: Dead Pixel( "
+      psi::LogInfo() << "[PixelAlive] Warning: Dead Pixel( "
                      << ( i / ROCNUMROWS) << ", " << ( i % ROCNUMROWS)
                      << ") with n = " << static_cast<int>( value) << psi::endl;
     if (value < 0) value = -2;  // to distinguish this problem from mask defects
