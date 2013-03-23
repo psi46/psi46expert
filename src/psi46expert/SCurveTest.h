@@ -21,7 +21,7 @@ protected:
 
 	int nTrig, mode, vthr, vcal, sCurve[16*ROCNUMROWS*256];
 	int dacReg;
-	char *mapName;
+	const char * mapName;
 	TH2D *map[MODULENUMROCS];
 	bool testDone;
 	FILE *file[MODULENUMROCS];

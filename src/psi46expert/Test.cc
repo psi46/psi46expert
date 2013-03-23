@@ -20,13 +20,13 @@ TList* Test::GetHistos()
 }
 
 
-TH2D *Test::GetMap(char *mapName)
+TH2D * Test::GetMap(const char * mapName)
 {
 	return new TH2D(Form("%s_C%d", mapName, chipId), Form("%s_C%d", mapName, chipId), ROCNUMCOLS, 0., ROCNUMCOLS, ROCNUMROWS, 0., ROCNUMROWS);
 }
 
 
-TH1D *Test::GetHisto(char *histoName)
+TH1D * Test::GetHisto(const char * histoName)
 {
 	return new TH1D(Form("%s_c%dr%d_C%d", histoName, column, row, chipId), Form("%s_c%dr%d_C%d", histoName, column, row, chipId), 256, 0., 256.);
 }

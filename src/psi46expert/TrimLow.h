@@ -15,7 +15,7 @@ public:
 
 	virtual void ReadTestParameters(TestParameters *testParameters);
 	virtual void RocAction();
-	double MinVthrComp(char *mapName);
+	double MinVthrComp(const char * mapName);
 	int AdjustVtrim();
 	void AddMap(TH2D* calMap);
 	TH2D* TrimStep(int correction, TH2D *calMapOld, TestRange* aTestRange);

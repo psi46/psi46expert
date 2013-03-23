@@ -196,7 +196,7 @@ void TestRange::ApplyMaskFile(const char *fileName){
          cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<col<<" "<<row<<endl;
        }       
     } 
-    sprintf(keyWord,"\0");   
+    strcpy(keyWord,"\0");   
   
   }
   

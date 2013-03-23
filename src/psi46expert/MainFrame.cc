@@ -224,35 +224,33 @@ MainFrame::MainFrame( const TGWindow *p, UInt_t w, UInt_t h,
 	TGHorizontalFrame *frame;
 
 	TGCheckButton *testButton;
-	char* testName;
+	const char* testName;
 
-	for( int i = nTests - 1; i >= 0; i--)
-	{
-    switch( i)
-    {
-      case 0 : testName = "PixMap";     break;
-      case 1 : testName = "DacDac";     break;
-      case 2 : testName = "SCurve";     break;
-      case 3 : testName = "BondMap";    break;
-      case 4 : testName = "TrimBits";   break;
-      case 5 : testName = "AdrLev";     break;
-      case 6 : testName = "PhScan";     break;
-      case 7 : testName = "PH";         break;
-      case 8 : testName = "Thr";        break;
-      case 9 : testName = "AdrDec";     break;
-      case 10: testName = "CalDel";     break;
-      case 11: testName = "ThrComp";    break;
-      case 12: testName = "Temp";       break;
-      case 13: testName = "TempCal";    break;
-      case 14: testName = "VsfOpt";     break;
-      case 15: testName = "LinRange";   break;
-      case 16: testName = "HldDelOpti"; break;
-      case 17: testName = "TimeWalk";   break;
-      case 18: testName = "Xray";       break;
-      case 19: testName = "VsfScan";    break;
-      case 20: testName = "AdrDec2";    break;
-      default: testName = "";           break;
-    }
+	for( int i = nTests - 1; i >= 0; i--) {
+		switch( i) {
+			case 0 : testName = "PixMap";     break;
+			case 1 : testName = "DacDac";     break;
+			case 2 : testName = "SCurve";     break;
+			case 3 : testName = "BondMap";    break;
+			case 4 : testName = "TrimBits";   break;
+			case 5 : testName = "AdrLev";     break;
+			case 6 : testName = "PhScan";     break;
+			case 7 : testName = "PH";         break;
+			case 8 : testName = "Thr";        break;
+			case 9 : testName = "AdrDec";     break;
+			case 10: testName = "CalDel";     break;
+			case 11: testName = "ThrComp";    break;
+			case 12: testName = "Temp";       break;
+			case 13: testName = "TempCal";    break;
+			case 14: testName = "VsfOpt";     break;
+			case 15: testName = "LinRange";   break;
+			case 16: testName = "HldDelOpti"; break;
+			case 17: testName = "TimeWalk";   break;
+			case 18: testName = "Xray";       break;
+			case 19: testName = "VsfScan";    break;
+			case 20: testName = "AdrDec2";    break;
+			default: testName = "";           break;
+		}
 
 		if (i < 6) frame = testFrame;
 		else if (i < 13) frame = testFrame2;
@@ -440,7 +438,7 @@ void MainFrame::SetParameter()
 {
 	bool inputOk = true;
 	int dacValue, reg, rocMin, rocMax, moduleMin, moduleMax, colMin, colMax, rowMin, rowMax;
-	char *name;
+	const char * name;
 
 	fInterpreter->SetString(parameterTextBuffer->GetString());
 	if (!fInterpreter->GetInt(dacValue,0,255)) {inputOk = false;}

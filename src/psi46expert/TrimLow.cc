@@ -195,7 +195,7 @@ void TrimLow::RocAction()
 }
 
 
-double TrimLow::MinVthrComp(char* mapName)
+double TrimLow::MinVthrComp(const char * mapName)
 {
 	//Find good VthrComp
 	TH2D *calMap = thresholdMap->GetMap(mapName, roc, testRange, nTrig);

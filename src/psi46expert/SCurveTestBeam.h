@@ -21,7 +21,7 @@ public:
 protected:
 	DecodedReadoutModule decodedModuleReadout;
 	int nTrig, mode, vthr, vcal, sCurve[256];
-	char *dacName;
+	const char * dacName;
 	TH2D *map;
 	RawPacketDecoder *gDecoder;
 };

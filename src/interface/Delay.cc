@@ -126,7 +126,7 @@ void Delay::Timestamp()
 void Delay::PrintUsecs()
 {
 	unsigned int u = Usecs();
-	printf("usecs: %lu\n",u - usecsStart);
+	printf("usecs: %u\n",u - usecsStart);
 }
 
 

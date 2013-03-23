@@ -1200,7 +1200,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 	TH2D hVthrVsVcal(*ptVthrVsVcal);//histogram
 	// rename
         char hisName[100], hisNameBase[100];
-        sprintf(hisNameBase, hVthrVsVcal.GetName());
+        strcpy(hisNameBase, hVthrVsVcal.GetName());
 	sprintf(hisName, "%s_WBC", hisNameBase);
 	//cout << "New his name: " << hisName << endl;
 

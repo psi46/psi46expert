@@ -42,7 +42,7 @@ void ThrComp::RocAction()
   SetDAC("CtrlReg", 0);
 
   TGraph* graph = new TGraph();
-  TString name = Form("VthrComp_Vcal%i", vcal);
+  TString name = Form("VthrComp_Vcal%i", (int) vcal);
   graph->SetName(name);
   graph->SetLineColor(2);
   graph->SetLineStyle(1);

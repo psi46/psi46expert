@@ -105,8 +105,8 @@ bool ConfigParameters::ReadConfigParameterFile( const char *_file)
 
     int _ivalue = atoi( _value.c_str() );
 
-         if( 0 == _name.compare( "testboardName"             ) ) { sprintf( testboardName, _value.c_str()); }
-    else if( 0 == _name.compare( "directory"                 ) ) { sprintf( directory    , _value.c_str()); }
+         if( 0 == _name.compare( "testboardName"             ) ) { strcpy( testboardName, _value.c_str()); }
+    else if( 0 == _name.compare( "directory"                 ) ) { strcpy( directory    , _value.c_str()); }
 
     else if( 0 == _name.compare( "tbParameters"              ) ) { SetTbParameterFileName  ( _value); }
     else if( 0 == _name.compare( "tbmParameters"             ) ) { SetTbmParameterFileName ( _value); }

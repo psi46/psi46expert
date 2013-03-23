@@ -26,7 +26,7 @@ SysCommand sysCommand;
 
 Keithley *Power_supply;
 
-char* testMode(""), cmdFile[1000] = "";
+char* testMode(""), cmdFile[1000];
 bool guiMode(false);
 int V=0;
 
@@ -179,12 +179,12 @@ void parameters(int argc, char* argv[], ConfigParameters *configParameters)
   {
     if (!strcmp(argv[i],"-dir")) 
     {
-      sprintf(directory, argv[++i]);
+      strcpy(directory, argv[++i]);
     }
     if (!strcmp(argv[i],"-c")) 
     {
       rootFileArg = true;
-      sprintf(rootFile, Form("test-%s.root", argv[++i]));
+      strcpy(rootFile, Form("test-%s.root", argv[++i]));
     }
     if (!strcmp(argv[i],"-d"))
     {
@@ -241,7 +241,7 @@ void parameters(int argc, char* argv[], ConfigParameters *configParameters)
     if (!strcmp(argv[i],"-g")) guiMode = true;
 
   } 
-  sprintf(configParameters->directory, directory);
+  strcpy(configParameters->directory, directory);
   
   if (strcmp(testMode, fullTest) == 0)
   {
@@ -280,7 +280,7 @@ void parameters(int argc, char* argv[], ConfigParameters *configParameters)
   configParameters->ReadConfigParameterFile(Form("%s/configParameters.dat", directory));
   if (rootFileArg) configParameters->SetRootFileName(rootFile);
   if (dacArg) configParameters->SetDacParameterFileName(dacFile);
-  if (tbArg) sprintf(configParameters->testboardName, tbName);
+  if (tbArg) strcpy(configParameters->testboardName, tbName);
   if (trimArg) configParameters->SetTrimParameterFileName(trimFile);
 	if (maskArg) configParameters->SetMaskFileName(maskFile);
   if (hubIdArg) configParameters->hubId = hubId;
@@ -334,7 +334,7 @@ int main(int argc, char* argv[])
     // == CommandLine ================================================================
 
     char *p;
-    Gl_histinit("../.hist");
+    Gl_histinit((char *) "../.hist");
     do
     {
       p = Getline("psi46expert> ");
