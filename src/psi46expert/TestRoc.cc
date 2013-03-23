@@ -90,8 +90,9 @@ TestParameters* TestRoc::GetTestParameters()
 void TestRoc::Execute(SysCommand &command)
 {
   if (Roc::Execute(command, 0)) {}
-	else if (command.Keyword("Test1")) {Test1();}
-        else if (command.Keyword("ThrMaps")) {ThrMaps();}
+  else if (command.Keyword("Test1")) {Test1();}
+  else if (command.Keyword("ThrMaps")) {ThrMaps();}
+  else if (command.Keyword("dac")) {dacParameters->Print();}
   else if (command.Keyword("PhError")) {PhError();}
   else if (command.Keyword("SamplingTest")) {ADCSamplingTest();}
   else if (command.Keyword("OffsetOptimization")) {DoTest(new OffsetOptimization(GetRange(), testParameters, tbInterface));}
