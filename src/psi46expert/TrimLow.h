@@ -25,7 +25,7 @@ public:
 
 protected:
 
-	int vthrComp, doubleWbc, nTrig, vcal, presetVtrim, presetVthrcomp;
+	int vthrComp, doubleWbc, nTrig, vcal, presetVtrim, presetVthrcomp, adjustCalDel;
 	bool noTrimBits;
 	ThresholdMap *thresholdMap;
 

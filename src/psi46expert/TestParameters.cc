@@ -44,11 +44,12 @@ TestParameters::TestParameters( const char *_file)
 	PHDacType      ( 1 ),
 	PHSafety       ( 50 ),
 
-	TrimVcal     ( 50 ),
-	TrimNTrig    ( 10 ),
-	TrimDoubleWbc( 1 ),
-	TrimVtrim    (-1),
-	TrimVthrcomp (-1),
+	TrimVcal         ( 50 ),
+	TrimNTrig        ( 10 ),
+	TrimDoubleWbc    ( 1 ),
+	TrimVtrim        (-1),
+	TrimVthrcomp     (-1),
+	TrimAdjustCalDel (0),
 
 	Dac1     ( 12 ),
 	Dac2     ( 25 ),
@@ -158,11 +159,12 @@ bool TestParameters::ReadTestParameterFile( const char *_file)
     else if( 0 == _name.compare( "PHDacType"       ) ) { PHDacType       = static_cast<int>( _value ); }
     else if( 0 == _name.compare( "PHSafety"        ) ) { PHSafety        = static_cast<int>( _value ); }
     
-    else if( 0 == _name.compare( "TrimVcal"      ) ) { TrimVcal      = static_cast<int>( _value ); }
-    else if( 0 == _name.compare( "TrimNTrig"     ) ) { TrimNTrig     = static_cast<int>( _value ); }
-    else if( 0 == _name.compare( "TrimDoubleWbc" ) ) { TrimDoubleWbc = static_cast<int>( _value ); }
-    else if( 0 == _name.compare( "TrimVtrim"     ) ) { TrimVtrim     = static_cast<int>( _value ); }
-    else if( 0 == _name.compare( "TrimVthrcomp"  ) ) { TrimVthrcomp  = static_cast<int>( _value ); }
+    else if( 0 == _name.compare( "TrimVcal"         ) ) { TrimVcal         = static_cast<int>( _value ); }
+    else if( 0 == _name.compare( "TrimNTrig"        ) ) { TrimNTrig        = static_cast<int>( _value ); }
+    else if( 0 == _name.compare( "TrimDoubleWbc"    ) ) { TrimDoubleWbc    = static_cast<int>( _value ); }
+    else if( 0 == _name.compare( "TrimVtrim"        ) ) { TrimVtrim        = static_cast<int>( _value ); }
+    else if( 0 == _name.compare( "TrimVthrcomp"     ) ) { TrimVthrcomp     = static_cast<int>( _value ); }
+    else if( 0 == _name.compare( "TrimAdjustCalDel" ) ) { TrimAdjustCalDel = static_cast<int>( _value ); }
 
     else if( 0 == _name.compare( "Dac1"      ) ) { Dac1      = static_cast<int>( _value ); }
     else if( 0 == _name.compare( "Dac2"      ) ) { Dac2      = static_cast<int>( _value ); }

@@ -25,7 +25,7 @@ void TrimLow::ReadTestParameters(TestParameters *testParameters)
 	vcal = (*testParameters).TrimVcal;
 	presetVtrim = testParameters->TrimVtrim;
 	presetVthrcomp = testParameters->TrimVthrcomp;
-
+	adjustCalDel = testParameters->TrimAdjustCalDel;
 }
 
 
@@ -161,6 +161,12 @@ void TrimLow::RocAction()
 		SetDAC("VthrComp", (int)thrMin);
 	else
 		SetDAC("VthrComp", (int)presetVthrcomp);
+
+	/* Adjust CalDel, if requested */
+	if (adjustCalDel) {
+		psi::LogInfo() << "[TrimLow] Adjusting CalDel ..." << psi::endl;
+		roc->AdjustCalDel();
+	}
 
 	ConfigParameters *configParameters = ConfigParameters::Singleton();
 	char dacFileName[1000], trimFileName[1000];

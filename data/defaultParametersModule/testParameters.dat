@@ -13,6 +13,7 @@ TrimNTrig 5
 TrimDoubleWbc 1
 TrimVtrim -1
 TrimVthrcomp -1
+TrimAdjustCalDel 0
 
 -- PH --
 

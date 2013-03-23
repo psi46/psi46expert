@@ -50,6 +50,7 @@ class TestParameters
     int TrimDoubleWbc;
     int TrimVtrim;
     int TrimVthrcomp;
+    int TrimAdjustCalDel;
 
     int Dac1;
     int Dac2;
