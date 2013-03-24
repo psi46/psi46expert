@@ -1,5 +1,10 @@
 #include <time.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
+#include <string>
+
+#include <readline/readline.h>
+#include <readline/history.h>
 
 #include <TFile.h>
 #include <TString.h>
@@ -15,7 +20,6 @@
 #include "BasePixel/SysCommand.h"
 #include "BasePixel/ConfigParameters.h"
 #include "BasePixel/GlobalConstants.h"
-#include "BasePixel/Getline.c"
 #include "BasePixel/Keithley.h"
 #include "interface/Log.h"
 
@@ -26,7 +30,8 @@ SysCommand sysCommand;
 
 Keithley *Power_supply;
 
-char* testMode(""), cmdFile[1000];
+const char * testMode = "";
+char cmdFile[1000];
 bool guiMode(false);
 int V=0;
 
@@ -291,10 +296,9 @@ int main(int argc, char* argv[])
 {
   for (int i = 0; i < argc; i++)
   {
-    if (!strcmp(argv[i],"-V")) 
-    {
+    if (!strcmp(argv[i],"-V"))
       V=atoi(argv[++i]);
-    }}
+  }
 
   configParameters = ConfigParameters::Singleton();
   parameters(argc, argv, configParameters);
@@ -302,29 +306,32 @@ int main(int argc, char* argv[])
 
   TFile* histoFile = new TFile(configParameters->GetRootFileName(), "RECREATE");
   gStyle->SetPalette(1,0);
-  
+
   tbInterface = new TBAnalogInterface(configParameters);
   if (!tbInterface->IsPresent()) return -1;
   controlNetwork = new TestControlNetwork(tbInterface, configParameters);
-  
-//  sysCommand.Read("start.sys");
-//  execute(sysCommand);
 
-        Power_supply=new Keithley();
-        if(V>0){
+  Power_supply=new Keithley();
+  if(V>0){
+    Power_supply->Open();
+    Power_supply->Init();
+    int volt=25,step=25;
+    while (volt<V-25){
+      Power_supply->SetVoltage(volt,1);
+      volt=volt+step;
+      if(volt>400){step=10;}
+      if(volt>600){step=5;}
+    }
+    Power_supply->SetVoltage(V,4);
+  }
 
-          Power_supply->Open();
-          Power_supply->Init();
-          int volt=25,step=25;
-          while (volt<V-25){
-            Power_supply->SetVoltage(volt,1);
-            volt=volt+step;
-            if(volt>400){step=10;}
-            if(volt>600){step=5;}
-          } 
-          Power_supply->SetVoltage(V,4);
-        }
-        
+  using_history();
+  const char * home_directory = getenv("HOME");
+  string history_file("");
+  if (home_directory)
+    history_file += home_directory;
+  history_file += "/.psi46expert_history";
+  read_history(history_file.c_str());
 
   if (guiMode) runGUI();
   else if (strcmp(testMode, "") != 0) runTest();
@@ -334,31 +341,32 @@ int main(int argc, char* argv[])
     // == CommandLine ================================================================
 
     char *p;
-    Gl_histinit((char *) "../.hist");
-    do
-    {
-      p = Getline("psi46expert> ");
-      Gl_histadd(p);
+    bool finished = false;
+    do {
+      p = readline("psi46expert> ");
+      add_history(p);
 
       psi::LogDebug() << "psi46expert> " << p << psi::endl;
 
       if (sysCommand.Parse(p)) execute(sysCommand);
+      finished = (strcmp(p, "exit\n") != 0) && (strcmp(p, "q\n") != 0);
+      free(p);
     }
-    while ((strcmp(p,"exit\n") != 0) && (strcmp(p,"q\n") != 0));
+    while (!finished);
   }
 
   // == Exit ========================================================================
 
-        if (!strcmp(testMode, phCalTest) == 0)
-        {
-          tbInterface->HVoff();
-          tbInterface->Poff();
-          tbInterface->Cleanup();
-        }
+  if (!strcmp(testMode, phCalTest) == 0)
+  {
+    tbInterface->HVoff();
+    tbInterface->Poff();
+    tbInterface->Cleanup();
+  }
 
-        if(V>0)
-        {
-        Power_supply->ShutDown();}        
+  if(V>0)
+  {
+  Power_supply->ShutDown();}
 
   delete controlNetwork;
   delete tbInterface;
@@ -366,7 +374,9 @@ int main(int argc, char* argv[])
   histoFile->Write();
   histoFile->Close();
   delete histoFile;
-        delete Power_supply;
+  delete Power_supply;
   
+  write_history(history_file.c_str());
+
   return 0;
 }

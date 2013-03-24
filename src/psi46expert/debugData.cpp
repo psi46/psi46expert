@@ -1,6 +1,9 @@
 #include <time.h>
 #include <stdio.h>
 
+#include <readline/readline.h>
+#include <readline/history.h>
+
 #include <TFile.h>
 #include <TString.h>
 #include <TApplication.h>
@@ -14,7 +17,6 @@
 #include "BasePixel/SysCommand.h"
 #include "BasePixel/ConfigParameters.h"
 #include "BasePixel/GlobalConstants.h"
-#include "BasePixel/Getline.c"
 #include "interface/Log.h"
 
 
@@ -23,7 +25,8 @@ TestControlNetwork *controlNetwork;
 ConfigParameters *configParameters;
 SysCommand sysCommand;
 
-char* testMode(""), cmdFile[1000];
+const char * testMode = "";
+char cmdFile[1000];
 bool guiMode(false);
 
 const char *fullTest = "full";
