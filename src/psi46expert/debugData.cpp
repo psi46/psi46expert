@@ -1,8 +1,6 @@
-#include <time.h>
-#include <stdio.h>
-
-#include <readline/readline.h>
-#include <readline/history.h>
+#include <ctime>
+#include <cstdlib>
+#include <cstdio>
 
 #include <TFile.h>
 #include <TString.h>
