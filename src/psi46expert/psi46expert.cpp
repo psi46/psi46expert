@@ -349,7 +349,7 @@ int main(int argc, char* argv[])
       psi::LogDebug() << "psi46expert> " << p << psi::endl;
 
       if (sysCommand.Parse(p)) execute(sysCommand);
-      finished = (strcmp(p, "exit\n") != 0) && (strcmp(p, "q\n") != 0);
+      finished = (strcmp(p, "exit") == 0) || (strcmp(p, "q") == 0);
       free(p);
     }
     while (!finished);
