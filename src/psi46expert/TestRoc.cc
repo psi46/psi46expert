@@ -713,9 +713,9 @@ int TestRoc::AdjustCalDel(int mode)
 	int caldel;
 	if (mode == 0)
 		/* Determine the median CalDel */
-		caldel = optimal_caldel[(first + 9) / 2];
+		caldel = optimal_caldel[(first + 8) / 2];
 	else if (mode == 1)
-		caldel = optimal_caldel[9];
+		caldel = optimal_caldel[8];
 	else if (mode == 2)
 		caldel = optimal_caldel[first];
 	else
@@ -759,17 +759,20 @@ int TestRoc::GetOptimalCalDel(int col, int row, int mode)
 
 	start = 0;
 	step_size = 1;
+	ArmPixel(col, row);
 	low = ai->PixelThreshold(col, row, start, step_size, thr_level, ntrig, dac, xtalk, cals, trim);
 	start = 255;
 	step_size = -1;
 	high = ai->PixelThreshold(col, row, start, step_size, thr_level, ntrig, dac, xtalk, cals, trim);
+	ClrCal();
+	PixMask(col, row);
 
 	psi::LogDebug() << "[TestRoc] Found CalDel range for pixel " << col << ":" << row << " to be [" << low << "-" << high << "]." << psi::endl;
 
 	if (high <= low)
 		return -1;
 	if (mode == 0)
-		return (high - low) / 2;
+		return (high + low) / 2;
 	else if (mode == 1)
 		return low + (high - low) / 5;
 	else if (mode == 2)
