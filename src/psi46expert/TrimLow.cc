@@ -62,6 +62,8 @@ void TrimLow::RocAction()
 		SetDAC("Vcal", vcal);
 		Flush();
 
+		psi::LogInfo() << "[TrimLow] Determining VthrComp ..." << psi::endl;
+
 		thrMin = MinVthrComp("CalThresholdMap");
 		if (thrMin == -1.)
 			return;
@@ -87,6 +89,7 @@ void TrimLow::RocAction()
 	Flush();
 	Flush();
 
+	psi::LogInfo() << "[TrimLow] Finding pixel with maximal Vcal threshold ... " << psi::endl;
 	// Determine minimal and maximal vcal thresholds
 	calMap = thresholdMap->GetMap("VcalThresholdMap", roc, testRange, nTrig);
 	AddMap(calMap);
@@ -139,6 +142,7 @@ void TrimLow::RocAction()
 
 	if (!noTrimBits) {
 		roc->SetTrim(7);
+		psi::LogInfo() << "[TrimLow] Preparing to set trim bits ..." << psi::endl;
 		calMap = thresholdMap->GetMap("VcalThresholdMap", roc, testRange, nTrig);
 		AddMap(calMap);
 		psi::LogInfo() << "[TrimLow] Setting trim bits (step 1 of 4) ..." << psi::endl;
@@ -164,8 +168,12 @@ void TrimLow::RocAction()
 
 	/* Adjust CalDel, if requested */
 	if (adjustCalDel) {
-		psi::LogInfo() << "[TrimLow] Adjusting CalDel ..." << psi::endl;
-		roc->AdjustCalDel();
+		int save_vcal = GetDAC("Vcal");
+		int test_vcal = 255;
+		psi::LogInfo() << "[TrimLow] Adjusting CalDel for Vcal " << test_vcal << " ..." << psi::endl;
+		SetDAC("Vcal", test_vcal);
+		roc->AdjustCalDel(1);
+		SetDAC("Vcal", save_vcal);
 	}
 
 	ConfigParameters *configParameters = ConfigParameters::Singleton();
