@@ -108,7 +108,7 @@ void HRPixelMap::ModuleAction(void)
 
 		/* Issue continuous Reset-(Calibrate-)Trigger-Token pattern */
 		ai->Single(RES);
-		ai->Intern(TRG|TOK);
+		ai->Intern(CAL|TRG|TOK);
 
 		/* Set local trigger, tbm present, and run data aquisition */
 		if (ai->IsAnalog())
