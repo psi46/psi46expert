@@ -49,7 +49,7 @@ SCurveBeamNTrig 5
 
 -- Threshold --
 
-ThresholdVcal 60
+ThresholdVcal 200
 ThresholdVthr -1
 ThresholdMode 1
 # 0: CalThresholdMap 1: VcalThresholdMap 2: VcalsThresholdMap 3: NoiseMap 4: CalXTalkMap
@@ -101,16 +101,15 @@ TWMeanShift 22
 
 -- Xray
 
-XrayNTrig 80000
-XrayVthrCompMin 62
-XrayVthrCompMax 74
-#XrayVthrCompMax 74
-XrayMaxEff 1.00
+XrayNTrig 20000
+XrayVthrCompMin 40
+XrayVthrCompMax 110
+XrayMaxEff 0.01
 
 -- High rate pixel map
 
 # Seconds (floating point number, resolution: ms)
-HRPixelMapAquisitionTime 10
+HRPixelMapAquisitionTime 10.0
 # Number of consecutive measurements
 HRPixelMapRepetitions 1
 # Trigger rate (40000 / (256 * N)) kHz
@@ -124,8 +123,8 @@ HREfficiencyTriggers 100
 -- High rate SCurve
 
 # Start of rough threshold scan
-HRSCurveThrStart 20
+HRSCurveThrStart 40
 # End of rough threshold scan
-HRSCurveThrEnd 100
+HRSCurveThrEnd 130
 # Calibrates per pixel per threshold setting
 HRSCurveTriggers 50
