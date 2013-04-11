@@ -60,7 +60,7 @@ class daqLoggingManager {
 
   ConfigParameters *fpCTB, *fpRTB, *fpMTB;
 
-  ofstream     *fOUT;
+  std::ofstream     *fOUT;
 
 };
 #endif
