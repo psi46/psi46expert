@@ -66,6 +66,7 @@ char* SysCommand::GetWord(char *s, int* l)
 	const char* sym=",:()";   // single character symbols
 	const char* white=" \t\n";  // whitespace characters
 	char* word;
+    int maxLen = 40;
 
 	// first call with a new string,
 	if (s!=NULL)
@@ -90,7 +91,7 @@ char* SysCommand::GetWord(char *s, int* l)
 	{
 		// extract words delimited by symbols or blanks
 		*l=0;
-		while ( (buf[idx]!='\0') && (*l<20)
+		while ( (buf[idx]!='\0') && (*l<maxLen)
 		        && (index(sym,buf[idx])==NULL)
 		        && (index(white,buf[idx])==NULL) )
 		{
