@@ -53,7 +53,10 @@ TestModule::TestModule(ConfigParameters *aConfigParameters, int aCNId, TBInterfa
     if (configParameters->halfModule == 2) offset = 8;
     for (int i = 0; i < nRocs; i++)
     {
-      roc[i] = new TestRoc(tbInterface, testParameters, i+offset, hubId, int((i+offset)/4), i); 
+        int rocId = i+offset;
+        int portId = int(rocId/4);
+        std::cout<<std::setw(2)<<i <<": adding Roc "<< std::setw(2)<<rocId <<" with hubID "<<hubId <<" and portID "<< portId <<endl;
+        roc[i] = new TestRoc(tbInterface, testParameters, rocId, hubId, portId, i); 
     }
   }
   else if (configParameters->customModule == 1)
@@ -97,6 +100,7 @@ void TestModule::Execute(SysCommand &command)
 		else if (command.Keyword("FullTest")) {DoTest(new FullTest(configParameters, GetRange(command), testParameters, tbInterface,1));}
                 else if (command.Keyword("xray")) {DoTest(new Xray(GetRange(command), testParameters, tbInterface));}
     else if (command.Keyword("FullTestAndCalibration")) {FullTestAndCalibration();}
+    else if (command.Keyword("ShortTestAndCalibration")) {ShortTestAndCalibration();}
     else if (command.Keyword("DumpParameters")) {DumpParameters();}
     else if (command.Keyword("Temp")) {GetTemperature();}
     else if (command.Keyword("adc")) {((TBAnalogInterface*)tbInterface)->ADC();}
@@ -107,7 +111,7 @@ void TestModule::Execute(SysCommand &command)
     else if (strcmp(command.carg[0],"adjustSmp") == 0) AdjustSamplingPoint();
     else if (strcmp(command.carg[0],"adjust") == 0) AdjustDACParameters();
     else if (strcmp(command.carg[0],"Pretest") == 0) AdjustDACParameters();
-                else if (strcmp(command.carg[0],"NewPretest") == 0) AdjustAllDACParameters();
+    else if (strcmp(command.carg[0],"NewPretest") == 0) AdjustAllDACParameters();
     else if (command.Keyword("TBMTest")) {DoTBMTest();}
     else if (command.Keyword("AnaReadout")) {AnaReadout();}
     else if (command.Keyword("DACProgramming")) {TestDACProgramming();}
@@ -688,7 +692,7 @@ void TestModule::VanaVariation()
   for (int iRoc = 0; iRoc < nRocs; iRoc++)
   {
     vsf[iRoc] = GetRoc(iRoc)->GetDAC("Vsf");
-          vana[iRoc] = GetRoc(iRoc)->GetDAC("Vana");
+    vana[iRoc] = GetRoc(iRoc)->GetDAC("Vana");
 
     GetRoc(iRoc)->SetDAC("Vana", 0);
     GetRoc(iRoc)->SetDAC("Vsf", 0);
@@ -707,7 +711,8 @@ void TestModule::VanaVariation()
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]-10);
     tbInterface->Flush();
     gDelay->Mdelay(1000);
-    x[0] = vana[iRoc]-10; y[0] = anaInterface->GetIA() - current0;
+    x[0] = vana[iRoc]-10;
+    y[0] = anaInterface->GetIA() - current0;
     if (debug)
       psi::LogDebug() << "[TestModule] Vana " << x[0] << " Iana " << y[0]
                       << psi::endl;
@@ -715,7 +720,8 @@ void TestModule::VanaVariation()
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]);
     tbInterface->Flush();
     gDelay->Mdelay(1000);
-    x[1] = vana[iRoc]; y[1] = anaInterface->GetIA() - current0;
+    x[1] = vana[iRoc]; 
+    y[1] = anaInterface->GetIA() - current0;
     if (debug)
       psi::LogDebug() << "[TestModule] Vana " << x[1] << " Iana " << y[1]
                       << psi::endl;
@@ -723,7 +729,8 @@ void TestModule::VanaVariation()
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]+10);
     tbInterface->Flush();
     gDelay->Mdelay(1000);
-    x[2] = vana[iRoc]+10; y[2] = anaInterface->GetIA() - current0;
+    x[2] = vana[iRoc]+10; 
+    y[2] = anaInterface->GetIA() - current0;
     if (debug)
       psi::LogDebug() << "[TestModule] Vana " << x[2] << " Iana " << y[2]
                       << psi::endl;
@@ -733,7 +740,7 @@ void TestModule::VanaVariation()
     graph->Write();
                         
     GetRoc(iRoc)->SetDAC("Vana", 0);
-                tbInterface->Flush();
+    tbInterface->Flush();
   }
         
   for (int iRoc = 0; iRoc < nRocs; iRoc++)

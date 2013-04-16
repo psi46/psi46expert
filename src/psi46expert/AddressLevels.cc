@@ -91,7 +91,7 @@ void AddressLevels::TestTBM()
 
   if ( numLimitsTBM != 4 )
   {
-    psi::LogInfo() << "[AddressLevels] Error: Can not calibrate decoder. "
+    psi::LogInfo() << "[AddressLevels] Warning: Can not calibrate decoder. "
                    << ( numLimitsTBM + 1) << " peaks were found in TBM ADC "
                    << "spectrum." << psi::endl;
 
@@ -125,7 +125,7 @@ void AddressLevels::TestROC()
 
   if ( numLimitsROC != 6 )
   {
-    psi::LogInfo() << "[AddressLevels] Error: Can not calibrate decoder. "
+    psi::LogInfo() << "[AddressLevels] Warning: Can not calibrate decoder. "
                        << ( numLimitsROC + 1) << " peaks were found in ADC "
                        << "spectrum of ROC #" << roc->GetChipId() << '.'
                        << psi::endl;
@@ -191,7 +191,7 @@ void AddressLevels::FindDecoderLevels(TH1* adcHistogram, int& numLimits, short l
           peak++;
           zeroZone = true;
         }
-        else printf("Error in <AddressLevels::FindDecoderLevels>: too many address levels found !\n");
+        else printf("Warning in <AddressLevels::FindDecoderLevels>: too many address levels found !\n");
       }
     }
   }

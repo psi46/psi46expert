@@ -123,11 +123,11 @@ int main(int argc, char* argv[]) {
   // ----------------------------------------------------------------------
   // -- command line arguments 
   for (int i = 0; i < argc; i++) {
-    if (!strcmp(argv[i],"-a")) {mode = -1; sprintf(filename, argv[++i]); }
-    if (!strcmp(argv[i],"-b")) {mode =  0; sprintf(filename, argv[++i]); }
+    if (!strcmp(argv[i],"-a")) {mode = -1; strcpy(filename, argv[++i]); }
+    if (!strcmp(argv[i],"-b")) {mode =  0; strcpy(filename, argv[++i]); }
     if (!strcmp(argv[i],"-n")) {noOutput =1; }
-    if (!strcmp(argv[i],"-r")) {sprintf(rootfilename, argv[++i]); }
-    if (!strcmp(argv[i],"-o")) {sprintf(rootfilename, argv[++i]); }
+    if (!strcmp(argv[i],"-r")) {strcpy(rootfilename, argv[++i]); }
+    if (!strcmp(argv[i],"-o")) {strcpy(rootfilename, argv[++i]); }
   }
 
   // -- test

@@ -178,7 +178,7 @@ int DecoderCalibrationModule::ReadCalibrationFile1(const char* fileName, int mod
 //--- read TBM ultra black, black and bit levels
 //    (4 levels --> 5 limits)
   ADCword level = 0;
-  status = fscanf(calibrateFile, "%d", &level); // read UltraBlack
+  status = fscanf(calibrateFile, "%hd", &level); // read UltraBlack
   if ( status == EOF ){
     if ( fPrintError ) cerr << "Error in <DecodeRawPacket::readCalibration>: invalid format of calibration file !" <<endl;
     return 2;
@@ -194,7 +194,7 @@ int DecoderCalibrationModule::ReadCalibrationFile1(const char* fileName, int mod
   //fCalibrationTBM.SetBlackLevel(level);
 
   for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ ){
-    status = fscanf(calibrateFile, "%d", &level);
+    status = fscanf(calibrateFile, "%hd", &level);
     if ( status == EOF ){
       if ( fPrintError ) cerr << "Error in <DecodeRawPacket::readCalibration>: invalid format of calibration file !" <<endl;
       return 2;
@@ -213,7 +213,7 @@ int DecoderCalibrationModule::ReadCalibrationFile1(const char* fileName, int mod
   
 //--- read ROC ultra black, black and address levels
   for ( int iroc = 0; iroc < numROCs; iroc++ ){
-    status = fscanf(calibrateFile, "%d", &level); // read ultraBlack for ROC
+    status = fscanf(calibrateFile, "%hd", &level); // read ultraBlack for ROC
     if ( status == EOF ){
       if ( fPrintError ) cerr << "Error in <DecodeRawPacket::readCalibration>: invalid format of calibration file !" <<endl;
       return 2;
@@ -228,7 +228,7 @@ int DecoderCalibrationModule::ReadCalibrationFile1(const char* fileName, int mod
     //fCalibrationROC[iroc].SetBlackLevel(level);
 
     for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ ){
-      status = fscanf(calibrateFile, "%d", &level);
+      status = fscanf(calibrateFile, "%hd", &level);
       if ( status == EOF ){
 	if ( fPrintError) cerr << "Error in <DecodeRawPacket::readCalibration>: invalid format of calibration file !" <<endl;
 	return 2;
@@ -301,14 +301,14 @@ int DecoderCalibrationModule::ReadCalibrationFile2(const char* fileName, int mod
   }
 
   ADCword level;
-  status = fscanf(calibrateFile, "%d", &level); // read UltraBlack
+  status = fscanf(calibrateFile, "%hd", &level); // read UltraBlack
   if ( status == EOF ){
     if ( fPrintError ) cerr << "Error in <DecodeRawPacket::readCalibration2>: invalid format of calibration file !" <<endl;
     return 2;
   }
   fCalibrationTBM.SetUltraBlackLevel(level);
 
-  status = fscanf(calibrateFile, "%d", &level); // read Black
+  status = fscanf(calibrateFile, "%hd", &level); // read Black
   if ( status == EOF ){
     if ( fPrintError ) cerr << "Error in <DecodeRawPacket::readCalibration2>: invalid format of calibration file !" <<endl;
     return 2;
@@ -324,7 +324,7 @@ int DecoderCalibrationModule::ReadCalibrationFile2(const char* fileName, int mod
 
     if ( !end ){
       for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ ){
-	status = fscanf(calibrateFile, "%d", &level);
+	status = fscanf(calibrateFile, "%hd", &level);
 	if ( status==EOF || level == -1 ){
 	  if ( iroc == 0 ){
 	    if ( fPrintError ) cerr << "Error in <DecodeRawPacket::readCalibration2>: invalid format of calibration file !" <<endl;
@@ -358,7 +358,7 @@ int DecoderCalibrationModule::ReadCalibrationFile2(const char* fileName, int mod
 //--- read TBM bit levels
 //    (4 levels --> 5 limits)
   for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ ){
-    status = fscanf(calibrateFile, "%d", &level);
+    status = fscanf(calibrateFile, "%hd", &level);
     if ( status == EOF || fCalibrationTBM.GetStatusLevel(ilevel) == -1 ){
       if ( fPrintDebug ) cout << "no bit levels for TBM specified, use default" << endl;
       break;
@@ -515,7 +515,7 @@ const struct DecoderCalibrationROC& DecoderCalibrationModule::GetCalibrationROC(
     return fCalibrationROC[rocId];
   } else {
     cerr << "Error in <DecoderCalibrationModule::GetCalibrationROC>: no Calibration defined for ROC " << rocId << " !" << endl;
-    return 0;
+    //return 0;
   }
 }
 //-------------------------------------------------------------------------------

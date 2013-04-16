@@ -48,8 +48,8 @@ void DacOverview::DoDacScan()
   int position;
   int Min;
   int Max;
-  char* Type;
-  char *dacName;
+  const char * Type;
+  const char * dacName;
 
   TH1D *histoTbmUb, *histoTbmLev[4], *histoRocLev[5], *histoRocUb;
   

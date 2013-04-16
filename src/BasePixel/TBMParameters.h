@@ -21,10 +21,10 @@ class TBMParameters
     
     // == accessing =============================================================
     void SetParameter(int reg, int value);
-    void SetParameter(char* dacName, int value);
+    void SetParameter(const char* dacName, int value);
     int GetDAC(const char*dacName);
     int GetDAC(int reg);
-    char* GetName(int reg);
+    const char * GetName(int reg);
 
     // == file input / output =================================================== 
     bool ReadTBMParameterFile ( const char *filename);
@@ -37,7 +37,7 @@ class TBMParameters
     static const int NTBMParameters = 7;
 
     int parameters[NTBMParameters];
-    char* names[NTBMParameters];
+    const char* names[NTBMParameters];
 
     TBM* const tbm;
 };

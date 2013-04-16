@@ -16,7 +16,7 @@ public:
   static const int nModuleMax=32;
   static const int nRocMax=16;
   static const int nCNMax=3;
-  static const int nArgMax=10;
+  static const int nArgMax=100;
 
 
   // visible part of a single instruction

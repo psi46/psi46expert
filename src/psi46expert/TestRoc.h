@@ -28,6 +28,9 @@ public:
 	int AdjustVana(double current0, double goalcurrent);
 	void AdjustCalDelVthrComp();
 	void AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise);
+	int AdjustCalDel(int mode = 0);
+	int AdjustCalDel(int col, int row, int mode = 0);
+	int GetOptimalCalDel(int col, int row, int mode = 0);
 	void AdjustUltraBlackLevel(int ubLevel);
 	
 // == Tests =============================================
