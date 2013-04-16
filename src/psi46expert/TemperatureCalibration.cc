@@ -165,7 +165,7 @@ void TemperatureCalibration::ModuleAction()
   
   for ( Int_t iroc = 0; iroc < fNumROCs; iroc++ ){
     if ( testRange->IncludesRoc(module->GetRoc(iroc)->GetChipId()) ){
-      char fileName[100];
+      char fileName[1000];
       sprintf(fileName, "TemperatureCalibration_C%i.dat", module->GetRoc(iroc)->GetChipId());
       fOutputFiles[iroc] = new ofstream(TString(ConfigParameters::Singleton()->directory).Append("/").Append(fileName), ios::out);
 

@@ -91,8 +91,9 @@ TestParameters* TestRoc::GetTestParameters()
 void TestRoc::Execute(SysCommand &command)
 {
   if (Roc::Execute(command, 0)) {}
-	else if (command.Keyword("Test1")) {Test1();}
-        else if (command.Keyword("ThrMaps")) {ThrMaps();}
+  else if (command.Keyword("Test1")) {Test1();}
+  else if (command.Keyword("ThrMaps")) {ThrMaps();}
+  else if (command.Keyword("dac")) {dacParameters->Print();}
   else if (command.Keyword("PhError")) {PhError();}
   else if (command.Keyword("SamplingTest")) {ADCSamplingTest();}
   else if (command.Keyword("OffsetOptimization")) {DoTest(new OffsetOptimization(GetRange(), testParameters, tbInterface));}
@@ -104,6 +105,7 @@ void TestRoc::Execute(SysCommand &command)
   else if (command.Keyword("TrimLow")) DoTrimLow();
   else if (command.Keyword("chipTest")) {ChipTest();}
   else if (command.Keyword("CalDelVthrComp")) {AdjustCalDelVthrComp();}
+  else if (command.Keyword("AdjustCalDel")) {AdjustCalDel(0);}
   else if (command.Keyword("TrimVerification")) {TrimVerification();}
   else if (strcmp("PhCalibration", command.carg[0]) == 0) DoPhCalibration();
   else if (strcmp("PulseShape", command.carg[0]) == 0) DoPulseShape(); 
@@ -550,32 +552,25 @@ int TestRoc::AdjustVana(double current0, double goalcurrent)
 
 void TestRoc::AdjustCalDelVthrComp()
 {
-  int calDel = 0, vthrComp = 0; 
-  
-  int vOffsetOp = GetDAC("VoffsetOp");
-  SetDAC("VoffsetOp", 255);  //make sure that ph above ub
+	psi::LogInfo() << "[TestRoc] Adjusting CalDel and VthrComp ..." << psi::endl;
+	int calDel = 0, vthrComp = 0;
 
-  //AS 24/05/06 - to be fixed Row:Col below
+	// make sure that ph above ub by setting VoffsetOp to maximum temporarily
+	int vOffsetOp = GetDAC("VoffsetOp");
+	SetDAC("VoffsetOp", 255);
 
-  AdjustCalDelVthrComp(20, 20, 200, -50);
+	AdjustCalDelVthrComp(20, 20, 200, -50);
 
-  calDel += GetDAC("CalDel"); 
-  vthrComp += GetDAC("VthrComp");
+	calDel += GetDAC("CalDel");
+	vthrComp += GetDAC("VthrComp");
 
-//  AdjustCalDelVthrComp(26, 10, 200, -50);
-//  calDel += GetDAC("CalDel"); 
-//  vthrComp += GetDAC("VthrComp");
-//  
-//  calDel/=2;
-//  vthrComp/=2;
-  
-  SetDAC("CalDel", calDel);
-  SetDAC("VthrComp", vthrComp);
-  SetDAC("VoffsetOp", vOffsetOp);
-  Flush();
-  
-  psi::LogDebug() << "[TestRoc] CalDel   is set to " << calDel   << psi::endl; 
-  psi::LogDebug() << "[TestRoc] VthrComp is set to " << vthrComp << psi::endl; 
+	SetDAC("CalDel", calDel);
+	SetDAC("VthrComp", vthrComp);
+	SetDAC("VoffsetOp", vOffsetOp);
+	Flush();
+
+	psi::LogInfo() << "[TestRoc] CalDel   set to " << calDel   << psi::endl;
+	psi::LogInfo() << "[TestRoc] VthrComp set to " << vthrComp << psi::endl;
 }
 
 
@@ -584,10 +579,10 @@ void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise
   bool verbose = false;
   int sCurve[180], nTrig = 5, nTrials = 5, n = 0, testColumn = column, testRow = row;
   int calDel, vthr;
-  int oldCalDel = GetDAC("CalDel"); 
+  int oldCalDel = GetDAC("CalDel");
   int oldVthrComp = GetDAC("VthrComp");
   TH2D *histo;
-    
+
   SetDAC("Vcal", vcal);
   Flush();
 
@@ -661,8 +656,132 @@ void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise
     psi::LogDebug() << "[TestRoc] CalDel is set to " << calDel << psi::endl;
 }
 
+int TestRoc::AdjustCalDel(int mode)
+{
+	/* Explanation of the modes:
+		0: optimises to the center of the valid range
+		1: optimises to the left edge of the valid range
+		2: optimises to the right edge of the valid range
+	*/
 
+	psi::LogInfo() << "[TestRoc] Determining optimal CalDel Value (mode " << mode << ") ..." << psi::endl;
+	psi::LogDebug() << "[TestRoc] Using 9 pixels in a grid for CalDel optimisation." << psi::endl;
 
+	/* Use a grid of 3x3 to measure the optimal CalDel across the chip */
+	int optimal_caldel [9];
+	optimal_caldel[0] = GetOptimalCalDel(0.1 * ROCNUMCOLS, 0.1 * ROCNUMROWS, mode);
+	optimal_caldel[1] = GetOptimalCalDel(0.1 * ROCNUMCOLS, 0.5 * ROCNUMROWS, mode);
+	optimal_caldel[2] = GetOptimalCalDel(0.1 * ROCNUMCOLS, 0.9 * ROCNUMROWS, mode);
+	optimal_caldel[3] = GetOptimalCalDel(0.5 * ROCNUMCOLS, 0.1 * ROCNUMROWS, mode);
+	optimal_caldel[4] = GetOptimalCalDel(0.5 * ROCNUMCOLS, 0.5 * ROCNUMROWS, mode);
+	optimal_caldel[5] = GetOptimalCalDel(0.5 * ROCNUMCOLS, 0.9 * ROCNUMROWS, mode);
+	optimal_caldel[6] = GetOptimalCalDel(0.9 * ROCNUMCOLS, 0.1 * ROCNUMROWS, mode);
+	optimal_caldel[7] = GetOptimalCalDel(0.9 * ROCNUMCOLS, 0.5 * ROCNUMROWS, mode);
+	optimal_caldel[8] = GetOptimalCalDel(0.9 * ROCNUMCOLS, 0.9 * ROCNUMROWS, mode);
+
+	/* Sort the optimal values (Warning: very primitive sorting algorithm) */
+	for (int i = 0; i < 9; i++) {
+		for (int j = i; j < 9; j++) {
+			if (optimal_caldel[j] < optimal_caldel[i]) {
+				/* Exchange the values */
+				int tmp = optimal_caldel[i];
+				optimal_caldel[i] = optimal_caldel[j];
+				optimal_caldel[j] = tmp;
+			}
+		}
+	}
+
+	/* Print debug output */
+	psi::LogDebug() << "[TestRoc] The following optimal CalDel values were found:";
+	for (int i = 0; i < 9; i++) {
+		psi::LogDebug() << " " << optimal_caldel[i];
+	}
+	psi::LogDebug() << psi::endl;
+
+	/* Determine the first non-negative (valid) CalDel */
+	int first = -1;
+	for (int i = 0; i < 9; i++) {
+		if (optimal_caldel[i] >= 0) {
+			first = i;
+			break;
+		}
+	}
+	/* Check whether any CalDel are valid */
+	if (first == -1) {
+		psi::LogInfo() << "[TestRoc] CalDel optimisation failed!" << psi::endl;
+		return 0;
+	}
+
+	int caldel;
+	if (mode == 0)
+		/* Determine the median CalDel */
+		caldel = optimal_caldel[(first + 8) / 2];
+	else if (mode == 1)
+		caldel = optimal_caldel[8];
+	else if (mode == 2)
+		caldel = optimal_caldel[first];
+	else
+		return -1;
+
+	/* Set the CalDel */
+	psi::LogInfo() << "[TestRoc] Setting CalDel to " << caldel << "." << psi::endl;
+	SetDAC("CalDel", caldel);
+
+	return 1;
+}
+
+int TestRoc::AdjustCalDel(int col, int row, int mode)
+{
+	psi::LogInfo() << "[TestRoc] Determining optimal CalDel Value for pixel " << col << ":" << row << " (mode " << mode << ") ..." << psi::endl;
+	int caldel = GetOptimalCalDel(col, row, mode);
+
+	if (caldel < 0) {
+		psi::LogInfo() << "[TestRoc] CalDel optimisation failed!" << psi::endl;
+		return 0;
+	}
+
+	psi::LogInfo() << "[TestRoc] Setting CalDel to " << caldel << "." << psi::endl;
+	SetDAC("CalDel", caldel);
+
+	return 1;
+}
+
+int TestRoc::GetOptimalCalDel(int col, int row, int mode)
+{
+	TBAnalogInterface * ai = GetTBAnalogInterface();
+	int ntrig, dac, xtalk, cals, trim, start, step_size, thr_level;
+	int low, high;
+
+	ntrig = 20;
+	dac = CalDel;
+	xtalk = 0;
+	cals = 0;
+	thr_level = ntrig / 2;
+	trim = GetPixel(col, row)->GetTrim();
+
+	start = 0;
+	step_size = 1;
+	ArmPixel(col, row);
+	low = ai->PixelThreshold(col, row, start, step_size, thr_level, ntrig, dac, xtalk, cals, trim);
+	start = 255;
+	step_size = -1;
+	high = ai->PixelThreshold(col, row, start, step_size, thr_level, ntrig, dac, xtalk, cals, trim);
+	ClrCal();
+	PixMask(col, row);
+
+	psi::LogDebug() << "[TestRoc] Found CalDel range for pixel " << col << ":" << row << " to be [" << low << "-" << high << "]." << psi::endl;
+
+	if (high <= low)
+		return -1;
+	if (mode == 0)
+		return (high + low) / 2;
+	else if (mode == 1)
+		return low + (high - low) / 5;
+	else if (mode == 2)
+		return high - (high - low) / 5;
+
+	return -1;
+}
 
 void TestRoc::AdjustUltraBlackLevel(int ubLevel)
 {
@@ -1086,7 +1205,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 	TH2D hVthrVsVcal(*ptVthrVsVcal);//histogram
 	// rename
         char hisName[100], hisNameBase[100];
-        sprintf(hisNameBase, hVthrVsVcal.GetName());
+        strcpy(hisNameBase, hVthrVsVcal.GetName());
 	sprintf(hisName, "%s_WBC", hisNameBase);
 	//cout << "New his name: " << hisName << endl;
 

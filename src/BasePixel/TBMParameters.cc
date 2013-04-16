@@ -94,7 +94,7 @@ void TBMParameters::SetParameter(int reg, int value)
 }
 
 
-void TBMParameters::SetParameter(char* dacName, int value)
+void TBMParameters::SetParameter(const char* dacName, int value)
 {
   bool parameterSet = false;
   
@@ -175,7 +175,7 @@ int TBMParameters::GetDAC(int reg)
 
 
 //  -- gives the name of a DAC
-char* TBMParameters::GetName(int reg)
+const char * TBMParameters::GetName(int reg)
 {
   return names[reg];
 }

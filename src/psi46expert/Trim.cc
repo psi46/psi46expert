@@ -162,11 +162,11 @@ void Trim::RocAction()
   SetDAC("VthrComp", (int)thrMin);
 
   ConfigParameters *configParameters = ConfigParameters::Singleton();
-  char dacFileName[100], trimFileName[100];
+  char dacFileName[1000], trimFileName[1000];
   
   //writing files
   
-  char dacParametersFileName[100];
+  char dacParametersFileName[1000];
   strcpy(dacParametersFileName, configParameters->GetDacParametersFileName());
   int length = strlen(dacParametersFileName);
         if (strstr(dacParametersFileName, ".dat"))
@@ -179,7 +179,7 @@ void Trim::RocAction()
         }
   roc->WriteDACParameterFile(dacFileName);
   
-  char trimParametersFileName[100];
+  char trimParametersFileName[1000];
   strcpy(trimParametersFileName, configParameters->GetTrimParametersFileName());
   length = strlen(dacParametersFileName);
         if (strstr(trimParametersFileName, ".dat"))

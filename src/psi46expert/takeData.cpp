@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
     if (!strcmp(argv[i],"-V")) V=atoi(argv[++i]);
     if (!strcmp(argv[i],"-l")) localtrigger = 1;
     if (!strcmp(argv[i],"-m")) mode = atoi(argv[++i]);
-    if (!strcmp(argv[i],"-dir")) sprintf(mtbConfigParameters->directory, argv[++i]);		
+    if (!strcmp(argv[i],"-dir")) strcpy(mtbConfigParameters->directory, argv[++i]);
     if (!strcmp(argv[i],"-trimVcal")) 
     {
 	trimArg = true;

@@ -230,7 +230,7 @@ MainFrame::MainFrame( const TGWindow *p, UInt_t w, UInt_t h,
 
 	TGCheckButton *testButton;
 	const char* testName;
-	
+
 	const char testNames [nTests][14] = {"PixMap", "DacDac", "SCurve", "BondMap", "TrimBits",
 					     "AdrLev", "PhScan", "PH", "Thr", "AdrDec", "CalDel",
 					     "ThrComp", "Temp", "TempCal", "VsfOpt", "LinRange",
@@ -429,7 +429,7 @@ void MainFrame::SetParameter()
 {
 	bool inputOk = true;
 	int dacValue, reg, rocMin, rocMax, moduleMin, moduleMax, colMin, colMax, rowMin, rowMax;
-	const char *name;
+	const char * name;
 
 	fInterpreter->SetString(parameterTextBuffer->GetString());
 	if (!fInterpreter->GetInt(dacValue,0,255)) {inputOk = false;}

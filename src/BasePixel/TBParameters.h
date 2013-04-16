@@ -37,7 +37,7 @@ class TBParameters
     static const int NTBParameters = 256;
    
     int parameters[NTBParameters];
-    char* names[NTBParameters];
+    const char* names[NTBParameters];
     
     TBInterface *tbInterface;
 };

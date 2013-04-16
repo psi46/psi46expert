@@ -13,10 +13,10 @@ class ThresholdMap
 public:
 	ThresholdMap();
 	
-	TH2D* GetMap(char* mapName, TestRoc *roc, TestRange *testRange, int nTrig);
+	TH2D* GetMap(const char * mapName, TestRoc * roc, TestRange * testRange, int nTrig);
 // 	bool CheckMap();
-	void MeasureMap(char* mapName, TestRoc *roc, TestRange *testRange, int nTrig);
-	void SetParameters(char *mapName);
+	void MeasureMap(const char * mapName, TestRoc * roc, TestRange * testRange, int nTrig);
+	void SetParameters(const char * mapName);
 	void SetCals();
 	void SetXTalk();
 	void SetDoubleWbc();

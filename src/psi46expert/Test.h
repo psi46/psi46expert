@@ -24,9 +24,9 @@ public:
 	Test();
   virtual ~Test() {}
 	
-	TList *GetHistos();
-	TH2D *GetMap(char *mapName);
-	TH1D *GetHisto(char *histoName);
+	TList * GetHistos();
+	TH2D * GetMap(const char * mapName);
+	TH1D * GetHisto(const char * histoName);
 	virtual void ReadTestParameters(TestParameters *testParameters);
 	virtual void ControlNetworkAction(TestControlNetwork *controlNetwork);
 	virtual void ModuleAction(TestModule *testModule);

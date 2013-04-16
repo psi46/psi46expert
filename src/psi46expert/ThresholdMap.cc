@@ -10,7 +10,7 @@ ThresholdMap::ThresholdMap()
 }
 
 
-void ThresholdMap::SetParameters(char* mapName)
+void ThresholdMap::SetParameters(const char* mapName)
 {
 	cals = false;
 	xtalk = false;
@@ -42,7 +42,7 @@ void ThresholdMap::SetParameters(char* mapName)
 }
 
 
-TH2D* ThresholdMap::GetMap(char* mapName, TestRoc *roc, TestRange *testRange, int nTrig)
+TH2D* ThresholdMap::GetMap(const char * mapName, TestRoc *roc, TestRange *testRange, int nTrig)
 {
 	SetParameters(mapName);
 	MeasureMap(mapName, roc, testRange, nTrig);
@@ -50,7 +50,7 @@ TH2D* ThresholdMap::GetMap(char* mapName, TestRoc *roc, TestRange *testRange, in
 }
 
 
-void ThresholdMap::MeasureMap(char* mapName, TestRoc *roc, TestRange *testRange, int nTrig)
+void ThresholdMap::MeasureMap(const char * mapName, TestRoc *roc, TestRange *testRange, int nTrig)
 {
 	char totalMapName[100];
 	sprintf(totalMapName, "%s_C%i", mapName, roc->GetChipId());

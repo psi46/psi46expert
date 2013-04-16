@@ -48,7 +48,7 @@ void Keithley::Open()
 }
 
 
-void Keithley::Write(char *string)
+void Keithley::Write(const char *string)
 {
 	char buffer[1000];
 	int length = strlen(string);
@@ -140,7 +140,7 @@ void Keithley::SetVoltage(int voltage, int delay)
 	sleep(delay);
 }
 
-void Keithley::Command(char *commandString)
+void Keithley::Command(const char *commandString)
 {
 	Write(commandString);
 	sleep(1);

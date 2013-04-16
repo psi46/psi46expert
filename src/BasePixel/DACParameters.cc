@@ -27,38 +27,38 @@ void DACParameters::Initialize()
   for (int i = 0; i < NDACParameters; i++)
   {
     parameters[i] = -1;
-    names[i] = "";
+    names[i] = (char *) "";
   }
 
-  names[1]="Vdig";
-  names[2]="Vana";
-  names[3]="Vsf";
-  names[4]="Vcomp";
-  names[5]="Vleak_comp";
-  names[6]="VrgPr";
-  names[7]="VwllPr";
-  names[8]="VrgSh";
-  names[9]="VwllSh";
-  names[10]="VhldDel";
-  names[11]="Vtrim";
-  names[12]="VthrComp";
-  names[13]="VIBias_Bus";
-  names[14]="Vbias_sf";
-  names[15]="VoffsetOp";
-  names[16]="VIbiasOp";
-  names[17]="VOffsetR0";
-  names[18]="VIon";
-  names[19]="VIbias_PH";
-  names[20]="Ibias_DAC";
-  names[21]="VIbias_roc";
-  names[22]="VIColOr";
-  names[23]="Vnpix";
-  names[24]="VSumCol";
-  names[25]="Vcal";
-  names[26]="CalDel";
-  names[27]="RangeTemp";
-  names[253]="CtrlReg";
-  names[254]="WBC";
+  names[1]   = (char *) "Vdig";
+  names[2]   = (char *) "Vana";
+  names[3]   = (char *) "Vsf";
+  names[4]   = (char *) "Vcomp";
+  names[5]   = (char *) "Vleak_comp";
+  names[6]   = (char *) "VrgPr";
+  names[7]   = (char *) "VwllPr";
+  names[8]   = (char *) "VrgSh";
+  names[9]   = (char *) "VwllSh";
+  names[10]  = (char *) "VhldDel";
+  names[11]  = (char *) "Vtrim";
+  names[12]  = (char *) "VthrComp";
+  names[13]  = (char *) "VIBias_Bus";
+  names[14]  = (char *) "Vbias_sf";
+  names[15]  = (char *) "VoffsetOp";
+  names[16]  = (char *) "VIbiasOp";
+  names[17]  = (char *) "VOffsetR0";
+  names[18]  = (char *) "VIon";
+  names[19]  = (char *) "VIbias_PH";
+  names[20]  = (char *) "Ibias_DAC";
+  names[21]  = (char *) "VIbias_roc";
+  names[22]  = (char *) "VIColOr";
+  names[23]  = (char *) "Vnpix";
+  names[24]  = (char *) "VSumCol";
+  names[25]  = (char *) "Vcal";
+  names[26]  = (char *) "CalDel";
+  names[27]  = (char *) "RangeTemp";
+  names[253] = (char *) "CtrlReg";
+  names[254] = (char *) "WBC";
 }
 
 
@@ -258,6 +258,19 @@ bool DACParameters::WriteDACParameterFile(const char *filename)
   return true;
 }
 
+void DACParameters::Print()
+{
+    psi::LogInfo() << "DAC\tName\t\tValue" << psi::endl;
+    psi::LogInfo() << "-----------------------------" << psi::endl;
+    for (int i = 0; i < NDACParameters; i++) {
+        if (parameters[i] == -1)
+            continue;
+        if (strlen(names[i]) >= 7)
+            psi::LogInfo() << i << "\t" << names[i] << ":\t" << parameters[i] << psi::endl;
+        else
+            psi::LogInfo() << i << "\t" << names[i] << ":\t\t" << parameters[i] << psi::endl;
+    }
+}
 
 // == Private =======================================================
 

@@ -90,14 +90,14 @@ void PhDacOverview::DoDacScan()
        int scanMax = 256;
        int defaultValue = module->GetTBM(DacRegister);
        int loopNumber = 0;
-       char *dacName;
+       const char *dacName;
        for (int scanValue = 0; scanValue < scanMax; scanValue+=((int)scanMax/NumberOfSteps))
 	 {
 	   loopNumber++;
 	   
 	   if (DacRegister == 2) dacName = "Inputbias";
 	   else if (DacRegister == 3) dacName = "Outputbias";
-	   else if (DacRegister == 4) dacName = "Dacgain";   
+	   else if (DacRegister == 4) dacName = "Dacgain";
 	   
 	   TH1D *histo = new TH1D(Form("TBM_DAC%i_Value%i",DacRegister,loopNumber), Form("%s=%d",dacName,scanValue), 256, 0, 256);
 	   cout << "default value = " << defaultValue << endl;

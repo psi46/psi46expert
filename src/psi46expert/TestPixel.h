@@ -20,7 +20,7 @@ class TestPixel: public Pixel {
 
 // == General functions ===================================================
 
-	double FindThreshold(char* mapName, int nTrig, bool doubleWbc = false);
+	double FindThreshold(const char * mapName, int nTrig, bool doubleWbc = false);
 
 
  protected:

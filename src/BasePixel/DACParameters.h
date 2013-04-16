@@ -18,6 +18,7 @@ class DACParameters
     DACParameters* Copy();
     bool Execute(SysCommand command);
     void Restore();
+    void Print();
     
     // == accessing =============================================================
     void SetParameter(int reg, int value, bool correction = true);

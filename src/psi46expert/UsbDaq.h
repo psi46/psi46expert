@@ -89,7 +89,7 @@ class UsbDaq {
   int short  sData[DecodedReadoutConstants::MAX_PIXELSROC];
   char       fInputFileName[1000];
   FILE       *fInputFile;
-  ifstream   *fInputBinaryFile;
+  std::ifstream   *fInputBinaryFile;
 
   // -- Binary buffer input (when spying on TB memory)
   int            fBinaryBufferSize, fBinaryBufferCnt;
@@ -97,7 +97,7 @@ class UsbDaq {
 
 
   char            fOutputFileName[1000];
-  ofstream        *fOutputFile;
+  std::ofstream        *fOutputFile;
 
   histogrammer    *fpHistogrammer;
 

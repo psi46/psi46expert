@@ -23,7 +23,7 @@ TestRoc* TestPixel::GetRoc()
 
 
 // -- Find the threshold (50% point of the SCurve)
-double TestPixel::FindThreshold(char *mapName, int nTrig, bool doubleWbc)
+double TestPixel::FindThreshold(const char * mapName, int nTrig, bool doubleWbc)
 {
 	TestRange *range = new TestRange();
 	range->AddPixel(roc->GetChipId(), column, row);

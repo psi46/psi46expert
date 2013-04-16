@@ -11,11 +11,11 @@ public:
 
 	void Open();
 	void Init();
-	void Write(char *string);
+	void Write(const char *string);
 	void Read();
 	void Measure(int targetVoltage, float &voltage, float &current, int delay);
 	void SetVoltage(int voltage, int delay);
-	void Command(char *commandString);
+	void Command(const char *commandString);
 	void GoLocal();
 	void ShutDown();
 	void ReadCurrent(float &voltage, float &current); 

@@ -237,7 +237,7 @@ void AddressDecoding::AnalyseResult(int pixel)
 
   if (nDecodedPixels < 0) 
   {
-    psi::LogInfo() << "[AddressDecoding] Error: Decoding Error for Pixel( "
+    psi::LogInfo() << "[AddressDecoding] Warning: Decoding Problem for Pixel( "
                    << column << ", " << row 
                    << ") on ROC" << roc->GetChipId() << '.' << psi::endl;
 
@@ -260,7 +260,7 @@ void AddressDecoding::AnalyseResult(int pixel)
   }
   else if (nDecodedPixels == 0 || decodedModuleReadout.roc[roc->GetAoutChipPosition()].numPixelHits == 0) 
   {
-    psi::LogInfo() << "[AddressDecoding] Error: No address levels were found "
+    psi::LogInfo() << "[AddressDecoding] Warning: No address levels were found "
                    << "for Pixel( " << column << ", " << row 
                    << ") on ROC" << roc->GetChipId() << '.' << psi::endl;
   }
@@ -271,7 +271,7 @@ void AddressDecoding::AnalyseResult(int pixel)
 //      Log::Current()->printf(" %4i", data[n]);
 //    }
 //    Log::Current()->printf("\n");
-    psi::LogInfo() << "[AddressDecoding] Error: Too many address levels were "
+    psi::LogInfo() << "[AddressDecoding] Warning: Too many address levels were "
                    << "found for Pixel( " << column << ", " << row 
                    << ") on ROC" << roc->GetChipId() << '.' << psi::endl;
   }
@@ -284,7 +284,7 @@ void AddressDecoding::AnalyseResult(int pixel)
     }
     Log::Current()->printf("\n");
   */
-    psi::LogInfo() << "[AddressDecoding] Error: wrong row "
+    psi::LogInfo() << "[AddressDecoding] Warning: wrong row "
                    << decodedModuleReadout.roc[roc->GetChipId()].pixelHit[0].rowROC
                    << " for Pixel( " << column << ", " << row 
                    << ") on ROC" << roc->GetChipId() << '.' << psi::endl;
@@ -296,7 +296,7 @@ void AddressDecoding::AnalyseResult(int pixel)
 //      Log::Current()->printf(" %4i", data[n]);
 //    }
 //    Log::Current()->printf("\n");
-    psi::LogInfo() << "[AddressDecoding] Error: wrong column "
+    psi::LogInfo() << "[AddressDecoding] Warning: wrong column "
                    << decodedModuleReadout.roc[roc->GetAoutChipPosition()].pixelHit[0].columnROC
                    << " for Pixel( " << column << ", " << row 
                    << ") on ROC" << roc->GetChipId() << '.' << psi::endl;

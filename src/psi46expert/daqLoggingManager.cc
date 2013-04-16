@@ -149,7 +149,7 @@ const char *daqLoggingManager::timeStamp() {
   time ( &rawtime );
   timeinfo = localtime ( &rawtime );
   //  fpLM->log(Form("Current date and time are: %s", asctime (timeinfo) ));
-  sprintf(fLine2, asctime(timeinfo));
+  strcpy(fLine2, asctime(timeinfo));
   fLine2[24] = '\0';
   return fLine2;
 }

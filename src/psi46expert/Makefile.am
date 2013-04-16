@@ -5,7 +5,7 @@ AM_CPPFLAGS = -I$(srcdir)/.. $(ROOTFLAGS)
 bin_PROGRAMS = psi46expert psi46hvOff psi46hvOn psi46hvRead psi46takeData psi46debugData psi46readData
 
 psi46expert_SOURCES = psi46expert.cpp
-psi46expert_LDADD = libpsi46expert.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB) -lMinuit
+psi46expert_LDADD = libpsi46expert.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB) $(LIBREADLINE) -lMinuit
 psi46expert_LDFLAGS = -static
 
 psi46hvOff_SOURCES = hvOff.cpp
