@@ -16,7 +16,11 @@ then
 	AC_MSG_ERROR([Could not find ftd2xx.h. Install the header file (from http://www.ftdichip.com) and set CPATH correctly.])
 fi
 
-AC_CHECK_LIB([readline], [readline], [LIBREADLINE=-lreadline], [LIBREADLINE=none], [-lncurses])
+AC_CHECK_LIB([readline], [readline], [LIBREADLINE=-lreadline], [LIBREADLINE=none])
+if test "$LIBREADLINE" = "none"
+then
+	AC_CHECK_LIB([readline], [readline], [LIBREADLINE=-lreadline -lncurses], [LIBREADLINE=none], [-lncurses])
+fi
 if test "$LIBREADLINE" = "none"
 then
 	AC_MSG_ERROR([Could not find libreadline. Install libreadline set LIBRARY_PATH environment variable correctly.])
