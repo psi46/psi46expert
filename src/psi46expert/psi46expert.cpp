@@ -3,9 +3,6 @@
 #include <cstdio>
 #include <string>
 
-#include <readline/readline.h>
-#include <readline/history.h>
-
 #include <TFile.h>
 #include <TString.h>
 #include <TApplication.h>
@@ -22,6 +19,10 @@
 #include "BasePixel/GlobalConstants.h"
 #include "BasePixel/Keithley.h"
 #include "interface/Log.h"
+
+/* These inclusions have to be after any ROOT inclusions */
+#include <readline/readline.h>
+#include <readline/history.h>
 
 TBAnalogInterface* tbInterface;
 TestControlNetwork *controlNetwork;
