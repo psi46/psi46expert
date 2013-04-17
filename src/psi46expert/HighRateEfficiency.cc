@@ -62,7 +62,7 @@ void HREfficiency::ModuleAction(void)
 	ai->SetReg(43, (1 << 1));
 
 	/* Set local trigger, tbm present, and run data aquisition */
-	if (ai->IsAnalog())
+	if (module->GetRoc(0)->has_analog_readout())
 		ai->SetReg(41, 0x20 | 0x02 | 0x08);
 	else
 		ai->SetReg(41, 0x20 | 0x01 | 0x08);
@@ -141,7 +141,7 @@ void HREfficiency::ModuleAction(void)
 	int nroc = module->NRocs();
 	RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
 	RawData2RawEvent rs;
-	RawEventDecoder ed(nroc, ai->IsAnalog());
+	RawEventDecoder ed(nroc, module->GetRoc(0)->has_analog_readout(), module->GetRoc(0)->has_row_address_inverted());
 	EfficiencyMapper em(nroc, ntrig);
 
 	/* Decoding chain */

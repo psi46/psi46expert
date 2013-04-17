@@ -54,7 +54,7 @@ void HRPixelMap::ModuleAction(void)
 	ai->Flush();
 
 	/* Set local trigger and tbm present */
-	if (ai->IsAnalog())
+	if (module->GetRoc(0)->has_analog_readout())
 		ai->SetReg(41, 0x20 | 0x02);
 	else
 		ai->SetReg(41, 0x20 | 0x01);
@@ -80,7 +80,7 @@ void HRPixelMap::ModuleAction(void)
 
 	/* Data filters */
 	RawData2RawEvent rs;
-	RawEventDecoder ed(nroc, ai->IsAnalog());
+	RawEventDecoder ed(nroc, module->GetRoc(0)->has_analog_readout(), module->GetRoc(0)->has_row_address_inverted());
 	HitMapper hm(nroc);
 	EventCounter count;
 	MultiplicityHistogrammer mh;
@@ -111,7 +111,7 @@ void HRPixelMap::ModuleAction(void)
 		ai->Intern(CAL|TRG|TOK);
 
 		/* Set local trigger, tbm present, and run data aquisition */
-		if (ai->IsAnalog())
+		if (module->GetRoc(0)->has_analog_readout())
 			ai->SetReg(41, 0x20 | 0x02 | 0x08);
 		else
 			ai->SetReg(41, 0x20 | 0x01 | 0x08);

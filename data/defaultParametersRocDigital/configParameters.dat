@@ -18,6 +18,7 @@ tbmEnable 0
 tbmEmulator 0
 hvOn 1
 tbmChannel 1
+rocType psi46dig
 
 halfModule 0
 

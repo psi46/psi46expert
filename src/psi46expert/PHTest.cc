@@ -63,7 +63,7 @@ void PHTest::PhDac(char *dacName)
 
 	TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
 
-	if (ai->IsAnalog()) {
+	if (roc->has_analog_readout()) {
 		TH1D * ubHist = new TH1D("ubHist", "ubHist", 256, 0, 256);
 		ubHist->SetLineColor(kRed);
 
@@ -118,6 +118,9 @@ void PHTest::PhDac(char *dacName)
 		EnablePixel();
 		ArmPixel();
 
+		/* Decoding flags */
+		int flags = module->GetRoc(0)->has_row_address_inverted() ? DRO_INVERT_ROW_ADDRESS : 0;
+
 		/* Loop through the whole Vcal range */
 		for (int vcal = 0; vcal < 256; vcal++) {
 			/* Set Vcal */
@@ -140,7 +143,7 @@ void PHTest::PhDac(char *dacName)
 			int measurement_num = 0;
 			int data_pos = 0;
 			for (int trig = 0; trig < nTrig; trig++) {
-				int retval = decode_digital_readout(drm, buffer + trig * (ai->GetEmptyReadoutLengthADC() + 6), nwords, module->NRocs(), 0);
+				int retval = decode_digital_readout(drm, buffer + trig * (ai->GetEmptyReadoutLengthADC() + 6), nwords, module->NRocs(), flags);
 				if (retval >= 0) {
 					/* Successful decoding */
 					int hits = drm->roc[roc->GetChipId()].numPixelHits;
@@ -166,7 +169,7 @@ void PHTest::PhDac(char *dacName)
 			if (measurement_num > 0)
 				ph_mean /= measurement_num;
 
-	    		histo->SetBinContent(vcal + 1, ph_mean);
+			histo->SetBinContent(vcal + 1, ph_mean);
 		}
 
 		/* Cleanup */

@@ -89,11 +89,12 @@ class RawEventDecoder : public Pipe {
 		CRawEvent * Read();
 		CEvent * Write();
 
-		RawEventDecoder(unsigned int nROCs, bool analog);
+		RawEventDecoder(unsigned int nROCs, bool analog, bool row_address_inverted);
 		unsigned int GetDecodingErrors();
 
 	protected:
 		bool analog;
+		bool row_address_inverted;
 		unsigned int nROCs;
 		unsigned int decoding_errors;
 };

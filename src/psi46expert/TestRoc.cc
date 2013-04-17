@@ -557,7 +557,7 @@ void TestRoc::AdjustCalDelVthrComp()
 	int vOffsetOp = GetDAC("VoffsetOp");
 	SetDAC("VoffsetOp", 255);
 
-	if (GetTBAnalogInterface()->IsAnalog())
+	if (has_analog_readout())
 		AdjustCalDelVthrComp(20, 20, 200, -50);
 	else
 		AdjustCalDelVthrComp(20, 20, 200, 20);

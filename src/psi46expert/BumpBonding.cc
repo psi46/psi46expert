@@ -25,7 +25,7 @@ void BumpBonding::ReadTestParameters(TestParameters *testParameters)
 void BumpBonding::RocAction()
 {
     TBAnalogInterface * ai = dynamic_cast<TBAnalogInterface *>(tbInterface);
-    bool is_analog = ai->IsAnalog();
+    bool is_analog = roc->has_analog_readout();
 
 	if (is_analog){
 

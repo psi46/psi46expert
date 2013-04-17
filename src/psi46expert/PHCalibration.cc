@@ -203,12 +203,12 @@ void PHCalibration::RocAction()
 		cout << "Calibrating with Vcal " << setw(3) << vcal[i] << (ctrlReg[i] == 4 ? "H" : "L") << " ... " << endl;
 
 		if (numPixels >= 4160) {
-			if (((TBAnalogInterface *) tbInterface)->IsAnalog())
+			if (roc->has_analog_readout())
 				roc->AoutLevelChip(phPosition, nTrig, data);
 			else
 				PulseHeightRocDigital(data);
 		} else {
-			if (((TBAnalogInterface *) tbInterface)->IsAnalog())
+			if (roc->has_analog_readout())
 				roc->AoutLevelPartOfChip(phPosition, nTrig, data, pxlFlags);
 			else
 				PulseHeightRocDigital(data);
@@ -297,6 +297,9 @@ void PHCalibration::PulseHeightRocDigital(int data [])
 	short * buffer = new short [256];
 	unsigned short nwords;
 
+	/* Decoding flags */
+	int flags = module->GetRoc(0)->has_row_address_inverted() ? DRO_INVERT_ROW_ADDRESS : 0;
+
 	/* iterate over columns and rows to get each pixel efficiency */
 	for (int col = 0; col < 52; col++) {
 		for (int row = 0; row < 80; row++) {
@@ -319,7 +322,7 @@ void PHCalibration::PulseHeightRocDigital(int data [])
 			int measurement_num = 0;
 			int data_pos = 0;
 			for (int trig = 0; trig < nTrig; trig++) {
-				int retval = decode_digital_readout(drm, buffer + data_pos, nwords, module->NRocs(), 0);
+				int retval = decode_digital_readout(drm, buffer + data_pos, nwords, module->NRocs(), flags);
 				if (retval >= 0) {
 					/* Successful decoding */
 					int hits = drm->roc[roc->GetChipId()].numPixelHits;

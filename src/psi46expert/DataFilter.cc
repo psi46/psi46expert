@@ -234,10 +234,11 @@ CRawEvent * RawData2RawEvent::Write()
 
 /* Pipe that decodes the analog readout from raw events ------------------------------------------------- */
 
-RawEventDecoder::RawEventDecoder(unsigned int n, bool analog)
+RawEventDecoder::RawEventDecoder(unsigned int n, bool analog, bool row_address_inverted)
 {
 	nROCs = n;
 	this->analog = analog;
+	this->row_address_inverted = row_address_inverted;
 	decoding_errors = 0;
 }
 
@@ -269,7 +270,8 @@ CEvent * RawEventDecoder::Write()
 			decoded_event.nHits = decoder->decode(rawevent->length, (short *) rawevent->data, decoded_event.hits, nROCs);
 		} else {
 			int ret;
-			ret = decode_digital_readout(&(decoded_event.hits), (short *) rawevent->data, rawevent->length, nROCs, 0);
+			int flags = this->row_address_inverted ? DRO_INVERT_ROW_ADDRESS : 0;
+			ret = decode_digital_readout(&(decoded_event.hits), (short *) rawevent->data, rawevent->length, nROCs, flags);
 			decoded_event.nHits = (ret >= 0) ? decoded_event.hits.roc[0].numPixelHits : ret;
 		}
 		/* go through the hits to find address decoding errors */

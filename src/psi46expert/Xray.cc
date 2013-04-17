@@ -46,7 +46,7 @@ void Xray::ModuleAction()
   int counts[MODULENUMROCS], amplitudes[MODULENUMROCS], countsTemp[MODULENUMROCS], amplitudesTemp[MODULENUMROCS];
   int sum, nRocs = module->NRocs();
 
-  if (tb->IsAnalog())
+  if (module->GetRoc(0)->has_analog_readout())
     module->AdjustDTL();
 
   for (int iRoc = 0; iRoc < nRocs; iRoc++)
@@ -81,7 +81,7 @@ void Xray::ModuleAction()
   }
   
   tb->DataEnable(false);
-  if (tb->IsAnalog()) {
+  if (module->GetRoc(0)->has_analog_readout()) {
     // max stretching is 1022 (Beat)
     tb->SetClockStretch(STRETCH_AFTER_CAL, 0, 100);
   }
@@ -181,7 +181,7 @@ void Xray::ModuleAction()
     printf("VthrComp %i Sum %i\n", vthrComp, sum);
   }
 
-  if (tb->IsAnalog())
+  if (module->GetRoc(0)->has_analog_readout())
     tb->SetClockStretch(0, 0, 0);
   tb->DataEnable(true);
   for (int iRoc = 0; iRoc < nRocs; iRoc++) 

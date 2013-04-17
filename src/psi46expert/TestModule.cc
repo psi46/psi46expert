@@ -57,6 +57,7 @@ TestModule::TestModule(ConfigParameters *aConfigParameters, int aCNId, TBInterfa
         int portId = int(rocId/4);
         std::cout<<std::setw(2)<<i <<": adding Roc "<< std::setw(2)<<rocId <<" with hubID "<<hubId <<" and portID "<< portId <<endl;
         roc[i] = new TestRoc(tbInterface, testParameters, rocId, hubId, portId, i); 
+        roc[i]->set_chip_type(aConfigParameters->roc_type);
     }
   }
   else if (configParameters->customModule == 1)
@@ -501,7 +502,7 @@ void TestModule::AdjustDACParameters()
 {
   TBAnalogInterface * ai = dynamic_cast<TBAnalogInterface *>(tbInterface);
   bool tbmPresent = ai->TBMPresent();
-  bool is_analog = ai->IsAnalog();
+  bool is_analog = GetRoc(0)->has_analog_readout();
 
   psi::LogInfo() << "[TestModule] Pretest: Start." << psi::endl;
 

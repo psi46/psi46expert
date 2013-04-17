@@ -937,7 +937,7 @@ void  MainFrame::DoADC()
 {
 	unsigned short count;
 	short data[FIFOSIZE];
-	bool is_analog = ((TBAnalogInterface*)tbInterface)->IsAnalog();
+	bool is_analog = controlNetwork->GetModule(0)->GetRoc(0)->has_analog_readout();
 	if (is_analog)
 		((TBAnalogInterface*)tbInterface)->ADCRead(data, count);
 	else

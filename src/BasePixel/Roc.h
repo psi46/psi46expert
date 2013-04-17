@@ -3,6 +3,8 @@
 #ifndef ROC
 #define ROC
 
+#include <string>
+
 #include "DoubleColumn.h"
 #include "TBInterface.h"
 #include "DACParameters.h"
@@ -26,9 +28,9 @@ public:
 	TBInterface* GetTBInterface();
 	TBAnalogInterface* GetTBAnalogInterface() {return (TBAnalogInterface*)tbInterface;};
 	int GetChipId();
-        int GetAoutChipPosition();
+	int GetAoutChipPosition();
 	void SetTrim(int iCol, int iRow, int trimBit);
-		
+
 	void WriteTrimConfiguration(const char* filename);
 	void ReadTrimConfiguration( const char *filename);
 	void GetTrimValues(int buffer[]);
@@ -79,7 +81,7 @@ public:
 	void DacDac(int dac1, int dacRange1, int dac2, int dacRange2, int nTrig, int result[]);
 	void AddressLevelsTest(int result[]);
 	void TrimAboveNoise(short nTrigs, short thr, short mode, short result[]);
-	
+
 	// == Low level ROC actions, do not use them, use those in the pixel or dacParameters object ================================
 
 	void SetChip();
@@ -98,6 +100,11 @@ public:
 	void Flush();
 	void CDelay(int clocks);
 
+	// == Chip properties ===================================
+	int set_chip_type(std::string type_specifier);	/**< Sets the chip type from a predefined identifier. */
+	bool has_analog_readout();			/**< Check whether the chip under test has analog readout or not */
+	bool has_digital_readout();			/**< Check whether the chip under test has digital readout or not */
+	bool has_row_address_inverted();		/**< Check whether this chip has the row address inverted or not */
 protected:
 
 	TBInterface* tbInterface;
@@ -106,7 +113,10 @@ protected:
 	DoubleColumn *doubleColumn[ROCNUMDCOLS];
 	DACParameters *dacParameters, *savedDacParameters;
 
-// 	static const int RES = 0x08, CAL = 0x04, TRG = 0x02, TOK = 0x01;
+//	static const int RES = 0x08, CAL = 0x04, TRG = 0x02, TOK = 0x01;
+
+	bool analog_readout;			/**< Flag that specifies whether the chip has analog readout or not */
+	bool row_address_inverted;		/**< Flag that specifies whether the row address is inverted in the readout or not */
 
 };
 

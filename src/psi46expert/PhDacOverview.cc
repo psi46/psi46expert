@@ -57,7 +57,7 @@ void PhDacOverview::DoDacScan()
 	/* Iterate over ROC DACs */
 	for (int DacRegister = 1; DacRegister < 28; DacRegister++) {
 		/* Exclude DACs that don't exist on the digital ROC psi46dig */
-		if (!(ai->IsAnalog())) {
+		if (!(roc->has_analog_readout())) {
 			switch (DacRegister) {
 				case 5: case 6: case 8: case 16: case 23: case 24: case 27: case 28:
 					continue;
@@ -131,7 +131,7 @@ void PhDacOverview::PHDac(TH1D * histo)
 {
 	TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
 
-	if (ai->IsAnalog()) {
+	if (roc->has_analog_readout()) {
 		int offset;
 		if (ai->TBMPresent())
 			offset = 16;
@@ -165,6 +165,9 @@ void PhDacOverview::PHDac(TH1D * histo)
 		EnablePixel();
 		ArmPixel();
 
+		/* Decoding flags */
+		int flags = module->GetRoc(0)->has_row_address_inverted() ? DRO_INVERT_ROW_ADDRESS : 0;
+
 		/* Loop through the whole Vcal range */
 		for (int vcal = 0; vcal < 256; vcal++) {
 			/* Set Vcal */
@@ -187,7 +190,7 @@ void PhDacOverview::PHDac(TH1D * histo)
 			int measurement_num = 0;
 			int data_pos = 0;
 			for (int trig = 0; trig < nTrig; trig++) {
-				int retval = decode_digital_readout(drm, buffer + trig * (ai->GetEmptyReadoutLengthADC() + 6), nwords, module->NRocs(), 0);
+				int retval = decode_digital_readout(drm, buffer + trig * (ai->GetEmptyReadoutLengthADC() + 6), nwords, module->NRocs(), flags);
 				if (retval >= 0) {
 					/* Successful decoding */
 					int hits = drm->roc[roc->GetChipId()].numPixelHits;

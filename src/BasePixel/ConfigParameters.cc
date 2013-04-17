@@ -62,6 +62,7 @@ void ConfigParameters::Initialize()
 	vd = 2.5;
 
 	rocZeroAnalogCurrent = 0.0;
+	roc_type = "psi46v2";
 }
 
 ConfigParameters* ConfigParameters::Singleton()
@@ -138,6 +139,8 @@ bool ConfigParameters::ReadConfigParameterFile( const char *_file)
     else if( 0 == _name.compare( "vd") ) { vd = .001 * _ivalue; }
 
     else if( 0 == _name.compare( "rocZeroAnalogCurrent") ) { rocZeroAnalogCurrent = .001 * _ivalue; }
+
+    else if( 0 == _name.compare( "rocType") ) { roc_type = _value; }
 
     else { psi::LogInfo() << "[ConfigParameters] Did not understand '" 
                           << _name << "'." << psi::endl; }
@@ -238,6 +241,7 @@ bool ConfigParameters::WriteConfigParameterFile()
 	fprintf(file, "hvOn %i\n", hvOn);
 	fprintf(file, "tbmChannel %i\n\n", tbmChannel);
 	fprintf(file, "halfModule %i\n\n", halfModule);
+	fprintf(file, "rocType %s\n\n", roc_type.c_str());
 	
 	fprintf(file, "-- voltages and current limits\n\n");
 

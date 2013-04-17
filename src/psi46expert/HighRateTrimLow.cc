@@ -300,7 +300,7 @@ void HRTrimLow::MakeMap(void)
 	/* Prepare data decoding */
 	RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
 	RawData2RawEvent rs;
-	RawEventDecoder ed(1, ai->IsAnalog());
+	RawEventDecoder ed(1, roc->has_analog_readout(), roc->has_row_address_inverted());
 	HitMapper hm(1);
 	EventCounter count;
 	

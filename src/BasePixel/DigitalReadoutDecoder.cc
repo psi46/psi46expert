@@ -139,7 +139,7 @@ inline int decode_address(short data [], int nwords, int bit_offset, int groups,
 }
 
 /* Decode the hit pattern (24 bits) into column, row, and pulse height */
-int decode_hit(short data [], int nwords, int bit_offset, int * col, int * row, int * ph)
+int decode_hit(short data [], int nwords, int bit_offset, int * col, int * row, int * ph, int flags)
 {
 	int retval;
 	int col_tmp = 0, row_tmp = 0, ph_tmp = 0;
@@ -153,7 +153,8 @@ int decode_hit(short data [], int nwords, int bit_offset, int * col, int * row, 
 	bit_offset = retval;
 
 	/* Read the row address (three senary digits encoded in 3 bits each.) */
-	retval = decode_address(data, nwords, bit_offset, PIXEL_ADDRESS_GROUPS, PIXEL_ADDRESS_GROUP_BITS, &row_tmp, true);
+	bool invert = !!(flags & DRO_INVERT_ROW_ADDRESS);
+	retval = decode_address(data, nwords, bit_offset, PIXEL_ADDRESS_GROUPS, PIXEL_ADDRESS_GROUP_BITS, &row_tmp, invert);
 	if (retval < 0)
 		return retval;
 	if (row_tmp < 2 || row_tmp > 161)
@@ -226,7 +227,7 @@ int decode_digital_readout(DecodedReadoutModule * obj, short data [], int nwords
 		/* Iterate over the hits for this ROC. */
 		while (bit_offset < BITS_PER_WORD * nwords) {
 			int x, y, ph;
-			retval = decode_hit(data, nwords, bit_offset, &y, &x, &ph);
+			retval = decode_hit(data, nwords, bit_offset, &y, &x, &ph, flags);
 			if (retval < 0)
 				break;
 
