@@ -55,7 +55,7 @@ TestModule::TestModule(ConfigParameters *aConfigParameters, int aCNId, TBInterfa
     {
         int rocId = i+offset;
         int portId = int(rocId/4);
-        std::cout<<std::setw(2)<<i <<": adding Roc "<< std::setw(2)<<rocId <<" with hubID "<<hubId <<" and portID "<< portId <<endl;
+        psi::LogDebug() << Form("%2i", i) << ": adding Roc "<< Form("%2i", rocId) << " with hubID "<< hubId << " and portID " << portId << psi::endl;
         roc[i] = new TestRoc(tbInterface, testParameters, rocId, hubId, portId, i); 
     }
   }
