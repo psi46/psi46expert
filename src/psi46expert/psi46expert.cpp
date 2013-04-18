@@ -2,6 +2,11 @@
 #include <cstdlib>
 #include <cstdio>
 #include <string>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
+#include "config.h"
 
 #include <TFile.h>
 #include <TString.h>
@@ -172,7 +177,7 @@ void runFile()
 }
 
 
-void parameters(int argc, char * argv[], ConfigParameters * configParameters)
+int parameters(int argc, char * argv[], ConfigParameters * configParameters)
 {
     int hubId;
     char rootFile[1000], logFile[1000], dacFile[1000], trimFile[1000], directory[1000], tbName[1000], maskFile[1000];
@@ -247,6 +252,14 @@ void parameters(int argc, char * argv[], ConfigParameters * configParameters)
         if (!strcmp(argv[i], "-g")) guiMode = true;
 
     }
+
+    /* Check test directory */
+    struct stat st;
+    if (stat(directory, &st) != 0) {
+        perror(Form("Error accessing test directory %s", directory));
+        psi::LogInfo() << "Copy a default parameter directory from " << DATADIR << " for testing." << psi::endl;
+        return 0;
+    }
     strcpy(configParameters->directory, directory);
 
     if (strcmp(testMode, fullTest) == 0)
@@ -290,6 +303,8 @@ void parameters(int argc, char * argv[], ConfigParameters * configParameters)
     if (trimArg) configParameters->SetTrimParameterFileName(trimFile);
     if (maskArg) configParameters->SetMaskFileName(maskFile);
     if (hubIdArg) configParameters->hubId = hubId;
+
+    return 1;
 }
 
 
@@ -302,7 +317,8 @@ int main(int argc, char * argv[])
     }
 
     configParameters = ConfigParameters::Singleton();
-    parameters(argc, argv, configParameters);
+    if (!parameters(argc, argv, configParameters))
+        return 1;
     // == Initialization =====================================================================
 
     TFile * histoFile = new TFile(configParameters->GetRootFileName(), "RECREATE");
