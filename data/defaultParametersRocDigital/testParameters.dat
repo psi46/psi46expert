@@ -11,9 +11,6 @@ DacRange2 256
 TrimVcal 60
 TrimNTrig 5
 TrimDoubleWbc 1
-TrimVtrim -1
-TrimVthrcomp -1
-TrimAdjustCalDel 0
 
 -- PH --
 
@@ -117,10 +114,6 @@ HRPixelMapAquisitionTime 10.0
 HRPixelMapRepetitions 1
 # Trigger rate (40000 / (256 * N)) kHz
 HRPixelMapTriggerRate 5
-# Clock stretch factor (Disabled if < 2)
-HRPixelMapClockStretch 0
-# Clock stretch follows Calibrate after N clock cycles (can be negative)
-HRPixelMapStretchDelay 6
 
 -- High rate efficiency
 

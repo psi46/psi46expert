@@ -26,7 +26,7 @@ class PHCalibration : public Test
 	void Measure(int nTriggers);
 	int GetCalDel(int vcalStep);
 	int GetVthrComp(int vcalStep);
-	
+	void PulseHeightRocDigital(int data []);
 
  private:
 

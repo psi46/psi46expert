@@ -16,6 +16,8 @@ public:
 	virtual void PixelAction();
 	
 	void PhDac(char *dacName);
+	void PulseHeightRocDigital(int data []);
+
 
 	
 	

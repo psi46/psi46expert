@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 
 #include <TSystem.h>
 #include <TRandom.h>
@@ -12,6 +13,11 @@
 #include "TestRoc.h"
 #include "DacDependency.h"
 #include "PHCalibration.h"
+#include "pipe.h"
+#include "DataFilter.h"
+#include "BasePixel/DigitalReadoutDecoder.h"
+#include "BasePixel/DecodedReadout.h"
+#include "TestModule.h"
 
 
 PHCalibration::PHCalibration()
@@ -166,6 +172,7 @@ void PHCalibration::RocAction()
 	if (debug) {calDel50 = 44; calDel100 = 63; calDel200 = 66; vthrComp50 = 114; vthrComp100 = 99; vthrComp200 = 85;}
 	else if (calDelVthrComp)
 	{
+		psi::LogInfo() << "Determining CalDel values ..." << psi::endl;
 		SetDAC("CtrlReg", 0);
 		calDel200 = GetDAC("CalDel"); vthrComp200 = GetDAC("VthrComp"); // from Pretest
 		roc->AdjustCalDelVthrComp(15, 15, 50, -0); calDel50 = GetDAC("CalDel"); vthrComp50 = GetDAC("VthrComp");
@@ -192,14 +199,23 @@ void PHCalibration::RocAction()
 		SetDAC("VthrComp", GetVthrComp(i));
 		SetDAC("Vcal", vcal[i]);
 		Flush();
-		
-		if ( numPixels >= 4160 )
-		  roc->AoutLevelChip(phPosition, nTrig, data);
-		else
-		  roc->AoutLevelPartOfChip(phPosition, nTrig, data, pxlFlags);
+
+		cout << "Calibrating with Vcal " << setw(3) << vcal[i] << (ctrlReg[i] == 4 ? "H" : "L") << " ... " << endl;
+
+		if (numPixels >= 4160) {
+			if (roc->has_analog_readout())
+				roc->AoutLevelChip(phPosition, nTrig, data);
+			else
+				PulseHeightRocDigital(data);
+		} else {
+			if (roc->has_analog_readout())
+				roc->AoutLevelPartOfChip(phPosition, nTrig, data, pxlFlags);
+			else
+				PulseHeightRocDigital(data);
+		}
 
 		for (int k = 0; k < ROCNUMROWS*ROCNUMCOLS; k++) ph[i][k] = data[k];
-	}	
+	}
 
 	for (int col = 0; col < 52; col++)
 	{	
@@ -218,7 +234,26 @@ void PHCalibration::RocAction()
 			}
 		}
 	}
-			
+
+	for (int i = 0; i < vcalSteps; i++) {
+		TH2F * ph_map = new TH2F(Form("ph_cal_map_vcal%i%s_C%i", vcal[i], ctrlReg[i] == 4 ? "H" : "L", chipId), Form("Pulse height calibration map ROC %i (Vcal %i%s)", chipId, vcal[i], ctrlReg[i] == 4 ? "H" : "L"), 52, 0, 52, 80, 0, 80);
+		ph_map->GetXaxis()->SetTitle("Column");
+		ph_map->GetYaxis()->SetTitle("Row");
+
+		for (int col = 0; col < 52; col++) {
+		        for (int row = 0; row < 80; row++) {
+				SetPixel(GetPixel(col, row));
+				if (testRange->IncludesPixel(chipId, column, row) && ph[i][col*ROCNUMROWS + row] != 7777) {
+					ph_map->SetBinContent(col + 1, row + 1, ph[i][col * ROCNUMROWS + row]);
+					//if (ph[i][col*ROCNUMROWS + row] != 7777) fprintf(file, "%5i ", ph[i][col*ROCNUMROWS + row]);
+					//else fprintf(file, "  N/A ");
+				}
+			}
+		}
+
+		histograms->Add(ph_map);
+	}
+
 	fclose(file);
 	RestoreDacParameters();
 	gDelay->Timestamp();
@@ -242,4 +277,86 @@ int PHCalibration::GetVthrComp(int vcalStep)
 	if (vcal[vcalStep]*conversion < 75.) return vthrComp50;
 	else if (vcal[vcalStep]*conversion < 125.) return vthrComp100;
 	else return vthrComp200;
+}
+
+void PHCalibration::PulseHeightRocDigital(int data [])
+{
+	TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
+	ai->Flush();
+
+	/* Structure that holds the decoded readout */
+	DecodedReadoutModule * drm = new DecodedReadoutModule;
+
+	/* Set local trigger and channel */
+	ai->SetReg(41, 0x20 | 0x01);
+
+	/* Enable the FIFO gate */
+	ai->DataCtrl(false, false, true);
+
+	/* Buffer for the ADC data */
+	short * buffer = new short [256];
+	unsigned short nwords;
+
+	/* Decoding flags */
+	int flags = module->GetRoc(0)->has_row_address_inverted() ? DRO_INVERT_ROW_ADDRESS : 0;
+
+	/* iterate over columns and rows to get each pixel efficiency */
+	for (int col = 0; col < 52; col++) {
+		for (int row = 0; row < 80; row++) {
+			/* Arm the pixel */
+			roc->ArmPixel(col, row);
+			ai->CDelay(500);
+			ai->Flush();
+
+			/* send nTrig triggers with calibrates */
+			for (int t = 0; t < nTrig; t++) {
+				ai->Single(RES|CAL|TRG|TOK);
+				ai->CDelay(500);
+			}
+			ai->Flush();
+
+			ai->getCTestboard()->DataRead(ai->GetTBMChannel(), buffer, 256, nwords);
+
+			/* Calculate the mean pulseheight from nTrig measurements by analysing the data */
+			float ph_mean = 0.0;
+			int measurement_num = 0;
+			int data_pos = 0;
+			for (int trig = 0; trig < nTrig; trig++) {
+				int retval = decode_digital_readout(drm, buffer + data_pos, nwords, module->NRocs(), flags);
+				if (retval >= 0) {
+					/* Successful decoding */
+					int hits = drm->roc[roc->GetChipId()].numPixelHits;
+					if (hits == 1) {
+						/* Record the pulse height and move to the next block of data */
+						ph_mean += drm->roc[roc->GetChipId()].pixelHit[0].analogPulseHeight;
+						data_pos += ai->GetEmptyReadoutLengthADC() + hits * 6;
+						measurement_num++;
+					} else if (hits > 1) {
+						/* More hits than expected. Move to the next block of data. */
+						data_pos += ai->GetEmptyReadoutLengthADC() + hits * 6;
+					} else {
+						/* No hits, move to the next block of data. */
+						data_pos += ai->GetEmptyReadoutLengthADC();
+					}
+				} else {
+					/* Decoding failed. Try next block of data. */
+					data_pos += ai->GetEmptyReadoutLengthADC();
+				}
+			}
+
+			/* Finalize the mean value of the pulseheight */
+			if (measurement_num > 0)
+				ph_mean /= measurement_num;
+
+			data[80 * col + row] = ph_mean;
+
+			/* Disarm the pixel */
+			roc->DisarmPixel(col, row);
+			ai->Flush();
+		}
+	}
+
+	delete buffer;
+	delete drm;
+	return;
 }

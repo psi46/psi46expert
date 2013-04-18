@@ -5,7 +5,7 @@ AM_CPPFLAGS = -I$(srcdir)/.. $(ROOTFLAGS)
 bin_PROGRAMS = psi46expert psi46hvOff psi46hvOn psi46hvRead psi46takeData psi46debugData psi46readData
 
 psi46expert_SOURCES = psi46expert.cpp
-psi46expert_LDADD = libpsi46expert.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB) $(LIBREADLINE)
+psi46expert_LDADD = libpsi46expert.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB) $(LIBREADLINE) -lMinuit
 psi46expert_LDFLAGS = -static
 
 psi46hvOff_SOURCES = hvOff.cpp
@@ -21,11 +21,11 @@ psi46hvRead_LDADD = ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46inter
 psi46hvRead_LDFLAGS = -static
 
 psi46takeData_SOURCES = takeData.cpp
-psi46takeData_LDADD = libpsi46daq.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB)
+psi46takeData_LDADD = libpsi46daq.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB) -lMinuit
 psi46takeData_LDFLAGS = -static
 
 psi46debugData_SOURCES = debugData.cpp
-psi46debugData_LDADD = libpsi46daq.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB)
+psi46debugData_LDADD = libpsi46daq.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB) -lMinuit
 psi46debugData_LDFLAGS = -static
 
 psi46readData_SOURCES = readData.cpp
@@ -84,7 +84,13 @@ libpsi46expert_la_SOURCES = AddressDecoding.cc \
 			    VhldDelOptimization.cc \
 			    VsfOptimization.cc \
 			    VsfScan.cc \
-			    Xray.cc
+			    Xray.cc \
+			    pipe.cc \
+			    DataFilter.cc \
+			    HighRatePixelMap.cc \
+			    HighRateEfficiency.cc \
+			    HighRateTrimLow.cc \
+			    HighRateSCurve.cc
 
 nodist_libpsi46expert_la_SOURCES = MainFrameDict.cc \
 				   TestRangeDict.cc
@@ -196,7 +202,13 @@ noinst_HEADERS = AddressDecoding.h \
 		 VhldDelOptimization.h \
 		 VsfOptimization.h \
 		 VsfScan.h \
-		 Xray.h
+		 Xray.h \
+		 pipe.h \
+		 DataFilter.h \
+		 HighRatePixelMap.h \
+		 HighRateEfficiency.h \
+		 HighRateTrimLow.h \
+		 HighRateSCurve.h
 
 # ADDITIONAL CLEANING RULES -----------------------------------------------------------------------------------------------------------------------------------
 

@@ -4,6 +4,7 @@
 #include "TestRoc.h"
 #include "Analysis.h"
 #include "ThresholdMap.h"
+#include "BasePixel/TBAnalogInterface.h"
 
 BumpBonding::BumpBonding(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
 {
@@ -23,7 +24,12 @@ void BumpBonding::ReadTestParameters(TestParameters *testParameters)
 
 void BumpBonding::RocAction()
 {
-	ThresholdMap *thresholdMap = new ThresholdMap();
+    TBAnalogInterface * ai = dynamic_cast<TBAnalogInterface *>(tbInterface);
+    bool is_analog = roc->has_analog_readout();
+
+	if (is_analog){
+
+    ThresholdMap *thresholdMap = new ThresholdMap();
 	
 	SaveDacParameters();
 	ClrCal();
@@ -39,7 +45,9 @@ void BumpBonding::RocAction()
   psi::LogDebug() << "[BumpBonding] Setting VthrComp to " << vthrComp << '.'
                   << psi::endl;
 
-	SetDAC("VthrComp", vthrComp);
+	//SetDAC("VthrComp", vthrComp);
+	SetDAC("VthrComp", 85);
+
 
 	Flush();
 	
@@ -59,5 +67,25 @@ void BumpBonding::RocAction()
 	histograms->Add(gAnalysis->Distribution(xtalk));
 	histograms->Add(gAnalysis->Distribution(difference));
 	histograms->Add(calXtalkDistribution);
+}
+
+//dig chip
+    else 
+    {
+    SaveDacParameters();
+    psi::LogInfo() << "doing digital Bump Bonding Test ...";
+    ThresholdMap *thresholdMap = new ThresholdMap();
+
+
+    SetDAC("CtrlReg", 4);
+    SetDAC("Vcal", 255);
+    Flush();
+    TH2D* map = thresholdMap->GetMap("BumpBondMap", roc, testRange, nTrig,7);
+
+    histograms->Add(map);
+    histograms->Add(gAnalysis->Distribution(map));
+
+    RestoreDacParameters();
+    }
 }
 

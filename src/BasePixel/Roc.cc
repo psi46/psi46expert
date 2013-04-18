@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <string>
 
 #include "BasePixel/Roc.h"
 #include "TBAnalogInterface.h"
@@ -13,6 +14,10 @@ Roc::Roc(TBInterface* const aTBInterface, const int aChipId, const int aHubId, c
 		doubleColumn[i] = new DoubleColumn(this, i);
 	}
 	dacParameters = new DACParameters(this);
+
+	/* Chip properties */
+	analog_readout = false;
+	row_address_inverted = false;
 }
 
 
@@ -40,7 +45,7 @@ void Roc::Initialize()
 
 void Roc::Initialize(ConfigParameters *pcfg)
 {
-        ConfigParameters *configParameters = pcfg;
+	ConfigParameters *configParameters = pcfg;
 	ReadDACParameterFile(configParameters->GetDacParametersFileName());
 	ReadTrimConfiguration(configParameters->GetTrimParametersFileName());
 
@@ -53,7 +58,7 @@ void Roc::Initialize(ConfigParameters *pcfg)
 
 bool Roc::Execute(SysCommand &command, int warning)
 {
-  
+
 	if( (command.carg[0]==NULL) || command.narg==0) return false;
 
 	int buf[2];
@@ -82,7 +87,7 @@ bool Roc::Execute(SysCommand &command, int warning)
 		{
 			for(int* k=command.iarg[2]; (*k)>=0; k++)
 			{
-        psi::LogDebug() << "[Roc] pixel " << *j << ' ' << *k << psi::endl;
+				psi::LogDebug() << "[Roc] pixel " << *j << ' ' << *k << psi::endl;
 				EnablePixel(*j, *k);
 			}
 		}
@@ -142,7 +147,7 @@ bool Roc::Execute(SysCommand &command, int warning)
 	}
 	else if (strcmp(command.carg[0],"init") == 0)
 	{
-/*		Initialize("defaultDACParameters.dat");
+		/* Initialize("defaultDACParameters.dat");
 		tbInterface->Initialize("defaultTBParameters.dat");*/
 		return true;
 	}
@@ -197,7 +202,7 @@ int Roc::GetChipId()
 
 int Roc::GetAoutChipPosition()
 {
-        return aoutChipPosition;
+	return aoutChipPosition;
 }
 
 
@@ -306,7 +311,7 @@ bool Roc::WriteDACParameterFile(const char* filename)
 
 void Roc::ClrCal()
 {
-        SetChip();
+	SetChip();
 	GetTBAnalogInterface()->RocClrCal();
 	tbInterface->CDelay(50);
 }
@@ -453,7 +458,7 @@ void Roc::SetChip()
 
 void Roc::PixTrim(int col, int row, int value)
 {
-        SetChip();
+	SetChip();
 	GetTBAnalogInterface()->RocPixTrim(col, row, value);
 	tbInterface->CDelay(50);
 }
@@ -461,7 +466,7 @@ void Roc::PixTrim(int col, int row, int value)
 
 void Roc::PixMask(int col, int row)
 {
-        SetChip();
+	SetChip();
 	GetTBAnalogInterface()->RocPixMask(col, row);
 	tbInterface->CDelay(50);
 }
@@ -469,7 +474,7 @@ void Roc::PixMask(int col, int row)
 
 void Roc::PixCal(int col, int row, int sensorcal)
 {
-        SetChip();
+	SetChip();
 	GetTBAnalogInterface()->RocPixCal(col, row, sensorcal);
 	tbInterface->CDelay(50);
 }
@@ -477,7 +482,7 @@ void Roc::PixCal(int col, int row, int sensorcal)
 
 void Roc::ColEnable(int col, int on)
 {
-        SetChip();
+	SetChip();
 	GetTBAnalogInterface()->RocColEnable(col, on);
 	tbInterface->CDelay(50);
 }
@@ -485,7 +490,7 @@ void Roc::ColEnable(int col, int on)
 
 void Roc::RocSetDAC(int reg, int value)
 {
-        SetChip();
+	SetChip();
 	GetTBAnalogInterface()->RocSetDAC(reg, value);
 }
 
@@ -619,17 +624,17 @@ void Roc::WriteTrimConfiguration(const char* filename)
 	char fname[1000];
 	if (strstr(filename, ".dat")) sprintf(fname, "%s", filename);
 	else sprintf(fname, "%s_C%i.dat", filename, chipId);
-	
+
 	FILE *file = fopen(fname, "w");
-	if (!file) 
+	if (!file)
 	{
-    psi::LogInfo() << "[Roc] Can not open file '" << fname 
-                   << "' to write trim configuration." << psi::endl;
+		psi::LogInfo() << "[Roc] Can not open file '" << fname
+				<< "' to write trim configuration." << psi::endl;
 		return;
 	}
-  psi::LogInfo() << "[Roc] Roc" << chipId
-                 << ": Writing trim configuration to '" << filename
-                 << "'." << psi::endl;
+	psi::LogInfo() << "[Roc] Roc" << chipId
+			<< ": Writing trim configuration to '" << filename
+			<< "'." << psi::endl;
 
 	for (int iCol = 0; iCol < ROCNUMCOLS; iCol++)
 	{
@@ -700,4 +705,62 @@ void Roc::ReadTrimConfiguration(const char * filename)
 	/* Clean up */
 	fclose(file);
 	delete [] fname;
+}
+
+/**
+	\details
+	Because there are many chip types that have to be tested this
+	function takes a predefined indentifier and sets flags depending
+	on the features of the chip.
+	\param chip_identifier A string that is one of the predefined chip types
+ */
+int Roc::set_chip_type(string chip_identifier)
+{
+	analog_readout = false;
+	row_address_inverted = false;
+	if (chip_identifier == "psi46v2") {
+		analog_readout = true;
+	} else if (chip_identifier == "psi46xdb") {
+		analog_readout = true;
+	} else if (chip_identifier == "psi46dig") {
+		row_address_inverted = true;
+	} else if (chip_identifier == "psi46digv2") {
+	} else if (chip_identifier == "psi46digv2_b") {
+	} else {
+		psi::LogError() << "[Roc] Unknown chip type " << chip_identifier << "!" << psi::endl;
+		return 0;
+	}
+	psi::LogDebug() << "[Roc] Setting ROC " << chipId << " as type " << chip_identifier << psi::endl;
+	return 1;
+}
+
+/**
+	\details
+	The readout of the ROC was analog until psi46v2. This function
+	indicates, whether this is the case with this chip.
+ */
+bool Roc::has_analog_readout()
+{
+	return analog_readout;
+}
+
+/**
+	\details
+	The readout of the ROC was analog until psi46v2. This function
+	indicates, whether it is digital with this chip.
+ */
+bool Roc::has_digital_readout()
+{
+	return !analog_readout;
+}
+
+/**
+	\details
+	The psi46dig chip has the row address (bitwise) inverted in the
+	readout by mistake. This function indicates, whether this is is the
+	case for the chip under test.
+ */
+bool Roc::has_row_address_inverted()
+{
+	return row_address_inverted;
 }

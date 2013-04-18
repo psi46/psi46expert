@@ -1,4 +1,4 @@
-testboardName DPCSPRRA
+testboardName *
 
 -- parameter files
 
@@ -14,11 +14,11 @@ rootFileName expert.root
 nModules 1
 nRocs 1
 hubId 0
-tbmEnable 1
-tbmEmulator 1
+tbmEnable 0
+tbmEmulator 0
 hvOn 1
-tbmChannel 0
-rocType psi46v2
+tbmChannel 1
+rocType psi46dig
 
 halfModule 0
 
@@ -29,9 +29,11 @@ id 1000
 va 1699
 vd 2500
 
+rocZeroAnalogCurrent 5.0
+
 -- adc parameters
 
 dataTriggerLevel -650
-emptyReadoutLength 9
-emptyReadoutLengthADC 19
-emptyReadoutLengthADCDual 19
+emptyReadoutLength 7
+emptyReadoutLengthADC 8
+emptyReadoutLengthADCDual 8

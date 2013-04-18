@@ -6,7 +6,7 @@ Module::Module(ConfigParameters *aConfigParameters, int aCNId, TBInterface *aTBI
 {
   configParameters = aConfigParameters;
 
-  if (configParameters->customModule == 0) 
+  if (configParameters->customModule == 0)
   {
     nRocs = configParameters->nRocs;
     controlNetworkId = aCNId;
@@ -15,14 +15,15 @@ Module::Module(ConfigParameters *aConfigParameters, int aCNId, TBInterface *aTBI
     tbm = new TBM(configParameters, aCNId, tbInterface);
     hubId = configParameters->hubId;
 
-          int offset = 0;
-          if (configParameters->halfModule == 2) offset = 8;
+    int offset = 0;
+    if (configParameters->halfModule == 2) offset = 8;
     for (int i = 0; i < nRocs; i++)
     {
       roc[i] = new Roc(tbInterface, i+offset, hubId, int((i+offset)/4), i);
+      roc[i]->set_chip_type(aConfigParameters->roc_type);
     }
   }
-  else if (configParameters->customModule == 1) 
+  else if (configParameters->customModule == 1)
   {
     psi::LogInfo() << "[Module] Custom module constructor: Ignore nRocs, "
                    << "hubID, ... in config file." << psi::endl;
@@ -32,7 +33,7 @@ Module::Module(ConfigParameters *aConfigParameters, int aCNId, TBInterface *aTBI
     tbInterface = aTBInterface;
 
     tbm = new TBM(configParameters, aCNId, tbInterface);
-      nRocs = 4;
+    nRocs = 4;
     roc[0] = new Roc(tbInterface, 0, hubId, 0, 0);
     roc[1] = new Roc(tbInterface, 1, hubId, 0, 1);
     roc[2] = new Roc(tbInterface, 8, hubId, 2, 2);

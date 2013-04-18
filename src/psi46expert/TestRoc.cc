@@ -35,6 +35,7 @@
 #include "IVCurve.h"
 #include "OffsetOptimization.h"
 #include "SCurveTest.h"
+#include "HighRateTrimLow.h"
 #include <TFile.h>
 #include <iostream>
 #include <string.h>
@@ -109,6 +110,7 @@ void TestRoc::Execute(SysCommand &command)
   else if (strcmp("PhCalibration", command.carg[0]) == 0) DoPhCalibration();
   else if (strcmp("PulseShape", command.carg[0]) == 0) DoPulseShape(); 
   //  else if (command.Keyword("IV")) {DoIV(new IVCurve(GetRange(), testParameters, tbInterface));}
+  else if (strcmp("HighRateTrimLow", command.carg[0]) == 0) DoTest(new HRTrimLow(GetRange(), testParameters, tbInterface));
   else {cerr << "Unknown ROC command " << command.carg[0] << endl;}
 }
 
@@ -484,9 +486,9 @@ int TestRoc::AdjustVana(double current0, double goalcurrent)
   double currentMeasured, currentMeasuredOld;
   SetDAC("Vana", vana);
   Flush();
-  sleep(1);
+  gDelay->Mdelay(1000);
   currentMeasured = GetTBAnalogInterface()->GetIA();
-  //Log::Current()->printf("current: %e\n", currentMeasured - current0);
+  psi::LogDebug << "Vana " << vana << " current: " << currentMeasured - current0 << psi::endl;
   
   //guess value, slope is roughly 0.5 mA / DAC
   
@@ -497,9 +499,9 @@ int TestRoc::AdjustVana(double current0, double goalcurrent)
   if (vana > 255) vana = 255;
   SetDAC("Vana", vana);
   Flush();
-  sleep(1);        
+  gDelay->Mdelay(1000);
         currentMeasured = GetTBAnalogInterface()->GetIA();
-  //Log::Current()->printf("current: %e\n", currentMeasured - current0);
+  psi::LogDebug << "Vana " << vana << " current: " << currentMeasured - current0 << psi::endl;
         
   if (currentMeasured < current0 + goalcurrent)
   {
@@ -508,10 +510,9 @@ int TestRoc::AdjustVana(double current0, double goalcurrent)
       vana++;
       SetDAC("Vana", vana);
       Flush();
-      sleep(.1);
       currentMeasuredOld = currentMeasured;
       currentMeasured = GetTBAnalogInterface()->GetIA();
-//      Log::Current()->printf("current: %e\n", currentMeasured - current0);
+      psi::LogDebug << "Vana " << vana << " current: " << currentMeasured - current0 << psi::endl;
     }
     while (currentMeasured < current0 + goalcurrent  && vana < 255);
     if (TMath::Abs(currentMeasuredOld - current0 - goalcurrent) < TMath::Abs(currentMeasured - current0 - goalcurrent)) 
@@ -527,10 +528,9 @@ int TestRoc::AdjustVana(double current0, double goalcurrent)
       vana--;
       SetDAC("Vana", vana);
       Flush();
-      sleep(0.1);
       currentMeasuredOld = currentMeasured;
       currentMeasured = GetTBAnalogInterface()->GetIA();
-//      Log::Current()->printf("current: %e\n", currentMeasured - current0);
+      psi::LogDebug << "Vana " << vana << " current: " << currentMeasured - current0 << psi::endl;
     }
     while (currentMeasured > current0 + goalcurrent  && vana > 0);
     if (TMath::Abs(currentMeasuredOld - current0 - goalcurrent) < TMath::Abs(currentMeasured - current0 - goalcurrent))
@@ -557,7 +557,10 @@ void TestRoc::AdjustCalDelVthrComp()
 	int vOffsetOp = GetDAC("VoffsetOp");
 	SetDAC("VoffsetOp", 255);
 
-	AdjustCalDelVthrComp(20, 20, 200, -50);
+	if (has_analog_readout())
+		AdjustCalDelVthrComp(20, 20, 200, -50);
+	else
+		AdjustCalDelVthrComp(20, 20, 200, 20);
 
 	calDel += GetDAC("CalDel");
 	vthrComp += GetDAC("VthrComp");
@@ -621,9 +624,7 @@ void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise
     }
     while (vthrMin == 179. && vthr < 180);
   
-    if (verbose)
-      psi::LogDebug() << "[TestRoc] vthr range [ " << vthrMin << ", " 
-                      << vthrMin << "]." << psi::endl; 
+    psi::LogDebug() << "[TestRoc] vthr range [ " << vthrMin << ", " << vthrMax << "]." << psi::endl; 
     
          if (belowNoise == 0) vthr = static_cast<int>( (vthrMax + vthrMin) / 2);
     else if (belowNoise >  0) vthr = static_cast<int>( vthrMax - belowNoise);

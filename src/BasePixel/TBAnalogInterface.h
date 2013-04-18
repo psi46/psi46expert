@@ -64,9 +64,11 @@ public:
           void SetTriggerMode(unsigned short mode);
     void SetTBMChannel(int channel);
     int GetTBMChannel();
+    bool IsAnalog();
     bool TBMPresent() { return cTestboard->TBMPresent(); }
 
     void ADCRead(short buffer[], unsigned short &wordsread, short nTrig = 1); 
+    void ADCRead_digital(short buffer[], unsigned short &bitsread, short nTrig = 1);
     bool ADCData(short buffer[], unsigned short &wordsread);
     unsigned short ADC(int nbsize);
     unsigned short ADC();
