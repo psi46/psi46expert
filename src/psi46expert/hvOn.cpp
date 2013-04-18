@@ -6,12 +6,12 @@
 
 
 
-int main(int argc, char* argv[]) {
-  
-  Keithley k;
-  k.Open();
-  k.Init();
-  k.GoLocal();
-	
-  return 0;
+int main(int argc, char * argv[]) {
+
+    Keithley k;
+    k.Open();
+    k.Init();
+    k.GoLocal();
+
+    return 0;
 }

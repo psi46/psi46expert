@@ -1,7 +1,7 @@
 // This class provides the functionality to program the analog testboard via USB
-// This class is mainly a dummy class which forwards the commands to Beat's 
-// testboard class CTestboard. A USB read buffer was added, because problems 
-// occured under linux, when more than about 32K signals were sent without 
+// This class is mainly a dummy class which forwards the commands to Beat's
+// testboard class CTestboard. A USB read buffer was added, because problems
+// occured under linux, when more than about 32K signals were sent without
 // reading back.
 
 #ifndef TBANALOGINTERFACE
@@ -14,11 +14,11 @@
 class TBAnalogInterface: public TBInterface
 {
 public:
-    TBAnalogInterface(ConfigParameters *configParameters);
+    TBAnalogInterface(ConfigParameters * configParameters);
     virtual ~TBAnalogInterface();
 
     // == General functions ================================================
-    
+
     void Execute(SysCommand &command);
     void Pon();
     void Poff();
@@ -28,7 +28,7 @@ public:
     void Intern(int mask);
     void Extern(int mask);
     int GetRoCnt();
-    void Initialize(ConfigParameters *configParameters);
+    void Initialize(ConfigParameters * configParameters);
     int Startup(int port);
     void Cleanup();
     void Clear();
@@ -46,28 +46,28 @@ public:
     void SetEmptyReadoutLengthADCDual(int length);
     int GetEmptyReadoutLengthADCDual();
     void SetEnableAll(int value);
-          unsigned short GetModRoCnt(unsigned short index);
+    unsigned short GetModRoCnt(unsigned short index);
 
     // == Analog functions =================================================
-    
+
     void SetClock(int mhz);
     void DataCtrl(bool clear, bool trigger, bool cont = false);
-          void DataEnable(bool on);
+    void DataEnable(bool on);
     bool DataRead(short buffer[], unsigned short buffersize, unsigned short &wordsread);
     void SetDelay(int signal, int ns);
-          void SetClockStretch(unsigned char src, unsigned short delay, unsigned short width);
+    void SetClockStretch(unsigned char src, unsigned short delay, unsigned short width);
     void CDelay(unsigned int us);
     bool SendRoCnt();
     int  RecvRoCnt();
     void Flush();
     void DataTriggerLevel(int level);
-          void SetTriggerMode(unsigned short mode);
+    void SetTriggerMode(unsigned short mode);
     void SetTBMChannel(int channel);
     int GetTBMChannel();
     bool IsAnalog();
     bool TBMPresent() { return cTestboard->TBMPresent(); }
 
-    void ADCRead(short buffer[], unsigned short &wordsread, short nTrig = 1); 
+    void ADCRead(short buffer[], unsigned short &wordsread, short nTrig = 1);
     void ADCRead_digital(short buffer[], unsigned short &bitsread, short nTrig = 1);
     bool ADCData(short buffer[], unsigned short &wordsread);
     unsigned short ADC(int nbsize);
@@ -76,7 +76,7 @@ public:
     void SendADCTrigsNoReset(int nTrig);
     bool GetADC(short buffer[], unsigned short buffersize, unsigned short &wordsread, int nTrig, int startBuffer[], int &nReadouts);
     int LastDAC(int nTrig, int chipId);
-    
+
     void SetVA(double V);   // set VA voltage in V
     void SetIA(double A);   // set VA current limit in A
     void SetVD(double V);   // set VD voltage in V
@@ -94,17 +94,17 @@ public:
     void ResetOff();  // switch RESET-line to not reset state (high)
     int CountADCReadouts(int count);
 
-          bool Mem_ReadOut(FILE *file, unsigned int addr, unsigned int size);
-    
+    bool Mem_ReadOut(FILE * file, unsigned int addr, unsigned int size);
+
     void SetReg41();
 
     void StartDataTaking();
     void StopDataTaking();
-    
+
     // == TBM functions ======================================================
 
     void Tbmenable(int on);
-          void ModAddr(int hub);
+    void ModAddr(int hub);
     void TbmAddr(int hub, int port);
     bool DataTriggerLevelScan();
     int TbmWrite(const int hubAddr, const int addr, const int value);
@@ -122,13 +122,13 @@ public:
     void RocPixCal(int col, int row, int sensorcal);
     void RocColEnable(int col, int on);
 
-    CTestboard *getCTestboard() {return cTestboard;}
-    
+    CTestboard * getCTestboard() {return cTestboard;}
+
     int AoutLevel(int position, int nTriggers);
     int AoutLevelChip(int position, int nTriggers, int trims[], int res[]);
     int AoutLevelPartOfChip(int position, int nTriggers, int trims[], int res[], bool pxlFlags[]);
     int ChipEfficiency(int nTriggers, int trim[], double res[]);
-          int MaskTest(short nTriggers, short res[]);
+    int MaskTest(short nTriggers, short res[]);
     void DoubleColumnADCData(int doubleColumn, short data[], int readoutStop[]);
     int ChipThreshold(int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int trim[], int res[]);
     int PixelThreshold(int col, int row, int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int trim);
@@ -139,8 +139,8 @@ public:
     void AddressLevels(int position, int result[]);
     void TBMAddressLevels(int result[]);
     void TrimAboveNoise(short nTrigs, short thr, short mode, short result[]);
-    
-  // --------------------------------------------------------
+
+    // --------------------------------------------------------
 
     void ProbeSelect(unsigned char port, unsigned char signal);
 
@@ -149,22 +149,22 @@ public:
 
 
 
-    void ScanAdac(unsigned short chip, unsigned char dac, unsigned char min, unsigned char max, char step,unsigned char rep, unsigned int usDelay, unsigned char res[]);
-    
-    
+    void ScanAdac(unsigned short chip, unsigned char dac, unsigned char min, unsigned char max, char step, unsigned char rep, unsigned int usDelay, unsigned char res[]);
+
+
     void CdVc(unsigned short chip, unsigned char wbcmin, unsigned char wbcmax, unsigned char vcalstep, unsigned char cdinit, unsigned short &lres, unsigned short res[]);
-    
+
     char CountAllReadouts(int nTrig, int counts[], int amplitudes[]);
-	bool GetVersion(char *s, unsigned int n);
+    bool GetVersion(char * s, unsigned int n);
 
 private:
-    CTestboard *cTestboard;
-    
+    CTestboard * cTestboard;
+
     int TBMChannel;
     int emptyReadoutLength, emptyReadoutLengthADC, emptyReadoutLengthADCDual;
-	bool tbmenable;
+    bool tbmenable;
 
-    // == data buffer ==============================================================  
+    // == data buffer ==============================================================
     static const int bufferSize = 2500000;
     int dataBuffer[bufferSize];
     int signalCounter, readPosition, writePosition;

@@ -11,35 +11,35 @@ class TBM;
 
 class TBMParameters
 {
-  public:
+public:
     TBMParameters();
-    TBMParameters(TBM* const aTBM);
+    TBMParameters(TBM * const aTBM);
     void Initialize();
-    TBMParameters* Copy();
+    TBMParameters * Copy();
     bool Execute(SysCommand command);
     void Restore();
-    
+
     // == accessing =============================================================
     void SetParameter(int reg, int value);
-    void SetParameter(const char* dacName, int value);
-    int GetDAC(const char*dacName);
+    void SetParameter(const char * dacName, int value);
+    int GetDAC(const char * dacName);
     int GetDAC(int reg);
     const char * GetName(int reg);
 
-    // == file input / output =================================================== 
-    bool ReadTBMParameterFile ( const char *filename);
-    bool WriteTBMParameterFile( const char *filename);
+    // == file input / output ===================================================
+    bool ReadTBMParameterFile(const char * filename);
+    bool WriteTBMParameterFile(const char * filename);
 
-  private:
+private:
     void _SetParameter(int reg, int value);
 
-  protected:
+protected:
     static const int NTBMParameters = 7;
 
     int parameters[NTBMParameters];
-    const char* names[NTBMParameters];
+    const char * names[NTBMParameters];
 
-    TBM* const tbm;
+    TBM * const tbm;
 };
 
 #endif

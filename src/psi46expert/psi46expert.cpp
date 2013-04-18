@@ -24,360 +24,360 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-TBAnalogInterface* tbInterface;
-TestControlNetwork *controlNetwork;
-ConfigParameters *configParameters;
+TBAnalogInterface * tbInterface;
+TestControlNetwork * controlNetwork;
+ConfigParameters * configParameters;
 SysCommand sysCommand;
 
-Keithley *Power_supply;
+Keithley * Power_supply;
 
 const char * testMode = "";
 char cmdFile[1000];
 bool guiMode(false);
-int V=0;
+int V = 0;
 
-const char *fullTest = "full";
-const char *shortTest = "short";
-const char *shortCalTest = "shortCal";
-const char *calTest = "cal";
-const char *phCalTest = "phCal";
-const char *dtlTest = "dtlScan";
-const char *xrayTest = "xray";
+const char * fullTest = "full";
+const char * shortTest = "short";
+const char * shortCalTest = "shortCal";
+const char * calTest = "cal";
+const char * phCalTest = "phCal";
+const char * dtlTest = "dtlScan";
+const char * xrayTest = "xray";
 
-const char *guiTest = "GUI";
-const char *scurveTest = "scurves";
-const char *preTest = "preTest";
-const char *TrimTest = "trimTest";
-const char *ThrMaps ="ThrMaps";
+const char * guiTest = "GUI";
+const char * scurveTest = "scurves";
+const char * preTest = "preTest";
+const char * TrimTest = "trimTest";
+const char * ThrMaps = "ThrMaps";
 
 void runGUI()
 {
-  TApplication *application = new TApplication("App",0,0, 0, -1);
-  MainFrame MainFrame(gClient->GetRoot(), 400, 400, tbInterface, controlNetwork, configParameters);
-  application->Run();
+    TApplication * application = new TApplication("App", 0, 0, 0, -1);
+    MainFrame MainFrame(gClient->GetRoot(), 400, 400, tbInterface, controlNetwork, configParameters);
+    application->Run();
 }
 
 
 void execute(SysCommand &command)
 {
-  do
-  {
-    if (command.Keyword("gui"))
+    do
     {
-      runGUI();
+        if (command.Keyword("gui"))
+        {
+            runGUI();
+        }
+        else if (command.TargetIsTB()) {tbInterface -> Execute(command);}
+        else  {controlNetwork->Execute(command);}
     }
-    else if (command.TargetIsTB()) {tbInterface -> Execute(command);}
-    else  {controlNetwork->Execute(command);}
-  }
-  while (command.Next());
-  tbInterface->Flush();
+    while (command.Next());
+    tbInterface->Flush();
 }
 
 
 
 void runTest()
 {
-  if (tbInterface->IsPresent() < 1)
-  {
-    cout << "Error!! Testboard not present. Aborting" << endl;
-    return;
-  }
-  gDelay->Timestamp();
-  if (strcmp(testMode, fullTest) == 0)
-  {
-    psi::LogInfo() << "[psi46expert] SvFullTest and Calibration: start." << psi::endl; 
+    if (tbInterface->IsPresent() < 1)
+    {
+        cout << "Error!! Testboard not present. Aborting" << endl;
+        return;
+    }
+    gDelay->Timestamp();
+    if (strcmp(testMode, fullTest) == 0)
+    {
+        psi::LogInfo() << "[psi46expert] SvFullTest and Calibration: start." << psi::endl;
 
-    controlNetwork->FullTestAndCalibration();
+        controlNetwork->FullTestAndCalibration();
 
-    psi::LogInfo() << "[psi46expert] SvFullTest and Calibration: end." << psi::endl; 
-  }
-  if (strcmp(testMode, shortTest) == 0)
-  {
-    psi::LogInfo() << "[psi46expert] SvShortTest: start." << psi::endl; 
+        psi::LogInfo() << "[psi46expert] SvFullTest and Calibration: end." << psi::endl;
+    }
+    if (strcmp(testMode, shortTest) == 0)
+    {
+        psi::LogInfo() << "[psi46expert] SvShortTest: start." << psi::endl;
 
-    controlNetwork->ShortCalibration();
+        controlNetwork->ShortCalibration();
 
-    psi::LogInfo() << "[psi46expert] SvShortTest: end." << psi::endl; 
-  }
-  if (strcmp(testMode, shortCalTest) == 0)
-  {
-    psi::LogInfo() << "[psi46expert] SvShortTest and Calibration: start." << psi::endl; 
+        psi::LogInfo() << "[psi46expert] SvShortTest: end." << psi::endl;
+    }
+    if (strcmp(testMode, shortCalTest) == 0)
+    {
+        psi::LogInfo() << "[psi46expert] SvShortTest and Calibration: start." << psi::endl;
 
-    controlNetwork->ShortTestAndCalibration();
+        controlNetwork->ShortTestAndCalibration();
 
-    psi::LogInfo() << "[psi46expert] SvShortTest and Calibration: end." << psi::endl; 
-  } 
-  if (strcmp(testMode, xrayTest) == 0)
-  {
-    TestRange *testRange = new TestRange();
-    testRange->CompleteRange();
-    Test *test = new Xray(testRange, controlNetwork->GetTestParameters(), tbInterface);
-    test->ControlNetworkAction(controlNetwork);
-  } 
-  if (strcmp(testMode, calTest) == 0)
-  {
-    sysCommand.Read("cal.sys");
-    execute(sysCommand);
-  }
-  if (strcmp(testMode, phCalTest) == 0)
-  {
-    sysCommand.Read("phCal.sys");
-    execute(sysCommand);
-  }
-  if (strcmp(testMode, dtlTest) == 0)
-  {
-    sysCommand.Read("dtlTest.sys");
-    execute(sysCommand);
-  }
-        
-        if (strcmp(testMode, guiTest) == 0)
-        {
-          sysCommand.Read("gui.sys");
-          execute(sysCommand);
-        }
-        
-        if (strcmp(testMode, ThrMaps) == 0)
-        {
-          sysCommand.Read("ThrMaps.sys");
-          execute(sysCommand);
-        }
- 	if (strcmp(testMode,scurveTest ) == 0)
-        {
-          sysCommand.Read("scurve.sys");
-          execute(sysCommand);
-        }
+        psi::LogInfo() << "[psi46expert] SvShortTest and Calibration: end." << psi::endl;
+    }
+    if (strcmp(testMode, xrayTest) == 0)
+    {
+        TestRange * testRange = new TestRange();
+        testRange->CompleteRange();
+        Test * test = new Xray(testRange, controlNetwork->GetTestParameters(), tbInterface);
+        test->ControlNetworkAction(controlNetwork);
+    }
+    if (strcmp(testMode, calTest) == 0)
+    {
+        sysCommand.Read("cal.sys");
+        execute(sysCommand);
+    }
+    if (strcmp(testMode, phCalTest) == 0)
+    {
+        sysCommand.Read("phCal.sys");
+        execute(sysCommand);
+    }
+    if (strcmp(testMode, dtlTest) == 0)
+    {
+        sysCommand.Read("dtlTest.sys");
+        execute(sysCommand);
+    }
 
-  gDelay->Timestamp();
+    if (strcmp(testMode, guiTest) == 0)
+    {
+        sysCommand.Read("gui.sys");
+        execute(sysCommand);
+    }
+
+    if (strcmp(testMode, ThrMaps) == 0)
+    {
+        sysCommand.Read("ThrMaps.sys");
+        execute(sysCommand);
+    }
+    if (strcmp(testMode, scurveTest) == 0)
+    {
+        sysCommand.Read("scurve.sys");
+        execute(sysCommand);
+    }
+
+    gDelay->Timestamp();
 }
 
 
 void runFile()
 {
-  if (tbInterface->IsPresent() < 1)
-  {
-    psi::LogInfo() << "[psi46expert] Error: Testboard is not present. Abort.";
+    if (tbInterface->IsPresent() < 1)
+    {
+        psi::LogInfo() << "[psi46expert] Error: Testboard is not present. Abort.";
 
-    return;
-  }
-  
-  gDelay->Timestamp();
-  
-  psi::LogInfo() << "[psi46expert] Executing file '" << cmdFile
-                 << "'." << psi::endl; 
+        return;
+    }
 
-  sysCommand.Read(cmdFile);
-  execute(sysCommand);
-  
-  gDelay->Timestamp();
+    gDelay->Timestamp();
+
+    psi::LogInfo() << "[psi46expert] Executing file '" << cmdFile
+                   << "'." << psi::endl;
+
+    sysCommand.Read(cmdFile);
+    execute(sysCommand);
+
+    gDelay->Timestamp();
 }
 
 
-void parameters(int argc, char* argv[], ConfigParameters *configParameters)
+void parameters(int argc, char * argv[], ConfigParameters * configParameters)
 {
-  int hubId;
-  char rootFile[1000], logFile[1000], dacFile[1000], trimFile[1000], directory[1000], tbName[1000], maskFile[1000];
-        sprintf(directory, "testModule");
-  bool rootFileArg(false), dacArg(false), trimArg(false), tbArg(false), logFileArg(false), cmdFileArg(false), hubIdArg(false),
-	     maskArg(false);
+    int hubId;
+    char rootFile[1000], logFile[1000], dacFile[1000], trimFile[1000], directory[1000], tbName[1000], maskFile[1000];
+    sprintf(directory, "testModule");
+    bool rootFileArg(false), dacArg(false), trimArg(false), tbArg(false), logFileArg(false), cmdFileArg(false), hubIdArg(false),
+         maskArg(false);
 
-  // == command line arguments ======================================================
-  for (int i = 0; i < argc; i++)
-  {
-    if (!strcmp(argv[i],"-dir")) 
+    // == command line arguments ======================================================
+    for (int i = 0; i < argc; i++)
     {
-      strcpy(directory, argv[++i]);
-    }
-    if (!strcmp(argv[i],"-c")) 
-    {
-      rootFileArg = true;
-      strcpy(rootFile, Form("test-%s.root", argv[++i]));
-    }
-    if (!strcmp(argv[i],"-d"))
-    {
-      dacArg = true;
-      sprintf(dacFile, "%s", argv[++i]);
-    }
-    if (!strcmp(argv[i],"-r"))
-    {
-      rootFileArg = true;
-      sprintf(rootFile, "%s", argv[++i]);
-    }
-    if (!strcmp(argv[i],"-f"))
-    {
-      cmdFileArg = true;
-      sprintf(cmdFile, "%s", argv[++i]);
-    }
-    if (!strcmp(argv[i],"-log"))
-    {
-      logFileArg = true;
-      sprintf(logFile, "%s", argv[++i]);
-    }
-    if (!strcmp(argv[i],"-trim")) 
-    {
-      trimArg = true;
-      sprintf(trimFile, "%s", argv[++i]);
-    }
-    if (!strcmp(argv[i],"-trimVcal")) 
-    {
-      trimArg = true;
-      dacArg = true;
-      int vcal = atoi(argv[++i]);
-      sprintf(trimFile, "%s%i", "trimParameters", vcal);
-      sprintf(dacFile, "%s%i", "dacParameters", vcal);
-    }
-		if (!strcmp(argv[i],"-mask")) 
-		{
-			maskArg = true;
-			sprintf(maskFile, "%s","pixelMask.dat" );//argv[++i]);
-		}		
-    if (!strcmp(argv[i],"-tb")) 
-    {
-      tbArg = true;
-      sprintf(tbName, "%s", argv[++i]);
-    }
-    if (!strcmp(argv[i],"-t")) 
-    {
-      testMode = argv[++i];
-      if (strcmp(testMode, dtlTest) == 0)
-      {
-        hubIdArg = true;
-        hubId = -1;
-      }
-    }
-    if (!strcmp(argv[i],"-g")) guiMode = true;
+        if (!strcmp(argv[i], "-dir"))
+        {
+            strcpy(directory, argv[++i]);
+        }
+        if (!strcmp(argv[i], "-c"))
+        {
+            rootFileArg = true;
+            strcpy(rootFile, Form("test-%s.root", argv[++i]));
+        }
+        if (!strcmp(argv[i], "-d"))
+        {
+            dacArg = true;
+            sprintf(dacFile, "%s", argv[++i]);
+        }
+        if (!strcmp(argv[i], "-r"))
+        {
+            rootFileArg = true;
+            sprintf(rootFile, "%s", argv[++i]);
+        }
+        if (!strcmp(argv[i], "-f"))
+        {
+            cmdFileArg = true;
+            sprintf(cmdFile, "%s", argv[++i]);
+        }
+        if (!strcmp(argv[i], "-log"))
+        {
+            logFileArg = true;
+            sprintf(logFile, "%s", argv[++i]);
+        }
+        if (!strcmp(argv[i], "-trim"))
+        {
+            trimArg = true;
+            sprintf(trimFile, "%s", argv[++i]);
+        }
+        if (!strcmp(argv[i], "-trimVcal"))
+        {
+            trimArg = true;
+            dacArg = true;
+            int vcal = atoi(argv[++i]);
+            sprintf(trimFile, "%s%i", "trimParameters", vcal);
+            sprintf(dacFile, "%s%i", "dacParameters", vcal);
+        }
+        if (!strcmp(argv[i], "-mask"))
+        {
+            maskArg = true;
+            sprintf(maskFile, "%s", "pixelMask.dat");//argv[++i]);
+        }
+        if (!strcmp(argv[i], "-tb"))
+        {
+            tbArg = true;
+            sprintf(tbName, "%s", argv[++i]);
+        }
+        if (!strcmp(argv[i], "-t"))
+        {
+            testMode = argv[++i];
+            if (strcmp(testMode, dtlTest) == 0)
+            {
+                hubIdArg = true;
+                hubId = -1;
+            }
+        }
+        if (!strcmp(argv[i], "-g")) guiMode = true;
 
-  } 
-  strcpy(configParameters->directory, directory);
-  
-  if (strcmp(testMode, fullTest) == 0)
-  {
-    logFileArg = true;
-    sprintf(logFile, "FullTest.log");
-    rootFileArg = true;
-    sprintf(rootFile, "FullTest.root");   
-  }
-  if (strcmp(testMode, shortTest) == 0 || strcmp(testMode, shortCalTest) == 0)
-  {
-    logFileArg = true;
-    sprintf(logFile, "ShortTest.log");
-    rootFileArg = true;
-    sprintf(rootFile, "ShortTest.root");    
-  }
-  else if (strcmp(testMode, calTest) == 0)
-  {
-    logFileArg = true;
-    sprintf(logFile, "Calibration.log");
-    rootFileArg = true;
-    sprintf(rootFile, "Calibration.root");    
-  }
-  
-  if (logFileArg) configParameters->SetLogFileName(logFile);
-  else configParameters->SetLogFileName( "log.txt");
+    }
+    strcpy(configParameters->directory, directory);
 
-  configParameters->SetDebugFileName( "debug.log");
+    if (strcmp(testMode, fullTest) == 0)
+    {
+        logFileArg = true;
+        sprintf(logFile, "FullTest.log");
+        rootFileArg = true;
+        sprintf(rootFile, "FullTest.root");
+    }
+    if (strcmp(testMode, shortTest) == 0 || strcmp(testMode, shortCalTest) == 0)
+    {
+        logFileArg = true;
+        sprintf(logFile, "ShortTest.log");
+        rootFileArg = true;
+        sprintf(rootFile, "ShortTest.root");
+    }
+    else if (strcmp(testMode, calTest) == 0)
+    {
+        logFileArg = true;
+        sprintf(logFile, "Calibration.log");
+        rootFileArg = true;
+        sprintf(rootFile, "Calibration.root");
+    }
 
-  psi::LogInfo ().setOutput( configParameters->GetLogFileName() );
-  psi::LogDebug().setOutput( configParameters->GetDebugFileName() );
+    if (logFileArg) configParameters->SetLogFileName(logFile);
+    else configParameters->SetLogFileName("log.txt");
 
-  psi::LogInfo() << "[psi46expert] --------- psi46expert ---------" 
-                 << psi::endl;
-  psi::LogInfo() << "[psi46expert] " << TDatime().AsString() << psi::endl;
-  
-  configParameters->ReadConfigParameterFile(Form("%s/configParameters.dat", directory));
-  if (rootFileArg) configParameters->SetRootFileName(rootFile);
-  if (dacArg) configParameters->SetDacParameterFileName(dacFile);
-  if (tbArg) strcpy(configParameters->testboardName, tbName);
-  if (trimArg) configParameters->SetTrimParameterFileName(trimFile);
-	if (maskArg) configParameters->SetMaskFileName(maskFile);
-  if (hubIdArg) configParameters->hubId = hubId;
+    configParameters->SetDebugFileName("debug.log");
+
+    psi::LogInfo().setOutput(configParameters->GetLogFileName());
+    psi::LogDebug().setOutput(configParameters->GetDebugFileName());
+
+    psi::LogInfo() << "[psi46expert] --------- psi46expert ---------"
+                   << psi::endl;
+    psi::LogInfo() << "[psi46expert] " << TDatime().AsString() << psi::endl;
+
+    configParameters->ReadConfigParameterFile(Form("%s/configParameters.dat", directory));
+    if (rootFileArg) configParameters->SetRootFileName(rootFile);
+    if (dacArg) configParameters->SetDacParameterFileName(dacFile);
+    if (tbArg) strcpy(configParameters->testboardName, tbName);
+    if (trimArg) configParameters->SetTrimParameterFileName(trimFile);
+    if (maskArg) configParameters->SetMaskFileName(maskFile);
+    if (hubIdArg) configParameters->hubId = hubId;
 }
 
 
-int main(int argc, char* argv[])
+int main(int argc, char * argv[])
 {
-  for (int i = 0; i < argc; i++)
-  {
-    if (!strcmp(argv[i],"-V"))
-      V=atoi(argv[++i]);
-  }
-
-  configParameters = ConfigParameters::Singleton();
-  parameters(argc, argv, configParameters);
-  // == Initialization =====================================================================
-
-  TFile* histoFile = new TFile(configParameters->GetRootFileName(), "RECREATE");
-  gStyle->SetPalette(1,0);
-
-  tbInterface = new TBAnalogInterface(configParameters);
-  if (!tbInterface->IsPresent()) return -1;
-  controlNetwork = new TestControlNetwork(tbInterface, configParameters);
-
-  Power_supply=new Keithley();
-  if(V>0){
-    Power_supply->Open();
-    Power_supply->Init();
-    int volt=25,step=25;
-    while (volt<V-25){
-      Power_supply->SetVoltage(volt,1);
-      volt=volt+step;
-      if(volt>400){step=10;}
-      if(volt>600){step=5;}
+    for (int i = 0; i < argc; i++)
+    {
+        if (!strcmp(argv[i], "-V"))
+            V = atoi(argv[++i]);
     }
-    Power_supply->SetVoltage(V,4);
-  }
 
-  using_history();
-  const char * home_directory = getenv("HOME");
-  string history_file("");
-  if (home_directory)
-    history_file += home_directory;
-  history_file += "/.psi46expert_history";
-  read_history(history_file.c_str());
+    configParameters = ConfigParameters::Singleton();
+    parameters(argc, argv, configParameters);
+    // == Initialization =====================================================================
 
-  if (guiMode) runGUI();
-  else if (strcmp(testMode, "") != 0) runTest();
-  else if (strcmp(cmdFile, "") != 0) runFile();
-  else
-  {
-    // == CommandLine ================================================================
+    TFile * histoFile = new TFile(configParameters->GetRootFileName(), "RECREATE");
+    gStyle->SetPalette(1, 0);
 
-    char *p;
-    bool finished = false;
-    do {
-      p = readline("psi46expert> ");
-      add_history(p);
+    tbInterface = new TBAnalogInterface(configParameters);
+    if (!tbInterface->IsPresent()) return -1;
+    controlNetwork = new TestControlNetwork(tbInterface, configParameters);
 
-      psi::LogDebug() << "psi46expert> " << p << psi::endl;
-
-      if (sysCommand.Parse(p)) execute(sysCommand);
-      finished = (strcmp(p, "exit") == 0) || (strcmp(p, "q") == 0);
-      free(p);
+    Power_supply = new Keithley();
+    if (V > 0) {
+        Power_supply->Open();
+        Power_supply->Init();
+        int volt = 25, step = 25;
+        while (volt < V - 25) {
+            Power_supply->SetVoltage(volt, 1);
+            volt = volt + step;
+            if (volt > 400) {step = 10;}
+            if (volt > 600) {step = 5;}
+        }
+        Power_supply->SetVoltage(V, 4);
     }
-    while (!finished);
-  }
 
-  // == Exit ========================================================================
+    using_history();
+    const char * home_directory = getenv("HOME");
+    string history_file("");
+    if (home_directory)
+        history_file += home_directory;
+    history_file += "/.psi46expert_history";
+    read_history(history_file.c_str());
 
-  if (!strcmp(testMode, phCalTest) == 0)
-  {
-    tbInterface->HVoff();
-    tbInterface->Poff();
-    tbInterface->Cleanup();
-  }
+    if (guiMode) runGUI();
+    else if (strcmp(testMode, "") != 0) runTest();
+    else if (strcmp(cmdFile, "") != 0) runFile();
+    else
+    {
+        // == CommandLine ================================================================
 
-  if(V>0)
-  {
-  Power_supply->ShutDown();}
+        char * p;
+        bool finished = false;
+        do {
+            p = readline("psi46expert> ");
+            add_history(p);
 
-  delete controlNetwork;
-  delete tbInterface;
+            psi::LogDebug() << "psi46expert> " << p << psi::endl;
 
-  histoFile->Write();
-  histoFile->Close();
-  delete histoFile;
-  delete Power_supply;
-  
-  write_history(history_file.c_str());
+            if (sysCommand.Parse(p)) execute(sysCommand);
+            finished = (strcmp(p, "exit") == 0) || (strcmp(p, "q") == 0);
+            free(p);
+        }
+        while (!finished);
+    }
 
-  return 0;
+    // == Exit ========================================================================
+
+    if (!strcmp(testMode, phCalTest) == 0)
+    {
+        tbInterface->HVoff();
+        tbInterface->Poff();
+        tbInterface->Cleanup();
+    }
+
+    if (V > 0)
+    {
+        Power_supply->ShutDown(); }
+
+    delete controlNetwork;
+    delete tbInterface;
+
+    histoFile->Write();
+    histoFile->Close();
+    delete histoFile;
+    delete Power_supply;
+
+    write_history(history_file.c_str());
+
+    return 0;
 }

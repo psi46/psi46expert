@@ -21,84 +21,84 @@ class TestPixel;
 class Test {
 
 public:
-	Test();
-  virtual ~Test() {}
-	
-	TList * GetHistos();
-	TH2D * GetMap(const char * mapName);
-	TH1D * GetHisto(const char * histoName);
-	virtual void ReadTestParameters(TestParameters *testParameters);
-	virtual void ControlNetworkAction(TestControlNetwork *controlNetwork);
-	virtual void ModuleAction(TestModule *testModule);
-	virtual void RocAction(TestRoc *testRoc);
-	virtual void DoubleColumnAction(TestDoubleColumn *testDoubleColumn);
-	virtual void PixelAction(TestPixel *textPixel);
-	virtual void ModuleAction();
-	virtual void RocAction();
-	virtual void DoubleColumnAction();
-	virtual void PixelAction();
-	
-//  == tbInterface actions =====================================================
+    Test();
+    virtual ~Test() {}
 
-	void Flush();
-	int GetRoCnt();
-	void SendRoCnt();
-	int RecvRoCnt();
-	void SendCal(int nTrig);
+    TList * GetHistos();
+    TH2D * GetMap(const char * mapName);
+    TH1D * GetHisto(const char * histoName);
+    virtual void ReadTestParameters(TestParameters * testParameters);
+    virtual void ControlNetworkAction(TestControlNetwork * controlNetwork);
+    virtual void ModuleAction(TestModule * testModule);
+    virtual void RocAction(TestRoc * testRoc);
+    virtual void DoubleColumnAction(TestDoubleColumn * testDoubleColumn);
+    virtual void PixelAction(TestPixel * textPixel);
+    virtual void ModuleAction();
+    virtual void RocAction();
+    virtual void DoubleColumnAction();
+    virtual void PixelAction();
 
-	
-// == roc actions ==============================================================
+    //  == tbInterface actions =====================================================
 
-	void SetModule(TestModule *module);
-	void SetRoc(TestRoc *roc);
-	void SetPixel(TestPixel *pixel);
-	void SetDAC(const char* dacName, int value);
-	void SetDAC(int dacReg, int value);
-	int GetDAC(const char* dacName);
-	int GetDAC(int dacReg);
-	TestPixel *GetPixel(int col, int row);
-	void EnableDoubleColumn(int column);
-	void DisableDoubleColumn(int column);
-	void ClrCal();
-	void SaveDacParameters();
-	void RestoreDacParameters();
-	void Mask();
-	void EnableAllPixels();
-	void SendADCTrigs(int nTrig);
-	bool GetADC(short buffer[], unsigned short buffersize, unsigned short &wordsread, int nTrig, int startBuffer[], int &nReadouts);
-	bool ADCData(short buffer[], unsigned short buffersize, unsigned short &wordsread, int nTrig);
-	int AoutLevel(int position, int nTriggers);
-	int SCurve(int nTrig, int dacReg, int threshold, int res[]);
-// == pixel actions ============================================================
+    void Flush();
+    int GetRoCnt();
+    void SendRoCnt();
+    int RecvRoCnt();
+    void SendCal(int nTrig);
 
-	void EnablePixel();
-	void DisablePixel();
-	void ArmPixel();
-	void DisarmPixel();
-	void Cal();
-	
-// == test range ===============================================================
 
-	bool IncludesPixel();
-	bool IncludesDoubleColumn();
-	
+    // == roc actions ==============================================================
+
+    void SetModule(TestModule * module);
+    void SetRoc(TestRoc * roc);
+    void SetPixel(TestPixel * pixel);
+    void SetDAC(const char * dacName, int value);
+    void SetDAC(int dacReg, int value);
+    int GetDAC(const char * dacName);
+    int GetDAC(int dacReg);
+    TestPixel * GetPixel(int col, int row);
+    void EnableDoubleColumn(int column);
+    void DisableDoubleColumn(int column);
+    void ClrCal();
+    void SaveDacParameters();
+    void RestoreDacParameters();
+    void Mask();
+    void EnableAllPixels();
+    void SendADCTrigs(int nTrig);
+    bool GetADC(short buffer[], unsigned short buffersize, unsigned short &wordsread, int nTrig, int startBuffer[], int &nReadouts);
+    bool ADCData(short buffer[], unsigned short buffersize, unsigned short &wordsread, int nTrig);
+    int AoutLevel(int position, int nTriggers);
+    int SCurve(int nTrig, int dacReg, int threshold, int res[]);
+    // == pixel actions ============================================================
+
+    void EnablePixel();
+    void DisablePixel();
+    void ArmPixel();
+    void DisarmPixel();
+    void Cal();
+
+    // == test range ===============================================================
+
+    bool IncludesPixel();
+    bool IncludesDoubleColumn();
+
 protected:
 
-	ConfigParameters *configParameters;
-	TestRange      *testRange;
-	TBInterface    *tbInterface;
-	TList          *histograms;
-	TestParameters *testParameters;
-	
-	TestControlNetwork *controlNetwork;
-	TestModule *module;
-	TestRoc* roc;
-	TestDoubleColumn *doubleColumn;
-	TestPixel *pixel;
-	int chipId, column, row, dColumn, aoutChipPosition;
-	DACParameters *savedDacParameters;
+    ConfigParameters * configParameters;
+    TestRange   *   testRange;
+    TBInterface  *  tbInterface;
+    TList     *     histograms;
+    TestParameters * testParameters;
 
-  bool debug;
+    TestControlNetwork * controlNetwork;
+    TestModule * module;
+    TestRoc * roc;
+    TestDoubleColumn * doubleColumn;
+    TestPixel * pixel;
+    int chipId, column, row, dColumn, aoutChipPosition;
+    DACParameters * savedDacParameters;
+
+    bool debug;
 };
 
 

@@ -10,18 +10,18 @@
 class DacOverview : public PhDacScan
 {
 
- public:
+public:
 
-  DacOverview(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-	
-  virtual void ReadTestParameters(TestParameters *testParameters);
-  virtual void RocAction();
+    DacOverview(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
 
-  void DoDacScan();
+    virtual void ReadTestParameters(TestParameters * testParameters);
+    virtual void RocAction();
 
- protected:
+    void DoDacScan();
 
-  int NumberOfSteps, DacType;
+protected:
+
+    int NumberOfSteps, DacType;
 
 };
 

@@ -15,24 +15,24 @@ class TGraph;
 class PHCalibration : public Test
 {
 
- public:
- 
-	PHCalibration();
-	PHCalibration(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
+public:
 
-	void Initialize();	
-	virtual void ReadTestParameters(TestParameters *testParameters);
-	virtual void RocAction();
-	void Measure(int nTriggers);
-	int GetCalDel(int vcalStep);
-	int GetVthrComp(int vcalStep);
-	void PulseHeightRocDigital(int data []);
+    PHCalibration();
+    PHCalibration(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
 
- private:
+    void Initialize();
+    virtual void ReadTestParameters(TestParameters * testParameters);
+    virtual void RocAction();
+    void Measure(int nTriggers);
+    int GetCalDel(int vcalStep);
+    int GetVthrComp(int vcalStep);
+    void PulseHeightRocDigital(int data []);
 
-	int vcal[512], ctrlReg[512];
-	int mode, vcalSteps, nTrig, numPixels, calDelVthrComp;
-	int calDel50, calDel100, calDel200, vthrComp50, vthrComp100, vthrComp200;
+private:
+
+    int vcal[512], ctrlReg[512];
+    int mode, vcalSteps, nTrig, numPixels, calDelVthrComp;
+    int calDel50, calDel100, calDel200, vthrComp50, vthrComp100, vthrComp200;
 
 };
 

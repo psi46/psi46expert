@@ -9,15 +9,15 @@ class PixelAlive : public Test
 {
 
 public:
-	PixelAlive(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-	
-	virtual void ReadTestParameters(TestParameters *testParameters);
-	virtual void RocAction();
-	
+    PixelAlive(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
+
+    virtual void ReadTestParameters(TestParameters * testParameters);
+    virtual void RocAction();
+
 protected:
 
-	int nTrig;
-	double efficiency;
+    int nTrig;
+    double efficiency;
 
 };
 

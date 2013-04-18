@@ -12,24 +12,24 @@ class TestControlNetwork: public ControlNetwork
 
 
 public:
-	TestControlNetwork(TBInterface* aTbInterface, ConfigParameters *configParameters);
-	void Execute(SysCommand &command);
+    TestControlNetwork(TBInterface * aTbInterface, ConfigParameters * configParameters);
+    void Execute(SysCommand &command);
 
-	TestParameters *GetTestParameters();
-	TestModule* GetModule(int iModule);
+    TestParameters * GetTestParameters();
+    TestModule * GetModule(int iModule);
 
-	void AdjustDACParameters();
-	void AdjustVana();
-	void DoIV();
-	void FullTestAndCalibration();
-        void ShortTestAndCalibration();
-        void ShortCalibration();
+    void AdjustDACParameters();
+    void AdjustVana();
+    void DoIV();
+    void FullTestAndCalibration();
+    void ShortTestAndCalibration();
+    void ShortCalibration();
 
-			
+
 protected:
 
-	TestParameters *testParameters;
-	
+    TestParameters * testParameters;
+
 };
 
 

@@ -10,36 +10,36 @@ class Roc;
 
 class DoubleColumn {
 
- public:
- 	inline DoubleColumn() {};
-	DoubleColumn(Roc* roc, int dColumn);
-	virtual ~DoubleColumn();
-	int DoubleColumnNumber();
+public:
+    inline DoubleColumn() {};
+    DoubleColumn(Roc * roc, int dColumn);
+    virtual ~DoubleColumn();
+    int DoubleColumnNumber();
 
-// == DoubleColumn actions =====================================
+    // == DoubleColumn actions =====================================
 
-	void EnableDoubleColumn();
-	void DisableDoubleColumn();
-	void Mask();
+    void EnableDoubleColumn();
+    void DisableDoubleColumn();
+    void Mask();
 
-// == Pixel actions ============================================
+    // == Pixel actions ============================================
 
-	Pixel *GetPixel(int column, int row);
-	void EnablePixel(int col, int row);
-	void DisablePixel(int col, int row);
-	void Cal(int col, int row);
-	void Cals(int col, int row);
-	void ArmPixel(int column, int row);
-	void DisarmPixel(int column, int row);
+    Pixel * GetPixel(int column, int row);
+    void EnablePixel(int col, int row);
+    void DisablePixel(int col, int row);
+    void Cal(int col, int row);
+    void Cals(int col, int row);
+    void ArmPixel(int column, int row);
+    void DisarmPixel(int column, int row);
 
-	
- protected:
- 	int doubleColumn;
- 
- 	static const int NPixels = 2*ROCNUMROWS;
-	Pixel *pixel[NPixels];
-	
-	Roc* roc;
+
+protected:
+    int doubleColumn;
+
+    static const int NPixels = 2 * ROCNUMROWS;
+    Pixel * pixel[NPixels];
+
+    Roc * roc;
 
 };
 

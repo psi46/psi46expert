@@ -9,23 +9,23 @@
 class PHRange : public Test
 {
 
- public:
- 
-	PHRange();
-	PHRange(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-	void Init();
-	int PHMin();
-	int PHMax();
-	int PH(int ctrlReg, int vcal, int calDel, int vthrComp, int vtrim, int pixel);
-	
-	virtual void ReadTestParameters(TestParameters *testParameters);
-	virtual void RocAction();
-	void ValidationPlot();
+public:
 
- private:
+    PHRange();
+    PHRange(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
+    void Init();
+    int PHMin();
+    int PHMax();
+    int PH(int ctrlReg, int vcal, int calDel, int vthrComp, int vtrim, int pixel);
 
-	int phSafety, tbmUbLevel, minPixel, maxPixel, phPosition;
-        int calDelMin, vthrCompMin, calDelMax, vthrCompMax, vcalMin, vcalMax, ctrlRegMin, ctrlRegMax, vtrimMin, vtrimMax;
+    virtual void ReadTestParameters(TestParameters * testParameters);
+    virtual void RocAction();
+    void ValidationPlot();
+
+private:
+
+    int phSafety, tbmUbLevel, minPixel, maxPixel, phPosition;
+    int calDelMin, vthrCompMin, calDelMax, vthrCompMax, vcalMin, vcalMax, ctrlRegMin, ctrlRegMax, vtrimMin, vtrimMax;
 };
 
 #endif

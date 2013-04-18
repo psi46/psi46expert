@@ -10,12 +10,12 @@ class AnalogReadout : public Test
 {
 
 public:
-	AnalogReadout(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-	
-	virtual void ModuleAction();
-	
-	void AddressLevelsTest();
-	void DualModeTest();
+    AnalogReadout(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
+
+    virtual void ModuleAction();
+
+    void AddressLevelsTest();
+    void DualModeTest();
 
 protected:
 

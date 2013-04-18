@@ -6,17 +6,17 @@
 using namespace std;
 
 
-int main(int argc, char* argv[]) {
-  
-  Keithley k;
-  k.Open();
+int main(int argc, char * argv[]) {
 
-  float v, c;
-  k.ReadCurrent(v, c);
+    Keithley k;
+    k.Open();
 
-  k.GoLocal();
-	
-  cout << v << ":" << c << endl;
+    float v, c;
+    k.ReadCurrent(v, c);
 
-  return 0;
+    k.GoLocal();
+
+    cout << v << ":" << c << endl;
+
+    return 0;
 }

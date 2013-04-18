@@ -7,16 +7,16 @@
 #include "TestRange.h"
 
 class HRTrimLow : public Test {
-	public:
-		HRTrimLow(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-		~HRTrimLow();
-		virtual void RocAction();
-		virtual void PixelAction();
-	
-	private:
-		void MakeMap();
-		TH2I * map;
-		int triggers;
+public:
+    HRTrimLow(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
+    ~HRTrimLow();
+    virtual void RocAction();
+    virtual void PixelAction();
+
+private:
+    void MakeMap();
+    TH2I * map;
+    int triggers;
 };
 
 #endif

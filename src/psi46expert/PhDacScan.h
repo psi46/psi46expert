@@ -12,29 +12,29 @@
 class PhDacScan : public Test
 {
 
- public:
-  PhDacScan() {};
+public:
+    PhDacScan() {};
 
-  PhDacScan(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-	
-  virtual void ReadTestParameters(TestParameters *testParameters);
+    PhDacScan(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
 
-  int FitStartPoint(TH1D *histo);
-  int FitStopPoint(TH1D *histo, int fitStart);
-  double FindLinearRange(TH1D *histo);
-  double FindLowLinearRange(TH1D *histo);
-  double QualityLowRange(TH1D *histo);
-  double Quality(TH1D *histoLowRange, TH1D *histoHighRange);
-  void DoDacScan();
-  int PH(int vcal, TH1D *histo, TF1* fit);
-	
- protected:
+    virtual void ReadTestParameters(TestParameters * testParameters);
 
-  int nTrig, mode, NumberOfSteps;
-  double minPh;
-  TF1 *fit; 
-  TF1 *linFit;
-  TF1 *pol2Fit;
+    int FitStartPoint(TH1D * histo);
+    int FitStopPoint(TH1D * histo, int fitStart);
+    double FindLinearRange(TH1D * histo);
+    double FindLowLinearRange(TH1D * histo);
+    double QualityLowRange(TH1D * histo);
+    double Quality(TH1D * histoLowRange, TH1D * histoHighRange);
+    void DoDacScan();
+    int PH(int vcal, TH1D * histo, TF1 * fit);
+
+protected:
+
+    int nTrig, mode, NumberOfSteps;
+    double minPh;
+    TF1 * fit;
+    TF1 * linFit;
+    TF1 * pol2Fit;
 };
 
 

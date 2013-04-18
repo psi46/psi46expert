@@ -11,36 +11,36 @@ class Roc;
 
 class DACParameters
 {
-  public:
+public:
     DACParameters();
-    DACParameters(Roc* const roc);
+    DACParameters(Roc * const roc);
     void Initialize();
-    DACParameters* Copy();
+    DACParameters * Copy();
     bool Execute(SysCommand command);
     void Restore();
     void Print();
-    
+
     // == accessing =============================================================
     void SetParameter(int reg, int value, bool correction = true);
-    void SetParameter(const char* dacName, int value);
-    int GetDAC(const char*dacName);
+    void SetParameter(const char * dacName, int value);
+    int GetDAC(const char * dacName);
     int GetDAC(int reg);
-    char* GetName(int reg);
+    char * GetName(int reg);
 
-    // == file input / output =================================================== 
-    bool ReadDACParameterFile ( const char *filename);
-    bool WriteDACParameterFile( const char *filename);
+    // == file input / output ===================================================
+    bool ReadDACParameterFile(const char * filename);
+    bool WriteDACParameterFile(const char * filename);
 
-  private:
+private:
     void _SetParameter(int reg, int value);
 
-  protected:
+protected:
     static const int NDACParameters = 256;
 
     int parameters[NDACParameters];
-    char* names[NDACParameters];
+    char * names[NDACParameters];
 
-    Roc* const roc;
+    Roc * const roc;
 };
 
 #endif

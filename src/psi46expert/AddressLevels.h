@@ -12,30 +12,30 @@ class AddressLevels : public Test
 {
 
 public:
-	AddressLevels(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-	virtual ~AddressLevels();
+    AddressLevels(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
+    virtual ~AddressLevels();
 
-        virtual void ModuleAction();
-	virtual void RocAction();
-	
+    virtual void ModuleAction();
+    virtual void RocAction();
+
 protected:
-	void TestTBM();
-	void TestROC();
+    void TestTBM();
+    void TestROC();
 
-	void FindDecoderLevels(TH1* adcHistogram, int& numLimits, short limits[], int maxLimits, int integralLimit);
+    void FindDecoderLevels(TH1 * adcHistogram, int &numLimits, short limits[], int maxLimits, int integralLimit);
 
-	unsigned short count;
-	short data[FIFOSIZE];
-	int n;
+    unsigned short count;
+    short data[FIFOSIZE];
+    int n;
 
-	TH1D* adcHistogramTBM;
-	TH1D* adcHistogramROC;
+    TH1D * adcHistogramTBM;
+    TH1D * adcHistogramROC;
 
-        short fLimitsTBM[DecoderCalibrationConstants::NUM_LEVELSTBM + 1];
-	short fLimitsROC[RawPacketDecoderConstants::MAX_ROCS][DecoderCalibrationConstants::NUM_LEVELSROC + 1];
-	bool fTestedROC[RawPacketDecoderConstants::MAX_ROCS];
+    short fLimitsTBM[DecoderCalibrationConstants::NUM_LEVELSTBM + 1];
+    short fLimitsROC[RawPacketDecoderConstants::MAX_ROCS][DecoderCalibrationConstants::NUM_LEVELSROC + 1];
+    bool fTestedROC[RawPacketDecoderConstants::MAX_ROCS];
 
-	static bool fPrintDebug;
+    static bool fPrintDebug;
 };
 
 #endif

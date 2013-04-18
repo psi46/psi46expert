@@ -9,21 +9,21 @@
 class UbCheck : public Test
 {
 
- public:
- 
-	UbCheck();
-	UbCheck(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
+public:
 
-	void Initialize();	
-	virtual void ReadTestParameters(TestParameters *testParameters);
-	virtual void RocAction();
-	void Measure(int nTriggers);
-	int Ultrablack();
-	void AdjustOpR0();
+    UbCheck();
+    UbCheck(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
 
- private:
+    void Initialize();
+    virtual void ReadTestParameters(TestParameters * testParameters);
+    virtual void RocAction();
+    void Measure(int nTriggers);
+    int Ultrablack();
+    void AdjustOpR0();
 
-	int nTrig, minPixel;
+private:
+
+    int nTrig, minPixel;
 
 };
 

@@ -8,16 +8,16 @@
 class CalDelay : public Test
 {
 
- public:
- 
-	CalDelay(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
+public:
 
-	virtual void ReadTestParameters(TestParameters *testParameters);
-	virtual void RocAction();
+    CalDelay(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
 
- protected:
+    virtual void ReadTestParameters(TestParameters * testParameters);
+    virtual void RocAction();
 
-	TObjArray* GetEfficiency(const char* testName, TestRange* testRange);
+protected:
+
+    TObjArray * GetEfficiency(const char * testName, TestRange * testRange);
 
 };
 

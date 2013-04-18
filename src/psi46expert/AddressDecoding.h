@@ -11,24 +11,24 @@ class AddressDecoding : public Test
 {
 
 public:
-	AddressDecoding(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface,bool debug=false);
-	
-	virtual void RocAction();
-	virtual void DoubleColumnAction();
-	void AnalyseResult(int pixel);
-	
+    AddressDecoding(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface, bool debug = false);
+
+    virtual void RocAction();
+    virtual void DoubleColumnAction();
+    void AnalyseResult(int pixel);
+
 protected:
 
-	TH2D *map;
+    TH2D * map;
 
-	int readoutStop[2*ROCNUMROWS];
-	short data[20000];
+    int readoutStop[2 * ROCNUMROWS];
+    short data[20000];
 
-	RawPacketDecoder *gDecoder;
-	unsigned short count;
+    RawPacketDecoder * gDecoder;
+    unsigned short count;
 
-	static bool fPrintDebug;
-	bool fdebug;
+    static bool fPrintDebug;
+    bool fdebug;
 };
 
 

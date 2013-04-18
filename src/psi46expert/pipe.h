@@ -5,26 +5,26 @@
 class PipeObject {};
 
 class Pipe {
-	public:
-		Pipe * source;
-	
-	public:
-		virtual PipeObject * Read();
-		virtual PipeObject * Write();
-	
-	public:
-		Pipe();
-		Pipe & operator>>(Pipe & right);
+public:
+    Pipe * source;
+
+public:
+    virtual PipeObject * Read();
+    virtual PipeObject * Write();
+
+public:
+    Pipe();
+    Pipe &operator>>(Pipe &right);
 };
 
 class PipeEnd : public Pipe {
-	private:
-		void process();
-	friend void operator>>(Pipe & left, PipeEnd & right);
+private:
+    void process();
+    friend void operator>>(Pipe &left, PipeEnd &right);
 };
 
 extern PipeEnd end;
 
-void operator>>(Pipe & left, PipeEnd & right);
+void operator>>(Pipe &left, PipeEnd &right);
 
 #endif

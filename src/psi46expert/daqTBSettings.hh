@@ -24,53 +24,53 @@ class daqFrame;
 class daqTBSettings {
 
 public:
-  daqTBSettings(const TGWindow *p, const TGWindow *main, int tbNumber);
-  virtual ~daqTBSettings();
-  
-  // slots
-  void CloseWindow();
-  void Set();
-  void DoOK();
-  int  ReadFile();
+    daqTBSettings(const TGWindow * p, const TGWindow * main, int tbNumber);
+    virtual ~daqTBSettings();
 
-  void DoPon();
-  void DoPoff();
+    // slots
+    void CloseWindow();
+    void Set();
+    void DoOK();
+    int  ReadFile();
 
-  void DoHVon();
-  void DoHVoff();
-  
-  
+    void DoPon();
+    void DoPoff();
+
+    void DoHVon();
+    void DoHVoff();
+
+
 private:
 
-  void readInteger(int &reg, int &value, FILE *file);
-  void setParameter(int reg, int value);
-  void setParameter(const char* tbName, int value);
+    void readInteger(int &reg, int &value, FILE * file);
+    void setParameter(int reg, int value);
+    void setParameter(const char * tbName, int value);
 
 
-  int                  fTB;
-  daqFrame*            fDAQF;
+    int                  fTB;
+    daqFrame      *      fDAQF;
 
-  TGTransientFrame     *fMain;
-  TGVerticalFrame      *fF1, *fF2;
-  TGLayoutHints        *fL1;
-  TGLayoutHints        *fL2;
-  TGLayoutHints        *fL3;
-  TGButton             *fSetButton;
-  TGButton             *fExitButton;
-  TGButton             *fPonButton,  *fPoffButton;
-  TGButton             *fHVonButton, *fHVoffButton;
+    TGTransientFrame   *  fMain;
+    TGVerticalFrame   *   fF1, *fF2;
+    TGLayoutHints    *    fL1;
+    TGLayoutHints    *    fL2;
+    TGLayoutHints    *    fL3;
+    TGButton       *      fSetButton;
+    TGButton       *      fExitButton;
+    TGButton       *      fPonButton,  *fPoffButton;
+    TGButton       *      fHVonButton, *fHVoffButton;
 
-  static const int     fNTBParameters = 256;
-  TGHorizontalFrame    *fF[fNTBParameters];
-  TGLabel              *fLabel[fNTBParameters];
-  TGNumberEntry        *fNumericEntries[fNTBParameters];
-  int                  fParIndex[fNTBParameters];
-  int                  fParValues[fNTBParameters];
-  TString              fParNames[fNTBParameters];
-  int                  fParMax;
+    static const int     fNTBParameters = 256;
+    TGHorizontalFrame  *  fF[fNTBParameters];
+    TGLabel       *       fLabel[fNTBParameters];
+    TGNumberEntry    *    fNumericEntries[fNTBParameters];
+    int                  fParIndex[fNTBParameters];
+    int                  fParValues[fNTBParameters];
+    TString              fParNames[fNTBParameters];
+    int                  fParMax;
 
-  TGTextBuffer         *fFileNameBuffer;
-  FILE                 *fFile;
+    TGTextBuffer     *    fFileNameBuffer;
+    FILE         *        fFile;
 
 };
 

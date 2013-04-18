@@ -7,10 +7,10 @@
 #include "TestRange.h"
 
 class HRPixelMap : public Test {
-	public:
-		HRPixelMap(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-		~HRPixelMap();
-		virtual void ModuleAction();
+public:
+    HRPixelMap(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
+    ~HRPixelMap();
+    virtual void ModuleAction();
 };
 
 #endif

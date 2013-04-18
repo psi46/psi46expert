@@ -11,23 +11,23 @@ class ThresholdMap
 {
 
 public:
-	ThresholdMap();
-	
-	TH2D* GetMap(const char * mapName, TestRoc * roc, TestRange * testRange, int nTrig, int mode = -1);
-// 	bool CheckMap();
-	void MeasureMap(const char * mapName, TestRoc * roc, TestRange * testRange, int nTrig);
-	void SetParameters(const char * mapName, int mode = -1);
-	void SetCals();
-	void SetXTalk();
-	void SetDoubleWbc();
-	void SetSingleWbc();
-	void SetReverseMode();
-		
+    ThresholdMap();
+
+    TH2D * GetMap(const char * mapName, TestRoc * roc, TestRange * testRange, int nTrig, int mode = -1);
+    //  bool CheckMap();
+    void MeasureMap(const char * mapName, TestRoc * roc, TestRange * testRange, int nTrig);
+    void SetParameters(const char * mapName, int mode = -1);
+    void SetCals();
+    void SetXTalk();
+    void SetDoubleWbc();
+    void SetSingleWbc();
+    void SetReverseMode();
+
 protected:
 
-	TH2D *histo;
-	int dacReg;
-	bool cals, reverseMode, xtalk, doubleWbc;
+    TH2D * histo;
+    int dacReg;
+    bool cals, reverseMode, xtalk, doubleWbc;
 
 };
 

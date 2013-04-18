@@ -12,18 +12,18 @@ class SCurveTestBeam : public Test
 {
 
 public:
-	SCurveTestBeam(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-	
-	virtual void ReadTestParameters(TestParameters *testParameters);
-	virtual void RocAction();
-	virtual void PixelAction();
-		
+    SCurveTestBeam(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
+
+    virtual void ReadTestParameters(TestParameters * testParameters);
+    virtual void RocAction();
+    virtual void PixelAction();
+
 protected:
-	DecodedReadoutModule decodedModuleReadout;
-	int nTrig, mode, vthr, vcal, sCurve[256];
-	const char * dacName;
-	TH2D *map;
-	RawPacketDecoder *gDecoder;
+    DecodedReadoutModule decodedModuleReadout;
+    int nTrig, mode, vthr, vcal, sCurve[256];
+    const char * dacName;
+    TH2D * map;
+    RawPacketDecoder * gDecoder;
 };
 
 

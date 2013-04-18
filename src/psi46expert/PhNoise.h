@@ -10,18 +10,18 @@ class PhNoise : public Test
 {
 
 public:
-	PhNoise(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-	virtual ~PhNoise();
+    PhNoise(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
+    virtual ~PhNoise();
 
-        virtual void ModuleAction();
-	virtual void RocAction();
-	
+    virtual void ModuleAction();
+    virtual void RocAction();
+
 protected:
-	unsigned short count;
-	short data[FIFOSIZE];
+    unsigned short count;
+    short data[FIFOSIZE];
 
-        static const int nReadouts = 1000;
-	static bool debug;
+    static const int nReadouts = 1000;
+    static bool debug;
 };
 
 #endif

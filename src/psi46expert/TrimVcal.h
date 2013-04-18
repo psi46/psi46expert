@@ -11,17 +11,17 @@ class TrimVcal : public Test
 {
 
 public:
-	TrimVcal(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-	
-	virtual void ReadTestParameters(TestParameters *testParameters);
-	virtual void RocAction();
-	void AddMap(TH2D* calMap);
+    TrimVcal(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
 
-		
+    virtual void ReadTestParameters(TestParameters * testParameters);
+    virtual void RocAction();
+    void AddMap(TH2D * calMap);
+
+
 protected:
 
-	int nTrig;
-	ThresholdMap *thresholdMap;
+    int nTrig;
+    ThresholdMap * thresholdMap;
 
 };
 

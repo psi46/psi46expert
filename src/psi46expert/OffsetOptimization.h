@@ -12,19 +12,19 @@
 class OffsetOptimization : public PhDacScan
 {
 
- public:
+public:
 
-  OffsetOptimization(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-	
-  virtual void ReadTestParameters(TestParameters *testParameters);
-  virtual void RocAction();
-  virtual void PixelAction();
+    OffsetOptimization(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
 
-  void DoDacDacScan();
+    virtual void ReadTestParameters(TestParameters * testParameters);
+    virtual void RocAction();
+    virtual void PixelAction();
 
- protected:
+    void DoDacDacScan();
 
-  int dac1Start, dac1Stop, dac1Step, dac2Start, dac2Stop, dac2Step;
+protected:
+
+    int dac1Start, dac1Stop, dac1Step, dac2Start, dac2Stop, dac2Step;
 
 };
 

@@ -9,29 +9,29 @@
 
 class TimeWalkStudy : public Test
 {
- public: 
-  TimeWalkStudy(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-  virtual void ReadTestParameters(TestParameters *testParameters);
+public:
+    TimeWalkStudy(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
+    virtual void ReadTestParameters(TestParameters * testParameters);
 
-  virtual void ModuleAction();
-  virtual void RocAction();
-  
-  void CalDelDeltaT();
-  void GetPowerSlope();
-  double TimeWalk(int vcalStep);
-  int FindNewVana();
-  void SetThreshold(int vcal);
-  int GetThreshold();
+    virtual void ModuleAction();
+    virtual void RocAction();
 
-//   void TimeWalk16Chips();
-//   void TimeWalk16Pixel();
+    void CalDelDeltaT();
+    void GetPowerSlope();
+    double TimeWalk(int vcalStep);
+    int FindNewVana();
+    void SetThreshold(int vcal);
+    int GetThreshold();
 
-  protected: 
+    //   void TimeWalk16Chips();
+    //   void TimeWalk16Pixel();
 
-  TF1 *fit;
+protected:
 
-  double powerSlope, calDelDT, zeroCurrent, meanShift, twBefore[MODULENUMROCS], twAfter[MODULENUMROCS];
-  int vcalThreshold, vana[MODULENUMROCS];
+    TF1 * fit;
+
+    double powerSlope, calDelDT, zeroCurrent, meanShift, twBefore[MODULENUMROCS], twAfter[MODULENUMROCS];
+    int vcalThreshold, vana[MODULENUMROCS];
 };
 
 #endif

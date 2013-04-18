@@ -8,33 +8,33 @@ typedef unsigned long long int QWORD;
 
 class Delay {
 
- public:
-	Delay();
+public:
+    Delay();
 
-// == Delays ================================================
-	void Mdelay(unsigned int ms);
-	void Udelay(unsigned int us);
+    // == Delays ================================================
+    void Mdelay(unsigned int ms);
+    void Udelay(unsigned int us);
 
-// == Calibration ===========================================
-	int Median(unsigned int n, int x[]);
-	int Cpu_MHz();
-	int Calibrate();
-	int GetCPU_MHz();
-	unsigned int Usecs();
-	QWORD Rdtsc();
+    // == Calibration ===========================================
+    int Median(unsigned int n, int x[]);
+    int Cpu_MHz();
+    int Calibrate();
+    int GetCPU_MHz();
+    unsigned int Usecs();
+    QWORD Rdtsc();
 
-// == Runtime analysis =======================================
-	void Timestamp();
-	void StartUsecs();
-	void PrintUsecs();
-	
- protected:
+    // == Runtime analysis =======================================
+    void Timestamp();
+    void StartUsecs();
+    void PrintUsecs();
 
- 	 unsigned int uscount, usecsStart;
- 
+protected:
+
+    unsigned int uscount, usecsStart;
+
 };
 
 
-static Delay* gDelay = new Delay();
+static Delay * gDelay = new Delay();
 
 #endif

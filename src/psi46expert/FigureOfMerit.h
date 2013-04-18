@@ -12,29 +12,29 @@
 class FigureOfMerit : public PhDacScan
 {
 
- public:
+public:
 
-  FigureOfMerit(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface, int dac1, int dac2, int crit);
-	
-  virtual void ReadTestParameters(TestParameters *testParameters);
-  virtual void RocAction();
-  virtual void PixelAction();
+    FigureOfMerit(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface, int dac1, int dac2, int crit);
 
-  void DoDacDacScan();
-  double Timewalk(int i, int k);
-  int LinearRange(int i, int k);
-  int PulseHeight(int i, int k);
-  double LowLinearRange(int i, int k);
-  double DacDacDependency();
-  int FindFirstValue(short *result);
-  int Threshold(int i, int k);
-  
- protected:
+    virtual void ReadTestParameters(TestParameters * testParameters);
+    virtual void RocAction();
+    virtual void PixelAction();
 
-  int dac1Start, dac1Stop, dac1Step, dac2Start, dac2Stop, dac2Step, firstDac, secondDac, criterion, testVcal;
-  int dacValue1, dacValue2, index1, index2, bestQuality;
+    void DoDacDacScan();
+    double Timewalk(int i, int k);
+    int LinearRange(int i, int k);
+    int PulseHeight(int i, int k);
+    double LowLinearRange(int i, int k);
+    double DacDacDependency();
+    int FindFirstValue(short * result);
+    int Threshold(int i, int k);
 
-  TH1D *nor;
+protected:
+
+    int dac1Start, dac1Stop, dac1Step, dac2Start, dac2Stop, dac2Step, firstDac, secondDac, criterion, testVcal;
+    int dacValue1, dacValue2, index1, index2, bestQuality;
+
+    TH1D * nor;
 
 
 };

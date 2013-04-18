@@ -9,14 +9,14 @@ class BumpBonding : public Test
 {
 
 public:
-	BumpBonding(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-	
-	virtual void ReadTestParameters(TestParameters *testParameters);
-	virtual void RocAction();
-	
+    BumpBonding(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
+
+    virtual void ReadTestParameters(TestParameters * testParameters);
+    virtual void RocAction();
+
 protected:
 
-	int nTrig, vthrComp, ctrlReg;
+    int nTrig, vthrComp, ctrlReg;
 };
 
 

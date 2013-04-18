@@ -5,35 +5,35 @@ PipeEnd end;
 
 Pipe::Pipe()
 {
-	source = NULL;
+    source = NULL;
 }
 
 PipeObject * Pipe::Read()
 {
-	return source->Write();
+    return source->Write();
 }
 
 PipeObject * Pipe::Write()
 {
-	if (source != NULL)
-		return Read();
-	else
-		return NULL;
+    if (source != NULL)
+        return Read();
+    else
+        return NULL;
 }
 
-Pipe & Pipe::operator>>(Pipe & right)
+Pipe &Pipe::operator>>(Pipe &right)
 {
-	right.source = this;
-	return right;
+    right.source = this;
+    return right;
 }
 
-void operator>>(Pipe & left, PipeEnd & right)
+void operator>>(Pipe &left, PipeEnd &right)
 {
-	right.source = &left;
-	right.process();
+    right.source = &left;
+    right.process();
 }
 
 void PipeEnd::process()
 {
-	while (Read());
+    while (Read());
 }

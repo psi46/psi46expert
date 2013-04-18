@@ -3,7 +3,7 @@
 
 #include "Analysis.h"
 
-static Analysis *gAnalysis = new Analysis();
+static Analysis * gAnalysis = new Analysis();
 
 
 #endif

@@ -10,28 +10,28 @@ class CalibrationTable
 
 public:
 
-// == Vcal Calibration ===========================================================
+    // == Vcal Calibration ===========================================================
 
-	int CorrectedVcalDAC(int value);
-	double VcalDAC(int range, int value);
-	double VcalDAC(int range, double value);
-	int VcalDACInv(int range, double value);
-	void VcalDACOrder(int range);
-	double Slope(int range);
+    int CorrectedVcalDAC(int value);
+    double VcalDAC(int range, int value);
+    double VcalDAC(int range, double value);
+    int VcalDACInv(int range, double value);
+    void VcalDACOrder(int range);
+    double Slope(int range);
 
-// == Vthr Calibration ===========================================================
+    // == Vthr Calibration ===========================================================
 
-	void SetVcalVthr(int vthr, int vcal, int range);
-	double VthrDAC(int range, int value);
-	int VthrDACInv(int range, double value);
+    void SetVcalVthr(int vthr, int vcal, int range);
+    double VthrDAC(int range, int value);
+    int VthrDACInv(int range, double value);
 
 protected:
 
-	int vcalVthrTable[1][256];  /*Vcal as a function of Vthr*/
+    int vcalVthrTable[1][256];  /*Vcal as a function of Vthr*/
 
 };
 
-static CalibrationTable *gCalibrationTable = new CalibrationTable();
+static CalibrationTable * gCalibrationTable = new CalibrationTable();
 
 #endif
 

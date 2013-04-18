@@ -2,93 +2,93 @@
 #include "BasePixel/Roc.h"
 
 
-Pixel::Pixel(Roc* const aRoc, const int columnNumber, const int rowNumber) :
-	column(columnNumber), row(rowNumber), roc(aRoc)
+Pixel::Pixel(Roc * const aRoc, const int columnNumber, const int rowNumber) :
+    column(columnNumber), row(rowNumber), roc(aRoc)
 {
-	trim = 15;
-	enabled = false;
-	alive = false;
-	masked = false;
+    trim = 15;
+    enabled = false;
+    alive = false;
+    masked = false;
 }
 
 
 void Pixel::EnablePixel()
 {
-	if (masked) return;
-	roc->PixTrim(column, row, trim);
-	enabled = true;
+    if (masked) return;
+    roc->PixTrim(column, row, trim);
+    enabled = true;
 }
 
 
 void Pixel::DisablePixel()
 {
-	roc->PixMask(column, row);
-	enabled = false;
+    roc->PixMask(column, row);
+    enabled = false;
 }
 
 
 void Pixel::MaskCompletely()
 {
-	masked = true;
+    masked = true;
 }
 
 
 const void Pixel::Cal()
 {
-	roc->PixCal(column, row, 0);
+    roc->PixCal(column, row, 0);
 }
 
 
 const void Pixel::Cals()
 {
-	roc->PixCal(column, row, 1);
+    roc->PixCal(column, row, 1);
 }
 
 
 void Pixel::ArmPixel()
 {
-	EnablePixel();
-	Cal();
+    EnablePixel();
+    Cal();
 }
 
 
 void Pixel::DisarmPixel()
 {
-	DisablePixel();
-	roc->ClrCal();
+    DisablePixel();
+    roc->ClrCal();
 }
 
 
 void Pixel::SetTrim(int trimBit)
 {
-	trim = trimBit;
+    trim = trimBit;
 }
 
 
 int Pixel::GetTrim()
 {
-	return trim;
+    return trim;
 }
 
 
 bool Pixel::IsAlive()
 {
-	return alive;
+    return alive;
 }
 
 
 int Pixel::GetColumn()
 {
-	return column;
+    return column;
 }
 
 
 int Pixel::GetRow()
 {
-	return row;
+    return row;
 }
 
 void Pixel::SetAlive(bool aBoolean)
 {
-	alive = aBoolean;
+    alive = aBoolean;
 }

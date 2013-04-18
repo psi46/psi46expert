@@ -11,35 +11,35 @@ class TBInterface;
 
 class TBParameters
 {
-  public:
+public:
     TBParameters() {};
-    TBParameters(TBInterface *aTBInterface);
+    TBParameters(TBInterface * aTBInterface);
 
     virtual ~TBParameters() {};
 
     bool Execute(SysCommand command);
     void Restore();
-    virtual TBParameters* Copy() = 0;
+    virtual TBParameters * Copy() = 0;
 
     // == accessing =============================================================
     virtual void SetParameter(int reg, int value) = 0;
-    void SetParameter(const char* tbName, int value);
-    int GetParameter(const char* dacName);
-    
-    // == file input / output =================================================== 
-    bool ReadTBParameterFile ( const char *filename);
-    bool WriteTBParameterFile( const char *filename);
-        
-  protected:
+    void SetParameter(const char * tbName, int value);
+    int GetParameter(const char * dacName);
+
+    // == file input / output ===================================================
+    bool ReadTBParameterFile(const char * filename);
+    bool WriteTBParameterFile(const char * filename);
+
+protected:
     void _SetParameter(int reg, int value);
-    
-  protected:
+
+protected:
     static const int NTBParameters = 256;
-   
+
     int parameters[NTBParameters];
-    const char* names[NTBParameters];
-    
-    TBInterface *tbInterface;
+    const char * names[NTBParameters];
+
+    TBInterface * tbInterface;
 };
 
 #endif

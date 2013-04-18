@@ -9,22 +9,22 @@ class PHTest : public Test
 {
 
 public:
-	PHTest(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-	
-	virtual void ReadTestParameters(TestParameters *testParameters);
-	virtual void RocAction();
-	virtual void PixelAction();
-	
-	void PhDac(char *dacName);
-	void PulseHeightRocDigital(int data []);
+    PHTest(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
+
+    virtual void ReadTestParameters(TestParameters * testParameters);
+    virtual void RocAction();
+    virtual void PixelAction();
+
+    void PhDac(char * dacName);
+    void PulseHeightRocDigital(int data []);
 
 
-	
-	
+
+
 protected:
 
-	int nTrig, mode;
-	TH2D *map;
+    int nTrig, mode;
+    TH2D * map;
 
 };
 

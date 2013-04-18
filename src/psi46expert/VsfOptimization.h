@@ -10,12 +10,12 @@
 
 class VsfOptimization : public PhDacScan
 {
-  public:
+public:
     VsfOptimization() {};
 
-    VsfOptimization(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
+    VsfOptimization(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
 
-    virtual void ReadTestParameters(TestParameters *testParameters);  
+    virtual void ReadTestParameters(TestParameters * testParameters);
     virtual void RocAction();
 
     void DoDacDacScan();
@@ -26,12 +26,12 @@ class VsfOptimization : public PhDacScan
 
     int TestCol();
 
-  private:
+private:
     // Group Input parameters
     struct Input {
-      int start;
-      int stop;
-      int steps;
+        int start;
+        int stop;
+        int steps;
     };
 
     TArrayI bestVsf_pixel;

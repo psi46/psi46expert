@@ -20,41 +20,41 @@
 #include "BasePixel/DecodedReadout.h"
 
 class histogrammer {
- public:
-  histogrammer(); 
-  ~histogrammer();     
-  void   close();
+public:
+    histogrammer();
+    ~histogrammer();
+    void   close();
 
-  void   openRootFile(const char *rootfilename);        // open root outputfile
-  TFile* getRootFile() {return fRootFile;}
-  void   setRootFile(TFile *f) {fRootFile = f;}
-  void   init(const char *subdirectory);                // define/book histograms in subdirectory
-  void   reset();                                // Reset all histograms in list
-  void   fillRawDataHistograms(int n, int header = -1); // fill  histograms on raw data structure
-  void   fillPixelHistograms(int n);                    // fill  histograms on pixel structure
+    void   openRootFile(const char * rootfilename);       // open root outputfile
+    TFile * getRootFile() {return fRootFile;}
+    void   setRootFile(TFile * f) {fRootFile = f;}
+    void   init(const char * subdirectory);               // define/book histograms in subdirectory
+    void   reset();                                // Reset all histograms in list
+    void   fillRawDataHistograms(int n, int header = -1); // fill  histograms on raw data structure
+    void   fillPixelHistograms(int n);                    // fill  histograms on pixel structure
 
-  TH1*   getNextHistogram();
-  TH1*   getHistogram(const char *hist = "h0");
+    TH1  * getNextHistogram();
+    TH1  * getHistogram(const char * hist = "h0");
 
-  //void   setPixels(struct pixel p[]) {fPixels = p;}
-  //void   setPixels(DecodedReadoutModule& p) {fPixels = p;}
+    //void   setPixels(struct pixel p[]) {fPixels = p;}
+    //void   setPixels(DecodedReadoutModule& p) {fPixels = p;}
 
-  void   setRawData(int (*p)[DecodedReadoutConstants::MAX_PIXELSROC]);
-  void   printRawData(int n);
+    void   setRawData(int (*p)[DecodedReadoutConstants::MAX_PIXELSROC]);
+    void   printRawData(int n);
 
- private:
+private:
 
-  int          fOwner;
-  TFile*       fRootFile;
-  TString      fDir;
+    int          fOwner;
+    TFile    *   fRootFile;
+    TString      fDir;
 
-  TList*       lHistograms;
-  TH1*         fpCurrent;
+    TList    *   lHistograms;
+    TH1     *    fpCurrent;
 
-  int          (*fRawData)[DecodedReadoutConstants::MAX_PIXELSROC];
+    int (*fRawData)[DecodedReadoutConstants::MAX_PIXELSROC];
 
-  //struct pixel *fPixels;
-  //DecodedReadoutModule& fPixels;
+    //struct pixel *fPixels;
+    //DecodedReadoutModule& fPixels;
 
 };
 #endif

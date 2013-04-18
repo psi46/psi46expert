@@ -7,90 +7,90 @@
 #include "interface/Log.h"
 #include "BasePixel/ConfigParameters.h"
 
-IVCurve::IVCurve(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+IVCurve::IVCurve(TestRange * aTestRange, TestParameters * testParameters, TBInterface * aTBInterface)
 {
-  psi::LogDebug() << "[IVCurve] Initialization." << psi::endl;
+    psi::LogDebug() << "[IVCurve] Initialization." << psi::endl;
 
-	ReadTestParameters(testParameters);
-	
-	keithley = new Keithley();
+    ReadTestParameters(testParameters);
 
-	ConfigParameters *configParameters = ConfigParameters::Singleton();
-	if (!configParameters->keithleyRemote)
-	{
-		keithley->Open();
-		keithley->Init();
-	}
+    keithley = new Keithley();
+
+    ConfigParameters * configParameters = ConfigParameters::Singleton();
+    if (!configParameters->keithleyRemote)
+    {
+        keithley->Open();
+        keithley->Init();
+    }
 }
 
 
 
-void IVCurve::ReadTestParameters(TestParameters *testParameters)
+void IVCurve::ReadTestParameters(TestParameters * testParameters)
 {
-	voltStep = (*testParameters).IVStep;
-	voltStart = (*testParameters).IVStart;
-	voltStop = (*testParameters).IVStop;
-	delay = (*testParameters).IVDelay;
+    voltStep = (*testParameters).IVStep;
+    voltStart = (*testParameters).IVStart;
+    voltStop = (*testParameters).IVStop;
+    delay = (*testParameters).IVDelay;
 }
 
 
 void IVCurve::ModuleAction()
 {
-	float v, c;
-	const int nSteps = (voltStop - voltStart)/voltStep;
-	
-	float voltage[nSteps], current[nSteps];
+    float v, c;
+    const int nSteps = (voltStop - voltStart) / voltStep;
 
-	int stepsDone = 0;
-	for (int i = voltStart; i < voltStop; i+=voltStep)
-	{
-		keithley->Measure(i, v, c, delay);
-		voltage[stepsDone] = TMath::Abs(v);
-		current[stepsDone] = TMath::Abs(c);
+    float voltage[nSteps], current[nSteps];
 
-    psi::LogDebug() << "[IVCurve] Voltage " << v << ", Current " << c << '.'
-                    << psi::endl;
+    int stepsDone = 0;
+    for (int i = voltStart; i < voltStop; i += voltStep)
+    {
+        keithley->Measure(i, v, c, delay);
+        voltage[stepsDone] = TMath::Abs(v);
+        current[stepsDone] = TMath::Abs(c);
 
-		if ((c < -9.9e-5) && (v != 0.))
-		{
-			cout << "KEITHLEY TRIP, IV test will end" << endl;
-			voltStop = i; 
-			break;
-		}
-		stepsDone++;
-	}
+        psi::LogDebug() << "[IVCurve] Voltage " << v << ", Current " << c << '.'
+                        << psi::endl;
 
-	cout << "ramping down from voltStop: " << voltStop << endl;
+        if ((c < -9.9e-5) && (v != 0.))
+        {
+            cout << "KEITHLEY TRIP, IV test will end" << endl;
+            voltStop = i;
+            break;
+        }
+        stepsDone++;
+    }
 
-	// ramp down voltage
-	int rdStep = voltStep * 4;
-	for (int i = voltStop; i >= 150; i-=rdStep) keithley->SetVoltage(i, 1);
-  psi::LogDebug() << "[IVCurve] Reset Keithley to -150V." << psi::endl;
+    cout << "ramping down from voltStop: " << voltStop << endl;
 
-	keithley->SetVoltage(150, 3);
+    // ramp down voltage
+    int rdStep = voltStep * 4;
+    for (int i = voltStop; i >= 150; i -= rdStep) keithley->SetVoltage(i, 1);
+    psi::LogDebug() << "[IVCurve] Reset Keithley to -150V." << psi::endl;
 
-  psi::LogDebug() << "[IVCurve] Reset Keithley to local mode." << psi::endl;
+    keithley->SetVoltage(150, 3);
 
-	keithley->GoLocal();
+    psi::LogDebug() << "[IVCurve] Reset Keithley to local mode." << psi::endl;
 
-  psi::LogDebug() << "[IVCurve] Done." << psi::endl;
-	
-	// write result to file
+    keithley->GoLocal();
 
-	char fileName[1000];
-	ConfigParameters *configParameters = ConfigParameters::Singleton();
-	sprintf(fileName, "%s/iv.dat", configParameters->directory);	
-	FILE* f = fopen(fileName, "w");
-	fprintf(f, "Voltage [V] Current [A]\n\n");
-	
-	TGraph *graph = new TGraph(nSteps, voltage, current);
-	graph->SetTitle("IVCurve");
-	graph->SetName("IVCurve");
-	histograms->Add(graph);
-	graph->Write();
-	
-	for (int i = 0; i < stepsDone; i++) fprintf(f, "%e %e\n", voltage[i], current[i]);
-	fclose(f);
+    psi::LogDebug() << "[IVCurve] Done." << psi::endl;
+
+    // write result to file
+
+    char fileName[1000];
+    ConfigParameters * configParameters = ConfigParameters::Singleton();
+    sprintf(fileName, "%s/iv.dat", configParameters->directory);
+    FILE * f = fopen(fileName, "w");
+    fprintf(f, "Voltage [V] Current [A]\n\n");
+
+    TGraph * graph = new TGraph(nSteps, voltage, current);
+    graph->SetTitle("IVCurve");
+    graph->SetName("IVCurve");
+    histograms->Add(graph);
+    graph->Write();
+
+    for (int i = 0; i < stepsDone; i++) fprintf(f, "%e %e\n", voltage[i], current[i]);
+    fclose(f);
 }
 
 

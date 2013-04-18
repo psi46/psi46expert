@@ -10,17 +10,17 @@ class TBMTest : public Test
 {
 
 public:
-	TBMTest(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-	
-	virtual void ReadTestParameters(TestParameters *testParameters);
-	virtual void ModuleAction();
-	
-	void DualModeTest();
-	void ReadoutTest();
+    TBMTest(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
+
+    virtual void ReadTestParameters(TestParameters * testParameters);
+    virtual void ModuleAction();
+
+    void DualModeTest();
+    void ReadoutTest();
 
 protected:
 
-	int result[2];
+    int result[2];
 
 };
 

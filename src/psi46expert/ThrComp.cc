@@ -12,111 +12,111 @@
 #include "ThrComp.h"
 #include <TMath.h>
 
-ThrComp::ThrComp(TestRange *aTestRange, TestParameters *aTestParameters, TBInterface *aTBInterface)
+ThrComp::ThrComp(TestRange * aTestRange, TestParameters * aTestParameters, TBInterface * aTBInterface)
 {
-  testParameters = aTestParameters;
-  testRange = aTestRange;
-  tbInterface = aTBInterface;
-  ReadTestParameters(testParameters);
+    testParameters = aTestParameters;
+    testRange = aTestRange;
+    tbInterface = aTBInterface;
+    ReadTestParameters(testParameters);
 }
 
 
-void ThrComp::ReadTestParameters(TestParameters *testParameters)
+void ThrComp::ReadTestParameters(TestParameters * testParameters)
 {
-  debug = false;
+    debug = false;
 }
 
 
 void ThrComp::RocAction()
 {
-  Float_t vcal = 200.;
+    Float_t vcal = 200.;
 
-  double data[ROC_NUMROWS*ROC_NUMCOLS];
-  double dataMax[ROC_NUMROWS*ROC_NUMCOLS];
-  double efficiency, lastEfficiency = 0.;
+    double data[ROC_NUMROWS * ROC_NUMCOLS];
+    double dataMax[ROC_NUMROWS * ROC_NUMCOLS];
+    double efficiency, lastEfficiency = 0.;
 
-  printf("VthrComp roc %i\n", chipId);
-  
-  SetDAC("Vcal", TMath::Nint(vcal));
-  //SetDAC("CtrlReg", 4);
-  SetDAC("CtrlReg", 0);
+    printf("VthrComp roc %i\n", chipId);
 
-  TGraph* graph = new TGraph();
-  TString name = Form("VthrComp_Vcal%i", (int) vcal);
-  graph->SetName(name);
-  graph->SetLineColor(2);
-  graph->SetLineStyle(1);
-  graph->SetLineWidth(2);
-  graph->SetMarkerColor(2);
+    SetDAC("Vcal", TMath::Nint(vcal));
+    //SetDAC("CtrlReg", 4);
+    SetDAC("CtrlReg", 0);
 
-  int nPoints = 0;
+    TGraph * graph = new TGraph();
+    TString name = Form("VthrComp_Vcal%i", (int) vcal);
+    graph->SetName(name);
+    graph->SetLineColor(2);
+    graph->SetLineStyle(1);
+    graph->SetLineWidth(2);
+    graph->SetMarkerColor(2);
 
-  for ( Int_t ithrComp = 0; ithrComp < 255; ithrComp += 10 ){
-    cout << "VthrComp = " << ithrComp << " : ";
+    int nPoints = 0;
 
-    SetDAC("VthrComp", ithrComp);
+    for (Int_t ithrComp = 0; ithrComp < 255; ithrComp += 10) {
+        cout << "VthrComp = " << ithrComp << " : ";
 
-    this->RocActionAuxiliary(data, dataMax);
+        SetDAC("VthrComp", ithrComp);
 
-    cout << endl;
+        this->RocActionAuxiliary(data, dataMax);
 
-    efficiency = 0.;
-    for ( int ipixel = 0; ipixel < ROC_NUMROWS*ROC_NUMCOLS; ipixel++ ) efficiency += dataMax[ipixel];
-    efficiency /= ROC_NUMROWS*ROC_NUMCOLS;
-    cout << " efficiency = " << efficiency << endl;
-		
-    if ( TMath::Abs(lastEfficiency - efficiency) > 0.1 ){
-      for ( int jthrComp = -9; jthrComp <= 0; jthrComp++ ){
-	cout << "VthrComp = " << ithrComp + jthrComp << " : ";
+        cout << endl;
 
-	SetDAC("VthrComp", ithrComp + jthrComp);
+        efficiency = 0.;
+        for (int ipixel = 0; ipixel < ROC_NUMROWS * ROC_NUMCOLS; ipixel++) efficiency += dataMax[ipixel];
+        efficiency /= ROC_NUMROWS * ROC_NUMCOLS;
+        cout << " efficiency = " << efficiency << endl;
 
-	this->RocActionAuxiliary(data, dataMax);
+        if (TMath::Abs(lastEfficiency - efficiency) > 0.1) {
+            for (int jthrComp = -9; jthrComp <= 0; jthrComp++) {
+                cout << "VthrComp = " << ithrComp + jthrComp << " : ";
 
-	cout << endl;
+                SetDAC("VthrComp", ithrComp + jthrComp);
 
-	efficiency = 0.;
-	for ( int ipixel = 0; ipixel < ROC_NUMROWS*ROC_NUMCOLS; ipixel++ ) efficiency += dataMax[ipixel];
-	efficiency /= ROC_NUMROWS*ROC_NUMCOLS;
-	cout << " efficiency = " << efficiency << endl;
-	
-	graph->SetPoint(nPoints, ithrComp + jthrComp, efficiency);
-	nPoints++;
-      }
-    } else {
-      graph->SetPoint(nPoints, ithrComp, efficiency);
-      nPoints++;
+                this->RocActionAuxiliary(data, dataMax);
+
+                cout << endl;
+
+                efficiency = 0.;
+                for (int ipixel = 0; ipixel < ROC_NUMROWS * ROC_NUMCOLS; ipixel++) efficiency += dataMax[ipixel];
+                efficiency /= ROC_NUMROWS * ROC_NUMCOLS;
+                cout << " efficiency = " << efficiency << endl;
+
+                graph->SetPoint(nPoints, ithrComp + jthrComp, efficiency);
+                nPoints++;
+            }
+        } else {
+            graph->SetPoint(nPoints, ithrComp, efficiency);
+            nPoints++;
+        }
+
+        lastEfficiency = efficiency;
     }
 
-    lastEfficiency = efficiency;
-  }
-  
-  histograms->Add(graph);
-  graph->Write();
+    histograms->Add(graph);
+    graph->Write();
 }
 
 void ThrComp::RocActionAuxiliary(double data[], double dataMax[])
 {
-  for ( int ipixel = 0; ipixel < ROC_NUMROWS*ROC_NUMCOLS; ipixel++ ){
-    dataMax[ipixel] = -1e6;
-  }
-
-  for ( Int_t icalDel = 0; icalDel < 255; icalDel += 25 ){
-    printf(".");
-    cout.flush();
-    
-    SetDAC("CalDel", icalDel);
-    Flush();
-    roc->ChipEfficiency(10, data);
-    
-    for ( int ipixel = 0; ipixel < ROC_NUMROWS*ROC_NUMCOLS; ipixel++ ){
-      if ( data[ipixel] > dataMax[ipixel] ) dataMax[ipixel] = data[ipixel];
+    for (int ipixel = 0; ipixel < ROC_NUMROWS * ROC_NUMCOLS; ipixel++) {
+        dataMax[ipixel] = -1e6;
     }
-  }
 
-  //for ( int ipixel = 0; ipixel < ROC_NUMROWS*ROC_NUMCOLS; ipixel++ ){
-  //  cout << "dataMax[" << ipixel << "] = " << dataMax[ipixel] << endl;
-  //}
+    for (Int_t icalDel = 0; icalDel < 255; icalDel += 25) {
+        printf(".");
+        cout.flush();
+
+        SetDAC("CalDel", icalDel);
+        Flush();
+        roc->ChipEfficiency(10, data);
+
+        for (int ipixel = 0; ipixel < ROC_NUMROWS * ROC_NUMCOLS; ipixel++) {
+            if (data[ipixel] > dataMax[ipixel]) dataMax[ipixel] = data[ipixel];
+        }
+    }
+
+    //for ( int ipixel = 0; ipixel < ROC_NUMROWS*ROC_NUMCOLS; ipixel++ ){
+    //  cout << "dataMax[" << ipixel << "] = " << dataMax[ipixel] << endl;
+    //}
 }
 
 

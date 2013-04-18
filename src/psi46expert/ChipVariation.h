@@ -12,21 +12,21 @@
 class ChipVariation : public PhDacScan
 {
 
- public:
+public:
 
-  ChipVariation(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-	
-  virtual void ReadTestParameters(TestParameters *testParameters);
-  virtual void RocAction();
-  virtual void PixelAction();
-  virtual void ModuleAction();
+    ChipVariation(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
 
-  void Scan();
-  TH1D *linRange;
+    virtual void ReadTestParameters(TestParameters * testParameters);
+    virtual void RocAction();
+    virtual void PixelAction();
+    virtual void ModuleAction();
 
- protected:
+    void Scan();
+    TH1D * linRange;
 
-  int NumberOfSteps;
+protected:
+
+    int NumberOfSteps;
 
 };
 

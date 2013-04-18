@@ -16,31 +16,31 @@ class TBInterface;
 
 class VsfScan: public PhDacScan
 {
-  public:
-    VsfScan( TestRange      *_range, 
-             TestParameters *_parameters,
-             TBInterface    *_interface);
+public:
+    VsfScan(TestRange   *   _range,
+            TestParameters * _parameters,
+            TBInterface  *  _interface);
     virtual ~VsfScan() {}
 
     virtual void RocAction();
 
-  private:
+private:
     void scan();
     int  getTestColumn();
 
     // Group Input Parameters
     struct Input {
-      int start;
-      int stop;
-      int steps;
+        int start;
+        int stop;
+        int steps;
     };
 
     Input vsf;
 
     const int VSF_DAC_REGISTER;
 
-                          // Vcal range used for PH scan
-    const std::pair<const int, const int> PH_VCAL_RANGE; 
+    // Vcal range used for PH scan
+    const std::pair<const int, const int> PH_VCAL_RANGE;
 };
 
 #endif  // VSF_SCAN_H

@@ -5,10 +5,10 @@
 
 class TestParameters
 {
-  public:
-    TestParameters( const char *testParametersFileName);
+public:
+    TestParameters(const char * testParametersFileName);
 
-    bool ReadTestParameterFile( const char *filename);
+    bool ReadTestParameterFile(const char * filename);
 
     int PixelMapReadouts;
     int PixelMapEfficiency;
@@ -89,7 +89,7 @@ class TestParameters
     int XrayVthrCompMax;
 
     double XrayMaxEff;
-    
+
     int HRPixelMapTriggerRate;
     int HRPixelMapRepetitions;
     float HRPixelMapAquisitionTime;
@@ -97,7 +97,7 @@ class TestParameters
     int HRPixelMapStretchDelay;
 
     int HREfficiencyTriggers;
-    
+
     int HRSCurveThrStart;
     int HRSCurveThrEnd;
     int HRSCurveTriggers;

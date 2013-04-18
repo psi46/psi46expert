@@ -7,14 +7,14 @@ class TemperatureTest : public Test
 {
 
 public:
-	TemperatureTest(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-	
-	virtual void ReadTestParameters(TestParameters *testParameters);
-	virtual void RocAction();
-	
+    TemperatureTest(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
+
+    virtual void ReadTestParameters(TestParameters * testParameters);
+    virtual void RocAction();
+
 protected:
 
-	int nTrig;
+    int nTrig;
 };
 
 

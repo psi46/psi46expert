@@ -9,15 +9,15 @@ class FullTest : public Test
 {
 
 public:
-	FullTest(ConfigParameters *configParameters, TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface,int opt);
-	int Scurve;
-	virtual void RocAction();
-	virtual void ModuleAction();
-	void DoTemperatureTest();
-		
+    FullTest(ConfigParameters * configParameters, TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface, int opt);
+    int Scurve;
+    virtual void RocAction();
+    virtual void ModuleAction();
+    void DoTemperatureTest();
+
 protected:
 
-	TestParameters *testParameters;
+    TestParameters * testParameters;
 
 
 };

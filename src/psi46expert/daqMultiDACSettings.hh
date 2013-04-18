@@ -22,40 +22,40 @@
 class daqMultiDACSettings {
 
 public:
-  daqMultiDACSettings(const TGWindow *p, const TGWindow *main);
-  virtual ~daqMultiDACSettings();
-  
-  // slots
-  void CloseWindow();
-  void Set();
-  void DoOK();
-  
-  
+    daqMultiDACSettings(const TGWindow * p, const TGWindow * main);
+    virtual ~daqMultiDACSettings();
+
+    // slots
+    void CloseWindow();
+    void Set();
+    void DoOK();
+
+
 private:
 
-  TGTab                *fMain;
+    TGTab        *        fMain;
 
-  //  TGCompositeFrame     *fF[16];
+    //  TGCompositeFrame     *fF[16];
 
-  TGLayoutHints        *fL1;
-  TGLayoutHints        *fL2;
-  TGLayoutHints        *fL3;
-  TGTextEntry          *fTxt1, *fTxt2;
-  TGButton             *fSetButton;
-  TGButton             *fExitButton;
+    TGLayoutHints    *    fL1;
+    TGLayoutHints    *    fL2;
+    TGLayoutHints    *    fL3;
+    TGTextEntry     *     fTxt1, *fTxt2;
+    TGButton       *      fSetButton;
+    TGButton       *      fExitButton;
 
 
-  static const int     fNDACParameters = 256;
+    static const int     fNDACParameters = 256;
 
-  TGCompositeFrame    *fF[16];
-  TGLabel              *fLabel[16][fNDACParameters];
-  TGNumberEntry        *fNumericEntries[16][fNDACParameters];
-  int                  fParIndex[16][fNDACParameters];
-  int                  fParValues[16][fNDACParameters];
-  TString              fParNames[16][fNDACParameters];
+    TGCompositeFrame  *  fF[16];
+    TGLabel       *       fLabel[16][fNDACParameters];
+    TGNumberEntry    *    fNumericEntries[16][fNDACParameters];
+    int                  fParIndex[16][fNDACParameters];
+    int                  fParValues[16][fNDACParameters];
+    TString              fParNames[16][fNDACParameters];
 
-  TGTextBuffer         *fFileNameBuffer[16];
-  FILE                 *fFile[16];
+    TGTextBuffer     *    fFileNameBuffer[16];
+    FILE         *        fFile[16];
 
 };
 

@@ -12,21 +12,21 @@
 class PhDacOverview : public PhDacScan
 {
 
- public:
+public:
 
-  PhDacOverview(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-	
-  virtual void ReadTestParameters(TestParameters *testParameters);
-  virtual void RocAction();
-  virtual void PixelAction();
+    PhDacOverview(TestRange * testRange, TestParameters * testParameters, TBInterface * aTBInterface);
 
-  void DoDacScan();
-  void DoVsfScan();
+    virtual void ReadTestParameters(TestParameters * testParameters);
+    virtual void RocAction();
+    virtual void PixelAction();
 
- protected:
-  void PHDac(TH1D * histo);
+    void DoDacScan();
+    void DoVsfScan();
 
-  int NumberOfSteps;
+protected:
+    void PHDac(TH1D * histo);
+
+    int NumberOfSteps;
 
 };
 

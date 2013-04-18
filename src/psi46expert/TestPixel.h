@@ -14,18 +14,18 @@ class TestRoc;
 
 class TestPixel: public Pixel {
 
- public:
-	TestPixel(Roc *roc, int columnNumber, int rowNumber, TestParameters *parameters);
-	TestRoc *GetRoc();
+public:
+    TestPixel(Roc * roc, int columnNumber, int rowNumber, TestParameters * parameters);
+    TestRoc * GetRoc();
 
-// == General functions ===================================================
+    // == General functions ===================================================
 
-	double FindThreshold(const char * mapName, int nTrig, bool doubleWbc = false);
+    double FindThreshold(const char * mapName, int nTrig, bool doubleWbc = false);
 
 
- protected:
+protected:
 
- 	TestParameters *testParameters;
+    TestParameters * testParameters;
 
 };
 

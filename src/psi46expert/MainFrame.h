@@ -32,9 +32,9 @@
 
 class MainFrame: public TGMainFrame
 {
-  public:
-    MainFrame( const TGWindow *p, UInt_t w,UInt_t h,
-               TBInterface *aTbInterface, TestControlNetwork *aCN, ConfigParameters  *configParameters, bool openWindow = true);
+public:
+    MainFrame(const TGWindow * p, UInt_t w, UInt_t h,
+              TBInterface * aTbInterface, TestControlNetwork * aCN, ConfigParameters * configParameters, bool openWindow = true);
     virtual ~MainFrame();
 
     void Execute(SysCommand command);
@@ -48,13 +48,13 @@ class MainFrame: public TGMainFrame
     void HVoff();
     void Exit();
     void Save();
-    
-    TestRange *GetRange(bool completeRocs = false);
+
+    TestRange * GetRange(bool completeRocs = false);
 
     // == Tests ================================================
 
     void DoTest();
-    void DoTest(Test *aTest);
+    void DoTest(Test * aTest);
     void PreTest();
     void IV();
     void DoFullTest();
@@ -78,49 +78,49 @@ class MainFrame: public TGMainFrame
 
     void Clear();
     void ClearCanvas();
-    void AddLast(TH1* histo, int test);
+    void AddLast(TH1 * histo, int test);
 
     void NextHistogram();
     void PreviousHistogram();
-    
+
     void MapFullRange();
     void ClearOldHistos();
-    
+
     void DoTextField();
 
-  private:
-    TRootEmbeddedCanvas *fEcanvas;
-    TGButtonGroup       *fFctButtons;
-    TGRadioButton       *fR[4];
-    TGCheckButton       *fOverlayButton;
+private:
+    TRootEmbeddedCanvas * fEcanvas;
+    TGButtonGroup    *   fFctButtons;
+    TGRadioButton    *   fR[4];
+    TGCheckButton    *   fOverlayButton;
 
-    TGTextBuffer        *moduleTextBuffer;
-    TGTextBuffer        *rocTextBuffer;
-    TGTextBuffer        *colTextBuffer;
-    TGTextBuffer        *rowTextBuffer;
-    TGTextBuffer        *parameterTextBuffer;
+    TGTextBuffer    *    moduleTextBuffer;
+    TGTextBuffer    *    rocTextBuffer;
+    TGTextBuffer    *    colTextBuffer;
+    TGTextBuffer    *    rowTextBuffer;
+    TGTextBuffer    *    parameterTextBuffer;
 
-    TGTextView          *transcript;
-    TGTextEntry         *commandLine;
+    TGTextView     *     transcript;
+    TGTextEntry     *    commandLine;
 
-    TGHProgressBar      *progressBar;
+    TGHProgressBar   *   progressBar;
 
-    TGComboBox          *parametersComboBox;
-    TGComboBox          *histogramsComboBox;
-    TGComboBox          *dac1ComboBox;
-    TGComboBox          *dac2ComboBox;
-    TGComboBox          *criteriaComboBox;
+    TGComboBox     *     parametersComboBox;
+    TGComboBox     *     histogramsComboBox;
+    TGComboBox     *     dac1ComboBox;
+    TGComboBox     *     dac2ComboBox;
+    TGComboBox     *     criteriaComboBox;
 
-    CommandLineInterpreter *fInterpreter;
+    CommandLineInterpreter * fInterpreter;
     SysCommand sysCommand;
 
     // == Tests ===========================================================================
 
     static const Int_t nTests = 24;
 
-    TList *histograms[nTests + 1];
+    TList * histograms[nTests + 1];
     Int_t currentTest;
-    TObject *currentHistogram[nTests + 1];
+    TObject * currentHistogram[nTests + 1];
 
     int  fOverlay;
     int  drawOption;
@@ -130,12 +130,12 @@ class MainFrame: public TGMainFrame
 
     bool test[nTests];
 
-    TBInterface        *tbInterface;
-    TestControlNetwork *controlNetwork;
-    Analysis           *fAnalysis;
-    ConfigParameters   *configParameters;
+    TBInterface    *    tbInterface;
+    TestControlNetwork * controlNetwork;
+    Analysis      *     fAnalysis;
+    ConfigParameters  * configParameters;
 
-    ClassDef(MainFrame,1)
+    ClassDef(MainFrame, 1)
 };
 
 #endif
