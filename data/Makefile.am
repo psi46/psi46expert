@@ -1,1 +1,5 @@
-SUBDIRS = defaultParametersModule defaultParametersPlaquette defaultParametersRocEmTBM
+SUBDIRS = defaultParametersModule \
+          defaultParametersPlaquette \
+          defaultParametersRocEmTBM \
+          defaultParametersRocDigital \
+          defaultParametersRocPSI46digV2

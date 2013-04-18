@@ -62,5 +62,5 @@ fi
 AC_SUBST([ROOTLIBS])
 AC_SUBST([ROOTFLAGS])
 AC_CONFIG_HEADERS([src/config.h])
-AC_CONFIG_FILES([Makefile src/Makefile src/interface/Makefile src/BasePixel/Makefile src/psi46expert/Makefile data/Makefile data/defaultParametersRocEmTBM/Makefile data/defaultParametersPlaquette/Makefile data/defaultParametersModule/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile src/interface/Makefile src/BasePixel/Makefile src/psi46expert/Makefile data/Makefile data/defaultParametersRocEmTBM/Makefile data/defaultParametersRocDigital/Makefile data/defaultParametersRocPSI46digV2/Makefile data/defaultParametersPlaquette/Makefile data/defaultParametersModule/Makefile])
 AC_OUTPUT
