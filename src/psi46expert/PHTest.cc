@@ -4,6 +4,7 @@
 #include "TestModule.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/DigitalReadoutDecoder.h"
+#include "Analysis.h"
 
 
 PHTest::PHTest(TestRange * aTestRange, TestParameters * testParameters, TBInterface * aTBInterface)
@@ -27,7 +28,7 @@ void PHTest::RocAction()
     if (mode == 0)
     {
         psi::LogInfo() << "[PHTest] Measuring pulse height map ..." << psi::endl;
-        map = new TH2D(Form("PH_C%d", chipId), Form("PH_C%d", chipId), ROCNUMCOLS, 0, ROCNUMCOLS, ROCNUMROWS, 0, ROCNUMROWS);
+        map = new TH2D(Form("PH_C%d", chipId), Form("Pulse height map C%d", chipId), ROCNUMCOLS, 0, ROCNUMCOLS, ROCNUMROWS, 0, ROCNUMROWS);
         int data[ROCNUMROWS * ROCNUMCOLS], offset;
         if (((TBAnalogInterface *)tbInterface)->TBMPresent()) offset = 16;
         else offset = 9;
@@ -39,8 +40,36 @@ void PHTest::RocAction()
         {
             for (int row = 0; row < ROCNUMROWS; row++) map->SetBinContent(col + 1, row + 1, data[col * ROCNUMROWS + row]);
         }
+
+        map->GetXaxis()->SetTitle("Column");
+        map->GetYaxis()->SetTitle("Row");
         histograms->Add(map);
 
+        /* Distribution of pulse height */
+        TH1D * distr;
+        if (roc->has_analog_readout())
+            distr = gAnalysis->Distribution(map, 4096, -2048, 2048);
+        else
+            distr = gAnalysis->Distribution(map, 256, 0, 256);
+        distr->GetXaxis()->SetTitle("Pulse height [ADC units]");
+        distr->GetYaxis()->SetTitle("Pixels / bin [1]");
+        histograms->Add(distr);
+
+        /* X-projection of the map */
+        TH1D * projx = map->ProjectionX();
+        projx->SetTitle(Form("%s (x-projection)", map->GetTitle()));
+        projx->GetXaxis()->SetTitle("Column");
+        projx->GetYaxis()->SetTitle("Pulse height [ADC units]");
+        *projx = 1.0 / ROCNUMROWS * *projx;
+        histograms->Add(projx);
+
+        /* Y-projection of the map */
+        TH1D * projy = map->ProjectionY();
+        *projy = 1.0 / ROCNUMCOLS * *projy;
+        projy->SetTitle(Form("%s (y-projection)", map->GetTitle()));
+        projy->GetXaxis()->SetTitle("Row");
+        projy->GetYaxis()->SetTitle("Pulse height [ADC units]");
+        histograms->Add(projy);
     }
     Test::RocAction();
     RestoreDacParameters();

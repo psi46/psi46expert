@@ -57,7 +57,7 @@ TH2D * Analysis::SumVthrVcal(TH2D * map1, TH2D * map2, TH2D * map3, char * mapNa
 // -- Fills a 1D histogram with the data of a map
 TH1D * Analysis::Distribution(TH2D * map, int nBins, double lowerEdge, double upperEdge)
 {
-    TH1D * histo = new TH1D(Form("%sDistribution", map->GetName()), Form("%sDistribution", map->GetName()), nBins, lowerEdge, upperEdge);
+    TH1D * histo = new TH1D(Form("%sDistribution", map->GetName()), Form("%s Distribution", map->GetTitle()), nBins, lowerEdge, upperEdge);
     for (int iCol = 0; iCol < ROCNUMCOLS; iCol++) {
         for (int iRow = 0; iRow < ROCNUMROWS; iRow++) {
             histo->Fill(map->GetBinContent(iCol + 1, iRow + 1));
@@ -73,7 +73,7 @@ TH1D * Analysis::Distribution(TH2D * map)
     double lowerEdge = TMath::Floor(map->GetMinimum()) - 5;
     double upperEdge = TMath::Floor(map->GetMaximum()) + 5;
     int nBins = (int)(upperEdge - lowerEdge);
-    TH1D * histo = new TH1D(Form("%sDistribution", map->GetName()), Form("%sDistribution", map->GetName()), nBins, lowerEdge, upperEdge);
+    TH1D * histo = new TH1D(Form("%sDistribution", map->GetName()), Form("%s Distribution", map->GetTitle()), nBins, lowerEdge, upperEdge);
     for (int iCol = 0; iCol < ROCNUMCOLS; iCol++) {
         for (int iRow = 0; iRow < ROCNUMROWS; iRow++) {
             histo->Fill(map->GetBinContent(iCol + 1, iRow + 1));
