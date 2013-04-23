@@ -1,4 +1,4 @@
-testboardName DPCSPRRA
+testboardName *
 
 -- parameter files
 
@@ -18,6 +18,7 @@ tbmEnable 1
 tbmEmulator 0
 hvOn 1
 tbmChannel 0
+rocType psi46v2
 
 halfModule 0
 
