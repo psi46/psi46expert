@@ -557,10 +557,8 @@ void TestRoc::AdjustCalDelVthrComp()
     int vOffsetOp = GetDAC("VoffsetOp");
     SetDAC("VoffsetOp", 255);
 
-    if (has_analog_readout())
-        AdjustCalDelVthrComp(20, 20, 200, -50);
-    else
-        AdjustCalDelVthrComp(20, 20, 200, 20);
+    psi::LogInfo() << "Setting" << get_threshold_autoset_value() << psi::endl;
+    AdjustCalDelVthrComp(20, 20, 200, get_threshold_autoset_value());
 
     calDel += GetDAC("CalDel");
     vthrComp += GetDAC("VthrComp");
@@ -629,6 +627,11 @@ void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise
         if (belowNoise == 0) vthr = static_cast<int>((vthrMax + vthrMin) / 2);
         else if (belowNoise >  0) vthr = static_cast<int>(vthrMax - belowNoise);
         else if (belowNoise <  0) vthr = static_cast<int>(vthrMin - belowNoise);
+
+        if (vthr > vthrMax - 5)
+            vthr = vthrMax - 5;
+        if (vthr < vthrMin + 5)
+            vthr = vthrMin + 5;
 
         for (int caldel = 0; caldel < 180; caldel++) sCurve[caldel] = (int)histo->GetBinContent(caldel + 1, (int)vthr + 1);
 

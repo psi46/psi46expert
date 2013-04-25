@@ -498,6 +498,10 @@ void TestModule::AdjustAllDACParameters()
 }
 
 
+/**
+    Pretest
+    Adjusts the basic DAC parameters to bring the module in a working state.
+ */
 void TestModule::AdjustDACParameters()
 {
     TBAnalogInterface * ai = dynamic_cast<TBAnalogInterface *>(tbInterface);
@@ -526,7 +530,8 @@ void TestModule::AdjustDACParameters()
     else
         TestVanaProgramming();
 
-    /* Adjust Vana to 24 mA per Chip. This is a magic number. */
+    /* Adjust Vana to 24 mA per Chip. This is a magic number to make all preamps and shapers
+       in the pixel unit cell to draw 3 uA of current. */
     psi::LogInfo << "[TestModule] Pretest: Adjusting Vana ..." << psi::endl;
     AdjustVana(0.024);
     MeasureCurrents();

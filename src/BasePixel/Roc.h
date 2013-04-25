@@ -104,7 +104,8 @@ public:
     int set_chip_type(std::string type_specifier);  /**< Sets the chip type from a predefined identifier. */
     bool has_analog_readout();          /**< Check whether the chip under test has analog readout or not */
     bool has_digital_readout();         /**< Check whether the chip under test has digital readout or not */
-    bool has_row_address_inverted();        /**< Check whether this chip has the row address inverted or not */
+    bool has_row_address_inverted();    /**< Check whether this chip has the row address inverted or not */
+    int get_threshold_autoset_value();  /**< Get the value used for auto set the threshold, e.g. in the pretest */
 protected:
 
     TBInterface * tbInterface;
@@ -115,8 +116,10 @@ protected:
 
     //  static const int RES = 0x08, CAL = 0x04, TRG = 0x02, TOK = 0x01;
 
+    /* Chip properties */
     bool analog_readout;            /**< Flag that specifies whether the chip has analog readout or not */
     bool row_address_inverted;      /**< Flag that specifies whether the row address is inverted in the readout or not */
+    int threshold_autoset_value;    /**< Value used for auto set the threshold, e.g. in the pretest */
 
 };
 

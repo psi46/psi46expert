@@ -18,6 +18,7 @@ Roc::Roc(TBInterface * const aTBInterface, const int aChipId, const int aHubId, 
     /* Chip properties */
     analog_readout = false;
     row_address_inverted = false;
+    threshold_autoset_value = -50;
 }
 
 
@@ -720,12 +721,17 @@ int Roc::set_chip_type(string chip_identifier)
     row_address_inverted = false;
     if (chip_identifier == "psi46v2") {
         analog_readout = true;
+        threshold_autoset_value = -50;
     } else if (chip_identifier == "psi46xdb") {
         analog_readout = true;
+        threshold_autoset_value = 20;
     } else if (chip_identifier == "psi46dig") {
         row_address_inverted = true;
+        threshold_autoset_value = 20;
     } else if (chip_identifier == "psi46digv2") {
+        threshold_autoset_value = -20;
     } else if (chip_identifier == "psi46digv2_b") {
+        threshold_autoset_value = -20;
     } else {
         psi::LogError() << "[Roc] Unknown chip type " << chip_identifier << "!" << psi::endl;
         return 0;
@@ -763,4 +769,16 @@ bool Roc::has_digital_readout()
 bool Roc::has_row_address_inverted()
 {
     return row_address_inverted;
+}
+
+/**
+    Returns the threshold value that should be used for example in the
+    pretest. If fact it is the 'belowNoise' value used in
+    TestRoc::AdjustCalDelVthrComp() function. Therefore it does not set
+    an absolute threshold but a value relative to either the noise level
+    (positive) or Vcal level (negative).
+ */
+int Roc::get_threshold_autoset_value()
+{
+    return threshold_autoset_value;
 }
