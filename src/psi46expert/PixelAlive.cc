@@ -24,7 +24,7 @@ void PixelAlive::ReadTestParameters(TestParameters * testParameters)
 
 void PixelAlive::RocAction()
 {
-    psi::LogDebug() << "[PixelAlive] Chip #" << chipId << '.' << psi::endl;
+    psi::LogInfo() << "[PixelAlive] Measuring calibration efficiency for Roc " << chipId << " ..." << psi::endl;
 
     TH2D * histo = GetMap("PixelMap");
     histo->SetMaximum(nTrig);
@@ -64,6 +64,9 @@ void PixelAlive::RocAction()
         if (value < 0) value = -2;  // to distinguish this problem from mask defects
         if (histo->GetBinContent(i / ROC_NUMROWS + 1, i % ROC_NUMROWS + 1) == 0) histo->SetBinContent(i / ROC_NUMROWS + 1, i % ROC_NUMROWS + 1, value);
     }
+    histo->GetXaxis()->SetTitle("Column");
+    histo->GetYaxis()->SetTitle("Row");
+    histo->GetZaxis()->SetTitle("Readouts");
 
     histograms->Add(histo);
 }

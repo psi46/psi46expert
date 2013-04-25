@@ -72,7 +72,7 @@ void SCurveTest::ModuleAction()
         SetRoc(module->GetRoc(i));
         if (testRange->IncludesRoc(chipId))
         {
-            printf("thr map for chip %i\n", chipId);
+            psi::LogInfo() << "[SCurveTest] Measuring threshold map for ROC " << chipId << " to determine rough threshold ..." << psi::endl;
             map[i] = thresholdMap->GetMap(mapName, roc, testRange, 4);
             histograms->Add(map[i]);
         }
@@ -110,7 +110,7 @@ void SCurveTest::DoubleColumnAction()
         if (testRange->IncludesColumn(iCol))
         {
             //          gDelay->Timestamp();
-            printf("column %i\n", iCol);
+            psi::LogInfo() << "[SCurveTest] Measuring SCurves for column " << iCol << " ..." << psi::endl;
 
             for (int iRow = 0; iRow < ROCNUMROWS; iRow++)
             {

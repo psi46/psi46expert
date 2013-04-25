@@ -58,6 +58,7 @@ TH2D * Analysis::SumVthrVcal(TH2D * map1, TH2D * map2, TH2D * map3, char * mapNa
 TH1D * Analysis::Distribution(TH2D * map, int nBins, double lowerEdge, double upperEdge)
 {
     TH1D * histo = new TH1D(Form("%sDistribution", map->GetName()), Form("%s Distribution", map->GetTitle()), nBins, lowerEdge, upperEdge);
+    histo->SetTitle(Form("%s Distribution;%s;Pixels / bin", map->GetTitle(), map->GetZaxis()->GetTitle()));
     for (int iCol = 0; iCol < ROCNUMCOLS; iCol++) {
         for (int iRow = 0; iRow < ROCNUMROWS; iRow++) {
             histo->Fill(map->GetBinContent(iCol + 1, iRow + 1));
@@ -74,6 +75,7 @@ TH1D * Analysis::Distribution(TH2D * map)
     double upperEdge = TMath::Floor(map->GetMaximum()) + 5;
     int nBins = (int)(upperEdge - lowerEdge);
     TH1D * histo = new TH1D(Form("%sDistribution", map->GetName()), Form("%s Distribution", map->GetTitle()), nBins, lowerEdge, upperEdge);
+    histo->SetTitle(Form("%s Distribution;%s;Pixels / bin", map->GetTitle(), map->GetZaxis()->GetTitle()));
     for (int iCol = 0; iCol < ROCNUMCOLS; iCol++) {
         for (int iRow = 0; iRow < ROCNUMROWS; iRow++) {
             histo->Fill(map->GetBinContent(iCol + 1, iRow + 1));

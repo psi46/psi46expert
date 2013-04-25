@@ -1,5 +1,6 @@
 #include "DacDependency.h"
 #include "ThresholdMap.h"
+#include "interface/Log.h"
 #include <TH2D.h>
 
 
@@ -29,10 +30,13 @@ void DacDependency::PixelAction()
     char * dacName2 = parameters->GetName(dac2);
     delete parameters;
 
+    psi::LogInfo() << "[DacDependency] Measuring efficiency as a function of " << dacName1 << " and " << dacName2;
+    psi::LogInfo() << " for pixel " << column << ":" << row << " ..." << psi::endl;
+
     TH2D * histo = new TH2D(Form("%s%s_c%dr%d_C%i", dacName2, dacName1, column, row, chipId), Form("%s%s_c%dr%d_C%i", dacName2, dacName1, column, row, chipId), dacRange1, 0, dacRange1, dacRange2, 0, dacRange2);
     histo->GetXaxis()->SetTitle(Form("%s [DAC units]", dacName1));
     histo->GetYaxis()->SetTitle(Form("%s [DAC units]", dacName2));
-    histo->GetZaxis()->SetTitle("# readouts");
+    histo->GetZaxis()->SetTitle("Readouts");
 
 
     SaveDacParameters();

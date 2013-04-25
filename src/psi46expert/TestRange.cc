@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include "interface/Log.h"
 
 using namespace std;
 
@@ -151,49 +152,49 @@ void TestRange::ApplyMaskFile(const char * fileName) {
 
     if (maskFile.bad())
     {
-        cout << "!!!!!!!!!  ----> Could not open file " << fname << " to read pixel mask\n";
+        psi::LogInfo() << "[TestRange] Could not open file " << fname << " to read pixel mask!" << psi::endl;
         return;
     }
 
-    cout << "Reading pixel mask from " << fname << endl;
+    psi::LogInfo() << "[TestRange] Reading pixel mask from " << fname << " ..." << psi::endl;
 
     while (maskFile.good()) {
         maskFile >> keyWord;
         if (strcmp(keyWord, "#") == 0) {
             maskFile.getline(line, 60, '\n');
-            cout << "# " << line << endl; // ignore rows starting with "#" = comment
+            psi::LogDebug() << "[TestRange] # " << line << psi::endl; // ignore rows starting with "#" = comment
         }
         else if (strcmp(keyWord, "pix") == 0) {
             maskFile >> roc >> col >> row;
-            cout << "Exclude " << keyWord << " " << roc << " " << col << " " << row << endl;
+            psi::LogInfo() << "[TestRange] Exclude " << keyWord << " " << roc << " " << col << " " << row << psi::endl;
             if ((roc >= 0) && (roc < MODULENUMROCS) && (col >= 0) && (col < ROCNUMCOLS) && (row >= 0) && (row < ROCNUMROWS)) {
                 RemovePixel(roc, col, row);
             } else {
-                cout << "!!!!!!!!!  ----> Pixel number out of range: " << keyWord << " " << roc << " " << col << " " << row << endl;
+                psi::LogInfo() << "[TestRange] Pixel number out of range: " << keyWord << " " << roc << " " << col << " " << row << psi::endl;
             }
         } else if (strcmp(keyWord, "col") == 0) {
             maskFile >> roc >> col;
-            cout << "Exclude " << keyWord << " " << roc << " " << col << endl;
+            psi::LogInfo() << "[TestRange] Exclude " << keyWord << " " << roc << " " << col << psi::endl;
             if ((roc >= 0) && (roc < MODULENUMROCS) && (col >= 0) && (col < ROCNUMCOLS)) {
                 ExcludesColumn(roc, col);
             } else {
-                cout << "!!!!!!!!!  ----> Pixel number out of range: " << keyWord << " " << roc << " " << col << endl;
+                psi::LogInfo() << "[TestRange] Pixel number out of range: " << keyWord << " " << roc << " " << col << psi::endl;
             }
         } else if (strcmp(keyWord, "row") == 0) {
             maskFile >> roc >> row;
-            cout << "Exclude " << keyWord << " " << roc << " " << row << endl;
+            psi::LogInfo() << "[TestRange] Exclude " << keyWord << " " << roc << " " << row << psi::endl;
             if ((roc >= 0) && (roc < MODULENUMROCS) && (row >= 0) && (row < ROCNUMROWS)) {
                 ExcludesRow(roc, row);
             } else {
-                cout << "!!!!!!!!!  ----> Pixel number out of range: " << keyWord << " " << roc << " " << row << endl;
+                psi::LogInfo() << "[TestRange] Pixel number out of range: " << keyWord << " " << roc << " " << row << psi::endl;
             }
         } else if (strcmp(keyWord, "roc") == 0) {
             maskFile >> roc;
-            cout << "Exclude " << keyWord << " " << roc << endl;
+            psi::LogInfo() << "[TestRange] Exclude " << keyWord << " " << roc << psi::endl;
             if ((roc >= 0) && (roc < MODULENUMROCS)) {
                 ExcludesRoc(roc);
             } else {
-                cout << "!!!!!!!!!  ----> Pixel number out of range: " << keyWord << " " << roc << " " << col << " " << row << endl;
+                psi::LogInfo() << "[TestRange] Pixel number out of range: " << keyWord << " " << roc << " " << col << " " << row << psi::endl;
             }
         }
         strcpy(keyWord, "\0");

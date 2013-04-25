@@ -118,7 +118,7 @@ void Delay::Timestamp()
     time(&t);
     dt = localtime(&t);
 
-    psi::LogInfo() << "[Delay] Timestamp: " << asctime(dt) << psi::endl;
+    psi::LogInfo() << "[Delay] Timestamp: " << asctime(dt); // asctime terminates with "\n\0"
 }
 
 

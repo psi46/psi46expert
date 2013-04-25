@@ -10,6 +10,7 @@
 
 #include "BasePixel/TBAnalogInterface.h"
 #include "interface/Delay.h"
+#include "interface/Log.h"
 #include "MainFrame.h"
 #include "Test.h"
 #include "PixelAlive.h"
@@ -633,6 +634,7 @@ void MainFrame::DoFullTest()
 
 void MainFrame::DoTest(Test * aTest)
 {
+    psi::LogInfo() << psi::endl << "[MainFrame] Starting test ..." << psi::endl;
     controlNetwork->GetTestParameters()->ReadTestParameterFile(configParameters->GetTestParametersFileName());
 
     if (clearOldHistos) Clear();
@@ -645,6 +647,7 @@ void MainFrame::DoTest(Test * aTest)
     while (TH1 * histo = (TH1 *)next()) histograms[nTests]->AddLast(histo);
 
     DrawUpdate();
+    psi::LogInfo() << "[MainFrame] Test finished." << psi::endl;
 }
 
 
@@ -653,6 +656,7 @@ void MainFrame::DoTest(Test * aTest)
 // -- Perform the selected tests
 void MainFrame::DoTest()
 {
+    psi::LogInfo() << psi::endl << "[MainFrame] Starting tests ..." << psi::endl;
     controlNetwork->GetTestParameters()->ReadTestParameterFile(configParameters->GetTestParametersFileName());
     gDelay->Timestamp();
 
@@ -711,6 +715,7 @@ void MainFrame::DoTest()
     }
     DrawUpdate();
     gDelay->Timestamp();
+    psi::LogInfo() << "[MainFrame] Tests finished." << psi::endl;
 }
 
 

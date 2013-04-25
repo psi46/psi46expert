@@ -1,11 +1,11 @@
 #include "ThresholdTest.h"
 #include "ThresholdMap.h"
 #include "Analysis.h"
+#include "interface/Log.h"
 
 
 ThresholdTest::ThresholdTest(TestRange * aTestRange, TestParameters * testParameters, TBInterface * aTBInterface)
 {
-    printf("Threshold test\n");
     testRange = aTestRange;
     tbInterface = aTBInterface;
     ReadTestParameters(testParameters);
@@ -29,12 +29,14 @@ void ThresholdTest::RocAction()
     {
         SetDAC("Vcal", vcal);
         Flush();
+        psi::LogInfo() << "[ThresholdTest] Measuring CalThresholdMap for ROC " << chipId << " ..." << psi::endl;
         map = thresholdMap->GetMap("CalThresholdMap", roc, testRange, nTrig);
     }
     else if (mode == 1)
     {
         if (vthr >= 0) SetDAC("VthrComp", vthr);
         Flush();
+        psi::LogInfo() << "[ThresholdTest] Measuring VcalThresholdMap for ROC " << chipId << " ..." << psi::endl;
         map = thresholdMap->GetMap("VcalThresholdMap", roc, testRange, nTrig);
     }
     else if (mode == 2)
@@ -42,12 +44,14 @@ void ThresholdTest::RocAction()
         if (vthr >= 0) SetDAC("VthrComp", vthr);
         SetDAC("CtrlReg", 4);
         Flush();
+        psi::LogInfo() << "[ThresholdTest] Measuring VcalsThresholdMap for ROC " << chipId << " ..." << psi::endl;
         map = thresholdMap->GetMap("VcalsThresholdMap", roc, testRange, nTrig);
     }
     else if (mode == 3)
     {
         if (vcal >= 0) SetDAC("Vcal", vcal);
         Flush();
+        psi::LogInfo() << "[ThresholdTest] Measuring NoiseMap for ROC " << chipId << " ..." << psi::endl;
         map = thresholdMap->GetMap("NoiseMap", roc, testRange, nTrig);
     }
     else if (mode == 4)
@@ -55,6 +59,7 @@ void ThresholdTest::RocAction()
         if (vcal >= 0) SetDAC("Vcal", vcal);
         SetDAC("CtrlReg", 4);
         Flush();
+        psi::LogInfo() << "[ThresholdTest] Measuring CalXTalkMap for ROC " << chipId << " ..." << psi::endl;
         map = thresholdMap->GetMap("CalXTalkMap", roc, testRange, nTrig);
     }
 
@@ -80,6 +85,7 @@ void ThresholdTest::RocAction()
         if (vthr >= 0) SetDAC("VthrComp", vthr);
         SetDAC("CtrlReg", 4);
         Flush();
+        psi::LogInfo() << "[ThresholdTest] Measuring VcalXTalkMap for ROC " << chipId << " ..." << psi::endl;
         map = thresholdMap->GetMap("VcalXTalkMap", roc, testRange, nTrig);
     }
 
@@ -89,6 +95,7 @@ void ThresholdTest::RocAction()
         SetDAC("CtrlReg", 4);
         SetDAC("Vcal", 255);
         Flush();
+        psi::LogInfo() << "[ThresholdTest] Measuring CalsThresholdMap for ROC " << chipId << " ..." << psi::endl;
         map = thresholdMap->GetMap("CalsThresholdMap", roc, testRange, nTrig);
     }
 

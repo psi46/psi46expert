@@ -1038,14 +1038,21 @@ double TestRoc::GetTemperature()
     return temperature;
 }
 
-
+/**
+    Measures a threshold map in terms of Vcal with the current VthrComp
+    setting. The threshold map takes timewalk into account by testing
+    two WBCs.
+ */
 void TestRoc::TrimVerification()
 {
     SaveDacParameters();
     ThresholdMap * thresholdMap = new ThresholdMap();
     thresholdMap->SetDoubleWbc();
+    psi::LogInfo() << "[TestRoc] Measuring VcalThresholdMap for ROC " << chipId << " with double WBC ..." << psi::endl;
     TH2D * map = thresholdMap->GetMap("VcalThresholdMap", this, GetRange(), 5);
-    gAnalysis->Distribution(map, 255, 0., 255.);
+    TH1D * dist = gAnalysis->Distribution(map, 255, 0., 255.);
+    bool overflow = dist->GetBinContent(0) > 0 || dist->GetBinContent(256) > 0;
+    psi::LogInfo() << "[TestRoc] Mean Vcal = " << dist->GetMean() << ", RMS = " << dist->GetRMS() << (overflow ? " (overflow!)" : "") << psi::endl;
     RestoreDacParameters();
 }
 

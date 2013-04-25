@@ -76,6 +76,8 @@ void ThresholdMap::MeasureMap(const char * mapName, TestRoc * roc, TestRange * t
     char totalMapName[100];
     sprintf(totalMapName, "%s_C%i", mapName, roc->GetChipId());
     histo = new TH2D(totalMapName, totalMapName, ROCNUMCOLS, 0., ROCNUMCOLS, ROCNUMROWS, 0., ROCNUMROWS);
+    DACParameters* parameters = new DACParameters();
+    histo->SetTitle(Form("%s;Column;Row;%s threshold [DAC units]", totalMapName, parameters->GetName(dacReg)));
 
     int wbc = roc->GetDAC("WBC");
     if (doubleWbc)
