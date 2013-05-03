@@ -26,9 +26,7 @@ enum
 // --- end command table -------------------------------------------------
 
 
-#define ESC_EXTENDED 0x8f
-
-#define SEND_COMMAND(x) usb.Write_UCHAR(ESC_EXTENDED); usb.Write_UCHAR(x);
+#define SEND_COMMAND(x) usb.WriteCommand(x);
 
 #define GET_CHAR(x,ret)        char x; if (!usb.Read_CHAR(x))   return (ret);
 #define GET_CHARS(x,n,max,ret) char x[max]; if (!usb.Read_CHARS(x,n)) return (ret);

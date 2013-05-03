@@ -7,8 +7,6 @@
 
 #include <TH2I.h>
 
-typedef unsigned long long int uint64_t;
-
 /* Pipe Objects -------------------------------------------------------- */
 
 class PipeObjectShort : public PipeObject {

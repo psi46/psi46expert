@@ -7,11 +7,30 @@ To install psi46expert a few libraries and programs are required:
 
   - libusb-1.0 and libusb-0.1
     normally available as a package for your Linux distribution
-  - libftd2xx-1.0.x or libftd2xx-0.4.x
-    download from http://www.ftdichip.com/Drivers/D2XX.htm
+  - either libftdi or libftd2xx (libftd2xx-1.0.x or libftd2xx-0.4.x)
+    the former is normally available as a package for your Linux distribution
+    while the latter can be downloaded from http://www.ftdichip.com/Drivers/D2XX.htm
+    (Default: libftdi)
+
+    Both libftdi and libftd2xx were tested with Ubuntu 12.10.
+
+    To use libftd2xx.so.0.4.16:
+      from libftd2xx0.4.16_x86_64/ execute the following commands:
+
+        sudo cp libftd2xx.so.0.4.16 /usr/local/lib/.
+	sudo ln -s /usr/local/lib/libftd2xx.so.0.4.16 /usr/local/lib/libftd2xx.so
+	sudo ln -s /usr/local/lib/libftd2xx.so.0.4.16 /usr/local/lib/libftd2xx.so.0
+
+	sudo cp WinTypes.h /usr/local/include
+	sudo cp ftd2xx.h /usr/local/include
+	sudo chmod a+r /usr/local/include/*
   - ROOT
     download from http://root.cern.ch or try your Linux distriution's
     package repository
+    export LD_LIBRARY_PATH=$HOME/root/lib:$LD_LIBRARY_PATH
+
+    cd $HOME/root/lib
+    ln -s /usr/lib/libusb.so libusb.so
   - libtool, autoconf, automake
     always available as a package for your Linux distribution,
     normally installed by default
@@ -30,8 +49,10 @@ in the working directory:
 3. Compiling the sources
 ------------------------
 Run
-
 	./configure [--prefix=SOMEDIR]
+	make
+or to use the ftd2xx libraries:
+	./configure [--prefix=SOMEDIR] --with-ftd2xx
 	make
 
 with the option [--prefix=SOMEDIR] optional. The prefix determines
@@ -75,6 +96,12 @@ Then you can run
 
 5. Frequent problems
 --------------------
+  0.    If you have an old test board, you need to make sure
+        that the usb class can find it by using the method
+	usb.SetProductID(0x6001) in the code
+	(where 0x6001 corresponds to
+	the product ID of the old FT chips that the previous
+	boards were equipped with)
   1.	If ./autogen.sh does not work, you probably don't have
   	libtool installed. Or autoconf, automake. These are
   	standard packages in a Linux system. Check your Linux
@@ -107,7 +134,7 @@ Then you can run
 
   	The other case is if you try to compile
   	the software against the older version libftd2xx-0.4.x
-  	on a 32 bit machine. Then there may be a compilation error
+  	on a 32 bit machine, then there may be a compilation error
   	in USBInterface.cc, depending on which compiler version you
   	are using. It might say something about being unable to
   	convert a 'unsigned long *' into a 'unsigned int *'. On a
@@ -159,7 +186,8 @@ Then you can run
   	reinstall psi46expert.
 
   6.	If you wish to use other devices with FTDI chips that require
-  	the bit bang mode then you should install libftd2xx-0.4.x.
+  	the bit bang mode and/or the kernel modules usbserial and
+  	ftdi_sio, then you should install libftd2xx-0.4.x.
 
   7.	If all things fail, you should talk to a code maintainer. Post
   	a message to the hypernews list 'Pixel psi46 Testboard':

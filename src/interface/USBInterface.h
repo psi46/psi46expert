@@ -1,135 +1,188 @@
 // Class provides basic functionalities to use the USB interface
+// IMPORTANT: there are two implementations for this class, each using a different USB library.
+// What implementation is being used is determined by the arguments to the configure script
+// and then passed through the makefiles to the compiler.
+// Please implement and test your modifications for both versions.
+
+// TODO:
+// - Move WaitForQueue() into read method in ftd2xx implementation
+
 
 #ifndef USB_H
 #define USB_H
 
-#include "ftd2xx.h"
+#include "../config.h"
 
+#ifdef HAVE_LIBFTDI
+#include "ftdi.h"
+#else
+#include "ftd2xx.h"
+#endif
+
+#include <inttypes.h>
 
 #define USBWRITEBUFFERSIZE  150000
 #define USBREADBUFFERSIZE   150000
 
 
+#define ESC_EXTENDED 0x8f
+
 class CUSB
 {
-    bool isUSB_open;
-    FT_HANDLE ftHandle;
-    FT_STATUS ftStatus;
+  bool isUSB_open;
 
-    unsigned int enumPos, enumCount;
+  int ftdiStatus;
+  
+  int32_t vendorID;
+  int32_t productID;
 
-    unsigned int m_posW;
-    unsigned char m_bufferW[USBWRITEBUFFERSIZE];
+#ifndef HAVE_LIBFTDI
+  FT_HANDLE ftHandle;
+#endif
 
-    unsigned int m_posR, m_sizeR;
-    unsigned char m_bufferR[USBREADBUFFERSIZE];
+  uint32_t enumPos, enumCount;
+  uint32_t m_timeout; // maximum time to wait for read/write call in ms
 
-    bool FillBuffer(unsigned int minBytesToRead);
+  uint32_t m_posW;
+  unsigned char m_bufferW[USBWRITEBUFFERSIZE];
+
+  uint32_t m_posR, m_sizeR;
+  unsigned char m_bufferR[USBREADBUFFERSIZE];
+
+  bool FillBuffer(uint32_t minBytesToRead);
 
 public:
-    CUSB()
-    {
-        m_posR = m_sizeR = m_posW = 0;
-        isUSB_open = false;
-        ftHandle = 0; ftStatus = 0;
-        enumPos = enumCount = 0;
-    }
-    ~CUSB() { Close(); }
-    int GetLastError() { return ftStatus; }
-    static const char * GetErrorMsg(int error);
-    bool EnumFirst(unsigned int &nDevices);
-    bool EnumNext(char name[]);
-    bool Open(char serialNumber[]);
-    void Close();
-    bool Connected() { return isUSB_open; };
-    bool Write(unsigned int bytesToWrite, const void * buffer);
-    bool Flush();
-    bool Read(unsigned int bytesToRead, void * buffer, unsigned int &bytesRead);
-    bool _Read(void * buffer, unsigned int bytesToRead)
-    {
-        unsigned int bytesRead;
-        if (!Read(bytesToRead, (unsigned char *)buffer, bytesRead)) return false;
-        return bytesRead == bytesToRead;
-    }
-    bool _Write(const void * buffer, unsigned int bytesToWrite)
-    { return Write(bytesToWrite, buffer); }
+  CUSB();
+  ~CUSB();
+  int32_t GetLastError() { return ftdiStatus; }
+#ifdef HAVE_LIBFTDI
+  const char* GetErrorMsg();
+  const char* GetErrorMsg(int){GetErrorMsg();};
+#else
+  const char* GetErrorMsg(int error);
+#endif
+  bool EnumFirst(uint32_t &nDevices);
+  bool EnumNext(char name[]);
+  bool Open(char serialNumber[]);
+  void Close();
+  bool Connected() { return isUSB_open; };
+  bool Write(uint32_t bytesToWrite, const void *buffer);
+  bool WriteCommand(unsigned char x);
+  bool Flush();
+  bool Read(uint32_t bytesToRead, void *buffer, uint32_t &bytesRead);
+  bool _Read(void *buffer, uint32_t bytesToRead)
+  {
+    uint32_t bytesRead;
+    if (!Read(bytesToRead, (unsigned char *)buffer, bytesRead)) return false;
+    return bytesRead == bytesToRead;
+  }
+  bool _Write(const void *buffer, uint32_t bytesToWrite)
+  { return Write(bytesToWrite, buffer); }
 
-    bool Clear();
+  void SetProductID(int32_t pID){productID = pID;}
+  bool Clear();
 
-
-    // read methods
-
-    bool Read_CHAR(char &x) { return _Read(&x, sizeof(char)); }
-
-    bool Read_CHARS(char * x, unsigned short count)
-    { return _Read(x, count * sizeof(char)); }
-
-    bool Read_UCHAR(unsigned char &x)   { return _Read(&x, sizeof(char)); }
-
-    bool Read_UCHARS(unsigned char * x, unsigned int count)
-    { return _Read(x, count * sizeof(char)); }
-
-    bool Read_SHORT(short &x)
-    { return _Read((unsigned char *)(&x), sizeof(short)); }
-
-    bool Read_SHORTS(short * x, unsigned short count)
-    { return _Read(x, count * sizeof(short)); }
-
-    bool Read_USHORT(unsigned short &x)
-    { return _Read((unsigned char *)(&x), sizeof(short)); }
-
-    bool Read_USHORTS(unsigned short * x, unsigned short count)
-    { return _Read(x, count * sizeof(short)); }
-
-    bool Read_INT(int &x)
-    { return _Read((unsigned char *)(&x), sizeof(int)); }
-
-    bool Read_INTS(int * x, unsigned short count)
-    { return _Read(x, count * sizeof(int)); }
-
-    bool Read_UINT(unsigned int &x)
-    { return _Read((unsigned char *)(&x), sizeof(int)); }
-
-    bool Read_UINTS(unsigned int * x, unsigned short count)
-    { return _Read(x, count * sizeof(int)); }
-
-    bool Read_String(char * s, unsigned short maxlength);
+  bool Show();
+  int GetQueue();
+  bool WaitForFilledQueue(int pSize,int pMaxWait=10000);
+  void SetTimeout(unsigned int timeout){m_timeout = timeout;}
 
 
-    // -- write methods
+  // read methods
 
-    bool Write_CHAR(char x) { return _Write(&x, sizeof(char)); }
+  bool Read_CHAR(char &x) { return _Read(&x, sizeof(char)); }
 
-    bool Write_CHARS(const char * x, unsigned short count)
-    { return _Write(x, count * sizeof(char)); }
+  bool Read_CHARS(char *x, uint16_t count)
+  { return _Read(x, count*sizeof(char)); }
 
-    bool Write_UCHAR(const unsigned char x) { return _Write(&x, sizeof(char)); }
+  bool Read_UCHAR(unsigned char &x)	{ return _Read(&x, sizeof(char)); }
 
-    bool Write_UCHARS(const unsigned char * x, unsigned int count)
-    { return _Write(x, count * sizeof(char)); }
+  bool Read_UCHARS(unsigned char *x, uint32_t count)
+  { return _Read(x, count*sizeof(char)); }
 
-    bool Write_SHORT(const short x) { return _Write(&x, sizeof(short)); }
+  bool Read_SHORT(int16_t &x)
+  { return _Read((unsigned char *)(&x), sizeof(int16_t)); }
 
-    bool Write_SHORTS(const short * x, unsigned short count)
-    { return _Write(x, count * sizeof(short)); }
+  bool Read_SHORTS(int16_t *x, uint16_t count)
+  { return _Read(x, count*sizeof(int16_t)); }
 
-    bool Write_USHORT(const unsigned short x)
-    { return _Write(&x, sizeof(short)); }
+  bool Read_USHORT(uint16_t &x)
+  { return _Read((unsigned char *)(&x), sizeof(int16_t)); }
 
-    bool Write_USHORTS(const unsigned short * x, unsigned short count)
-    { return _Write(x, count * sizeof(short)); }
+  bool Read_USHORTS(uint16_t *x, uint16_t count)
+  { return _Read(x, count*sizeof(int16_t)); }
 
-    bool Write_INT(const int x) { return _Write(&x, sizeof(int)); }
+  bool Read_INT(int32_t &x)
+  { return _Read((unsigned char *)(&x), sizeof(int32_t)); }
 
-    bool Write_INTS(const int * x, unsigned short count)
-    { return _Write(x, count * sizeof(int)); }
+  bool Read_INTS(int32_t *x, uint16_t count)
+  { return _Read(x, count*sizeof(int32_t)); }
 
-    bool Write_UINT(const unsigned int x) { return _Write(&x, sizeof(int)); }
+  bool Read_UINT(uint32_t &x)
+  { return _Read((unsigned char *)(&x), sizeof(int32_t)); }
 
-    bool Write_UINTS(const unsigned int * x, unsigned short count)
-    { return _Write(x, count * sizeof(int)); }
+  bool Read_UINTS(uint32_t *x, uint16_t count)
+  { return _Read(x, count*sizeof(int32_t)); }
 
-    bool Write_String(const char * s);
+  bool Read_LONG(int32_t &x)
+  { return _Read((unsigned char *)(&x), sizeof(int32_t)); }
+
+  bool Read_LONGS(int32_t *x, uint16_t count)
+  { return _Read(x, count*sizeof(int32_t)); }
+
+  bool Read_ULONG(uint32_t &x)
+  { return _Read((unsigned char *)(&x), sizeof(int32_t)); }
+
+  bool Read_ULONGS(uint32_t *x, uint16_t count)
+  { return _Read(x, count*sizeof(int32_t)); }
+
+  bool Read_String(char *s, uint16_t maxlength);
+
+
+  // -- write methods
+
+  bool Write_CHAR(char x) { return _Write(&x, sizeof(char)); }
+
+  bool Write_CHARS(const char *x, uint16_t count)
+  { return _Write(x, count*sizeof(char)); }
+
+  bool Write_UCHAR(const unsigned char x) { return _Write(&x, sizeof(char)); }
+
+  bool Write_UCHARS(const unsigned char *x, uint32_t count)
+  { return _Write(x, count*sizeof(char)); }
+
+  bool Write_SHORT(const int16_t x) { return _Write(&x, sizeof(int16_t)); }
+
+  bool Write_SHORTS(const int16_t *x, uint16_t count)
+  { return _Write(x, count*sizeof(int16_t)); }
+
+  bool Write_USHORT(const uint16_t x)
+  { return _Write(&x, sizeof(int16_t)); }
+
+  bool Write_USHORTS(const uint16_t *x, uint16_t count)
+  { return _Write(x, count*sizeof(int16_t)); }
+
+  bool Write_INT(const int32_t x) { return _Write(&x, sizeof(int32_t)); }
+
+  bool Write_INTS(const int32_t *x, uint16_t count)
+  { return _Write(x, count*sizeof(int32_t)); }
+
+  bool Write_UINT(const uint32_t x) { return _Write(&x, sizeof(int32_t)); }
+
+  bool Write_UINTS(const uint32_t *x, uint16_t count)
+  { return _Write(x, count*sizeof(int32_t)); }
+
+  bool Write_LONG(const int32_t x) { return _Write(&x, sizeof(int32_t)); }
+
+  bool Write_LONGS(const int32_t *x, uint16_t count)
+  { return _Write(x, count*sizeof(int32_t)); }
+
+  bool Write_ULONG(const uint32_t x) { return _Write(&x, sizeof(int32_t)); }
+
+  bool Write_ULONGS(const uint32_t *x, uint16_t count)
+  { return _Write(x, count*sizeof(int32_t)); }
+
+  bool Write_String(const char *s);
 };
 
 #endif
