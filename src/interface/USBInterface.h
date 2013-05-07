@@ -32,9 +32,6 @@ class CUSB
   bool isUSB_open;
 
   int ftdiStatus;
-  
-  int32_t vendorID;
-  int32_t productID;
 
 #ifndef HAVE_LIBFTDI
   FT_HANDLE ftHandle;
@@ -79,7 +76,6 @@ public:
   bool _Write(const void *buffer, uint32_t bytesToWrite)
   { return Write(bytesToWrite, buffer); }
 
-  void SetProductID(int32_t pID){productID = pID;}
   bool Clear();
 
   bool Show();

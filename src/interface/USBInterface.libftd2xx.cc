@@ -19,10 +19,6 @@ CUSB::CUSB(){
   ftdiStatus = 0;
   enumPos = enumCount = 0;
   m_timeout = 15000; // maximum time to wait for read call in ms
-  // these variables are not actually needed: 
-  // libftd2xx *always* looks for all FT chips
-  productID =  0x6014; // init with new TB usb chip product id (FT232H)
-  vendorID = 0x0403; // Future Technology Devices International, Ltd
  }
 
  CUSB::~CUSB(){
@@ -119,8 +115,8 @@ bool CUSB::Open(char serialNumber[])
       if( ok != 0)
         continue;
 
-      /* we're only interested in devices with one vendor and product ID */
-      if( descriptor.idVendor != 0x0403 || descriptor.idProduct != 0x6001)
+      /* we're only interested in devices with one vendor and two possible product ID */
+      if( descriptor.idVendor != 0x0403 && (descriptor.idProduct != 0x6001 || descriptor.idProduct != 0x6014))
         continue;
 
       /* open the device */

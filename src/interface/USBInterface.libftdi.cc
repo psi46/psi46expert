@@ -22,6 +22,10 @@ static sem_t buf_data, buf_space;
 static unsigned char read_buffer[BUFSIZE];
 static int32_t head, tail; // read buffer is used as ring buffer
 
+//const int32_t productID_FT232H = 0x6014; // new testboard FTDI chip product id (FT232H)
+//const int32_t productID_OLD = 0x6001; //  single channel devices (R Chips) used in older test boards
+const int32_t vendorID = 0x0403; // Future Technology Devices International, Ltd
+
 using namespace std;
 
 static void add_to_buf (unsigned char c) {
@@ -71,8 +75,6 @@ CUSB::CUSB(){
       ftdiStatus = 0;
       enumPos = enumCount = 0;
       ftdiStatus = ftdi_init(&ftdic);
-      productID =  0x6014; // init with new TB usb chip product id (FT232H)
-      vendorID = 0x0403; // Future Technology Devices International, Ltd
       if ( ftdiStatus < 0)
 	{
 	  cout <<  "USBInterface constructor: ftdi_init failed" << endl;
@@ -97,7 +99,7 @@ bool CUSB::EnumFirst(uint32_t &nDevices)
 {
   struct ftdi_device_list *  	devlist;
 
-  ftdiStatus =  ftdi_usb_find_all(&ftdic, &devlist,vendorID,productID);
+  ftdiStatus =  ftdi_usb_find_all(&ftdic, &devlist,vendorID,0); // product ID == 0 -> use ftdi defaults
   if( ftdiStatus != 0) {
     nDevices = enumCount = enumPos = 0;
     return false;
@@ -119,7 +121,7 @@ bool CUSB::EnumNext(char name[])
 
   struct ftdi_device_list *  	devlist;
 
-  ftdiStatus =  ftdi_usb_find_all(&ftdic, &devlist,vendorID,productID);
+  ftdiStatus =  ftdi_usb_find_all(&ftdic, &devlist,vendorID,0);
   if( ftdiStatus != 0) {
     enumCount = enumPos = 0;
     return false;
@@ -149,80 +151,76 @@ bool CUSB::Open(char serialNumber[])
     std::cout << " Warning: Trying to open new USB device while other device still open" << std::endl;
     return false; 
   }
-
+  
+  // reset buffer index positions
   m_posR = m_sizeR = m_posW = 0;
-  ftdiStatus = ftdi_usb_open_desc(&ftdic, vendorID, productID, NULL, serialNumber);
-  if( ftdiStatus < 0) {
-    std::cout << " Warning: FTDI returned status code " << ftdiStatus << ", will try to detach ftdi_sio and usbserial kernel modules " << std::endl;
 
-    /* maybe the ftdi_sio and usbserial kernel modules are attached to the device */
-    /* try to detach them using the libusb library directly */
+  // open list of usb devices with the expected vendor and product ids
+  struct ftdi_device_list *  	devlist;
+  ftdiStatus =  ftdi_usb_find_all(&ftdic, &devlist,vendorID,0);
+  if( ftdiStatus != 0) {
+    std::cout << " USBInterface::Open(): Error searching attached USB devices! " << std::endl;
+    return EXIT_FAILURE;
+  }
 
-    /* prepare libusb structures */
-    libusb_device ** list;
-    libusb_device_handle *handle;
-    struct libusb_device_descriptor descriptor;
-
-    /* initialise libusb and get device list*/
-    libusb_init(NULL);
-    ssize_t ndevices = libusb_get_device_list(NULL, &list);
-    if( ndevices < 0)
-      return false;
-
-    char serial [20];
-
-    bool found = false;
-
-    /* loop over all USB devices */
-    for( int32_t dev = 0; dev < ndevices; dev++) {
-      /* get the device descriptor */
-      int32_t ok = libusb_get_device_descriptor(list[dev], &descriptor);
-      if( ok != 0)
-        continue;
-
-      /* we're only interested in devices with one vendor and product ID */
-      if( descriptor.idVendor != vendorID || descriptor.idProduct != productID)
-        continue;
-
-      /* open the device */
-      ok = libusb_open(list[dev], &handle);
-      if( ok != 0)
-        continue;
-
-      /* Read the serial number from the device */
-      ok = libusb_get_string_descriptor_ascii(handle, descriptor.iSerialNumber, (unsigned char *) serial, 20);
-      if( ok < 0)
-        continue;
-
-      /* Check the device serial number */
-      if( strcmp(serialNumber, serial) == 0) {
-        /* that's our device */
-        found = true;
-
-        /* Detach the kernel module from the device */
-        ok = libusb_detach_kernel_driver(handle, 0);
-        if( ok == 0)
-          printf("Detached kernel driver from selected testboard.\n");
-        else
-          printf("Unable to detach kernel driver from selected testboard.\n");
-        break;
-      }
-
-      libusb_close(handle);
+  // loop over all devices to check for matching serial number
+  int32_t ndevices = ftdiStatus;
+  for (int32_t i=0; i<ndevices; i++) {
+    char manufacturer[128], description[128], serial[128];
+    if ((ftdiStatus = 
+	 ftdi_usb_get_strings(&ftdic,devlist->dev, manufacturer, 
+			      128, description, 128, serial, 128)) < 0){
+      std::cout << " USBInterface::Open(): Error polling USB device number " << i << std::endl;
+      devlist->next;
+      continue;
     }
+    if (!strcmp(serialNumber,serial)){
+      // not found, next device
+      devlist->next;
+    } else {
+      // found the device
+      // now open it
+      ftdiStatus = ftdi_usb_open_dev(&ftdic, devlist->dev);
+      if( ftdiStatus < 0) {
+	/* maybe the ftdi_sio and usbserial kernel modules are attached to the device */
+	/* try to detach them using the libusb library directly */
+	std::cout << " Warning: FTDI returned status code " << ftdiStatus << ", will try to detach ftdi_sio and usbserial kernel modules " << std::endl;
+	libusb_device_handle *handle;
+	/* open the device */
+	int32_t ok = libusb_open(devlist->dev, &handle);
+	if( ok != 0){
+	  std::cout << " Warning: libusb returned status code " << ok << ", could not get USB device handle " << std::endl;
+	  ftdi_list_free(&devlist);
+	  return EXIT_FAILURE;
+	}
+	
+	/* Detach the kernel module from the device */
+        ok = libusb_detach_kernel_driver(handle, 0);
+        if( ok == 0){
+	  std::cout << " Detached kernel driver from selected testboard. " << std::endl;
+        } else {
+          std::cout << "Unable to detach kernel driver from selected testboard." << std::endl;
+	}
+	libusb_close(handle);
 
-    libusb_free_device_list(list, 1);
+	// now open it again
+	ftdiStatus = ftdi_usb_open_dev(&ftdic, devlist->dev);
+	if( ftdiStatus < 0) {
+	  std::cout << " Warning: FTDI returned status code " << ftdiStatus << ", will try to detach ftdi_sio and usbserial kernel modules " << std::endl;
+	  ftdi_list_free(&devlist);
+	  return EXIT_FAILURE;
+	}
+      }
+      isUSB_open = true;
+      std::cout << " FTDI successfully opened connection to device " << std::endl;
 
-    /* if the device was not found in the previous loop, don't try again */
-    if( !found)
-      return false;
-
-    /* try to re-open with the detached device */
-    ftdiStatus = ftdi_usb_open_desc(&ftdic, vendorID, productID, NULL, serialNumber);
-    if( ftdiStatus < 0)
-      return false;
-  } else {
-    std::cout << " FTDI successfully opened connection to device " << std::endl;
+    } // strcmp serial
+  } // device loop
+  
+  ftdi_list_free(&devlist);
+  if (!isUSB_open){
+    std::cout << " Device with serial " << serialNumber <<  " not found! :-( " << std::endl;
+    return EXIT_FAILURE;
   }
 
   std::cout << " resetting mode for FTDI chip " << std::endl;
@@ -237,12 +235,11 @@ bool CUSB::Open(char serialNumber[])
     std::cout << " ERROR setting bit mode: return code " << status << std::endl;
   }
 
-
+  // init threads for client-side data buffering
   sem_init (&buf_data, 0, 0);
   sem_init (&buf_space, 0, BUFSIZE);
   pthread_create (&readerthread, NULL, reader, &ftdic);
 
-  isUSB_open = true;
   return true;
 }
 
@@ -364,7 +361,6 @@ bool CUSB::Show()
     cout << "  - USB connection not open " << endl;
     return false;
   }
-  std::cout << std::hex << "  - looking for test boards with product ID " << productID << " and vendor ID " << vendorID << std::dec << std::endl; 
   cout << "  - max timeout for read calls set to " << m_timeout << "ms" << endl;
 
   unsigned char latency;
