@@ -28,7 +28,6 @@ double CalibrationTable::VcalDAC(int range, int value)
     }
 }
 
-
 double CalibrationTable::Slope(int range)
 {
     return VcalDAC(range, 255) / 255.;

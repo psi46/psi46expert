@@ -1,8 +1,9 @@
 #include "psi46_tb.h"
 #include <stdio.h>
-#include <cstring>
 #include "BasePixel/GlobalConstants.h"
 #include "interface/Delay.h"
+#include <inttypes.h>
+#include <cstring>
 
 #ifndef _WIN32
 #include <unistd.h>
@@ -20,6 +21,13 @@ enum
     CMD_GetReg41,
     CMD_TBMEmulatorOn,
     CMD_TBMEmulatorOff,
+    CMD_pg_SetCmd,
+    CMD_pg_SetCmdAll,
+    CMD_pg_Disable,
+    CMD_pg_Single,
+    CMD_pg_Trigger,
+    CMD_pg_Loop,
+    CMD_Bootstrap,
     CMD_Dummy
 };
 
@@ -34,17 +42,17 @@ enum
 #define GET_UCHAR(x,ret)  unsigned char  x; if (!usb.Read_UCHAR(x))  return (ret);
 #define GET_UCHARS(x,n,max,ret) unsigned char x[max]; if (!usb.Read_UCHARS(x,n)) return (ret);
 
-#define GET_SHORT(x,ret)  short          x; if (!usb.Read_SHORT(x))  return (ret);
-#define GET_SHORTS(x,n,max,ret) short x[max]; if (!usb.Read_SHORTS(x,n)) return (ret);
+#define GET_SHORT(x,ret)  int16_t          x; if (!usb.Read_SHORT(x))  return (ret);
+#define GET_SHORTS(x,n,max,ret) int16_t x[max]; if (!usb.Read_SHORTS(x,n)) return (ret);
 
-#define GET_USHORT(x,ret) unsigned short x; if (!usb.Read_USHORT(x)) return (ret);
-#define GET_USHORTS(x,n,max,ret) unsigned short x[max]; if (!usb.Read_USHORTS(x,n)) return (ret);
+#define GET_USHORT(x,ret) uint16_t x; if (!usb.Read_USHORT(x)) return (ret);
+#define GET_USHORTS(x,n,max,ret) uint16_t x[max]; if (!usb.Read_USHORTS(x,n)) return (ret);
 
-#define GET_INT(x,ret)   int           x; if (!usb.Read_INT(x))   return (ret);
-#define GET_INTS(x,n,max,ret) int x[max]; if (!usb.Read_INTS(x,n)) return (ret);
+#define GET_LONG(x,ret)   int32_t           x; if (!usb.Read_LONG(x))   return (ret);
+#define GET_LONGS(x,n,max,ret) int32_t x[max]; if (!usb.Read_LONGS(x,n)) return (ret);
 
-#define GET_UINT(x,ret)  unsigned int  x; if (!usb.Read_UINT(x))  return (ret);
-#define GET_UINTS(x,n,max,ret) unsigned int x[max]; if (!usb.Read_UINTS(x,n)) return (ret);
+#define GET_ULONG(x,ret)  uint32_t  x; if (!usb.Read_ULONG(x))  return (ret);
+#define GET_ULONGS(x,n,max,ret) uint32_t x[max]; if (!usb.Read_ULONGS(x,n)) return (ret);
 
 #define GET_STRING(x,max,ret) char x[max]; if (!usb.Read_String(x,max)) return (ret);
 
@@ -61,11 +69,11 @@ enum
 #define PUT_USHORT(x)    usb.Write_USHORT(x);
 #define PUT_USHORTS(x,n) usb.Write_USHORTS(x,n);
 
-#define PUT_INT(x)      usb.Write_INT(x);
-#define PUT_INTS(x,n)   usb.Write_INTS(x,n);
+#define PUT_LONG(x)      usb.Write_LONG(x);
+#define PUT_LONGS(x,n)   usb.Write_LONGS(x,n);
 
-#define PUT_UINT(x)     usb.Write_UINT(x);
-#define PUT_UINTS(x,n)  usb.Write_UINTS(x,n);
+#define PUT_ULONG(x)     usb.Write_ULONG(x);
+#define PUT_ULONGS(x,n)  usb.Write_ULONGS(x,n);
 
 #define PUT_STRING(x)    usb.Write_String(x);
 
@@ -79,7 +87,7 @@ CTestboard::CTestboard()
 
 // === board connection methods =========================================
 
-bool CTestboard::GetVersion(char * s, unsigned int n)
+bool CTestboard::GetVersion(char *s, uint32_t n)
 {
     SEND_COMMAND(CMD_GetVersion)
     Flush();
@@ -183,24 +191,30 @@ void CTestboard::Init()
     TBM_present = false;
 }
 
+void CTestboard::Bootstrap()
+{
+	SEND_COMMAND(CMD_Bootstrap);
+	Flush();
+}
+
 
 // === delay methods ====================================================
 
-void CTestboard::cDelay(unsigned short clocks)
+void CTestboard::cDelay(uint16_t clocks)
 {
     SEND_COMMAND(CMD_cDelay)
     PUT_USHORT(clocks)
 }
 
 
-void CTestboard::uDelay(unsigned short us)
+void CTestboard::uDelay(uint16_t us)
 {
     SEND_COMMAND(CMD_uDelay)
     PUT_USHORT(us)
 }
 
 
-void CTestboard::mDelay(unsigned short ms)
+void CTestboard::mDelay(uint16_t ms)
 {
     Flush();
 #ifdef _WIN32
@@ -229,7 +243,7 @@ void CTestboard::SetClock(unsigned char MHz)
 }
 
 void CTestboard::SetClockStretch(unsigned char src,
-                                 unsigned short delay, unsigned short width)
+		uint16_t delay, uint16_t width)
 {
     SEND_COMMAND(CMD_SetClockStretch)
     PUT_UCHAR(src)
@@ -238,7 +252,7 @@ void CTestboard::SetClockStretch(unsigned char src,
 }
 
 
-void CTestboard::SetDelay(unsigned char signal, unsigned short ns)
+void CTestboard::SetDelay(unsigned char signal, uint16_t ns)
 {
     SEND_COMMAND(CMD_SetDelay)
     PUT_UCHAR(signal);
@@ -272,30 +286,46 @@ void CTestboard::Poff()
 
 void CTestboard::SetVA(double V)
 {
-    short mV = (short)(V * 1000.0);
+	int16_t mV = (int16_t)(V*1000.0);
     SEND_COMMAND(CMD_SetVA)
     PUT_SHORT(mV)
 }
 
 void CTestboard::SetVD(double V)
 {
-    short mV = (short)(V * 1000.0);
+	int16_t mV = (int16_t)(V*1000.0);
     SEND_COMMAND(CMD_SetVD)
+	PUT_SHORT(mV)
+}
+
+
+void CTestboard::SetVO(double V)
+{
+	int16_t mV = (int16_t)(V*1000.0);
+	SEND_COMMAND(CMD_SetVO)
     PUT_SHORT(mV)
 }
 
 
 void CTestboard::SetIA(double A)
 {
-    short uA100 = (short)(A * 10000.0);
+	int16_t uA100 = (int16_t)(A*10000.0);
     SEND_COMMAND(CMD_SetIA)
     PUT_SHORT(uA100)
 }
 
 void CTestboard::SetID(double A)
 {
-    short uA100 = (short)(A * 10000.0);
+	int16_t uA100 = (int16_t)(A*10000.0);
     SEND_COMMAND(CMD_SetID)
+	PUT_SHORT(uA100)
+}
+
+
+void CTestboard::SetIO(double A)
+{
+	int16_t uA100 = (int16_t)(A*10000.0);
+	SEND_COMMAND(CMD_SetIO)
     PUT_SHORT(uA100)
 }
 
@@ -313,7 +343,15 @@ double CTestboard::GetVD()
 {
     SEND_COMMAND(CMD_GetVD)
     Flush();
-    gDelay->Mdelay(200);
+	GET_SHORT(mV,0.0)
+	return mV/1000.0;
+}
+
+
+double CTestboard::GetVO()
+{
+	SEND_COMMAND(CMD_GetVO)
+	Flush();
     GET_SHORT(mV, 0.0)
     return mV / 1000.0;
 }
@@ -323,8 +361,8 @@ double CTestboard::GetIA()
 {
     SEND_COMMAND(CMD_GetIA)
     Flush();
-    gDelay->Mdelay(200);
-    GET_INT(uA100, 0.0)
+	gDelay->Mdelay(200);
+	GET_LONG(uA100,0.0)
     return uA100 / 10000.0;
 }
 
@@ -332,8 +370,17 @@ double CTestboard::GetID()
 {
     SEND_COMMAND(CMD_GetID)
     Flush();
-    gDelay->Mdelay(200);
-    GET_INT(uA100, 0.0)
+	gDelay->Mdelay(200);
+	GET_LONG(uA100,0.0)
+	return uA100/10000.0;
+}
+
+
+double CTestboard::GetIO()
+{
+	SEND_COMMAND(CMD_GetIO)
+	Flush();
+	GET_LONG(uA100,0.0)
     return uA100 / 10000.0;
 }
 
@@ -376,7 +423,7 @@ void CTestboard::Single(unsigned char mask)
     PUT_UCHAR(mask)
 }
 
-bool CTestboard::SingleWait(unsigned char mask, unsigned short timeout)
+bool CTestboard::SingleWait(unsigned char mask, uint16_t timeout)
 {
     SEND_COMMAND(CMD_SingleWait)
     PUT_UCHAR(mask)
@@ -392,6 +439,51 @@ void CTestboard::Intern(unsigned char mask)
     SEND_COMMAND(CMD_Intern)
     PUT_UCHAR(mask)
 }
+
+// == pulse pattern generator ===========================================
+
+void CTestboard::pg_SetCmd(uint16_t addr, uint16_t cmd)
+{
+	SEND_COMMAND(CMD_pg_SetCmd)
+	PUT_USHORT(addr)
+	PUT_USHORT(cmd)
+}
+
+
+void CTestboard::pg_SetCmdAll(uint16_t count, uint16_t *cmd)
+{
+	if (count > 255) return;
+	SEND_COMMAND(CMD_pg_SetCmdAll)
+	PUT_USHORT(count)
+	PUT_USHORTS(cmd,count)
+}
+
+
+void CTestboard::pg_Disable()
+{
+	SEND_COMMAND(CMD_pg_Disable)
+}
+
+
+void CTestboard::pg_Single()
+{
+	SEND_COMMAND(CMD_pg_Single)
+}
+
+
+void CTestboard::pg_Trigger()
+{
+	SEND_COMMAND(CMD_pg_Trigger)
+}
+
+
+void CTestboard::pg_Loop(uint16_t period)
+{
+	SEND_COMMAND(CMD_pg_Loop)
+	PUT_USHORT(period)
+}
+
+// -----------------------------------------------------------------------
 
 
 unsigned char CTestboard::GetRoCnt()
@@ -417,7 +509,7 @@ unsigned char CTestboard::RecvRoCnt()
 }
 
 
-unsigned short CTestboard::GetRoCntEx()
+uint16_t CTestboard::GetRoCntEx()
 {
     SEND_COMMAND(CMD_GetRoCntEx)
     usb.Flush();
@@ -433,14 +525,14 @@ bool CTestboard::SendRoCntEx()
 }
 
 
-unsigned short CTestboard::RecvRoCntEx()
+uint16_t CTestboard::RecvRoCntEx()
 {
     GET_USHORT(value, 0)
     return value;
 }
 
 
-void CTestboard::SetTriggerMode(unsigned short mode)
+void CTestboard::SetTriggerMode(uint16_t mode)
 {
     SEND_COMMAND(CMD_SetTriggerMode)
     PUT_USHORT(mode)
@@ -462,7 +554,7 @@ void CTestboard::DataEnable(bool on)
 }
 
 
-unsigned short CTestboard::DataState()
+uint16_t CTestboard::DataState()
 {
     SEND_COMMAND(CMD_DataState)
     Flush();
@@ -471,22 +563,22 @@ unsigned short CTestboard::DataState()
 }
 
 
-void CTestboard::DataTriggerLevel(char channel, short level)
+void CTestboard::DataTriggerLevel(char channel, int16_t level)
 {
     SEND_COMMAND(CMD_DataTriggerLevel)
     PUT_SHORT(level)
 }
 
 
-void CTestboard::DataBlockSize(unsigned short size)
+void CTestboard::DataBlockSize(uint16_t size)
 {
     SEND_COMMAND(CMD_DataBlockSize)
     PUT_USHORT(size)
 }
 
 
-bool CTestboard::DataRead(char channel, short buffer[], unsigned short buffersize,
-                          unsigned short &wordsread)
+bool CTestboard::DataRead(char channel, int16_t buffer[], uint16_t buffersize,
+						 uint16_t &wordsread)
 {
     SEND_COMMAND(CMD_DataRead)
     PUT_USHORT(buffersize)
@@ -500,8 +592,8 @@ bool CTestboard::DataRead(char channel, short buffer[], unsigned short buffersiz
 }
 
 
-bool CTestboard::DataReadRaw(char channel, short buffer[], unsigned short buffersize,
-                             unsigned short &wordsread)
+bool CTestboard::DataReadRaw(char channel, int16_t buffer[], uint16_t buffersize,
+						 uint16_t &wordsread)
 {
     SEND_COMMAND(CMD_DataReadRaw)
     PUT_USHORT(buffersize)
@@ -515,7 +607,7 @@ bool CTestboard::DataReadRaw(char channel, short buffer[], unsigned short buffer
 }
 
 
-unsigned short CTestboard::GetModRoCnt(unsigned short index)
+uint16_t CTestboard::GetModRoCnt(uint16_t index)
 {
     SEND_COMMAND(CMD_GetModRoCnt)
     PUT_USHORT(index)
@@ -526,7 +618,7 @@ unsigned short CTestboard::GetModRoCnt(unsigned short index)
 }
 
 
-void CTestboard::GetModRoCntAll(unsigned short * counts)
+void CTestboard::GetModRoCntAll(uint16_t *counts)
 {
     SEND_COMMAND(CMD_GetModRoCntAll)
     Flush();
@@ -534,14 +626,14 @@ void CTestboard::GetModRoCntAll(unsigned short * counts)
 }
 
 
-unsigned int CTestboard::Daq_Init(unsigned int size)
+uint32_t CTestboard::Daq_Init(uint32_t size)
 {
     SEND_COMMAND(CMD_Daq_Init)
-    PUT_UINT(size)
+	PUT_ULONG(size)
     Flush();
 
-    GET_UINT(p, 0)
-    return (unsigned int)p;
+	GET_ULONG(p,0)
+	return (uint32_t)p;
 }
 
 
@@ -566,20 +658,20 @@ bool CTestboard::Daq_Ready()
 }
 
 
-unsigned int CTestboard::Daq_GetPointer()
+uint16_t CTestboard::Daq_GetPointer()
 {
     SEND_COMMAND(CMD_Daq_GetPointer)
     Flush();
-    GET_UINT(p, 0)
-    return (unsigned int)p;
+	GET_ULONG(p,0)
+	return (uint16_t)p;
 }
 
 
-unsigned int CTestboard::Daq_GetSize()
+uint32_t CTestboard::Daq_GetSize()
 {
     SEND_COMMAND(CMD_Daq_GetSize)
     Flush();
-    GET_UINT(size, 0)
+	GET_ULONG(size,0)
     return size;
 }
 
@@ -599,6 +691,11 @@ void CTestboard::ProbeSelect(unsigned char port, unsigned char signal)
     PUT_UCHAR(signal)
 }
 
+void CTestboard::SetTriggerMask(unsigned char mask)
+{
+  	//SEND_COMMAND(CMD_SetTrigMask)
+  	//PUT_UCHAR(mask);
+}
 
 // == Wafer Test Adapter ================================================
 
@@ -690,12 +787,12 @@ bool CTestboard::tbm_Get(unsigned char reg, unsigned char &value)
     return res != 0;
 }
 
-bool CTestboard::tbm_GetRaw(unsigned char reg, int &value)
+bool CTestboard::tbm_GetRaw(unsigned char reg, int32_t &value)
 {
     SEND_COMMAND(CMD_tbm_GetRaw)
     PUT_UCHAR(reg)
     Flush();
-    usb.Read_INT(value);
+	usb.Read_LONG(value);
     return value >= 0;
 }
 
@@ -782,7 +879,7 @@ void CTestboard::roc_Chip_Mask()
 
 // === low level methodes ================================================
 
-void CTestboard::SetReg(unsigned char addr, unsigned short value)
+void CTestboard::SetReg(unsigned char addr, uint16_t value)
 {
     SEND_COMMAND(CMD_SetReg)
     PUT_UCHAR(addr)
@@ -792,11 +889,11 @@ void CTestboard::SetReg(unsigned char addr, unsigned short value)
 
 // === debug function ====================================================
 
-void CTestboard::IoRead8(unsigned int addr, unsigned short size,
+void CTestboard::IoRead8(uint32_t addr, uint16_t size,
                          unsigned char step,    unsigned char * value)
 {
     SEND_COMMAND(CMD_IoRead8);
-    PUT_UINT(addr)
+	PUT_ULONG(addr)
     PUT_USHORT(size)
     PUT_USHORT(step)
     Flush();
@@ -804,11 +901,11 @@ void CTestboard::IoRead8(unsigned int addr, unsigned short size,
 }
 
 
-void CTestboard::IoRead16(unsigned int addr, unsigned short size,
-                          unsigned char step,   unsigned short * value)
+void CTestboard::IoRead16(uint32_t addr, uint16_t size,
+	unsigned char step,	uint16_t *value)
 {
     SEND_COMMAND(CMD_IoRead16);
-    PUT_UINT(addr)
+	PUT_ULONG(addr)
     PUT_USHORT(size)
     PUT_USHORT(step)
     Flush();
@@ -816,65 +913,65 @@ void CTestboard::IoRead16(unsigned int addr, unsigned short size,
 }
 
 
-void CTestboard::IoRead32(unsigned int addr, unsigned short size,
-                          unsigned char step,   unsigned int * value)
+void CTestboard::IoRead32(uint32_t addr, uint16_t size,
+	unsigned char step,	uint32_t *value)
 {
     SEND_COMMAND(CMD_IoRead32);
-    PUT_UINT(addr)
+	PUT_ULONG(addr)
     PUT_USHORT(size)
     PUT_USHORT(step)
     Flush();
-    usb.Read_UINTS(value, size);
+	usb.Read_ULONGS(value,size);
 }
 
 
-void CTestboard::IoWrite8(unsigned int addr, unsigned short size,
+void CTestboard::IoWrite8(uint32_t addr, uint16_t size,
                           unsigned char step, const unsigned char * x)
 {
     SEND_COMMAND(CMD_IoWrite8)
-    PUT_UINT(addr)
+	PUT_ULONG(addr)
     PUT_USHORT(size)
     PUT_UCHAR(step)
     PUT_UCHARS(x, size)
 }
 
 
-void CTestboard::IoWrite16(unsigned int addr, unsigned short size,
-                           unsigned char step, const unsigned short * x)
+void CTestboard::IoWrite16(uint32_t addr, uint16_t size,
+	unsigned char step, const uint16_t *x)
 {
     SEND_COMMAND(CMD_IoWrite16)
-    PUT_UINT(addr)
+	PUT_ULONG(addr)
     PUT_USHORT(size)
     PUT_UCHAR(step)
     PUT_USHORTS(x, size)
 }
 
-void CTestboard::IoWrite32(unsigned int addr, unsigned short size,
-                           unsigned char step, const unsigned int * x)
+void CTestboard::IoWrite32(uint32_t addr, uint16_t size,
+	unsigned char step, const uint32_t *x)
 {
     SEND_COMMAND(CMD_IoWrite32)
-    PUT_UINT(addr)
+	PUT_ULONG(addr)
     PUT_USHORT(size)
     PUT_UCHAR(step)
-    PUT_UINTS(x, size)
+	PUT_ULONGS(x,size)
 }
 
 
-void CTestboard::MemWrite(unsigned int addr, unsigned short size,
+void CTestboard::MemWrite(uint32_t addr, uint16_t size,
                           unsigned char * x)
 {
     SEND_COMMAND(CMD_MemWrite)
-    PUT_UINT(addr)
+	PUT_ULONG(addr)
     PUT_USHORT(size)
     PUT_UCHARS(x, size)
 }
 
 
-void CTestboard::MemRead(unsigned int addr, unsigned short size,
+void CTestboard::MemRead(uint32_t addr, uint16_t size,
                          unsigned char * s)
 {
     SEND_COMMAND(CMD_MemRead)
-    PUT_UINT(addr)
+	PUT_ULONG(addr)
     PUT_USHORT(size)
     Flush();
     gDelay->Mdelay(50);
@@ -882,21 +979,21 @@ void CTestboard::MemRead(unsigned int addr, unsigned short size,
 }
 
 
-void CTestboard::MemFill(unsigned int addr, unsigned short size,
+void CTestboard::MemFill(uint32_t addr, uint16_t size,
                          unsigned char x)
 {
     SEND_COMMAND(CMD_MemFill)
-    PUT_UINT(addr)
+	PUT_ULONG(addr)
     PUT_USHORT(size)
     PUT_UCHAR(x)
 }
 
 
-unsigned char CTestboard::FlashRead(unsigned int addr, unsigned short size,
+unsigned char CTestboard::FlashRead(uint32_t addr, uint16_t size,
                                     unsigned char * x)
 {
     SEND_COMMAND(CMD_FlashRead)
-    PUT_UINT(addr)
+	PUT_ULONG(addr)
     PUT_USHORT(size)
     Flush();
     GET_UCHAR(ret, 0)
@@ -904,11 +1001,11 @@ unsigned char CTestboard::FlashRead(unsigned int addr, unsigned short size,
     return ret;
 }
 
-unsigned char CTestboard::FlashWrite(unsigned int addr, unsigned short size,
+unsigned char CTestboard::FlashWrite(uint32_t addr, uint16_t size,
                                      unsigned char * x)
 {
     SEND_COMMAND(CMD_FlashWrite)
-    PUT_UINT(addr)
+	PUT_ULONG(addr)
     PUT_USHORT(size)
     usb.Write_UCHARS(x, size);
     Flush();
@@ -917,30 +1014,30 @@ unsigned char CTestboard::FlashWrite(unsigned int addr, unsigned short size,
 }
 
 
-void CTestboard::TbmWrite(int hubAddr, int addr, int value)
+void CTestboard::TbmWrite(int32_t hubAddr, int32_t addr, int32_t value)
 {
     SEND_COMMAND(CMD_TbmWrite)
-    PUT_UINT(hubAddr)
-    PUT_UINT(addr)
-    PUT_UINT(value)
+	PUT_ULONG(hubAddr)
+	PUT_ULONG(addr)
+	PUT_ULONG(value)
 }
 
 
-void CTestboard::Tbm1Write(int hubAddr, int addr, int value)
+void CTestboard::Tbm1Write(int32_t hubAddr, int32_t addr, int32_t value)
 {
     SEND_COMMAND(CMD_Tbm1Write)
-    PUT_UINT(hubAddr)
-    PUT_UINT(addr)
-    PUT_UINT(value)
+	PUT_ULONG(hubAddr)
+	PUT_ULONG(addr)
+	PUT_ULONG(value)
 }
 
 
-void CTestboard::Tbm2Write(int hubAddr, int addr, int value)
+void CTestboard::Tbm2Write(int32_t hubAddr, int32_t addr, int32_t value)
 {
     SEND_COMMAND(CMD_Tbm2Write)
-    PUT_UINT(hubAddr)
-    PUT_UINT(addr)
-    PUT_UINT(value)
+	PUT_ULONG(hubAddr)
+	PUT_ULONG(addr)
+	PUT_ULONG(value)
 }
 
 
@@ -961,7 +1058,7 @@ void CTestboard::DataRun_GetSample()
     SEND_COMMAND(CMD_DataRun_GetSample)
 }
 
-int CTestboard::DataRun_ScanROC()
+int32_t CTestboard::DataRun_ScanROC()
 {
     SEND_COMMAND(CMD_DataRun_ScanROC);
     Flush();
@@ -969,19 +1066,19 @@ int CTestboard::DataRun_ScanROC()
     return ret;
 }
 
-unsigned int CTestboard::DataRun_GetDataSize()
+uint32_t CTestboard::DataRun_GetDataSize()
 {
     SEND_COMMAND(CMD_DataRun_GetDataSize)
     Flush();
-    GET_UINT(size, 0)
+	GET_ULONG(size,0)
     return size;
 }
 
-void CTestboard::DataRun_GetData(unsigned int pos, unsigned short size,
-                                 short * buffer)
+void CTestboard::DataRun_GetData(uint32_t pos, uint16_t size,
+		int16_t *buffer)
 {
     SEND_COMMAND(CMD_DataRun_GetData)
-    PUT_UINT(pos);
+	PUT_ULONG(pos);
     PUT_USHORT(size);
     Flush();
     usb.Read_SHORTS(buffer, size);
@@ -1001,7 +1098,7 @@ unsigned char CTestboard::test_PUC(unsigned char col, unsigned char row,
 }
 
 
-void CTestboard::testColPixel(int col, int trimbit, unsigned char * res)
+void CTestboard::testColPixel(int32_t col, int32_t trimbit, unsigned char *res)
 {
     SEND_COMMAND(CMD_testColPixel)
     PUT_UCHAR(col)
@@ -1011,19 +1108,19 @@ void CTestboard::testColPixel(int col, int trimbit, unsigned char * res)
 }
 
 
-bool CTestboard::GetLastDac(unsigned char count, int &ldac)
+bool CTestboard::GetLastDac(unsigned char count, int32_t &ldac)
 {
     SEND_COMMAND(CMD_GetLastDac)
     PUT_UCHAR(count)
     Flush();
     GET_CHAR(res, 0)
-    if (res) usb.Read_INT(ldac);
+	if (res) usb.Read_LONG(ldac);
     return res != 0;
 }
 
 
 bool CTestboard::ScanDac(unsigned char dac, unsigned char count,
-                         unsigned char min, unsigned char max, short * ldac)
+		unsigned char min, unsigned char max, int16_t *ldac)
 {
     SEND_COMMAND(CMD_ScanDac)
     PUT_UCHAR(dac)
@@ -1037,11 +1134,11 @@ bool CTestboard::ScanDac(unsigned char dac, unsigned char count,
 }
 
 
-// === high level atb functions ==========================================
+// === module test functions ==========================================
 
-bool CTestboard::GetPixel(int x)
+bool CTestboard::GetPixel(int32_t x)
 {
-    unsigned int bytesRead;
+	uint32_t bytesRead;
     unsigned char sdata[3];
     sdata[0] = 0x8f;
     sdata[1] = 1;
@@ -1054,9 +1151,9 @@ bool CTestboard::GetPixel(int x)
 }
 
 
-int CTestboard::FindLevel()
+int32_t CTestboard::FindLevel()
 {
-    unsigned int bytesRead;
+	uint32_t bytesRead;
     unsigned char sdata[2];
     sdata[0] = 0x8f;
     sdata[1] = 2;
@@ -1068,20 +1165,20 @@ int CTestboard::FindLevel()
 }
 
 
-int CTestboard::AoutLevel(short position, short nTriggers)
+int32_t CTestboard::AoutLevel(int16_t position, int16_t nTriggers)
 {
     SEND_COMMAND(CMD_aoutLevel)
     PUT_SHORT(position);
     PUT_SHORT(nTriggers);
     Flush();
     gDelay->Mdelay(50);
-    short result;
+	int16_t result;
     usb.Read_SHORT(result);
     return (int)result;
 }
 
 
-int CTestboard::CountReadouts(int count, int chipId)
+int32_t CTestboard::CountReadouts(int32_t count, int32_t chipId)
 {
     SEND_COMMAND(CMD_CountReadouts)
     PUT_SHORT(count);
@@ -1093,59 +1190,59 @@ int CTestboard::CountReadouts(int count, int chipId)
 }
 
 
-int CTestboard::AoutLevelChip(short position, short nTriggers, int trim[], int res[])
+int32_t CTestboard::AoutLevelChip(int16_t position, int16_t nTriggers, int32_t trim[], int32_t res[])
 {
-    short trimShort[ROC_NUMROWS * ROC_NUMCOLS];
-    for (int i = 0; i < ROC_NUMROWS * ROC_NUMCOLS; i++) trimShort[i] = (short)trim[i];
-    unsigned int bytesRead;
+	int16_t trimShort[ROC_NUMROWS*ROC_NUMCOLS];
+	int32_t i;
+	for (i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) trimShort[i] = (int16_t)trim[i];
     SEND_COMMAND(CMD_aoutLevelChip)
     PUT_SHORT(position);
     PUT_SHORT(nTriggers);
     PUT_SHORTS(trimShort, ROC_NUMROWS * ROC_NUMCOLS);
     Flush();
     gDelay->Mdelay(50);
-    short sdata[ROC_NUMROWS * ROC_NUMCOLS] = {0};
+	int16_t sdata[ROC_NUMROWS*ROC_NUMCOLS] = {0};
     usb.Read_SHORTS(sdata, ROC_NUMROWS * ROC_NUMCOLS);
-    for (int i = 0; i < ROC_NUMROWS * ROC_NUMCOLS; i++) res[i] = sdata[i];
+	for (i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) res[i] = sdata[i];
     return 1;
 }
 
 
-int CTestboard::AoutLevelPartOfChip(short position, short nTriggers, int trim[], int res[], bool pxlFlags[])
+int32_t CTestboard::AoutLevelPartOfChip(int16_t position, int16_t nTriggers, int32_t trim[], int32_t res[], bool pxlFlags[])
 {
-    short trimShort[ROC_NUMROWS * ROC_NUMCOLS];
-    for (int i = 0; i < ROC_NUMROWS * ROC_NUMCOLS; i++) trimShort[i] = (short)trim[i];
-    unsigned int bytesRead;
+	int16_t trimShort[ROC_NUMROWS*ROC_NUMCOLS];
+	int32_t i;
+	for (i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) trimShort[i] = (int16_t)trim[i];
     SEND_COMMAND(CMD_aoutLevelPartOfChip)
     PUT_SHORT(position);
     PUT_SHORT(nTriggers);
     PUT_SHORTS(trimShort, ROC_NUMROWS * ROC_NUMCOLS);
-    short pxlFlagsShort[ROC_NUMROWS * ROC_NUMCOLS];
-    for (int i = 0; i < ROC_NUMROWS * ROC_NUMCOLS; i++) pxlFlagsShort[i] = (pxlFlags[i] == true) ? 1 : 0;
+	int16_t pxlFlagsShort[ROC_NUMROWS*ROC_NUMCOLS];
+	for (i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) pxlFlagsShort[i] = (pxlFlags[i] == true) ? 1 : 0;
     PUT_SHORTS(pxlFlagsShort, ROC_NUMROWS * ROC_NUMCOLS);
     Flush();
     gDelay->Mdelay(50);
-    short sdata[ROC_NUMROWS * ROC_NUMCOLS] = {0};
+	int16_t sdata[ROC_NUMROWS*ROC_NUMCOLS] = {0};
     usb.Read_SHORTS(sdata, ROC_NUMROWS * ROC_NUMCOLS);
-    for (int i = 0; i < ROC_NUMROWS * ROC_NUMCOLS; i++) res[i] = sdata[i];
+	for (i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) res[i] = sdata[i];
     return 1;
 }
 
 
-int CTestboard::ChipEfficiency(short nTriggers, int trim[], double res[])
+int32_t CTestboard::ChipEfficiency(int16_t nTriggers, int32_t trim[], double res[])
 {
-    short trimShort[ROC_NUMROWS * ROC_NUMCOLS];
-    for (int i = 0; i < ROC_NUMROWS * ROC_NUMCOLS; i++) trimShort[i] = (short)trim[i];
-    unsigned int bytesRead;
+	int16_t trimShort[ROC_NUMROWS*ROC_NUMCOLS];
+	int32_t i;
+	for (i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) trimShort[i] = (int16_t)trim[i];
     SEND_COMMAND(CMD_ChipEfficiency)
     PUT_SHORT(nTriggers);
     PUT_SHORTS(trimShort, ROC_NUMROWS * ROC_NUMCOLS);
     Flush();
     gDelay->Mdelay(50);
 
-    short sdata[ROC_NUMROWS * ROC_NUMCOLS] = {0};
+	int16_t sdata[ROC_NUMROWS*ROC_NUMCOLS] = {0};
     usb.Read_SHORTS(sdata, ROC_NUMROWS * ROC_NUMCOLS);
-    for (int i = 0; i < ROC_NUMROWS * ROC_NUMCOLS; i++)
+	for (i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++)
     {
         res[i] = (double)sdata[i] / nTriggers;
     }
@@ -1153,9 +1250,8 @@ int CTestboard::ChipEfficiency(short nTriggers, int trim[], double res[])
 }
 
 
-int CTestboard::MaskTest(short nTriggers, short res[])
+int32_t CTestboard::MaskTest(int16_t nTriggers, int16_t res[])
 {
-    unsigned int bytesRead;
     SEND_COMMAND(CMD_MaskTest)
     PUT_SHORT(nTriggers);
     Flush();
@@ -1165,7 +1261,7 @@ int CTestboard::MaskTest(short nTriggers, short res[])
 }
 
 
-void CTestboard::TrimAboveNoise(short nTrigs, short thr, short mode, short result[])
+void CTestboard::TrimAboveNoise(int16_t nTrigs, int16_t thr, int16_t mode, int16_t result[])
 {
     SEND_COMMAND(CMD_TrimAboveNoise);
     PUT_SHORT(nTrigs);
@@ -1177,26 +1273,27 @@ void CTestboard::TrimAboveNoise(short nTrigs, short thr, short mode, short resul
 }
 
 
-void CTestboard::DoubleColumnADCData(int doubleColumn, short data[], int readoutStop[])
+void CTestboard::DoubleColumnADCData(int32_t doubleColumn, int16_t data[], int32_t readoutStop[])
 {
     SEND_COMMAND(CMD_DoubleColumnADCData)
     PUT_SHORT(doubleColumn)
     Flush();
     gDelay->Mdelay(50);
 
-    unsigned short wordsread = 0;
+	uint16_t wordsread = 0;
     if (!usb.Read_USHORT(wordsread)) { wordsread = 0; return;}
 
     gDelay->Mdelay(50);
-    short sdata[wordsread];
+	int16_t sdata[wordsread];
     usb.Read_SHORTS(sdata, wordsread);
 
-    for (int i = 0; i < 2 * ROCNUMROWS; i++) readoutStop[i] = sdata[i];
-    for (int i = 0; i < readoutStop[2 * ROCNUMROWS - 1]; i++) data[i] = sdata[i + 2 * ROCNUMROWS];
+	int32_t i;
+	for (i = 0; i < 2*ROCNUMROWS; i++) readoutStop[i] = sdata[i];
+	for (i = 0; i < readoutStop[2*ROCNUMROWS - 1]; i++) data[i] = sdata[i+2*ROCNUMROWS];
 }
 
 
-int CTestboard::PixelThreshold(int col, int row, int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int trim)
+int32_t CTestboard::PixelThreshold(int32_t col, int32_t row, int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim)
 {
     SEND_COMMAND(CMD_pixelThreshold)
     PUT_SHORT(col);
@@ -1216,10 +1313,11 @@ int CTestboard::PixelThreshold(int col, int row, int start, int step, int thrLev
 }
 
 
-int CTestboard::ChipThreshold(int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int trim[], int res[])
+int32_t CTestboard::ChipThreshold(int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim[], int32_t res[])
 {
-    short trimShort[ROC_NUMROWS * ROC_NUMCOLS];
-    for (int i = 0; i < ROC_NUMROWS * ROC_NUMCOLS; i++) trimShort[i] = (short)trim[i];
+	int32_t i;
+	int16_t trimShort[ROC_NUMROWS*ROC_NUMCOLS];
+	for (i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) trimShort[i] = (int16_t)trim[i];
     SEND_COMMAND(CMD_chipThreshold)
     PUT_SHORT(start);
     PUT_SHORT(step);
@@ -1231,45 +1329,44 @@ int CTestboard::ChipThreshold(int start, int step, int thrLevel, int nTrig, int 
     PUT_SHORTS(trimShort, ROC_NUMROWS * ROC_NUMCOLS);
     Flush();
     gDelay->Mdelay(50);
-    short sdata[ROC_NUMROWS * ROC_NUMCOLS] = {0};
-    for (int i = 0; i < ROC_NUMROWS * ROC_NUMCOLS; i++) sdata[i] = -1;
+	int16_t sdata[ROC_NUMROWS*ROC_NUMCOLS] = {0};
+	for (i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) sdata[i] = -1;
     bool result = usb.Read_SHORTS(sdata, ROC_NUMROWS * ROC_NUMCOLS);
-    for (int i = 0; i < ROC_NUMROWS * ROC_NUMCOLS; i++) res[i] = sdata[i];
+	for (i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) res[i] = sdata[i];
     if (result) return 1; else return 0;
 }
 
 
-int CTestboard::SCurve(int nTrig, int dacReg, int threshold, int res[])
+int32_t CTestboard::SCurve(int32_t nTrig, int32_t dacReg, int32_t threshold, int32_t res[])
 {
-    unsigned int bytesRead;
     SEND_COMMAND(CMD_SCurve)
-    PUT_INT(nTrig);
-    PUT_INT(dacReg);
-    PUT_SHORT((short)threshold);
+	PUT_LONG(nTrig);
+	PUT_LONG(dacReg);
+	PUT_SHORT((int16_t)threshold);
     Flush();
     gDelay->Mdelay(50);
-    short sdata[256] = {0};
+	int16_t sdata[256] = {0};
     usb.Read_SHORTS(sdata, 256);
     //  GET_SHORTS(sdata, bytesRead, 256, 0);
-    for (int i = 0; i < 256; i++) res[i] = sdata[i];
+	for (int32_t i = 0; i < 256; i++) res[i] = sdata[i];
     return 1;
 }
 
 
-int CTestboard::SCurveColumn(int column, int nTrig, int dacReg, int thr[], int trims[], int chipId[], int res[])
+int32_t CTestboard::SCurveColumn(int32_t column, int32_t nTrig, int32_t dacReg, int32_t thr[], int32_t trims[], int32_t chipId[], int32_t res[])
 {
-    unsigned int bytesRead;
+	int32_t i;
     SEND_COMMAND(CMD_SCurveColumn)
-    PUT_INT(column);
-    PUT_INT(nTrig);
-    PUT_INT(dacReg);
+	PUT_LONG(column);
+	PUT_LONG(nTrig);
+	PUT_LONG(dacReg);
 
-    short threshold[16 * ROCNUMROWS], trim[16 * ROCNUMROWS], chipIds[16];
-    for (int i = 0; i < 16 * ROCNUMROWS; i++) threshold[i] = (short)thr[i];
-    PUT_SHORTS(threshold, 16 * ROCNUMROWS);
-    for (int i = 0; i < 16 * ROCNUMROWS; i++) trim[i] = (short)trims[i];
-    PUT_SHORTS(trim, 16 * ROCNUMROWS);
-    for (int i = 0; i < 16; i++) chipIds[i] = (short)chipId[i];
+	int16_t threshold[16*ROC_NUMROWS], trim[16*ROC_NUMROWS], chipIds[16];
+	for (i = 0; i < 16*ROC_NUMROWS; i++) threshold[i] = (int16_t)thr[i];
+	PUT_SHORTS(threshold, 16*ROC_NUMROWS);
+	for (i = 0; i < 16*ROC_NUMROWS; i++) trim[i] = (int16_t)trims[i];
+	PUT_SHORTS(trim, 16*ROC_NUMROWS);
+    for (i = 0; i < 16; i++) chipIds[i] = (int16_t)chipId[i];
     PUT_SHORTS(chipIds, 16);
 
     Flush();
@@ -1281,7 +1378,7 @@ int CTestboard::SCurveColumn(int column, int nTrig, int dacReg, int thr[], int t
 }
 
 
-void CTestboard::ADCRead(short buffer[], unsigned short &wordsread, short nTrig)
+void CTestboard::ADCRead(int16_t buffer[], uint16_t &wordsread, int16_t nTrig)
 {
     SEND_COMMAND(CMD_ADCRead)
     PUT_SHORT(nTrig);
@@ -1295,7 +1392,7 @@ void CTestboard::ADCRead(short buffer[], unsigned short &wordsread, short nTrig)
 }
 
 
-void CTestboard::DacDac(int dac1, int dacRange1, int dac2, int dacRange2, int nTrig, int result[])
+void CTestboard::DacDac(int32_t dac1, int32_t dacRange1, int32_t dac2, int32_t dacRange2, int32_t nTrig, int32_t result[])
 {
     SEND_COMMAND(CMD_DacDac)
     PUT_SHORT(dac1);
@@ -1309,7 +1406,7 @@ void CTestboard::DacDac(int dac1, int dacRange1, int dac2, int dacRange2, int nT
 }
 
 
-void CTestboard::PHDac(int dac, int dacRange, int nTrig, int position, short result[])
+void CTestboard::PHDac(int32_t dac, int32_t dacRange, int32_t nTrig, int32_t position, int16_t result[])
 {
     SEND_COMMAND(CMD_PHDac)
     PUT_SHORT(dac);
@@ -1322,71 +1419,72 @@ void CTestboard::PHDac(int dac, int dacRange, int nTrig, int position, short res
 }
 
 
-void CTestboard::AddressLevels(int position, int result[])
+void CTestboard::AddressLevels(int32_t position, int32_t result[])
 {
-    short sdata[4000];
+	int16_t sdata[4000];
     SEND_COMMAND(CMD_AddressLevels)
     PUT_SHORT(position);
     Flush();
     gDelay->Mdelay(50);
     usb.Read_SHORTS(sdata, 4000);
-    for (int i = 0; i < 4000; i++) result[i] = sdata[i];
+	for (int32_t i = 0; i < 4000; i++) result[i] = sdata[i];
 }
 
 
-void CTestboard::TBMAddressLevels(int result[])
+void CTestboard::TBMAddressLevels(int32_t result[])
 {
-    short sdata[4000];
+	int16_t sdata[4000];
     SEND_COMMAND(CMD_TBMAddressLevels)
     Flush();
     gDelay->Mdelay(50);
     usb.Read_SHORTS(sdata, 4000);
-    for (int i = 0; i < 4000; i++) result[i] = sdata[i];
+	for (int32_t i = 0; i < 4000; i++) result[i] = sdata[i];
 }
 
 
-void CTestboard::ReadData(int position, int size, int result[])
+void CTestboard::ReadData(int32_t position, int32_t size, int32_t result[])
 {
     if (size > 32767) size = 32767;
-    short sdata[size];
+	int16_t sdata[32768];
     SEND_COMMAND(CMD_ReadData)
-    PUT_INT(position);
-    PUT_INT(size);
+	PUT_LONG(position);
+	PUT_LONG(size);
     Flush();
     gDelay->Mdelay(50);
     usb.Read_SHORTS(sdata, size);
-    for (int i = 0; i < size; i++) result[i] = sdata[i];
+	for (int32_t i = 0; i < size; i++) result[i] = sdata[i];
 }
 
 
-void CTestboard::ReadFPGAData(int size, int result[])
+void CTestboard::ReadFPGAData(int32_t size, int32_t result[])
 {
-    int toRead = size;
-    int data[32767];
-    int position = 0;
+	int32_t toRead = size;
+	int32_t data[32767];
+	int32_t position = 0;
+	int32_t i;
     do
     {
         if (toRead > 32767)
         {
             ReadData(position, 32767, data);
-            for (int i = 0; i < 32767; i++) result[position + i] = data[i];
+			for (i = 0; i < 32767; i++) result[position+i] = data[i];
             position += 32767;
             toRead -= 32767;
         }
         else
         {
             ReadData(position, toRead, data);
-            for (int i = 0; i < toRead; i++) result[position + i] = data[i];
+			for (i = 0; i < toRead; i++) result[position+i] = data[i];
             position += toRead;
             toRead = 0;
         }
     }
     while (toRead > 0);
-    //      for (int i = 0; i < size; i++) printf("%i ", result[i]);
+//  	for (int32_t i = 0; i < size; i++) printf("%i ", result[i]);
 }
 
 
-void CTestboard::SetEmptyReadoutLength(int emptyReadoutLength)
+void CTestboard::SetEmptyReadoutLength(int32_t emptyReadoutLength)
 {
     SEND_COMMAND(CMD_SetEmptyReadoutLength)
     PUT_SHORT(emptyReadoutLength);
@@ -1394,7 +1492,7 @@ void CTestboard::SetEmptyReadoutLength(int emptyReadoutLength)
 }
 
 
-void CTestboard::SetEmptyReadoutLengthADC(int emptyReadoutLengthADC)
+void CTestboard::SetEmptyReadoutLengthADC(int32_t emptyReadoutLengthADC)
 {
     SEND_COMMAND(CMD_SetEmptyReadoutLengthADC)
     PUT_SHORT(emptyReadoutLengthADC);
@@ -1402,7 +1500,7 @@ void CTestboard::SetEmptyReadoutLengthADC(int emptyReadoutLengthADC)
 }
 
 
-void CTestboard::SetTbmChannel(int tbmChannel)
+void CTestboard::SetTbmChannel(int32_t tbmChannel)
 {
     SEND_COMMAND(CMD_SetTbmChannel)
     PUT_SHORT(tbmChannel);
@@ -1410,7 +1508,7 @@ void CTestboard::SetTbmChannel(int tbmChannel)
 }
 
 
-void CTestboard::SetDTL(int value)
+void CTestboard::SetDTL(int32_t value)
 {
     SEND_COMMAND(CMD_SetDTL)
     PUT_SHORT(value);
@@ -1418,7 +1516,7 @@ void CTestboard::SetDTL(int value)
 }
 
 
-void CTestboard::SetNRocs(int value)
+void CTestboard::SetNRocs(int32_t value)
 {
     nRocs = value;
     SEND_COMMAND(CMD_SetNRocs)
@@ -1427,7 +1525,7 @@ void CTestboard::SetNRocs(int value)
 }
 
 
-void CTestboard::SetHubID(int value)
+void CTestboard::SetHubID(int32_t value)
 {
     SEND_COMMAND(CMD_SetHubID)
     PUT_SHORT(value);
@@ -1435,7 +1533,7 @@ void CTestboard::SetHubID(int value)
 }
 
 
-void CTestboard::SetEnableAll(int value)
+void CTestboard::SetEnableAll(int32_t value)
 {
     SEND_COMMAND(CMD_SetEnableAll)
     PUT_SHORT(value);
@@ -1443,27 +1541,106 @@ void CTestboard::SetEnableAll(int value)
 }
 
 
-void CTestboard::SetAoutChipPosition(int value)
+void CTestboard::SetAoutChipPosition(int32_t value)
 {
     SEND_COMMAND(CMD_SetAoutChipPosition)
     PUT_SHORT(value);
 }
 
+void CTestboard::GetColPulseHeight(unsigned char col, unsigned char count,
+			int16_t data[])
+{
+	SEND_COMMAND(CMD_GetColPulseHeight)
+	PUT_UCHAR(col)
+	PUT_UCHAR(count)
+	Flush();
+	usb.Read_SHORTS(data,ROC_NUMROWS);
+}
+
+
+void CTestboard::Scan1D(unsigned char vx,
+			unsigned char xmin, unsigned char xmax,	char xstep,
+			unsigned char rep, uint32_t usDelay, unsigned char res[])
+{
+	SEND_COMMAND(CMD_Scan1D)
+	PUT_UCHAR(vx)
+	PUT_UCHAR(xmin)
+	PUT_UCHAR(xmax)
+	PUT_CHAR(xstep)
+	PUT_UCHAR(rep)
+	PUT_ULONG(usDelay)
+	Flush();
+	int32_t count = int(xmax-xmin)/xstep;
+	if (count<0) return;
+	if (count>256) count = 256;
+	usb.Read_UCHARS(res,count);
+}
+
+
+void CTestboard::BumpTestColPixel(unsigned char col, unsigned char res[])
+{
+	SEND_COMMAND(CMD_BumpTestColPixel)
+	PUT_UCHAR(col)
+	Flush();
+	usb.Read_UCHARS(res,ROC_NUMROWS);
+}
+
+
+void CTestboard::BumpTestColRef(unsigned char col, unsigned char res[])
+{
+	SEND_COMMAND(CMD_BumpTestColRef)
+	PUT_UCHAR(col)
+	Flush();
+	usb.Read_UCHARS(res,ROC_NUMROWS);
+}
+
+
+void CTestboard::DacDac(int16_t dac1, int16_t dacRange1, int16_t dac2, int16_t dacRange2,
+	int16_t nTrig, int16_t res[], int16_t rocpos)
+{
+	SEND_COMMAND(CMD_SetAoutChipPosition)
+	PUT_SHORT(rocpos)
+
+	SEND_COMMAND(CMD_DacDac);
+	PUT_SHORT(dac1)
+	PUT_SHORT(dacRange1)
+	PUT_SHORT(dac2)
+	PUT_SHORT(dacRange2)
+	PUT_SHORT(nTrig)
+	mDelay(1000);
+
+	int32_t size = dacRange1*dacRange2;
+	while (size>0)
+	{
+		int32_t blocksize = 4096;
+		if (size < blocksize) blocksize = size;
+
+		SEND_COMMAND(CMD_ReadData);
+		PUT_LONG(0)
+		PUT_LONG(blocksize)
+		usb.Flush();
+		usb.Read_SHORTS(res, blocksize);
+
+		size -= blocksize;
+		res  += blocksize;
+	}
+}
+
 // =======================================================================
 
-int CTestboard::demo(short x)
+int32_t CTestboard::demo(int16_t x)
 {
     SEND_COMMAND(CMD_demo)
     PUT_SHORT(x)
     usb.Flush();
-    GET_INT(ret, 0)
+	GET_LONG(ret,0)
     return ret;
 }
 
 
-void CTestboard::ScanAdac(unsigned short chip, unsigned char dac,
+void CTestboard::ScanAdac(uint16_t chip, unsigned char dac,
                           unsigned char min, unsigned char max, char step,
-                          unsigned char rep, unsigned int usDelay, unsigned char res[])
+      unsigned char rep, uint32_t usDelay, unsigned char res[])
 {
     SEND_COMMAND(CMD_ScanAdac)
     PUT_USHORT(chip)
@@ -1472,17 +1649,17 @@ void CTestboard::ScanAdac(unsigned short chip, unsigned char dac,
     PUT_UCHAR(max)
     PUT_CHAR(step)
     PUT_UCHAR(rep)
-    PUT_UINT(usDelay)
+	PUT_ULONG(usDelay)
     Flush();
-    int count = int(max - min) / step;
+	int32_t count = int(max-min)/step;
     if (count < 0) return;
     if (count > 256) count = 256;
     gDelay->Mdelay(50);
     usb.Read_UCHARS(res, count);
 }
 
-void CTestboard::CdVc(unsigned short chip, unsigned char wbcmin, unsigned char wbcmax, unsigned char vcalstep,
-                      unsigned char cdinit, unsigned short &lres, unsigned short res[])
+void CTestboard::CdVc(uint16_t chip, unsigned char wbcmin, unsigned char wbcmax, unsigned char vcalstep,
+          unsigned char cdinit, uint16_t &lres, uint16_t res[])
 {
 
     SEND_COMMAND(CMD_CdVc);
@@ -1501,20 +1678,19 @@ void CTestboard::CdVc(unsigned short chip, unsigned char wbcmin, unsigned char w
     lres = lres2;
 }
 
-char CTestboard::CountAllReadouts(int nTrig, int counts[], int amplitudes[])
+char CTestboard::CountAllReadouts(int32_t nTrig, int32_t counts[], int32_t amplitudes[])
 {
     SEND_COMMAND(CMD_CountAllReadouts)
-    PUT_SHORT(nTrig);
+	PUT_SHORT(nTrig)
     Flush();
-    gDelay->Mdelay(100 + (int)(nTrig * 0.1));
-    GET_CHAR(res, -1);
-    if (!usb.Read_INTS(counts, 16)) return -1;
-    if (!usb.Read_INTS(amplitudes, 16)) return -1;
+	GET_CHAR(res, -1)
+	if (!usb.Read_LONGS(counts,    16)) return -1;
+	if (!usb.Read_LONGS(amplitudes,16)) return -1;
     return res;
 }
 
 
-unsigned short CTestboard::GetReg41()
+uint16_t CTestboard::GetReg41()
 {
     SEND_COMMAND(CMD_GetReg41)
     Flush();

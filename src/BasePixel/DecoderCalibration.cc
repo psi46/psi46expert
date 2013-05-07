@@ -98,7 +98,7 @@ void DecoderCalibrationModule::SetCalibration(ADCword ultraBlack, ADCword black,
 
     fNumROCs = MAX_ROCS;
 
-    Print(&cout);
+	// Print(&cout); // not needed for digital ROC
 }
 //-------------------------------------------------------------------------------
 
@@ -122,7 +122,7 @@ void DecoderCalibrationModule::SetCalibration(ADCword levelsTBM[], ADCword level
 
     fNumROCs = numROCs;
 
-    Print(&cout);
+	// Print(&cout); // not needed for digital ROC
 }
 //-------------------------------------------------------------------------------
 
@@ -183,8 +183,8 @@ int DecoderCalibrationModule::ReadCalibrationFile1(const char * fileName, int mo
         if (fPrintError) cerr << "Error in <DecodeRawPacket::readCalibration>: invalid format of calibration file !" << endl;
         return 2;
     }
-    fCalibrationTBM.SetUltraBlackLevel(level);
 
+    fCalibrationTBM.SetUltraBlackLevel(level);
 
     //status = fscanf(calibrateFile, "%d", &level); // skip reading TBM black level, keep it constant
     //if ( status == EOF ){
@@ -201,6 +201,7 @@ int DecoderCalibrationModule::ReadCalibrationFile1(const char * fileName, int mo
         }
         fCalibrationTBM.SetStatusLevel(ilevel, level);
     }
+
 
     if (fPrintDebug) {
         cout << " TBM bit levels = { "
@@ -245,13 +246,13 @@ int DecoderCalibrationModule::ReadCalibrationFile1(const char * fileName, int mo
             cout << "}" << endl;
         }
     }
-
     //--- close the calibration file.
     fclose(calibrateFile);
 
-    if (fPrintDebug) Print(&cout);
+  fNumROCs = numROCs; // Print needs to know fNumROCs
 
-    fNumROCs = numROCs;
+  if( fPrintDebug ) Print(&cout);
+
 
     //--- return success
     return 0;
@@ -378,12 +379,12 @@ int DecoderCalibrationModule::ReadCalibrationFile2(const char * fileName, int mo
     //--- close the calibration file.
     fclose(calibrateFile);
 
-    if (fPrintDebug) Print(&cout);
+  fNumROCs = numROCs; // Print needs to know fNumROCs
 
-    fNumROCs = numROCs;
+  if( fPrintDebug ) Print(&cout);
 
-    //--- return success
-    return 0;
+  //--- return success
+  return 0;
 }
 //-------------------------------------------------------------------------------
 
@@ -409,8 +410,9 @@ int DecoderCalibrationModule::ReadCalibrationFile3(const char * fileName, int mo
         return 1;
     }
 
-    //--- skip reading labels and separating lines
-    char dummyString[100];
+  //--- skip reading labels and separating lines
+  char dummyString[200]; // see HyperNews from Caleb Fangmeier
+
     for (int iskip = 0; iskip < NUM_LEVELSTBM + 8; iskip++) {
         *file >> dummyString;
         if (fPrintDebug) cout << "READ (dummyString): " << dummyString << endl;
@@ -453,6 +455,7 @@ int DecoderCalibrationModule::ReadCalibrationFile3(const char * fileName, int mo
         *file >> dummyString;
         if (fPrintDebug) cout << "READ (dummyString): " << dummyString << endl;
     }
+
 
     //--- read UltraBlack and address levels for each ROC
     //    (skip reading black levels, keep them constant)
@@ -498,9 +501,9 @@ int DecoderCalibrationModule::ReadCalibrationFile3(const char * fileName, int mo
 
     delete file;
 
-    if (fPrintDebug) Print(&cout);
+  fNumROCs = numROCs; // Print needs to know fNumROCs
 
-    fNumROCs = numROCs;
+  if( fPrintDebug ) Print(&cout);
 
     //--- return success
     return 0;
@@ -539,6 +542,7 @@ void DecoderCalibrationModule::Print(ostream * outputStream) const
     for (int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++) {
         *outputStream << setw(9) << fCalibrationTBM.GetStatusLevel(ilevel);
     }
+
     *outputStream << endl;
     *outputStream << "----------------------------------------------------------------------------------------------------" << endl;
     *outputStream << "         " << setw(9) << "UB" << setw(9) << "B" << endl;

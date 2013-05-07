@@ -115,6 +115,7 @@ bool TBParameters::ReadTBParameterFile(const char * _file)
         if (_istring.fail() || !_tmp.length()) continue;
 
         SetParameter(_register, _value);
+		psi::LogInfo() << _line << psi::endl;
     }
 
     _input.close();

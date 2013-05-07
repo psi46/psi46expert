@@ -48,8 +48,8 @@ void DACParameters::Initialize()
     names[16]  = (char *) "VIbiasOp";
     names[17]  = (char *) "VOffsetR0";
     names[18]  = (char *) "VIon";
-    names[19]  = (char *) "VIbias_PH";
-    names[20]  = (char *) "Ibias_DAC";
+    names[19]  = (char *) "Vcomp_ADC"; // was VIbias_PH
+    names[20]  = (char *) "VIref_ADC"; // was Ibias_DAC
     names[21]  = (char *) "VIbias_roc";
     names[22]  = (char *) "VIColOr";
     names[23]  = (char *) "Vnpix";

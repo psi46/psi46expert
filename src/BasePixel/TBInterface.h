@@ -44,6 +44,7 @@ public:
     virtual void Execute(SysCommand &command) = 0;
     virtual int IsPresent() = 0;
     virtual void Flush() = 0;
+    virtual void Clear() = 0;
     virtual void CDelay(unsigned int n) = 0;
     virtual bool IsAnalogTB() = 0;
 

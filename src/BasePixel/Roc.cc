@@ -168,6 +168,17 @@ bool Roc::Execute(SysCommand &command, int warning)
         }
         return true;
     }
+    else if (command.Keyword("ena")) 
+	{
+        for( int j = 0; j < 52; j++ )
+		{
+           for( int k = 0; k < 80; k++ )
+			{
+				EnablePixel( j, k );
+		    }
+    	}
+        return true;
+    }
     else if (strcmp(command.carg[0], "writeDAC") == 0)
     {
         WriteDACParameterFile(command.carg[1]);

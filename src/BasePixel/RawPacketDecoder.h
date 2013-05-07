@@ -31,6 +31,7 @@ public:
     bool isBlackROC(int rocId, ADCword adcValue) const;
     bool isUltraBlackROC(int rocId, ADCword adcValue) const;
 
+   int decodeROCaddress(int rocId, ADCword rawADC[], int& columnROC, int& rowROC, int& rawColumn, int& rawPixel) const;
 protected:
     RawPacketDecoder();
     ~RawPacketDecoder(void);
@@ -41,7 +42,6 @@ protected:
     int decodeTBMstatusLevel(ADCword adcValue) const;
     int decodeTBMheader(int indexStart, int dataLength, ADCword dataBuffer[], DecodedReadoutModule &module);
     int decodeROCsequence(int rocId, int indexStart, int indexStop, ADCword dataBuffer[], DecodedReadoutModule &module, int numROCs);
-    int decodeROCaddress(int rocId, ADCword rawADC[], int &columnROC, int &rowROC, int &rawColumn, int &rawPixel) const;
     int decodeTBMtrailer(int indexStart, int dataLength, ADCword dataBuffer[], DecodedReadoutModule &module);
     int transformROCaddress2ModuleAddress(int columnROC, int rowROC, int rocId, int &columnModule, int &rowModule) const;
 

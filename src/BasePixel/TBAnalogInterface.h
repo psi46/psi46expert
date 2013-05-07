@@ -32,6 +32,8 @@ public:
     int Startup(int port);
     void Cleanup();
     void Clear();
+    void ShowUSB();
+    void ClearUSB();
     int Present();
     void I2cAddr(int id);
     int IsPresent() {return fIsPresent;}

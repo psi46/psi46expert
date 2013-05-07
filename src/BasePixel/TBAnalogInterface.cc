@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <string.h>
+#include <iomanip>
 
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/TBAnalogParameters.h"
 #include "BasePixel/GlobalConstants.h"
 #include "BasePixel/RawPacketDecoder.h"
+#include "BasePixel/DigitalReadoutDecoder.h"
 #include "interface/Log.h"
 #include "interface/USBInterface.h"
 #include "interface/Delay.h"
@@ -30,6 +32,8 @@ void TBAnalogInterface::Execute(SysCommand &command)
     else if (command.Keyword("poff"))   {Poff();}
     else if (command.Keyword("hvoff"))   {HVoff();}
     else if (command.Keyword("hvon"))   {HVon();}
+    else if( command.Keyword( "usb" ) ) ShowUSB();
+    else if( command.Keyword( "clear" ) ) ClearUSB();
     else if (command.Keyword("loop"))   {Intern(rctk_flag);}
     else if (command.Keyword("stop"))   {Single(0);}
     else if (command.Keyword("single")) {Single(rctk_flag);}
@@ -42,6 +46,8 @@ void TBAnalogInterface::Execute(SysCommand &command)
     else if (command.Keyword("TBMEnable")) {Tbmenable(true);}
     else if (command.Keyword("CountReadouts")) { psi::LogInfo << CountReadouts(10, 0) << " / 10" << psi::endl;}
     else if (command.Keyword("CountReadouts", &value)) {psi::LogInfo << CountReadouts(*value, 0) << " / " << *value << psi::endl;}
+    else if( command.Keyword( "CountADCReadouts", &value ) ) psi::LogInfo << CountADCReadouts(*value ) << " / " << *value << psi::endl;
+
     else if (command.Keyword("dclear")) {DataCtrl(true,  false, false);} /* clear FIFO */
     else if (command.Keyword("dtrig"))  {DataCtrl(false, true,  false);} /* enable ADC gate once */
     else if (command.Keyword("dstart")) {DataCtrl(false, false, true);}  /* enable ADC gate continuously */
@@ -62,9 +68,9 @@ void TBAnalogInterface::Execute(SysCommand &command)
             psi::LogInfo << "Unable to aquire firmware version." << psi::endl;
     }
     else if (command.Keyword("scurve")) {
-        int nTrig = 100;
+    int nTrig = 99;
         int dacReg = 25;
-        int threshold = 60;
+    int threshold = 20;
         int res[10000] = {0};
         int n = SCurve(nTrig, dacReg, threshold, res);
         psi::LogInfo << "SCurve:";
@@ -184,7 +190,19 @@ int TBAnalogInterface::GetRoCnt()
     return cTestboard->GetRoCntEx();
 }
 
+//----------------------------------------------------------------------
+void TBAnalogInterface::ShowUSB() // USB parameters
+{
+  cTestboard->ShowUSB(); // in psi46_tb.h
+}
 
+//----------------------------------------------------------------------
+void TBAnalogInterface::ClearUSB() // reset USB buffer
+{
+  cTestboard->Clear(); // in psi46_tb.h
+}
+
+//------------------------------------------------------------------------------
 void TBAnalogInterface::Initialize(ConfigParameters * configParameters)
 {
 
@@ -542,6 +560,7 @@ int TBAnalogInterface::RecvRoCnt()
 }
 
 
+//------------------------------------------------------------------------------
 void TBAnalogInterface::SingleCal()
 {
     Single(RES | CAL | TRG | TOK);
@@ -578,7 +597,8 @@ int TBAnalogInterface::CountADCReadouts(int count)
         CDelay(100);
         Flush();
         DataRead(data, FIFOSIZE, counter);
-        n += ((int)counter - 56) / 6;
+        // n += ((int)counter - 56) / 6; // Module
+		n += ( (int)counter - 19 ) / 6; // Single ROC, with TBM emu
     }
     return n;
 }
@@ -589,9 +609,6 @@ bool TBAnalogInterface::ADCData(short buffer[], unsigned short &wordsread)
     ADCRead(buffer, wordsread);
     return true;
 }
-
-
-
 
 unsigned short TBAnalogInterface::ADC()
 {
@@ -609,8 +626,12 @@ unsigned short TBAnalogInterface::ADC()
     psi::LogInfo << "[TBAnalogInterface] Data: ";
     for (unsigned int n = 0; n < count; n++) {
         if (is_analog)
-            psi::LogInfo << " " << data[n];
-        else
+	 	{
+    		psi::LogInfo << " " << setw(4) << data[n];
+	    	if( n ==  7 ) psi::LogInfo << " :"; // after TBM header
+			if( n == 10 ) psi::LogInfo << " :"; // after UB, B, lastDAC
+    		if( n > 15 && n < count - 7 && (n-11)%6 == 5 ) psi::LogInfo << " :"; // after each pixel
+		} else
             psi::LogInfo << ((n % 8 == 0) ? "|" : "") << ((data[n / 16] & (1 << (16 - n % 16 - 1))) ? 1 : 0);
     }
 
@@ -871,7 +892,8 @@ bool TBAnalogInterface::IsAnalog()
 // ----------------------------------------------------------------------
 bool TBAnalogInterface::Mem_ReadOut(FILE * f, unsigned int addr, unsigned int size) {
 
-    unsigned short BLOCKSIZE = 32767;
+	// Can be tuned to be faster. Was: unsigned short BLOCKSIZE = 32767;
+    unsigned short BLOCKSIZE = 50000;
     unsigned char buffer[BLOCKSIZE];
     for (int i = 0; i < BLOCKSIZE; i++) buffer[i] = 0;
 
@@ -880,11 +902,15 @@ bool TBAnalogInterface::Mem_ReadOut(FILE * f, unsigned int addr, unsigned int si
     unsigned int bound = static_cast<unsigned int>(2. * size / BLOCKSIZE);
     unsigned int start = addr;
 
-    //   cout << "r/o of " << 2.*size  << " bytes with blocksize " << BLOCKSIZE << " starting from memory address " << addr << endl;
+	cout << "r/o of " << 2.*size
+	     << " bytes with blocksize " << BLOCKSIZE
+    	 << " starting from memory address " << addr
+	     << endl;
     for (unsigned int j = 0; j < bound; ++j) {
         cTestboard->MemRead(start, BLOCKSIZE, buffer);
         start += BLOCKSIZE;
         fwrite(buffer, BLOCKSIZE, 1, f);
+    	cout << "read " << (j+1)*BLOCKSIZE << " of " << 2*size << endl;
     }
 
     unsigned short rest = (addr + 2 * size - start);
@@ -1045,6 +1071,14 @@ void TBAnalogInterface::ADCRead_digital(short buffer[], unsigned short &bitsread
     unsigned short wordsread;
     cTestboard->ADCRead(buffer, wordsread, nTrig);
 
+	DecodedReadoutModule * drm = new DecodedReadoutModule;
+
+	int retval = decode_digital_readout( drm, buffer, wordsread, 1, 0 );
+	bitsread = 4 * wordsread;
+
+	psi::LogInfo << "[TBAnalogInterface] Count: " << bitsread << " bits" << psi::endl;
+	psi::LogInfo << "[TBAnalogInterface] Data: ";
+
     /* compactify: bit shift the data to remove the leading 12 bits in each word */
     /* data: 1000|0000|0000|XXXX (only XXXX is significant data) */
     int nibble = 0;
@@ -1055,7 +1089,30 @@ void TBAnalogInterface::ADCRead_digital(short buffer[], unsigned short &bitsread
         nibble = (nibble + 1) % 4;
     }
 
-    bitsread = 4 * wordsread;
+
+	for( unsigned int n = 0; n < bitsread; n++ ) {
+	  psi::LogInfo << ( (n % 8 == 0) ? "|" : "") << ( (buffer[n / 16] & (1 << (16 - n % 16 - 1) ) ) ? 1 : 0 );
+	}
+ 	psi::LogInfo << psi::endl;
+
+	if( retval >= 0 ) { // Successful decoding:
+	    int nhits = drm->roc[0].numPixelHits;
+	    cout << nhits << " pixel hits" << endl;
+		for( int ii = 0; ii < nhits; ++ii ) {
+	    	// Record the pulse height and move to the next block of data
+	    	int ph = drm->roc[0].pixelHit[ii].analogPulseHeight;
+	    	int col = drm->roc[0].pixelHit[ii].columnROC;
+	    	int row = drm->roc[0].pixelHit[ii].rowROC;
+	    	cout << "hit " << setw(4) << ii+1;
+	    	cout << ": col " << setw(2) << col;
+		    cout << ", row " << setw(2) << row;
+		    cout << ", PH " << setw(3) << ph;
+		    cout << endl;
+		}
+	}
+	else {
+		cout << "digital decoder error" << endl;
+	}
 }
 
 
