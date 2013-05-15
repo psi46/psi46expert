@@ -22,8 +22,8 @@ static sem_t buf_data, buf_space;
 static unsigned char read_buffer[BUFSIZE];
 static int32_t head, tail; // read buffer is used as ring buffer
 
-//const int32_t productID_FT232H = 0x6014; // new testboard FTDI chip product id (FT232H)
-//const int32_t productID_OLD = 0x6001; //  single channel devices (R Chips) used in older test boards
+const int32_t productID_FT232H = 0x6014; // new testboard FTDI chip product id (FT232H)
+const int32_t productID_OLD = 0x6001; //  single channel devices (R Chips) used in older test boards
 const int32_t vendorID = 0x0403; // Future Technology Devices International, Ltd
 
 using namespace std;
@@ -100,7 +100,7 @@ bool CUSB::EnumFirst(uint32_t &nDevices)
   struct ftdi_device_list *  	devlist;
 
   ftdiStatus =  ftdi_usb_find_all(&ftdic, &devlist,vendorID,0); // product ID == 0 -> use ftdi defaults
-  if( ftdiStatus != 0) {
+  if( ftdiStatus <= 0) {
     nDevices = enumCount = enumPos = 0;
     return false;
   }
@@ -122,7 +122,7 @@ bool CUSB::EnumNext(char name[])
   struct ftdi_device_list *  	devlist;
 
   ftdiStatus =  ftdi_usb_find_all(&ftdic, &devlist,vendorID,0);
-  if( ftdiStatus != 0) {
+  if( ftdiStatus <= 0) {
     enumCount = enumPos = 0;
     return false;
   }
@@ -156,9 +156,16 @@ bool CUSB::Open(char serialNumber[])
 
   // open list of usb devices with the expected vendor and product ids
   struct ftdi_device_list *  	devlist;
-  ftdiStatus =  ftdi_usb_find_all(&ftdic, &devlist,vendorID,0);
+  ftdiStatus =  ftdi_usb_find_all(&ftdic, &devlist,0,0);
+  
+  // Old libfti versions do not allow wildcards for vendorID and productID.
+  // This first checks explicitly for DTB boards, if still none found for ATB ones.
+  //FIXME Would better to merge the device lists!
+  if( ftdiStatus == 0) ftdiStatus =  ftdi_usb_find_all(&ftdic, &devlist,vendorID,productID_FT232H);
+  if( ftdiStatus == 0) ftdiStatus =  ftdi_usb_find_all(&ftdic, &devlist,vendorID,productID_OLD);
+  
   if( ftdiStatus <= 0) {
-    std::cout << " USBInterface::Open(): Error searching attached USB devices! " << std::endl;
+    std::cout << " USBInterface::Open(): Error searching attached USB devices! ftdiStatus: " << ftdiStatus << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -173,7 +180,7 @@ bool CUSB::Open(char serialNumber[])
       devlist->next;
       continue;
     }
-    if (!strcmp(serialNumber,serial)){
+    if (strcmp(serialNumber,serial)){
       // not found, next device
       devlist->next;
     } else {
