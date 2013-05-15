@@ -144,7 +144,6 @@ bool CUSB::EnumNext(char name[])
   return true;
 }
 
-
 bool CUSB::Open(char serialNumber[])
 {
   if( isUSB_open) { 
@@ -158,7 +157,7 @@ bool CUSB::Open(char serialNumber[])
   // open list of usb devices with the expected vendor and product ids
   struct ftdi_device_list *  	devlist;
   ftdiStatus =  ftdi_usb_find_all(&ftdic, &devlist,vendorID,0);
-  if( ftdiStatus != 0) {
+  if( ftdiStatus <= 0) {
     std::cout << " USBInterface::Open(): Error searching attached USB devices! " << std::endl;
     return EXIT_FAILURE;
   }
@@ -187,7 +186,7 @@ bool CUSB::Open(char serialNumber[])
 	std::cout << " Warning: FTDI returned status code " << ftdiStatus << ", will try to detach ftdi_sio and usbserial kernel modules " << std::endl;
 	libusb_device_handle *handle;
 	/* open the device */
-	int32_t ok = libusb_open(devlist->dev, &handle);
+	int32_t ok = libusb_open((libusb_device*)devlist->dev, &handle);
 	if( ok != 0){
 	  std::cout << " Warning: libusb returned status code " << ok << ", could not get USB device handle " << std::endl;
 	  ftdi_list_free(&devlist);
