@@ -100,13 +100,29 @@ AC_SUBST([LIBUSB])
 
 AC_CHECK_HEADERS([libusb-1.0/libusb.h], [], [AC_MSG_WARN([libusb-1.0 headers not found. Automatic detachment of kernel modules from testboard disabled.])])
 
+# Check for the readline header. Some linux distributions have
+# separate development packages and checking the presence of
+# the library is not enough.
+AC_CHECK_HEADERS([readline/readline.h], [], [AC_MSG_ERROR([readline headers not found. Please install libreadline and/or set the CPATH environment variable correctly. Some linux distributions have separate development-packages (readline-dev or readline-devel). Please install it as well.])])
+
+# Check for the readline library
 AC_CHECK_LIB([readline], [readline], [LIBREADLINE="-lreadline"], [LIBREADLINE=none])
 if test "$LIBREADLINE" = "none"
 then
+    # Some linux distributions don't automatically link ncurses to readline. Check agin.
     AC_CHECK_LIB([readline], [readline], [LIBREADLINE="-lreadline -lncurses"], [LIBREADLINE=none], [-lncurses])
     if test "$LIBREADLINE" = "none"
     then
-        AC_MSG_ERROR([Could not compile tests program using libreadline. Either readline or ncurses libraries are missing. Please install libreadline (and libncurses) and set LIBRARY_PATH environment variable correctly.])
+        # Sometimes the previous test fails because ncurses is not installed. Check for that.
+        AC_CHECK_LIB([ncurses], [initscr], [LIBNCURSES="-lncurses"], [LIBNCURSES=none])
+        if test "$LIBNCURSES" = "none"
+        then
+            # Ncurses is missing
+            AC_MSG_ERROR([Could not find libncurses. Please install ncurses and/or set the LIBRARY_PATH environment variable correctly.])
+        fi
+
+        # Ncurses is installed, but readline could not be found
+        AC_MSG_ERROR([Could not find libreadline. Please install readline and/or set LIBRARY_PATH environment variable correctly.])
     fi
 fi
 AC_SUBST([LIBREADLINE])
