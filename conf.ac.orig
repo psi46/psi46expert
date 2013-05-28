@@ -7,37 +7,57 @@ AC_PROG_CXX
 AC_CHECK_HEADER([WinTypes.h], [WINTYPES_H=true], [WINTYPES_H=false])
 if test "$WINTYPES_H" = "false"
 then
-	AC_MSG_ERROR([Could not find WinTypes.h. Install the header file (from http://www.ftdichip.com) and set CPATH correctly.])
+    AC_MSG_ERROR([Could not find WinTypes.h. Install the header file (from http://www.ftdichip.com) and set CPATH correctly.])
 fi
 
 AC_CHECK_HEADER([ftd2xx.h], [FTD2XX_H=true], [FTD2XX_H=false])
 if test "$FTD2XX_H" = "false"
 then
-	AC_MSG_ERROR([Could not find ftd2xx.h. Install the header file (from http://www.ftdichip.com) and set CPATH correctly.])
+    AC_MSG_ERROR([Could not find ftd2xx.h. Install the header file (from http://www.ftdichip.com) and set CPATH correctly.])
 fi
 
-AC_CHECK_LIB([readline], [readline], [LIBREADLINE="-lreadline -lncurses"], [LIBREADLINE=none], [-lncurses])
+# Check for the readline header. Some linux distributions have
+# separate development packages and checking the presence of
+# the library is not enough.
+AC_CHECK_HEADERS([readline/readline.h], [], [AC_MSG_ERROR([readline headers not found. Please install libreadline and/or set the CPATH environment variable correctly. Some linux distributions have separate development-packages (readline-dev or readline-devel). Please install it as well.])])
+
+# Check for the readline library
+AC_CHECK_LIB([readline], [readline], [LIBREADLINE="-lreadline"], [LIBREADLINE=none])
 if test "$LIBREADLINE" = "none"
 then
-	AC_MSG_ERROR([Could not find libreadline. Install libreadline set LIBRARY_PATH environment variable correctly.])
+    # Some linux distributions don't automatically link ncurses to readline. Check agin.
+    AC_CHECK_LIB([readline], [readline], [LIBREADLINE="-lreadline -lncurses"], [LIBREADLINE=none], [-lncurses])
+    if test "$LIBREADLINE" = "none"
+    then
+        # Sometimes the previous test fails because ncurses is not installed. Check for that.
+        AC_CHECK_LIB([ncurses], [initscr], [LIBNCURSES="-lncurses"], [LIBNCURSES=none])
+        if test "$LIBNCURSES" = "none"
+        then
+            # Ncurses is missing
+            AC_MSG_ERROR([Could not find libncurses. Please install ncurses and/or set the LIBRARY_PATH environment variable correctly.])
+        fi
+
+        # Ncurses is installed, but readline could not be found
+        AC_MSG_ERROR([Could not find libreadline. Please install readline and/or set LIBRARY_PATH environment variable correctly.])
+    fi
 fi
 AC_SUBST([LIBREADLINE])
 
 AC_CHECK_LIB([ftd2xx], [FT_Open], [LIBFTD2XX=-lftd2xx], [LIBFTD2XX=none])
 if test "$LIBFTD2XX" = "none"
 then
-	AC_MSG_ERROR([Could not find libftd2xx. Install libftdsxx (from http://www.ftdichip.com/) or set LIBRARY_PATH environment variable correctly.])
+    AC_MSG_ERROR([Could not find libftd2xx. Install libftdsxx (from http://www.ftdichip.com/) or set LIBRARY_PATH environment variable correctly.])
 fi
 AC_SUBST([LIBFTD2XX])
 
 AC_CHECK_LIB([usb], [usb_init], [LIBUSB=-lusb], [LIBUSB=none])
 if test "$LIBUSB" = "none"
 then
-	AC_CHECK_LIB([usb], [libusb_init], [LIBUSB=-lusb], [LIBUSB=none])
+    AC_CHECK_LIB([usb], [libusb_init], [LIBUSB=-lusb], [LIBUSB=none])
 fi
 if test "$LIBUSB" = "none"
 then
-	AC_MSG_ERROR([Could not find libusb. Install libusb or set LIBRARY_PATH environment variable correctly.])
+    AC_MSG_ERROR([Could not find libusb. Install libusb or set LIBRARY_PATH environment variable correctly.])
 fi
 AC_SUBST([LIBUSB])
 
@@ -46,7 +66,7 @@ AC_CHECK_HEADERS([libusb-1.0/libusb.h], [], [AC_MSG_WARN([libusb-1.0 headers not
 AC_CHECK_PROGS([ROOT], [root-config], [/])
 if test "$ROOT" = /
 then
-	AC_MSG_ERROR([Could not find ROOT. Install ROOT or set PATH environment variable correctly.])
+    AC_MSG_ERROR([Could not find ROOT. Install ROOT or set PATH environment variable correctly.])
 fi
 
 ROOTLIBS=$(root-config --glibs)
@@ -56,7 +76,7 @@ ROOTFLAGS=$(root-config --cflags)
 AC_CHECK_PROGS([ROOTCINT], [rootcint], [/])
 if test "$ROOTCINT" = /
 then
-	AC_MSG_ERROR([Could not find ROOTCINT. Install ROOTCINT or set PATH environment variable correctly.])
+    AC_MSG_ERROR([Could not find ROOTCINT. Install ROOTCINT or set PATH environment variable correctly.])
 fi
 
 AC_SUBST([ROOTLIBS])
