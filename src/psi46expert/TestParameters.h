@@ -61,7 +61,8 @@ public:
     int PHCalibrationNTrig;
     int PHCalibrationMode;
     int PHCalibrationNPixels;
-    int PHCalibrationCalDelVthrComp;
+    int PHCalibrationAdjustVthrComp;
+    int PHCalibrationAdjustCalDel;
 
     int IVStep;
     int IVStart;

@@ -60,7 +60,8 @@ TestParameters::TestParameters(const char * _file)
         PHCalibrationNTrig(1),
         PHCalibrationMode(0),
         PHCalibrationNPixels(4160),
-        PHCalibrationCalDelVthrComp(1),
+        PHCalibrationAdjustVthrComp(1),
+        PHCalibrationAdjustCalDel(1),
 
         IVStep(5),
         IVStart(0),
@@ -192,7 +193,8 @@ bool TestParameters::ReadTestParameterFile(const char * _file)
         else if (0 == _name.compare("PHCalibrationNTrig")) { PHCalibrationNTrig          = static_cast<int>(_value); }
         else if (0 == _name.compare("PHCalibrationMode")) { PHCalibrationMode           = static_cast<int>(_value); }
         else if (0 == _name.compare("PHCalibrationNPixels")) { PHCalibrationNPixels        = static_cast<int>(_value); }
-        else if (0 == _name.compare("PHCalibrationCalDelVthrComp")) { PHCalibrationCalDelVthrComp = static_cast<int>(_value); }
+        else if (0 == _name.compare("PHCalibrationAdjustVthrComp")) { PHCalibrationAdjustVthrComp = static_cast<int>(_value); }
+        else if (0 == _name.compare("PHCalibrationAdjustCalDel")) { PHCalibrationAdjustCalDel = static_cast<int>(_value); }
 
         else if (0 == _name.compare("TempNTrig")) { TempNTrig  = static_cast<int>(_value); }
         else if (0 == _name.compare("TBMUbLevel")) { TBMUbLevel = abs(static_cast<int>(_value)); }

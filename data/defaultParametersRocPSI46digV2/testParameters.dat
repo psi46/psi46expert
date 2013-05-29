@@ -32,9 +32,12 @@ PHDacType 1
 -- PHCalibration --
 
 PHCalibrationNTrig 10
-PHCalibrationMode 0
-PHCalibrationCalDelVthrComp 1
 # 0: 10 points 1: 100 points
+PHCalibrationMode 0
+# 1: Adjusts VthrComp for Vcal 50, 100, and (200)
+PHCalibrationAdjustVthrComp 1
+# 1: Adjusts CalDel for every Vcal setting
+PHCalibrationAdjustCalDel 1
 
 -- PixelMap --
 

@@ -105,7 +105,8 @@ void PHCalibration::ReadTestParameters(TestParameters * testParameters)
     //  memoryCorrection = (*testParameters).PHMemoryCorrection / 100;
     mode = (*testParameters).PHCalibrationMode;
     numPixels = (*testParameters).PHCalibrationNPixels;
-    calDelVthrComp = (*testParameters).PHCalibrationCalDelVthrComp;
+    adjustVthrComp = (*testParameters).PHCalibrationAdjustVthrComp;
+    adjustCalDel = (*testParameters).PHCalibrationAdjustCalDel;
 }
 
 
@@ -148,10 +149,6 @@ void PHCalibration::RocAction()
     fprintf(file, "\n");
     fprintf(file, "\n");
 
-    // == Determine appropriate CalDel and VthrComp
-
-    bool debug = false;
-
     int numFlagsRemaining = numPixels;
     TRandom u;
     bool pxlFlags[ROCNUMROWS * ROCNUMCOLS];
@@ -169,21 +166,33 @@ void PHCalibration::RocAction()
         }
     }
 
-    if (debug) {calDel50 = 44; calDel100 = 63; calDel200 = 66; vthrComp50 = 114; vthrComp100 = 99; vthrComp200 = 85;}
-    else if (calDelVthrComp)
+    int original_VthrComp = GetDAC("VthrComp");
+    int original_CalDel = GetDAC("CalDel");
+
+    // Determine VthrComp values
+
+    if (adjustVthrComp)
     {
-        psi::LogInfo() << "Determining CalDel values ..." << psi::endl;
+        psi::LogInfo() << "[PHCalibration] Determining VthrComp values ..." << psi::endl;
         SetDAC("CtrlReg", 0);
-        calDel200 = GetDAC("CalDel"); vthrComp200 = GetDAC("VthrComp"); // from Pretest
-        roc->AdjustCalDelVthrComp(15, 15, 50, -0); calDel50 = GetDAC("CalDel"); vthrComp50 = GetDAC("VthrComp");
-        roc->AdjustCalDelVthrComp(15, 15, 100, -0); calDel100 = GetDAC("CalDel"); vthrComp100 = GetDAC("VthrComp");
-        //      roc->AdjustCalDelVthrComp(15, 15, 200, -1); calDel200 = GetDAC("CalDel"); vthrComp200 = GetDAC("VthrComp");
+
+        // Values for Vcal 200
+        // Assume we have these values from the pretest
+        // roc->AdjustCalDelVthrComp(15, 15, 200, -1);
+        vthrComp200 = GetDAC("VthrComp");
+
+        // Values for Vcal 50
+        roc->AdjustCalDelVthrComp(15, 15, 50, -0);
+        vthrComp50 = GetDAC("VthrComp");
+
+        // Values for Vcal 100
+        roc->AdjustCalDelVthrComp(15, 15, 100, -0);
+        vthrComp100 = GetDAC("VthrComp");
     }
     else
     {
-        calDel200 = GetDAC("CalDel"); vthrComp200 = GetDAC("VthrComp"); // from Pretest
-        calDel100 = GetDAC("CalDel"); vthrComp100 = GetDAC("VthrComp"); // from Pretest
-        calDel50 = GetDAC("CalDel"); vthrComp50 = GetDAC("VthrComp"); // from Pretest
+        // Do not adjust the threshold, take the values as they are
+        vthrComp50 = vthrComp100 = vthrComp200 = GetDAC("VthrComp");
     }
 
     // == Loop over all pixels
@@ -195,12 +204,16 @@ void PHCalibration::RocAction()
     for (int i = 0; i < vcalSteps; i++)
     {
         SetDAC("CtrlReg", ctrlReg[i]);
-        SetDAC("CalDel", GetCalDel(i));
+        SetDAC("CalDel", original_CalDel);
         SetDAC("VthrComp", GetVthrComp(i));
         SetDAC("Vcal", vcal[i]);
         Flush();
 
-        cout << "Calibrating with Vcal " << setw(3) << vcal[i] << (ctrlReg[i] == 4 ? "H" : "L") << " ... " << endl;
+        if (adjustCalDel)
+            roc->AdjustCalDel(0);
+
+        psi::LogInfo() << "[PHCalibration] Measuring pulse height with Vcal ";
+        psi::LogInfo() << Form("%3i", vcal[i]) << (ctrlReg[i] == 4 ? "H" : "L") << " ... " << psi::endl;
 
         if (numPixels >= 4160) {
             if (roc->has_analog_readout())
@@ -260,16 +273,6 @@ void PHCalibration::RocAction()
 }
 
 
-int PHCalibration::GetCalDel(int vcalStep)
-{
-    int conversion = 1;
-    if (ctrlReg[vcalStep] == 4) conversion = 7;
-    if (vcal[vcalStep]*conversion < 75.) return calDel50;
-    else if (vcal[vcalStep]*conversion < 125.) return calDel100;
-    else return calDel200;
-}
-
-
 int PHCalibration::GetVthrComp(int vcalStep)
 {
     int conversion = 1;
@@ -298,7 +301,7 @@ void PHCalibration::PulseHeightRocDigital(int data [])
     unsigned short nwords;
 
     /* Decoding flags */
-    int flags = module->GetRoc(0)->has_row_address_inverted() ? DRO_INVERT_ROW_ADDRESS : 0;
+    int flags = roc->has_row_address_inverted() ? DRO_INVERT_ROW_ADDRESS : 0;
 
     /* iterate over columns and rows to get each pixel efficiency */
     for (int col = 0; col < 52; col++) {
@@ -322,7 +325,7 @@ void PHCalibration::PulseHeightRocDigital(int data [])
             int measurement_num = 0;
             int data_pos = 0;
             for (int trig = 0; trig < nTrig; trig++) {
-                int retval = decode_digital_readout(drm, buffer + data_pos, nwords, module->NRocs(), flags);
+                int retval = decode_digital_readout(drm, buffer + data_pos, nwords, /* module->NRocs() */ 1, flags);
                 if (retval >= 0) {
                     /* Successful decoding */
                     int hits = drm->roc[roc->GetChipId()].numPixelHits;
