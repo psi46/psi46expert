@@ -188,7 +188,7 @@ void HREfficiency::ModuleAction(void)
     psi::LogInfo() << " megahits / s / cm2" << psi::endl;
     psi::LogInfo() << "Overall efficiency: " << efficiency << " %" << psi::endl;
     psi::LogInfo() << "Core efficiency: " << core_efficiency << " %" << psi::endl;
-    psi::LogInfo() << "Number of decoding errors: " << ed.GetDecodingErrors() << psi::endl;
+    psi::LogInfo() << "Number of decoding problems: " << ed.GetDecodingErrors() << psi::endl;
 
     /* Free the memory in the RAM */
     ai->getCTestboard()->Daq_Done();
