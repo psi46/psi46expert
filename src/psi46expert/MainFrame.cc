@@ -529,18 +529,6 @@ void MainFrame::HVoff()
 
 void MainFrame::Exit()
 {
-    // Ask User if (s)he wants to save Parameters
-    int _ret;
-    new TGMsgBox(gClient->GetRoot(), this,
-                 "Save Parameters...",
-                 "Would you like to save DAC Parameters?",
-                 kMBIconQuestion, kMBYes | kMBNo, &_ret);
-
-    if (kMBYes == _ret)
-    {
-        controlNetwork->WriteDACParameterFile(std::string(ConfigParameters::Singleton()->directory).append("module").c_str());
-    }
-
     ((TBAnalogInterface *)tbInterface)->HVoff();
     tbInterface->Flush();
     tbInterface->Poff();
