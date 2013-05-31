@@ -557,7 +557,6 @@ void TestRoc::AdjustCalDelVthrComp()
     int vOffsetOp = GetDAC("VoffsetOp");
     SetDAC("VoffsetOp", 255);
 
-    psi::LogInfo() << "Setting" << get_threshold_autoset_value() << psi::endl;
     AdjustCalDelVthrComp(20, 20, 200, get_threshold_autoset_value());
 
     calDel += GetDAC("CalDel");
@@ -1048,31 +1047,31 @@ double TestRoc::GetTemperature()
  */
 void TestRoc::TrimVerification()
 {
+    gDelay->Timestamp();
+    psi::LogInfo() << "[TestRoc] Measuring VcalThresholdMap for ROC " << chipId << " with double WBC ..." << psi::endl;
+
     SaveDacParameters();
+
     ThresholdMap * thresholdMap = new ThresholdMap();
     thresholdMap->SetDoubleWbc();
-    psi::LogInfo() << "[TestRoc] Measuring VcalThresholdMap for ROC " << chipId << " with double WBC ..." << psi::endl;
     TH2D * map = thresholdMap->GetMap("VcalThresholdMap", this, GetRange(), 5);
     TH1D * dist = gAnalysis->Distribution(map, 255, 0., 255.);
     bool overflow = dist->GetBinContent(0) > 0 || dist->GetBinContent(256) > 0;
     psi::LogInfo() << "[TestRoc] Mean Vcal = " << dist->GetMean() << ", RMS = " << dist->GetRMS() << (overflow ? " (overflow!)" : "") << psi::endl;
+
     RestoreDacParameters();
+
+    gDelay->Timestamp();
 }
 
 void TestRoc::ThrMaps()
 {
-
+    gDelay->Timestamp();
+    psi::LogInfo() << "[TestRoc] Measuring VcalThresholdMap for ROC " << chipId << " with double WBC ..." << psi::endl;
     ThresholdMap * thresholdMap = new ThresholdMap();
     thresholdMap->SetDoubleWbc(); //absolute threshold (not in-time)
 
     SaveDacParameters();
-
-    int vthrComp = GetDAC("VthrComp");
-
-
-    SetDAC("VthrComp", vthrComp);
-    printf("VthrComp %i\n", vthrComp);
-    Flush();
 
     TestRange * testRange = new TestRange();
     testRange->CompleteRoc(chipId);
@@ -1080,14 +1079,17 @@ void TestRoc::ThrMaps()
     TH2D * vcalMap = thresholdMap->GetMap("VcalThresholdMap", this, testRange, 5);
     vcalMap->SetNameTitle(Form("VcalThresholdMap_C%i", chipId), Form("VcalThresholdMap_C%i", chipId));
     vcalMap->Write();
-    TH1D * vcalMapDistribution = gAnalysis->Distribution(vcalMap);
-    vcalMapDistribution->Write();
+    TH1D * dist = gAnalysis->Distribution(vcalMap);
+    dist->Write();
 
+    bool overflow = dist->GetBinContent(0) > 0 || dist->GetBinContent(256) > 0;
+    psi::LogInfo() << "[TestRoc] Mean Vcal = " << dist->GetMean() << ", RMS = " << dist->GetRMS() << (overflow ? " (overflow!)" : "") << psi::endl;
 
     RestoreDacParameters();
 
-
+    gDelay->Timestamp();
 }
+
 /*void TestRoc::Scurves(){
 TestRange *fullRange = new TestRange();
 for (int iCol = 0; iCol <= 51; iCol++)

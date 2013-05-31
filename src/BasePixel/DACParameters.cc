@@ -94,6 +94,7 @@ bool DACParameters::Execute(SysCommand command)
 
         if ((strcmp(names[iDAC], "") != 0) && (strcmp(command.carg[0], names[iDAC]) == 0))
         {
+            psi::LogInfo() << "[DACParameters] Setting " << names[iDAC] << " to " << (*command.iarg[1]) << psi::endl;
             SetParameter(iDAC, *command.iarg[1]);
             return true;
         }

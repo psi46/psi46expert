@@ -37,6 +37,7 @@ void HRPixelMap::ModuleAction(void)
 
     /* Unmask the ROC */
     int nroc = module->NRocs();
+    psi::LogInfo() << "[HRPixelMap] Excluding masked pixels ... " << psi::endl;
     for (int i = 0; i < nroc; i++) {
         if (!testRange->IncludesRoc(i))
             continue;
@@ -46,8 +47,6 @@ void HRPixelMap::ModuleAction(void)
             for (int row = 0; row < ROC_NUMROWS; row++) {
                 if (testRange->IncludesPixel(i, col, row))
                     module->GetRoc(i)->EnablePixel(col, row);
-                else
-                    psi::LogInfo() << "Excluding pixel " << col << ":" << row << psi::endl;
             }
         }
     }
@@ -68,7 +67,7 @@ void HRPixelMap::ModuleAction(void)
         ai->SetClockStretch(STRETCH_AFTER_CAL, testParameters->HRPixelMapStretchDelay, testParameters->HRPixelMapClockStretch);
 
     /* Get the digital and analog voltages / currents */
-    psi::LogInfo() << "Measuring chip voltages and currents ..." << psi::endl;
+    psi::LogInfo() << "[HRPixelMap] Measuring chip voltages and currents ..." << psi::endl;
     TParameter<float> vd("hr_pixelmap_digital_voltage", ai->GetVD());
     TParameter<float> id("hr_pixelmap_digital_current", ai->GetID());
     TParameter<float> va("hr_pixelmap_analog_voltage", ai->GetVA());
@@ -90,6 +89,8 @@ void HRPixelMap::ModuleAction(void)
 
     /* Repeat measurements multiple times to collect statistics */
     for (int rep = 0; rep < testParameters->HRPixelMapRepetitions; rep++) {
+        if (testParameters->HRPixelMapRepetitions > 1)
+            psi::LogInfo() << "[HRPixelMap] Masuring iteration " << rep + 1 << "/" << testParameters->HRPixelMapRepetitions << " ..." << psi::endl;
         /* Prepare the data aquisition (store to testboard RAM) */
         unsigned int data_pointer = ai->getCTestboard()->Daq_Init(30000000);
 
@@ -123,12 +124,13 @@ void HRPixelMap::ModuleAction(void)
 
         float seconds = testParameters->HRPixelMapAquisitionTime;
         for (float t = seconds; t >= 1; t--) {
-            cout << "\rTaking data (" << t << " seconds) ... ";
+            cout << "\r[HRPixelMap] Taking data (" << t << " seconds) ... ";
             cout.flush();
             gDelay->Mdelay(1000);
         }
-        cout << "\rTaking data (" << (seconds - (int)(seconds)) << " seconds) ... done" << endl;
+        cout << "\r[HRPixelMap] Taking data (" << (seconds - (int)(seconds)) << " seconds) ... done" << endl;
         gDelay->Mdelay((int)((seconds - (int)(seconds)) * 1000));
+        cout << "\r[HRPixelMap] Taking data (" << seconds << " seconds) ... done" << endl;
 
         /* Stop triggering */
         ai->Single(RES);
@@ -149,7 +151,7 @@ void HRPixelMap::ModuleAction(void)
 
         /* Number of words stored in memory */
         int nwords = (data_end - data_pointer) / 2;
-        psi::LogInfo() << "Megabytes in RAM: " << nwords * 2. / 1024. / 1024. << psi::endl;
+        psi::LogInfo() << "[HRPixelMap] Megabytes in RAM: " << nwords * 2. / 1024. / 1024. << psi::endl;
 
         /* Prepare data decoding */
         RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
@@ -212,13 +214,13 @@ void HRPixelMap::ModuleAction(void)
     if (testParameters->HRPixelMapClockStretch > 1)
         active_time *= testParameters->HRPixelMapClockStretch;
     TH2I * map = (TH2I *) hm.getHitMap(-1);
-    psi::LogInfo() << "Number of triggers: " << count.TriggerCounter << psi::endl;
-    psi::LogInfo() << "Number of hits: " << map->GetEntries() << psi::endl;
-    psi::LogInfo() << "Rate: " << (core_hits / active_time / active_area / 1e6);
+    psi::LogInfo() << "[HRPixelMap] Number of triggers: " << count.TriggerCounter << psi::endl;
+    psi::LogInfo() << "[HRPixelMap] Number of hits: " << map->GetEntries() << psi::endl;
+    psi::LogInfo() << "[HRPixelMap] Rate: " << (core_hits / active_time / active_area / 1e6);
     psi::LogInfo() << " +/- " << (TMath::Sqrt(core_hits) / active_time / active_area / 1e6);
     psi::LogInfo() << " megahits / s / cm2" << psi::endl;
-    psi::LogInfo() << "Number of ROC sequence problems: " << count.RocSequenceErrorCounter << psi::endl;
-    psi::LogInfo() << "Number of decoding problems: " << ed.GetDecodingErrors() << psi::endl;
+    psi::LogInfo() << "[HRPixelMap] Number of ROC sequence problems: " << count.RocSequenceErrorCounter << psi::endl;
+    psi::LogInfo() << "[HRPixelMap] Number of decoding problems: " << ed.GetDecodingErrors() << psi::endl;
 
     TParameter<float> triggers("pixelmap_triggers", count.TriggerCounter);
     triggers.Write();
