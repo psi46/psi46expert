@@ -73,6 +73,10 @@ void execute(SysCommand &command)
 {
     do
     {
+        /* Separate commands with a newline in batch mode */
+        if (cmdFileArg)
+            psi::LogInfo() << psi::endl;
+
         if (command.Keyword("gui"))
         {
             runGUI();
@@ -568,18 +572,22 @@ int main(int argc, char * argv[])
         // == CommandLine ================================================================
 
         char * p;
+        char * last = NULL;
         bool finished = false;
         do {
             p = readline("psi46expert> ");
-            add_history(p);
+            if (!last || strcmp(p, last) != 0)
+                add_history(p);
+            free(last);
 
             psi::LogDebug() << "psi46expert> " << p << psi::endl;
 
             if (sysCommand.Parse(p)) execute(sysCommand);
             finished = (strcmp(p, "exit") == 0) || (strcmp(p, "q") == 0);
-            free(p);
+            last = p;
         }
         while (!finished);
+        free(last);
     }
 
     // == Exit ========================================================================
