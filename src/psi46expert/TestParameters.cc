@@ -43,6 +43,8 @@ TestParameters::TestParameters(const char * _file)
         PHtestVcal(60),
         PHDacType(1),
         PHSafety(50),
+        PHScanDac(0),
+        PHScanVcalRange(0),
 
         TrimVcal(50),
         TrimNTrig(10),
@@ -171,6 +173,8 @@ bool TestParameters::ReadTestParameterFile(const char * _file)
         else if (0 == _name.compare("PHtestVcal")) { PHtestVcal      = static_cast<int>(_value); }
         else if (0 == _name.compare("PHDacType")) { PHDacType       = static_cast<int>(_value); }
         else if (0 == _name.compare("PHSafety")) { PHSafety        = static_cast<int>(_value); }
+        else if (0 == _name.compare("PHScanDac"))       { PHScanDac       = static_cast<int>(_value); }
+        else if (0 == _name.compare("PHScanVcalRange")) { PHScanVcalRange = static_cast<int>(_value); }
 
         else if (0 == _name.compare("TrimVcal")) { TrimVcal         = static_cast<int>(_value); }
         else if (0 == _name.compare("TrimNTrig")) { TrimNTrig        = static_cast<int>(_value); }

@@ -28,6 +28,10 @@ PHdac2Step 10
 PHNumberOfSteps 15
 PHtestVcal 60
 PHDacType 1
+# DAC to scan in PhScan test. 0: all DACs
+PHScanDac 0
+# Vcal range for PhScan test. 0: low range, 1: high range, 2: both
+PHScanVcalRange 0
 
 -- PHCalibration --
 

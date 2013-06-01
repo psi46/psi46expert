@@ -44,6 +44,8 @@ public:
     int PHtestVcal;
     int PHDacType;
     int PHSafety;
+    int PHScanDac;
+    int PHScanVcalRange;
 
     int TrimVcal;
     int TrimNTrig;

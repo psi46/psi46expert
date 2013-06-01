@@ -3,10 +3,12 @@
 #include "TestModule.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/GlobalConstants.h"
+#include <TParameter.h>
 #include "TCanvas.h"
 #include "PhDacScan.h"
 #include "BasePixel/DecodedReadout.h"
 #include "BasePixel/DigitalReadoutDecoder.h"
+#include "interface/Log.h"
 
 PhDacOverview::PhDacOverview(TestRange * aTestRange, TestParameters * testParameters, TBInterface * aTBInterface)
     : PhDacScan(aTestRange, testParameters, aTBInterface)
@@ -22,6 +24,8 @@ void PhDacOverview::ReadTestParameters(TestParameters * testParameters)
 {
     PhDacScan::ReadTestParameters(testParameters);
     NumberOfSteps = (*testParameters).PHNumberOfSteps;
+    ScanDac = (*testParameters).PHScanDac;
+    VcalRange = (*testParameters).PHScanVcalRange;
 }
 
 void PhDacOverview::RocAction()
@@ -34,6 +38,7 @@ void PhDacOverview::RocAction()
 
 void PhDacOverview::PixelAction()
 {
+    psi::LogInfo() << "[PhDacOverview] Testing ROC #" << chipId << ", pixel " << column << ":" << row << " ..." << psi::endl;
     ArmPixel();
     Flush();
     DoDacScan();
@@ -52,10 +57,16 @@ void PhDacOverview::DoDacScan()
     else
         offset = 9;
 
-    cout << "chipId = " << chipId << ", col = " << column << ", row = " << row << endl;
-
     /* Iterate over ROC DACs */
-    for (int DacRegister = 1; DacRegister < 28; DacRegister++) {
+    int DacMin, DacMax;
+    if (ScanDac == 0) {
+        DacMin = 1;
+        DacMax = 27;
+    } else {
+        DacMin = ScanDac;
+        DacMax = ScanDac;
+    }
+    for (int DacRegister = DacMin; DacRegister <= DacMax; DacRegister++) {
         /* Exclude DACs that don't exist on the digital ROC psi46dig */
         if (!(roc->has_analog_readout())) {
             switch (DacRegister) {
@@ -68,28 +79,80 @@ void PhDacOverview::DoDacScan()
         DACParameters * parameters = new DACParameters();
         char * dacName = parameters->GetName(DacRegister);
         delete parameters;
-        cout << "Testing ROC DAC #" << DacRegister << " (" << dacName << ") ..." << endl;
 
         /* Set scan maximum */
         int scanMax;
         if ((DacRegister == 1) || (DacRegister == 4) || (DacRegister == 6) || (DacRegister == 8) || (DacRegister == 14))
+        {
             scanMax = 16;
+        }
         else
+        {
             scanMax = 256;
+        }
+
+        int steps = (NumberOfSteps > scanMax) ? scanMax : NumberOfSteps;
+
+        psi::LogInfo() << "[PhDacOverview] Testing ROC DAC #" << DacRegister << " (" << dacName << ") in " << steps << " steps ..." << psi::endl;
 
         /* Scan the DAC */
         int defaultValue = GetDAC(DacRegister);
         int loopNumber = 0;
-        for (int scanValue = 0; scanValue < scanMax; scanValue += ((int)scanMax / NumberOfSteps)) {
+
+        /* Digital current histogram */
+        TH1D * histo_id = new TH1D(Form("digital current of DAC %s", dacName), Form("digital current of DAC %s", dacName), scanMax, 0, scanMax);
+        histo_id->GetXaxis()->SetTitle(Form("DAC %s (DAC units)", dacName));
+        histo_id->GetYaxis()->SetTitle("Digital current (mA)");
+        histo_id->SetMarkerStyle(20);
+        histo_id->SetMarkerSize(2);
+        histo_id->SetMinimum(0);
+
+        cout << "[PhDacOverview] Scan in progress: ";
+        for (int scanValue = 0; scanValue < scanMax; scanValue += ((int)scanMax / steps))
+        {
             loopNumber++;
 
-            TH1D * histo = new TH1D(Form("DAC%i_Value%i", DacRegister, loopNumber), Form("%s=%d", dacName, scanValue), 256, 0, 256);
-            histo->GetXaxis()->SetTitle("Vcal [DAC units]");
-            histo->GetYaxis()->SetTitle("Pulse height [ADC units]");
+            DACParameters * parameters = new DACParameters();
+            char * dacName = parameters->GetName(DacRegister);
+            delete parameters;
+
+            TH1D * histo_low = new TH1D(Form("DAC%i_Value%i", DacRegister, loopNumber), Form("%s=%d", dacName, scanValue), 256, 0, 256);
+            TH1D * histo_high = new TH1D(Form("DAC%i_Value%i_h", DacRegister, loopNumber), Form("%s=%d", dacName, scanValue), 256, 0, 256);
+
+            cout << "*"  << flush;
+
+            histo_low->GetXaxis()->SetTitle("Vcal (low range) [DAC units]");
+            histo_high->GetXaxis()->SetTitle("Vcal (high range) [DAC units]");
+            histo_low->GetYaxis()->SetTitle("Pulse height [ADC units]");
+            histo_high->GetYaxis()->SetTitle("Pulse height [ADC units]");
             SetDAC(DacRegister, scanValue);
-            PHDac(histo);
-            histograms->Add(histo);
+            if (VcalRange == 0 || VcalRange == 2) {
+                SetDAC("CtrlReg", 0);
+                PHDac(histo_low);
+            }
+            if (VcalRange == 1 || VcalRange == 2) {
+                SetDAC("CtrlReg", 4);
+                PHDac(histo_high);
+            }
+
+            if (VcalRange == 0 || VcalRange == 2)
+                histograms->Add(histo_low);
+            if (VcalRange == 1 || VcalRange == 2)
+                histograms->Add(histo_high);
+
+            /* Measure digital current (2 times) */
+            double id;
+            id = ai->GetID();
+            id = ai->GetID();
+            TParameter<double> * parameter1 = new TParameter<double>(Form("ID_DAC%i_Value%i", DacRegister, loopNumber), id);
+            parameter1->Write();
+
+            histo_id->SetBinContent(scanValue + 1, id * 1000);
         }
+        histograms->Add(histo_id);
+
+        cout << endl;
+
         SetDAC(DacRegister, defaultValue);
     }
 
@@ -107,13 +170,14 @@ void PhDacOverview::DoDacScan()
         else if (DacRegister == 4)
             dacName = "Dacgain";
 
-        cout << "Testing TBM DAC #" << DacRegister << "(" << dacName << ") ..." << endl;
+        psi::LogInfo() << "[PhDacOverview] Testing TBM DAC #" << DacRegister << "(" << dacName << ") ..." << psi::endl;
 
         int scanMax = 256;
+        int steps = (NumberOfSteps > scanMax) ? scanMax : NumberOfSteps;
         int defaultValue = module->GetTBM(DacRegister);
         int loopNumber = 0;
 
-        for (int scanValue = 0; scanValue < scanMax; scanValue += ((int) scanMax / NumberOfSteps)) {
+        for (int scanValue = 0; scanValue < scanMax; scanValue += ((int) scanMax / steps)) {
             loopNumber++;
 
             TH1D * histo = new TH1D(Form("TBM_DAC%i_Value%i", DacRegister, loopNumber), Form("%s=%d", dacName, scanValue), 256, 0, 256);
@@ -190,7 +254,7 @@ void PhDacOverview::PHDac(TH1D * histo)
             int measurement_num = 0;
             int data_pos = 0;
             for (int trig = 0; trig < nTrig; trig++) {
-                int retval = decode_digital_readout(drm, buffer + trig * (ai->GetEmptyReadoutLengthADC() + 6), nwords, module->NRocs(), flags);
+                int retval = decode_digital_readout(drm, buffer + data_pos, nwords, module->NRocs(), flags);
                 if (retval >= 0) {
                     /* Successful decoding */
                     int hits = drm->roc[roc->GetChipId()].numPixelHits;
