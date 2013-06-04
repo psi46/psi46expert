@@ -111,7 +111,10 @@ void AddressDecoding::AnalyseResult(int pixel)
     }
     else
     {
-        psi::LogInfo() << "[AddressDecoding] Error: Invalid readout length (" << readoutStop[pixel] - readoutStart << ")" << psi::endl;
+        if (readoutStop[pixel] - readoutStart != ((TBAnalogInterface *)tbInterface)->GetEmptyReadoutLengthADC())
+            psi::LogInfo() << "[AddressDecoding] Warning: Invalid readout length (" << readoutStop[pixel] - readoutStart << ")" << psi::endl;
+        else
+            psi::LogInfo() << "[AddressDecoding] Warning: Empty readout for pixel " << column << ":" << row << " on ROC " << roc->GetChipId() << "." << psi::endl;
         if (fPrintDebug)
         {
             cout << "ADC values = { ";
