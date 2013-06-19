@@ -77,10 +77,13 @@ void HRPixelMap::ModuleAction(void)
     va.Write();
     ia.Write();
 
+    float seconds = testParameters->HRPixelMapAquisitionTime;
+    int repetitions = testParameters->HRPixelMapRepetitions;
+
     /* Data filters */
     RawData2RawEvent rs;
     RawEventDecoder ed(nroc, module->GetRoc(0)->has_analog_readout(), module->GetRoc(0)->has_row_address_inverted());
-    HitMapper hm(nroc);
+    HitMapper hm(nroc, seconds * repetitions);
     EventCounter count;
     MultiplicityHistogrammer mh;
     PulseHeightHistogrammer phh;
@@ -88,7 +91,7 @@ void HRPixelMap::ModuleAction(void)
     phh.LoadCalibration(nroc, configParameters->directory);
 
     /* Repeat measurements multiple times to collect statistics */
-    for (int rep = 0; rep < testParameters->HRPixelMapRepetitions; rep++) {
+    for (int rep = 0; rep < repetitions; rep++) {
         if (testParameters->HRPixelMapRepetitions > 1)
             psi::LogInfo() << "[HRPixelMap] Masuring iteration " << rep + 1 << "/" << testParameters->HRPixelMapRepetitions << " ..." << psi::endl;
         /* Prepare the data aquisition (store to testboard RAM) */
@@ -122,13 +125,13 @@ void HRPixelMap::ModuleAction(void)
         /* Reset the aquisition on the testboard */
         ai->SetReg(43, (1 << 0));
 
-        float seconds = testParameters->HRPixelMapAquisitionTime;
         for (float t = seconds; t >= 1; t--) {
             cout << "\r[HRPixelMap] Taking data (" << t << " seconds) ... ";
             cout.flush();
             gDelay->Mdelay(1000);
         }
-        cout << "\r[HRPixelMap] Taking data (" << (seconds - (int)(seconds)) << " seconds) ... done" << endl;
+        cout << "\r[HRPixelMap] Taking data (" << (seconds - (int)(seconds)) << " seconds) ... ";
+        cout.flush();
         gDelay->Mdelay((int)((seconds - (int)(seconds)) * 1000));
         cout << "\r[HRPixelMap] Taking data (" << seconds << " seconds) ... done" << endl;
 
@@ -202,6 +205,8 @@ void HRPixelMap::ModuleAction(void)
             histograms->Add(multi);
         }
     }
+    histograms->Add((TH1I *) hm.getHitsVsTimeDcol()->Clone());
+    histograms->Add((TH1I *) hm.getHitsVsTimeRoc()->Clone());
     histograms->Add((TH1I *) phh.getPulseHeightDistribution()->Clone());
     histograms->Add((TH2F *) phh.getPulseHeightMap()->Clone());
     histograms->Add((TH2F *) phh.getPulseHeightWidthMap()->Clone());
