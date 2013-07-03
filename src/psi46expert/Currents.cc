@@ -19,6 +19,8 @@ Currents::Currents(TestRange *aTestRange, TestParameters * testParameters, TBInt
 
 void Currents::ReadTestParameters(TestParameters * testParameters)
 {
+DacRegister = (*testParameters).CurrentScanDac;
+NumberOfSteps = (*testParameters).CurrentScanNumberOfSteps;
 }
 
 void Currents::RocAction()
@@ -30,22 +32,25 @@ void Currents::RocAction()
 
 void Currents::DoCurrentScan()
 {
-	int DacRegister = 1;
-	int scanMax = 16;
-	int NumberOfSteps = 16;
+	int scanMax;
+        if ((DacRegister == 1) || (DacRegister == 4) || (DacRegister == 6) || (DacRegister == 8) || (DacRegister == 14))
+            scanMax = 16;
+        else
+            scanMax = 256;
+
 	TBAnalogInterface* anaInterface = (TBAnalogInterface*)tbInterface;
 	DACParameters * parameters = new DACParameters();
         char * dacName = parameters->GetName(DacRegister);
 
 	//define ID hist
 	TH1D *histo = new TH1D( Form( "digital current of DAC %s", dacName)
-				,Form( "digital current of DAC %s", dacName),scanMax, 0, scanMax);
+				,Form( "digital current of DAC %s", dacName),NumberOfSteps, 0, scanMax);
 	histo->GetXaxis()->SetTitle(Form( "DAC %s (DAC units)", dacName));
 	histo->GetYaxis()->SetTitle("digital current (A)");
 	histo->SetMarkerStyle(20);
 	histo->SetMarkerSize(2);
 	TH1D *histoA = new TH1D( Form( "analog current of DAC %s", dacName)
-				,Form( "analog current of DAC %s", dacName),scanMax, 0, scanMax);
+				,Form( "analog current of DAC %s", dacName),NumberOfSteps, 0, scanMax);
 	histoA->GetXaxis()->SetTitle(Form( "DAC %s (DAC units)", dacName));
 	histoA->GetYaxis()->SetTitle("analog current (A)");
 	histoA->SetMarkerStyle(20);
@@ -64,10 +69,10 @@ void Currents::DoCurrentScan()
 		//measure currents twice:
 		double id = anaInterface->GetID();
 		id = anaInterface->GetID();
-		histo->SetBinContent(scanValue+1, id);
+		histo->SetBinContent(loopNumber+1, id);
 		double ia = anaInterface->GetIA();
 		ia = anaInterface->GetIA();
-		histoA->SetBinContent(scanValue+1, ia);
+		histoA->SetBinContent(loopNumber+1, ia);
 		//std::cout << "*"  << std::flush;
 		cout << setw(10) << left << scanValue << setw(10) << left << id << setw(10) << left << ia << endl;
 		SetDAC(DacRegister, defaultValue);

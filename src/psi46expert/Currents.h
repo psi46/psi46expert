@@ -14,4 +14,5 @@ public:
 
 protected:
     int NumberOfSteps;
+    int DacRegister;
 };
