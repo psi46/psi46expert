@@ -7,6 +7,7 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/GlobalConstants.h"
 #include "TCanvas.h"
+#include <iomanip>
 
 Currents::Currents(TestRange *aTestRange, TestParameters * testParameters, TBInterface *aTBInterface)
 {
@@ -49,7 +50,7 @@ void Currents::DoCurrentScan()
 	histoA->GetYaxis()->SetTitle("analog current (A)");
 	histoA->SetMarkerStyle(20);
 	histoA->SetMarkerSize(2);
-	std::cout << endl << "scanning DAC " << dacName << ": ";
+	cout << setw(10) << left << dacName << setw(10) << left << "ID (A)"  << setw(10) << left << "IA (A)" << endl;
 	int loopNumber = 0;
 	int defaultValue = GetDAC(DacRegister);
 	// loop over different DAC values
@@ -59,7 +60,6 @@ void Currents::DoCurrentScan()
 		//DACParameters* parameters = new DACParameters();
 		//char *dacName = parameters->GetName(DacRegister);
 		//delete parameters;
-		std::cout << "*"  << std::flush;
 		SetDAC(DacRegister, scanValue);
 		//measure currents twice:
 		double id = anaInterface->GetID();
@@ -68,8 +68,10 @@ void Currents::DoCurrentScan()
 		double ia = anaInterface->GetIA();
 		ia = anaInterface->GetIA();
 		histoA->SetBinContent(scanValue+1, ia);
+		//std::cout << "*"  << std::flush;
+		cout << setw(10) << left << scanValue << setw(10) << left << id << setw(10) << left << ia << endl;
 		SetDAC(DacRegister, defaultValue);
 		}
 		histograms->Add(histo);
-	std::cout << endl;
+	//std::cout << endl;
 }
