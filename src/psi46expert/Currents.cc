@@ -43,16 +43,16 @@ void Currents::DoCurrentScan()
         char * dacName = parameters->GetName(DacRegister);
 
 	//define ID hist
-	TH1D *histo = new TH1D( Form( "digital current of DAC %s", dacName)
+	TH1D *histo = new TH1D( Form( "dig_current_%s", dacName)
 				,Form( "digital current of DAC %s", dacName),NumberOfSteps, 0, scanMax);
 	histo->GetXaxis()->SetTitle(Form( "DAC %s (DAC units)", dacName));
-	histo->GetYaxis()->SetTitle("digital current (A)");
+	histo->GetYaxis()->SetTitle("current (A)");
 	histo->SetMarkerStyle(20);
 	histo->SetMarkerSize(2);
-	TH1D *histoA = new TH1D( Form( "analog current of DAC %s", dacName)
+	TH1D *histoA = new TH1D( Form( "ana_current_%s", dacName)
 				,Form( "analog current of DAC %s", dacName),NumberOfSteps, 0, scanMax);
 	histoA->GetXaxis()->SetTitle(Form( "DAC %s (DAC units)", dacName));
-	histoA->GetYaxis()->SetTitle("analog current (A)");
+	histoA->GetYaxis()->SetTitle("current (A)");
 	histoA->SetMarkerStyle(20);
 	histoA->SetMarkerSize(2);
 	cout << setw(10) << left << dacName << setw(10) << left << "ID (A)"  << setw(10) << left << "IA (A)" << endl;
