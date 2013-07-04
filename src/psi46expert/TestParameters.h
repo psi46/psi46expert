@@ -104,6 +104,9 @@ public:
     int HRSCurveThrStart;
     int HRSCurveThrEnd;
     int HRSCurveTriggers;
+
+    int CurrentScanDac;
+    int CurrentScanNumberOfSteps;
 };
 
 #endif

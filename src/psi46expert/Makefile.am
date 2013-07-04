@@ -90,7 +90,8 @@ libpsi46expert_la_SOURCES = AddressDecoding.cc \
 			    HighRatePixelMap.cc \
 			    HighRateEfficiency.cc \
 			    HighRateTrimLow.cc \
-			    HighRateSCurve.cc
+			    HighRateSCurve.cc \
+			    Currents.cc
 
 nodist_libpsi46expert_la_SOURCES = MainFrameDict.cc \
 				   TestRangeDict.cc
@@ -208,7 +209,8 @@ noinst_HEADERS = AddressDecoding.h \
 		 HighRatePixelMap.h \
 		 HighRateEfficiency.h \
 		 HighRateTrimLow.h \
-		 HighRateSCurve.h
+		 HighRateSCurve.h \
+		 Currents.h
 
 # ADDITIONAL CLEANING RULES -----------------------------------------------------------------------------------------------------------------------------------
 

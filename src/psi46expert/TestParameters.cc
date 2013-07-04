@@ -100,7 +100,11 @@ TestParameters::TestParameters(const char * _file)
 
         HRSCurveThrStart(80),
         HRSCurveThrEnd(130),
-        HRSCurveTriggers(50)
+        HRSCurveTriggers(50),
+
+	CurrentScanDac(1),
+	CurrentScanNumberOfSteps(16)
+
 {
     ReadTestParameterFile(_file);
 }
@@ -230,6 +234,9 @@ bool TestParameters::ReadTestParameterFile(const char * _file)
         else if (0 == _name.compare("HRSCurveThrStart")) { HRSCurveThrStart = static_cast<int>(_value); }
         else if (0 == _name.compare("HRSCurveThrEnd")) { HRSCurveThrEnd = static_cast<int>(_value); }
         else if (0 == _name.compare("HRSCurveTriggers")) { HRSCurveTriggers = static_cast<int>(_value); }
+
+        else if (0 == _name.compare("CurrentScanDac")) { CurrentScanDac = static_cast<int>(_value); }
+        else if (0 == _name.compare("CurrentScanNumberOfSteps")) { CurrentScanNumberOfSteps = static_cast<int>(_value); }
 
         else {
             psi::LogInfo() << "[TestParameter] Did not understand '" << _name << "'."
