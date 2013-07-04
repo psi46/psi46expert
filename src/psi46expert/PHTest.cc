@@ -12,6 +12,8 @@ PHTest::PHTest(TestRange * aTestRange, TestParameters * testParameters, TBInterf
     testRange = aTestRange;
     tbInterface = aTBInterface;
     ReadTestParameters(testParameters);
+    ConfigParameters * configParameters = ConfigParameters::Singleton();
+    nRocs = configParameters->nRocs;
 }
 
 
@@ -21,6 +23,20 @@ void PHTest::ReadTestParameters(TestParameters * testParameters)
     nTrig = (*testParameters).PHNTrig;
 }
 
+void PHTest::SetMode(int new_mode)
+{
+    mode = new_mode;
+}
+
+void PHTest::SetNTrig(int new_ntrig)
+{
+    nTrig = new_ntrig;
+}
+
+void PHTest::RocAction(TestRoc * testRoc)
+{
+    Test::RocAction(testRoc);
+}
 
 void PHTest::RocAction()
 {
@@ -154,7 +170,7 @@ void PHTest::PhDac(char * dacName)
         ArmPixel();
 
         /* Decoding flags */
-        int flags = module->GetRoc(0)->has_row_address_inverted() ? DRO_INVERT_ROW_ADDRESS : 0;
+        int flags = roc->has_row_address_inverted() ? DRO_INVERT_ROW_ADDRESS : 0;
 
         /* Loop through the whole DAC range */
         for (int dac = 0; dac < 256; dac++) {
@@ -178,7 +194,7 @@ void PHTest::PhDac(char * dacName)
             int measurement_num = 0;
             int data_pos = 0;
             for (int trig = 0; trig < nTrig; trig++) {
-                int retval = decode_digital_readout(drm, buffer + data_pos, nwords, module->NRocs(), flags);
+                int retval = decode_digital_readout(drm, buffer + data_pos, nwords, nRocs, flags);
                 if (retval >= 0) {
                     /* Successful decoding */
                     int hits = drm->roc[roc->GetChipId()].numPixelHits;
@@ -260,7 +276,7 @@ void PHTest::PulseHeightRocDigital(int data [])
             int measurement_num = 0;
             int data_pos = 0;
             for (int trig = 0; trig < nTrig; trig++) {
-                int retval = decode_digital_readout(drm, buffer + data_pos, nwords, module->NRocs(), flags);
+                int retval = decode_digital_readout(drm, buffer + data_pos, nwords, nRocs, flags);
                 if (retval >= 0) {
                     /* Successful decoding */
                     int hits = drm->roc[roc->GetChipId()].numPixelHits;
