@@ -37,6 +37,8 @@ void Xray::ReadTestParameters(TestParameters * testParameters)
     vthrCompMin = (*testParameters).XrayVthrCompMin;
     vthrCompMax = (*testParameters).XrayVthrCompMax;
     maxEff = (*testParameters).XrayMaxEff;
+    clockStretchFactor = (*testParameters).XrayClockStretchFactor;
+    clockStretchDelay = (*testParameters).XrayClockStretchDelay;
 }
 
 
@@ -71,10 +73,8 @@ void Xray::ModuleAction()
     }
 
     tb->DataEnable(false);
-    if (module->GetRoc(0)->has_analog_readout()) {
-        // max stretching is 1022 (Beat)
-        tb->SetClockStretch(STRETCH_AFTER_CAL, 0, 100);
-    }
+    // max stretching is 1022 (Beat)
+    tb->SetClockStretch(STRETCH_AFTER_CAL, clockStretchDelay, clockStretchFactor);
     tb->Flush();
 
     // Check for noisy pixels
@@ -173,8 +173,7 @@ void Xray::ModuleAction()
         psi::LogInfo() << Form("[Xray] VthrComp %3i -> %5i hits", vthrComp, sum) << psi::endl;
     }
 
-    if (module->GetRoc(0)->has_analog_readout())
-        tb->SetClockStretch(0, 0, 0);
+    tb->SetClockStretch(0, 0, 0);
     tb->DataEnable(true);
     for (int iRoc = 0; iRoc < nRocs; iRoc++)
     {

@@ -115,6 +115,8 @@ XrayNTrig 20000
 XrayVthrCompMin 40
 XrayVthrCompMax 110
 XrayMaxEff 0.01
+XrayClockStretchFactor 100
+XrayClockStretchDelay 0
 
 -- High rate pixel map
 

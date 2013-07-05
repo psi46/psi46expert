@@ -87,6 +87,8 @@ TestParameters::TestParameters(const char * _file)
         XrayNTrig(10000),
         XrayVthrCompMin(40),
         XrayVthrCompMax(110),
+        XrayClockStretchFactor(100),
+        XrayClockStretchDelay(0),
 
         XrayMaxEff(0.01),
 
@@ -222,6 +224,8 @@ bool TestParameters::ReadTestParameterFile(const char * _file)
         else if (0 == _name.compare("XrayVthrCompMin")) { XrayVthrCompMin = static_cast<int>(_value); }
         else if (0 == _name.compare("XrayVthrCompMax")) { XrayVthrCompMax = static_cast<int>(_value); }
         else if (0 == _name.compare("XrayMaxEff")) { XrayMaxEff      = _value; }
+        else if (0 == _name.compare("XrayClockStretchFactor")) { XrayClockStretchFactor = _value; }
+        else if (0 == _name.compare("XrayClockStretchDelay"))  { XrayClockStretchDelay  = _value; }
 
         else if (0 == _name.compare("HRPixelMapTriggerRate")) { HRPixelMapTriggerRate = static_cast<int>(_value); }
         else if (0 == _name.compare("HRPixelMapRepetitions")) { HRPixelMapRepetitions = static_cast<int>(_value); }
