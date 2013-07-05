@@ -180,7 +180,9 @@ void runFile()
     psi::LogInfo() << "[psi46expert] Executing file '" << cmdFile
                    << "'." << psi::endl;
 
-    sysCommand.Read(cmdFile);
+    int failed = sysCommand.Read(cmdFile);
+    if (failed)
+        return;
     execute(sysCommand);
 
     gDelay->Timestamp();
