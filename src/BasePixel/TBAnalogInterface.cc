@@ -122,6 +122,8 @@ void TBAnalogInterface::Execute(SysCommand &command)
     {rctk_flag = RangeCheck(*value, 0, 15);}
     else if (command.Keyword("ctr", &value))
     {delay = RangeCheck(*value, 1, 120); SetTBParameter("ctr", delay);}
+    else if (command.Keyword("clkon")) {cTestboard->ForceSignal(0);}
+    else if (command.Keyword("clkoff")) {cTestboard->ForceSignal(OVW_CLK);}
     else
     {
         if (!tbParameters->Execute(command))
