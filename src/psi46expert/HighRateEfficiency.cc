@@ -36,8 +36,18 @@ void HREfficiency::ModuleAction(void)
     ai->Flush();
 
     /* Unmask all ROCs */
-    for (int i = 0; i < module->NRocs(); i++)
-        module->GetRoc(i)->EnableAllPixels();
+    for (int i = 0; i < module->NRocs(); i++) {
+        if (!testRange->IncludesRoc(i))
+            continue;
+        for (int col = 0; col < ROC_NUMCOLS; col++) {
+            if (!testRange->IncludesColumn(i, col))
+                continue;
+            for (int row = 0; row < ROC_NUMROWS; row++) {
+                if (testRange->IncludesPixel(i, col, row))
+                    module->GetRoc(i)->EnablePixel(col, row);
+            }
+        }
+    }
     ai->Flush();
 
     /* Set local trigger and tbm present */
@@ -90,8 +100,10 @@ void HREfficiency::ModuleAction(void)
         cout << "\rSending calibrate signals ... " << ((int)(100 * col / 51.)) << " % " << flush;
         for (int row = 0; row < 80; row++) {
             /* Arm the pixel */
-            for (int i = 0; i < module->NRocs(); i++)
-                module->GetRoc(i)->ArmPixel(col, row);
+            for (int i = 0; i < module->NRocs(); i++) {
+                if (testRange->IncludesPixel(i, col, row))
+                    module->GetRoc(i)->ArmPixel(col, row);
+            }
             ai->CDelay(5000);
             ai->Flush();
 
@@ -109,7 +121,8 @@ void HREfficiency::ModuleAction(void)
 
             /* Disarm the pixel */
             for (int i = 0; i < module->NRocs(); i++) {
-                module->GetRoc(i)->ClrCal();
+                if (testRange->IncludesPixel(i, col, row))
+                    module->GetRoc(i)->ClrCal();
             }
             ai->Flush();
         }
@@ -150,8 +163,10 @@ void HREfficiency::ModuleAction(void)
     /* Store histograms */
     float background = 0;
     float background_core = 0;
+    int background_core_pixels = 0;
     float efficiency = 0;
     float core_efficiency = 0;
+    int core_efficiency_pixels = 0;
     for (int i = -1; i < nroc; i++) {
         TH2I * effmap = (TH2I *) em.getEfficiencyMap(i)->Clone();
         effmap->SetMinimum(0);
@@ -166,20 +181,25 @@ void HREfficiency::ModuleAction(void)
             background = bkgmap->GetEntries();
         }
         if (i >= 0) {
-            for (int c = 3; c <= 50; c++) {
-                for (int r = 1; r <= 80; r++) {
-                    if (r < 80)
-                        background_core += bkgmap->GetBinContent(c, r);
-                    core_efficiency += effmap->GetBinContent(c, r);
+            for (int c = 2; c < 50; c++) {
+                for (int r = 0; r < 80; r++) {
+                    if (!testRange->IncludesPixel(i, c, r))
+                        continue;
+                    if (r < 79) {
+                        background_core += bkgmap->GetBinContent(c + 1, r + 1);
+                        background_core_pixels += 1;
+                    }
+                    core_efficiency += effmap->GetBinContent(c + 1, r + 1);
+                    core_efficiency_pixels += 1;
                 }
             }
         }
     }
-    core_efficiency /= nroc * (52 - 2 * 2) * 80;
+    core_efficiency /= core_efficiency_pixels;
     core_efficiency *= 100.0 / ntrig;
 
     /* Sensor area, edge double columns, top row, and double column under test excluded */
-    float active_area = nroc * (52 - 2 - 2 * 2) * (80 - 1) * 0.01 * 0.015; /* cm2 */
+    float active_area = background_core_pixels * 0.01 * 0.015; /* cm2 */
     float active_time = ntrig * 4160 * 25e-9; /* s */
     psi::LogInfo() << "Number of triggers: " << ntrig * 4160 << psi::endl;
     psi::LogInfo() << "Number of hits: " << background << psi::endl;
