@@ -350,9 +350,9 @@ HitMapper::HitMapper(unsigned int nroc, float measurement_time)
     time = TMath::Abs(measurement_time) * 1.05;
     if (time == 0)
         time = 1.0;
-    hits_vs_time_dcol = new TH2I("hitmap_hits_vs_time_dcol", "Hitmap DCol hits vs time", 100, 0, time, ROCNUMDCOLS * nroc, 0, ROCNUMDCOLS * nroc);
+    hits_vs_time_dcol = new TH2I("hitmap_hits_vs_time_dcol", "Hitmap DCol hits vs time", 1000, 0, time, ROCNUMDCOLS * nroc, 0, ROCNUMDCOLS * nroc);
     hits_vs_time_dcol->SetTitle("Hitmap DCol hits vs time;Time [s];DCol Number;Hits per time bin");
-    hits_vs_time_roc = new TH2I("hitmap_hits_vs_time_roc", "Hitmap ROC hits vs time", 100, 0, time, nroc, 0, nroc);
+    hits_vs_time_roc = new TH2I("hitmap_hits_vs_time_roc", "Hitmap ROC hits vs time", 1000, 0, time, nroc, 0, nroc);
     hits_vs_time_roc->SetTitle("Hitmap ROC hits vs time;Time [s];ROC Number;Hits per time bin");
 
     last_timestamp = 0;
@@ -368,6 +368,8 @@ HitMapper::~HitMapper()
     for (int i = 0; i < nroc; i++) {
         delete hitmap_roc[i];
     }
+    delete hits_vs_time_dcol;
+    delete hits_vs_time_roc;
 }
 
 CEvent * HitMapper::Read()
