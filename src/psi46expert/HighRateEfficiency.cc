@@ -195,20 +195,24 @@ void HREfficiency::ModuleAction(void)
             }
         }
     }
-    core_efficiency /= core_efficiency_pixels;
-    core_efficiency *= 100.0 / ntrig;
+    float eff_err = efficiency / 100.0;
+    eff_err = TMath::Sqrt(eff_err * (1 - eff_err) * (4160 * ntrig)) * 100.0 / (4160 * ntrig);
+
+    core_efficiency *= 1.0 / (ntrig * core_efficiency_pixels);
+    float core_eff_err = TMath::Sqrt(core_efficiency * (1 - core_efficiency) * (core_efficiency_pixels * ntrig)) * 100.0 / (core_efficiency_pixels * ntrig);
+    core_efficiency *= 100.0;
 
     /* Sensor area, edge double columns, top row, and double column under test excluded */
     float active_area = background_core_pixels * 0.01 * 0.015; /* cm2 */
     float active_time = ntrig * 4160 * 25e-9; /* s */
-    psi::LogInfo() << "Number of triggers: " << ntrig * 4160 << psi::endl;
-    psi::LogInfo() << "Number of hits: " << background << psi::endl;
-    psi::LogInfo() << "Rate: " << (background_core / active_area / active_time / 1e6);
-    psi::LogInfo() << " +/- " << (TMath::Sqrt(background_core) / active_area / active_time / 1e6);
-    psi::LogInfo() << " megahits / s / cm2" << psi::endl;
-    psi::LogInfo() << "Overall efficiency: " << efficiency << " %" << psi::endl;
-    psi::LogInfo() << "Core efficiency: " << core_efficiency << " %" << psi::endl;
-    psi::LogInfo() << "Number of decoding problems: " << ed.GetDecodingErrors() << psi::endl;
+    float rate = background_core / active_area / active_time / 1e6;
+    float rate_err = TMath::Sqrt(background_core) / active_area / active_time / 1e6;
+    psi::LogInfo() << Form("%-19s %8i", "Number of triggers:", ntrig * 4160) << psi::endl;
+    psi::LogInfo() << Form("%-19s %8i", "Number of hits:", background) << psi::endl;  
+    psi::LogInfo() << Form("%-19s %8.3f +/- %.3f MHz / cm2", "Rate:", rate, rate_err) << psi::endl;;
+    psi::LogInfo() << Form("%-19s %8.3f +/- %.3f %%", "Overall efficiency:", efficiency, eff_err) << psi::endl;
+    psi::LogInfo() << Form("%-19s %8.3f +/- %.3f %%", "Core efficiency:", core_efficiency, core_eff_err) << psi::endl;
+    psi::LogInfo() << Form("%-19s %8i", "Decoding problems:", ed.GetDecodingErrors()) << psi::endl;
 
     /* Free the memory in the RAM */
     ai->getCTestboard()->Daq_Done();
