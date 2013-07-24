@@ -238,6 +238,46 @@ MainFrame::MainFrame(const TGWindow * p, UInt_t w, UInt_t h,
                                          "HldDelOpti", "TimeWalk", "Xray", "VsfScan", "AdrDec2",
                                          "HR PixelMap", "HR Efficiency", "HR SCurve"};
 
+    const char testTips [nTests][1024] = {
+        "Sends <PixelMapReadouts> calibration signals to each pixel while the other\n"
+        "pixels are masked and counts how many of the signals are read out.", // PixMap
+        "Scans <Dac1> and <Dac2> and tests the efficiency for one pixel (or all pixels\n"
+        "in the test range) using <DacNTrig> calibration signals for each value pair. ", // DacDac
+        "Determines the threshold of each pixel varying VCal (<SCurveMode> = 1) or\n"
+        "VthrComp (<SCurveMode> = 2) and scans +/- 16 DAC units around the threshold\n"
+        "to determine the noise of the pixel pre-amplifier.", // SCurve
+        "Sends calibration signals through the sensor to determine whether a bump bond\n"
+        "to the ROC is present for each pixel or not.", // BondMap
+        "", // TrimBits
+        "", // AdrLev
+        "Scans each DAC parameter and measures the pulse height\n"
+        "with respect to Vcal for each value of each DAC.", // PhScan
+        "Scans DAC <PHMode> to determine the pulse height for each value or, if <PHMode> = 0,\n"
+        "uses the current DAC parameters and measures the pulse height for every pixel.", // PH
+        "Determines the threshold at which a pixel becomes active varying a DAC that\n"
+        "depends on the <ThresholdMode>.", // Thr
+        "Sends one calibration signal to every pixel and decodes the read out pixel address\n"
+        "and compares it to the expected pixel address.", // AdrDec
+        "", // CalDel
+        "", // ThrComp
+        "", // Temp
+        "", // TempCal
+        "", // VsfOpt
+        "", // LinRange
+        "", // HldDelOpti
+        "", // TimeWalk
+        "Scans VthrComp from <XrayVthrCompMin> to <XrayVthrCompMax> and sends <XrayNTrig> triggers\n"
+        "for each value to determine the number of x-ray hits.", // Xray
+        "", // VsfScan
+        "", // AdrDec2
+        "Takes data by sending periodic triggers with a frequency determined by <HRPixelMapTriggerRate>\n"
+        "for some time given by <HRPixelMapAquisitionTime> and creates hit maps, pulse height maps, etc.", // HR PixelMap
+        "Sends <HREfficiencyTriggers> calibration signals to each pixel while all other\n"
+        "(unmasked) pixels are enabled and counts the number of calibration signals read out\n"
+        "distinguishing between external hits and calibration signals using the pixel address.", // HR Efficiency
+        "", // HR Scurve
+    };
+
     for (int i = nTests - 1; i >= 0; i--)
     {
         testName = testNames[i];
@@ -250,6 +290,8 @@ MainFrame::MainFrame(const TGWindow * p, UInt_t w, UInt_t h,
         testButton = new TGCheckButton(frame, testName, i);
         testButton->Connect("Clicked()", "MainFrame", this, "TestN()");
         testButton->SetState(kButtonUp);
+        if (strlen(testTips[i]) > 0)
+            testButton->SetToolTipText(testTips[i]);
         frame->AddFrame(testButton, new TGLayoutHints(kLHintsRight, 5, 5, 3, 4));
 
         histogramsComboBox->AddEntry(testName, i);
