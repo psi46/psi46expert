@@ -490,6 +490,7 @@ void MainFrame::SetParameter()
         transcript->AddLine(Form("Parameter %s set to %i", name, dacValue));
     }
     else {transcript->AddLine("Invalid Value");}
+    transcript->ShowBottom();
 }
 
 
@@ -923,6 +924,7 @@ void MainFrame::DoFom()
     Test * aTest = new FigureOfMerit(range, controlNetwork->GetTestParameters(), tbInterface, dac1, dac2, crit);
     DoTest(aTest);
     transcript->AddLine("FOM is finished.");
+    transcript->ShowBottom();
 }
 
 
@@ -964,7 +966,17 @@ void  MainFrame::DoADC()
 }
 
 
-
+/**
+    This function looks at the text fields from the GUI where one can
+    specify ranges of modules, ROCs, columns, and rows. From these values
+    it creates a test range which will be used for the tests. Acceptable
+    values in the text fields are integer numbers or ranges given in the
+    N:M format.
+    \param completeRocs Specifies whether the range should include the
+    whole ROC instead of just the columns and rows specified.
+    \return Returns a pointer to a TestRange class (allocated on the heap)
+    which contains all the information from the text fields in the GUI.
+ */
 TestRange * MainFrame::GetRange(bool completeRocs)
 {
     bool inputOk = true;
