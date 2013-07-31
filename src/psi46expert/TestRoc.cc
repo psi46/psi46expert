@@ -543,8 +543,7 @@ int TestRoc::AdjustVana(double current0, double goalcurrent)
         }
     }
 
-    psi::LogDebug() << "[TestRoc] Vana is set to " << vana
-                    << " Current: " << (currentMeasured - current0) << psi::endl;
+    psi::LogInfo() << Form("[TestRoc] Vana is set to %i, current is %.1f mA.", vana, (currentMeasured - current0) * 1000.0) << psi::endl;
 
     return vana;
 }
