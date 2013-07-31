@@ -7,7 +7,7 @@
  10    VhldDel 230
  11      Vtrim  29
  12   VthrComp  52
- 13 VIBias_Bus  20
+ 13 VIBias_Bus   1
  14   Vbias_sf   6
  15  VoffsetOp  40
  17  VOffsetR0  43
@@ -15,7 +15,7 @@
  19  VIbias_PH 100
  20  Ibias_DAC  80
  21 VIbias_roc 150
- 22    VIColOr  99
+ 22    VIColOr  50
  25       Vcal 200
  26     CalDel 125
 253    CtrlReg   0
