@@ -1,0 +1,149 @@
+AC_INIT([psi46expert],[1.1],[marco.rossini@phys.ethz.ch])
+AC_CONFIG_MACRO_DIR([m4])
+AM_INIT_AUTOMAKE([foreign -Wall])
+AC_PROG_LIBTOOL
+AC_PROG_CXX
+
+AC_CONFIG_HEADERS([src/config.h])
+
+AC_ARG_WITH(libftdi,[  --with-libftdi          Compile with libftdi library for USB connection to test board (default)],[with_libftdi=check],[])
+
+AC_ARG_WITH(ftd2xx,[  --with-ftd2xx           Compile with ftd2xx instead of libftdi library for USB connection to test board],[with_ftd2xx=check],[])
+
+if test "$with_libftdi" = "check" && test "$with_ftd2xx" = "check"
+then
+    AC_MSG_ERROR([Both ftd2xx and libftdi were specified. Please choose only one.])
+fi
+
+# check for libftdi (the default choice if no option is given)
+if test "$with_libftdi" = "check" || test "$with_ftd2xx" != "check"
+then
+    echo "checking for libftdi"
+    AC_CHECK_HEADER([ftdi.h], [FTDI_H=true], [FTDI_H=false])
+    if test "$FTDI_H" = "false"
+    then
+        if test "$with_libftdi" = "check"
+        then
+            AC_MSG_ERROR([Could not find ftdi.h. Install the header file (from http://www.intra2net.com/en/developer/libftdi/ or via your package manager) and set CPATH correctly.])
+        else
+            echo "  .. libftdi header file ftdi.h not found, will search for alternative library"
+        fi
+    else
+        AC_CHECK_LIB([ftdi], [ftdi_usb_open], [LIBFTDI=-lftdi], [LIBFTDI=none])
+        # this check sets the env var LIBFTDI and the autoconf cache variable ac_cv_lib_ftdi_ftdi_usb_open
+        if test "$LIBFTDI" = "none"
+        then
+            if test "$with_libftdi" = "check"
+            then
+                AC_MSG_ERROR([Could not find libftdi. Install libftdi (from http://www.intra2net.com/en/developer/libftdi/ or via your package manager) and set LIBRARY_PATH environment variable correctly.])
+            else
+                echo "  .. libftdi not found, will search for alternative library"
+            fi
+        else
+            AC_SUBST([LIBFTDI])
+            AC_DEFINE(HAVE_LIBFTDI,1,"whether we are using libftdi or the proprietary library from the manufacturer.")
+        fi
+    fi
+fi
+AM_CONDITIONAL(HAVE_LIBFTDI, test "$ac_cv_lib_ftdi_ftdi_usb_open" = yes)
+
+
+# check for libftd2xx if requested or no option was given and libftdi was not found previously (check ac cache var for lib test)
+if test "$with_ftd2xx" = "check" || test "$ac_cv_lib_ftdi_ftdi_usb_open" != yes
+then
+    echo "checking for libftd2xx"
+    AC_CHECK_HEADER(WinTypes.h, [WINTYPES_H=true], [WINTYPES_H=false])
+    AC_CHECK_HEADER([ftd2xx.h], [FTD2XX_H=true], [FTD2XX_H=false])
+    if test "$WINTYPES_H" = "false" || test "$FTD2XX_H" = "false"
+    then
+        if test "$with_ftd2xx" = "check"
+        then
+            AC_MSG_ERROR([Could not find WinTypes.h and/or ftd2xx.h. Install the header file (from http://www.ftdichip.com) and set CPATH correctly.])
+        else
+            echo "  .. libftd2xx headers not found"
+        fi
+    else
+        AC_CHECK_LIB([ftd2xx], [FT_Open], [LIBFTD2XX=-lftd2xx], [LIBFTD2XX=none])
+        # this check sets the env var LIBFTD2XX and the autoconf cache variable ac_cv_lib_ftd2xx_FT_Open
+        if test "$LIBFTD2XX" = "none"
+        then
+            if test "$with_ftd2xx" = "check"
+        then
+            AC_MSG_ERROR([Could not find libftd2xx. Install libftd2xx (from http://www.ftdichip.com/) or set LIBRARY_PATH environment variable correctly.])
+        else
+            echo "  .. ftd2xx library not found"
+        fi
+        else
+            AC_SUBST([LIBFTD2XX])
+            AC_DEFINE(HAVE_LIBFTD2XX,1,"whether we are using libftdi or the proprietary library from the manufacturer.")
+        fi
+    fi
+fi
+AM_CONDITIONAL(HAVE_LIBFTD2XX, test "$LIBFTD2XX" = "-lftd2xx")
+
+# check that we now have either of the FTDI libraries
+if test "$ac_cv_lib_ftdi_ftdi_usb_open" != yes && test "$ac_cv_lib_ftd2xx_FT_Open" != yes
+then
+    AC_MSG_ERROR([Could not find either libftdi or libftd2xx libraries for communication with the testboard's FTDI chip. Please install either libftdi (from http://www.intra2net.com/en/developer/libftdi/ or via your package manager) OR libftd2xx (from http://www.ftdichip.com/) and/or set LIBRARY_PATH environment variable correctly.])
+fi
+
+AC_CHECK_LIB([usb-1.0], [libusb_init], [LIBUSB=-lusb-1.0], [LIBUSB=none])
+if test "$LIBUSB" = "none"
+then
+    AC_CHECK_LIB([usb], [usb_init], [LIBUSB=-lusb], [LIBUSB=none])
+    if test "$LIBUSB" = "none"
+    then
+        AC_MSG_ERROR([Could not find libusb-1.0 or libusb. Install libusb-1.0 (and/or libusb) or set LIBRARY_PATH environment variable correctly.])
+    fi
+fi
+AC_SUBST([LIBUSB])
+
+AC_CHECK_HEADERS([libusb-1.0/libusb.h], [], [AC_MSG_WARN([libusb-1.0 headers not found. Automatic detachment of kernel modules from testboard disabled.])])
+
+# Check for the readline header. Some linux distributions have
+# separate development packages and checking the presence of
+# the library is not enough.
+AC_CHECK_HEADERS([readline/readline.h], [], [AC_MSG_ERROR([readline headers not found. Please install libreadline and/or set the CPATH environment variable correctly. Some linux distributions have separate development-packages (readline-dev or readline-devel). Please install it as well.])])
+
+# Check for the readline library
+AC_CHECK_LIB([readline], [readline], [LIBREADLINE="-lreadline"], [LIBREADLINE=none])
+if test "$LIBREADLINE" = "none"
+then
+    # Some linux distributions don't automatically link ncurses to readline. Check agin.
+    AC_CHECK_LIB([readline], [readline], [LIBREADLINE="-lreadline -lncurses"], [LIBREADLINE=none], [-lncurses])
+    if test "$LIBREADLINE" = "none"
+    then
+        # Sometimes the previous test fails because ncurses is not installed. Check for that.
+        AC_CHECK_LIB([ncurses], [initscr], [LIBNCURSES="-lncurses"], [LIBNCURSES=none])
+        if test "$LIBNCURSES" = "none"
+        then
+            # Ncurses is missing
+            AC_MSG_ERROR([Could not find libncurses. Please install ncurses and/or set the LIBRARY_PATH environment variable correctly.])
+        fi
+
+        # Ncurses is installed, but readline could not be found
+        AC_MSG_ERROR([Could not find libreadline. Please install readline and/or set LIBRARY_PATH environment variable correctly.])
+    fi
+fi
+AC_SUBST([LIBREADLINE])
+
+AC_CHECK_PROGS([ROOT], [root-config], [/])
+if test "$ROOT" = /
+then
+    AC_MSG_ERROR([Could not find ROOT. Install ROOT or set PATH environment variable correctly.])
+fi
+
+ROOTLIBS=$(root-config --glibs)
+ROOTLIBS=$(root-config --glibs)
+ROOTFLAGS=$(root-config --cflags)
+
+AC_CHECK_PROGS([ROOTCINT], [rootcint], [/])
+if test "$ROOTCINT" = /
+then
+    AC_MSG_ERROR([Could not find ROOTCINT. Install ROOTCINT or set PATH environment variable correctly.])
+fi
+
+AC_SUBST([ROOTLIBS])
+AC_SUBST([ROOTFLAGS])
+AC_CONFIG_FILES([Makefile src/Makefile src/interface/Makefile src/BasePixel/Makefile src/psi46expert/Makefile data/Makefile data/defaultParametersModule/Makefile data/defaultParametersPlaquette/Makefile data/defaultParametersRocDigital/Makefile data/defaultParametersRocEmTBM/Makefile data/defaultParametersRocPSI46digV2/Makefile])
+AC_OUTPUT

@@ -1,0 +1,287 @@
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reps/psi46expert/!svn/ver/162/trunk/src/BasePixel
+END
+ControlNetwork.h
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/ControlNetwork.h
+END
+remotecalls.inc
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reps/psi46expert/!svn/ver/47/trunk/src/BasePixel/remotecalls.inc
+END
+remotecalls_modultest.inc
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/reps/psi46expert/!svn/ver/47/trunk/src/BasePixel/remotecalls_modultest.inc
+END
+GlobalConstants.h
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/GlobalConstants.h
+END
+remotecalls_chiptest.inc
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reps/psi46expert/!svn/ver/47/trunk/src/BasePixel/remotecalls_chiptest.inc
+END
+remotecalls_xraytest.inc
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reps/psi46expert/!svn/ver/47/trunk/src/BasePixel/remotecalls_xraytest.inc
+END
+TBMParameters.cc
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/TBMParameters.cc
+END
+RawPacketDecoder.cc
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/RawPacketDecoder.cc
+END
+TBAnalogInterface.cc
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/reps/psi46expert/!svn/ver/162/trunk/src/BasePixel/TBAnalogInterface.cc
+END
+RawPacketDecoder.h
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reps/psi46expert/!svn/ver/162/trunk/src/BasePixel/RawPacketDecoder.h
+END
+TBAnalogParameters.cc
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/TBAnalogParameters.cc
+END
+SysCommand.cc
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/SysCommand.cc
+END
+TBAnalogParameters.h
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/TBAnalogParameters.h
+END
+Keithley.cc
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/Keithley.cc
+END
+SysCommand.h
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/SysCommand.h
+END
+Pixel.cc
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/Pixel.cc
+END
+TBM.cc
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/TBM.cc
+END
+Roc.cc
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reps/psi46expert/!svn/ver/162/trunk/src/BasePixel/Roc.cc
+END
+Pixel.h
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/Pixel.h
+END
+Roc.h
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reps/psi46expert/!svn/ver/156/trunk/src/BasePixel/Roc.h
+END
+Module.cc
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/Module.cc
+END
+TBInterface.cc
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/TBInterface.cc
+END
+Module.h
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/Module.h
+END
+DigitalReadoutDecoder.cc
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/DigitalReadoutDecoder.cc
+END
+DoubleColumn.cc
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/DoubleColumn.cc
+END
+ConfigParameters.cc
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/ConfigParameters.cc
+END
+DigitalReadoutDecoder.h
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reps/psi46expert/!svn/ver/147/trunk/src/BasePixel/DigitalReadoutDecoder.h
+END
+TBParameters.cc
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reps/psi46expert/!svn/ver/162/trunk/src/BasePixel/TBParameters.cc
+END
+ControlNetwork.cc
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/ControlNetwork.cc
+END
+ConfigParameters.h
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/ConfigParameters.h
+END
+TBParameters.h
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/TBParameters.h
+END
+psi46_tb.h
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reps/psi46expert/!svn/ver/162/trunk/src/BasePixel/psi46_tb.h
+END
+CalibrationTable.cc
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/reps/psi46expert/!svn/ver/162/trunk/src/BasePixel/CalibrationTable.cc
+END
+CalibrationTable.h
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/CalibrationTable.h
+END
+TBMParameters.h
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/TBMParameters.h
+END
+TBAnalogInterface.h
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/reps/psi46expert/!svn/ver/162/trunk/src/BasePixel/TBAnalogInterface.h
+END
+DACParameters.cc
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reps/psi46expert/!svn/ver/162/trunk/src/BasePixel/DACParameters.cc
+END
+DACParameters.h
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/DACParameters.h
+END
+DecodedReadout.h
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/DecodedReadout.h
+END
+DecoderCalibration.cc
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reps/psi46expert/!svn/ver/162/trunk/src/BasePixel/DecoderCalibration.cc
+END
+DecoderCalibration.h
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/DecoderCalibration.h
+END
+Keithley.h
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/Keithley.h
+END
+TBM.h
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/TBM.h
+END
+Makefile.am
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reps/psi46expert/!svn/ver/147/trunk/src/BasePixel/Makefile.am
+END
+TBInterface.h
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reps/psi46expert/!svn/ver/162/trunk/src/BasePixel/TBInterface.h
+END
+DoubleColumn.h
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reps/psi46expert/!svn/ver/148/trunk/src/BasePixel/DoubleColumn.h
+END
+psi46_tb.cc
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reps/psi46expert/!svn/ver/162/trunk/src/BasePixel/psi46_tb.cc
+END

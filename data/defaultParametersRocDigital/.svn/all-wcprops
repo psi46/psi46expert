@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reps/psi46expert/!svn/ver/153/trunk/data/defaultParametersRocDigital
+END
+addressParameters.dat
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/reps/psi46expert/!svn/ver/147/trunk/data/defaultParametersRocDigital/addressParameters.dat
+END
+configParameters.dat
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/reps/psi46expert/!svn/ver/147/trunk/data/defaultParametersRocDigital/configParameters.dat
+END
+tbParameters.dat
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/reps/psi46expert/!svn/ver/147/trunk/data/defaultParametersRocDigital/tbParameters.dat
+END
+dacParameters_C0.dat
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/reps/psi46expert/!svn/ver/147/trunk/data/defaultParametersRocDigital/dacParameters_C0.dat
+END
+defaultMaskFile.dat
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/reps/psi46expert/!svn/ver/149/trunk/data/defaultParametersRocDigital/defaultMaskFile.dat
+END
+trimParameters_C0.dat
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/reps/psi46expert/!svn/ver/147/trunk/data/defaultParametersRocDigital/trimParameters_C0.dat
+END
+Makefile.am
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reps/psi46expert/!svn/ver/149/trunk/data/defaultParametersRocDigital/Makefile.am
+END
+testParameters.dat
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/reps/psi46expert/!svn/ver/153/trunk/data/defaultParametersRocDigital/testParameters.dat
+END
+tbmParameters.dat
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/reps/psi46expert/!svn/ver/147/trunk/data/defaultParametersRocDigital/tbmParameters.dat
+END

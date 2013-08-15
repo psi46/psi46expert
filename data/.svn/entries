@@ -1,0 +1,77 @@
+10
+
+dir
+205
+https://svn.cern.ch/reps/psi46expert/trunk/data
+https://svn.cern.ch/reps/psi46expert
+
+
+
+2013-04-23T09:56:44.980067Z
+153
+rossini
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+4525493e-7705-40b1-a816-d608a930855b
+
+defaultParametersRocEmTBM
+dir
+
+Makefile.am
+file
+
+
+
+
+2013-08-14T09:27:04.000000Z
+475e2611680baa387a1ba60bcd933d1d
+2013-04-18T14:03:39.353505Z
+149
+rossini
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+194
+
+defaultParametersRocDigital
+dir
+
+defaultParametersPlaquette
+dir
+
+defaultParametersModule
+dir
+
+defaultParametersRocPSI46digV2
+dir
+

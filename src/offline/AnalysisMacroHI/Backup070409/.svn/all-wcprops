@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/reps/psi46expert/!svn/ver/1/trunk/src/offline/AnalysisMacroHI/Backup070409
+END
+ModuleMultiplicity.cxx
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/reps/psi46expert/!svn/ver/1/trunk/src/offline/AnalysisMacroHI/Backup070409/ModuleMultiplicity.cxx
+END
+ModuleMultiplicity_cxx.d
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/reps/psi46expert/!svn/ver/1/trunk/src/offline/AnalysisMacroHI/Backup070409/ModuleMultiplicity_cxx.d
+END
+ModuleMultiplicity.h
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/reps/psi46expert/!svn/ver/1/trunk/src/offline/AnalysisMacroHI/Backup070409/ModuleMultiplicity.h
+END
+TakeDataAnalyzer.C
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/reps/psi46expert/!svn/ver/1/trunk/src/offline/AnalysisMacroHI/Backup070409/TakeDataAnalyzer.C
+END
+AddPulsedPixel.C
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/reps/psi46expert/!svn/ver/1/trunk/src/offline/AnalysisMacroHI/Backup070409/AddPulsedPixel.C
+END
+TakeDataAnalyzer_C.d
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/reps/psi46expert/!svn/ver/1/trunk/src/offline/AnalysisMacroHI/Backup070409/TakeDataAnalyzer_C.d
+END
+ROCOccupancy.C
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/reps/psi46expert/!svn/ver/1/trunk/src/offline/AnalysisMacroHI/Backup070409/ROCOccupancy.C
+END

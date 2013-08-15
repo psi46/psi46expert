@@ -1,0 +1,49 @@
+#! /usr/bin/perl
+
+use Getopt::Std;
+getopts('s');
+
+$moduleDB = "/export/data3/moduleDB";
+$length = 80;
+if ($opt_s)
+{
+  $moduleDB = "/export/data3/moduleDB/shortTests";
+  $length = 91;
+}
+
+@dirs = `ls -ld $moduleDB/M*`;
+$newestDir;
+my %modDone;
+
+for ($i=0; $i <= 1300; $i++) {$modDone{$i} = 0;}
+
+foreach $dir ( @dirs )
+{
+  if (!$opt_s && length($dir) != 98 && length($dir) != 85) {next;}  #problematic dirs in moduleDB
+  if ($opt_s && length($dir) != 109) {next;}  #problematic dirs in moduleDB
+  $mod = 0 + substr($dir, $length, 4);  #conversion to int
+  print "module $mod\n";
+
+  if ($mod > 2000) {next;}
+  if ($modDone{$mod} == 1) {next;}
+
+  #look for newest test
+  foreach $dir2 ( @dirs )
+  {
+    if (!$opt_s && length($dir2) != 98 && length($dir2) != 85) {next;}  #problematic dirs in moduleDB
+    if ($opt_s && length($dir2) != 109) {next;}  #problematic dirs in moduleDB
+    $mod2 = substr($dir2, $length, 4);
+    if ($mod == $mod2) {$newestDir = $dir2;} #latest is newest
+  }
+
+  $newestDir = substr($newestDir, $length - 1, length($newestDir) - $length);
+  print "newest version $newestDir\n";
+
+  symlink("$moduleDB/$newestDir", $newestDir);
+
+  $modDone{$mod} = 1;
+}
+
+for ($i=0000; $i <= 1300; $i++) {
+  print "$i\t$modDone{$i}\n";
+}
