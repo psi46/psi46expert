@@ -1,12 +1,17 @@
 // psi46_tb.cpp
-
 #include "pixel_dtb.h"
 #include <stdio.h>
-
+#include "analyzer.h"
 #ifndef _WIN32
 #include <unistd.h>
 #include <iostream>
 #endif
+
+// missing defs
+#define VCAL_TEST          20
+int tct_wbc = 0;
+const int delayAdjust = 4;
+const int deserAdjust = 4;
 
 bool CTestboard::EnumNext(string &name)
 {
@@ -127,3 +132,130 @@ void CTestboard::mDelay(uint16_t ms)
 	usleep(ms*1000);	// Linux
 #endif
 }
+
+void CTestboard::SetMHz(int MHz = 0){
+    Sig_SetDelay(SIG_CLK,  delayAdjust);
+    Sig_SetDelay(SIG_SDA,  delayAdjust+15);
+    Sig_SetDelay(SIG_CTR,  delayAdjust);
+    Sig_SetDelay(SIG_TIN,  delayAdjust+5);
+    Flush();
+    tct_wbc = 5;
+}
+
+void CTestboard::prep_dig_test(){
+    SetMHz();
+    int bin = 1;
+    roc_I2cAddr(0);
+    SetRocAddress(0);
+}
+
+void CTestboard::InitDAC()
+{ 
+    roc_SetDAC(  1,  4); // Vdig
+    roc_SetDAC(  2, 100);
+    roc_SetDAC(  3,  40);    // Vsf
+    roc_SetDAC(  4,  12);    // Vcomp
+    roc_SetDAC(  7,  60);    // VwllPr
+    roc_SetDAC(  9,  60);    // VwllSh
+    roc_SetDAC( 10, 117);    // VhldDel
+    roc_SetDAC( 11,  40);    // Vtrim
+    roc_SetDAC( 12,  20);    // VthrComp
+    roc_SetDAC( 13,  30);    // VIBias_Bus
+    roc_SetDAC( 14,   6);    // Vbias_sf
+    roc_SetDAC( 22,  99);    // VIColOr
+    roc_SetDAC( 15,  40);    // VoffsetOp
+    roc_SetDAC( 17,  80);    // VoffsetRO
+    roc_SetDAC( 18, 115);    // VIon
+    roc_SetDAC( 19, 100);    // Vcomp_ADC
+    roc_SetDAC( 20,  90);    // VIref_ADC
+    roc_SetDAC( 25,   2);    // Vcal
+    roc_SetDAC( 26,  68);  // CalDel
+    roc_SetDAC( 0xfe,15);   // WBC
+    roc_SetDAC( 0xfd, 4);   // CtrlReg
+
+    Flush();
+}
+
+
+// it's also sending a Cal signal right now...readout both
+int32_t CTestboard::MaskTest(int16_t nTriggers, int16_t res[])
+{ 
+    // load settings
+    prep_dig_test();
+    InitDAC();
+    roc_Chip_Mask();
+    roc_SetDAC(Vcal, VCAL_TEST);
+    roc_SetDAC(CtrlReg,0x04); // 0x04
+
+    Pg_SetCmd(0, PG_RESR + 25);
+    Pg_SetCmd(1, PG_CAL  + 15 + tct_wbc);
+    Pg_SetCmd(2, PG_TRG  + 16);
+    Pg_SetCmd(3, PG_TOK);
+    uDelay(100);
+    Flush();
+
+    Daq_Open(50000);
+    Daq_Select_Deser160(deserAdjust);
+    Daq_Start();
+
+    // --- scan all pixel ------------------------------------------------------
+    unsigned char col, row;
+    for (col=0; col<ROC_NUMCOLS; col++)
+    {
+        roc_Col_Enable(col, true);
+        uDelay(10);
+        for (row=0; row<ROC_NUMROWS; row++)
+        {
+            roc_Pix_Cal (col, row, false);
+            uDelay(20);
+            Pg_Single();
+            uDelay(10);
+            roc_Pix_Trim(col, row, 15);
+            uDelay(5);
+            Pg_Single();
+            uDelay(10);
+
+            roc_Pix_Mask(col, row);
+            roc_ClrCal();
+        }
+        roc_Col_Enable(col, false);
+        uDelay(10);
+    }
+    Daq_Stop();
+
+    vector<uint16_t> data;
+    Daq_Read(data, 50000);
+    Daq_Close();
+
+// --- analyze data --------------------------------------------------------
+    // for each col, for each row, (masked pixel, unmasked pixel)
+    PixelReadoutData pix;
+    int pos = 0;
+    cout << "analyze" << endl;
+    try
+    {
+        for (col=0; col<ROC_NUMCOLS; col++)
+        {
+            for (row=0; row<ROC_NUMROWS; row++)
+            {
+                // must be empty readout
+                DecodePixel(data, pos, pix);
+                res[(int)row+((int)col*(int)ROC_NUMROWS)]=pix.n;
+                //g_chipdata.pixmap.SetMaskedCount(col, row, pix.n);
+
+                // must be single pixel hit
+                DecodePixel(data, pos, pix);
+                //g_chipdata.pixmap.SetUnmaskedCount(col, row, pix.n);
+                //if (pix.n > 0)
+                //{
+                //    g_chipdata.pixmap.SetDefectColCode(col, row, pix.x != col);
+                //    g_chipdata.pixmap.SetDefectrowCode(col, row, pix.y != row);
+                //    g_chipdata.pixmap.SetPulseHeight(col, row, pix.p);
+                //}
+            }
+        }
+    } catch (int) {}
+    roc_SetDAC(CtrlReg,0);
+    return 1;
+}
+

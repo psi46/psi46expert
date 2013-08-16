@@ -32,7 +32,10 @@ libpsi46BasePixel_la_SOURCES = CalibrationTable.cc \
 			       remotecalls_chiptest.inc \
 			       remotecalls.inc \
 			       remotecalls_modultest.inc \
-			       remotecalls_xraytest.inc
+			       remotecalls_xraytest.inc \
+				   protocol.cpp \
+				   datastream.cpp \
+				   analyzer.cpp
 libpsi46BasePixel_la_CPPFLAGS = -I$(srcdir)/..
 
 noinst_HEADERS = CalibrationTable.h \
@@ -63,4 +66,8 @@ noinst_HEADERS = CalibrationTable.h \
 		 TBInterface.h \
 		 TBM.h \
 		 TBMParameters.h \
-		 TBParameters.h
+		 TBParameters.h \
+		 datastream.h \
+		 protocol.h \
+		 datapipe.h \
+		 analyzer.h

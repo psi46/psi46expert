@@ -10,6 +10,16 @@
  *---------------------------------------------------------------------
  */
 
+
+// ---------------------------------------------------
+#define TITLE        "PSI46V2 ROC/Wafer Tester"
+#define VERSION      "V1.3"
+#define TIMESTAMP    "07.08.2013"
+// ---------------------------------------------------
+
+#define VERSIONINFO TITLE " " VERSION " (" TIMESTAMP ")"
+
+
 #pragma once
 
 #include "profiler.h"
@@ -409,6 +419,15 @@ public:
 	void Tbm2Write(int32_t hubAddr, int32_t addr, int32_t value){ return; }
 
     // === module test functions ======================================
+    
+    // --- implemented funtions: ---
+    void InitDAC();
+    void prep_dig_test();
+    void SetMHz(int MHz);
+    int32_t MaskTest(int16_t nTriggers, int16_t res[]);
+    // ----------------------------
+
+
 	bool GetPixel(int32_t x){ return false; }
 	int32_t FindLevel(){ return 1; }
     unsigned char test_PUC(unsigned char col, unsigned char row, unsigned char trim){ return 1; }
@@ -422,7 +441,6 @@ public:
 	int32_t AoutLevelChip(int16_t position, int16_t nTriggers, int32_t trims[],  int32_t res[]){ return 1; }
 	int32_t AoutLevelPartOfChip(int16_t position, int16_t nTriggers, int32_t trims[], int32_t res[], bool pxlFlags[]){ return 1; }
 	int32_t ChipEfficiency(int16_t nTriggers, int32_t trim[], double res[]){ return 1; }
-    int32_t MaskTest(int16_t nTriggers, int16_t res[]){ return 1; }
 	void DoubleColumnADCData(int32_t column, int16_t data[], int32_t readoutStop[]){ return; }
 	int32_t PixelThreshold(int32_t col, int32_t row, int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim){ return 1; }
 	int32_t ChipThreshold(int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim[], int32_t res[]){ return 1; }
