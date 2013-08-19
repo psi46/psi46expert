@@ -180,6 +180,7 @@ void CTestboard::InitDAC()
 // it's also sending a Cal signal right now...readout both
 int32_t CTestboard::MaskTest(int16_t nTriggers, int16_t res[])
 { 
+    //TODO move init in common place
     // load settings
     prep_dig_test();
     InitDAC();
@@ -231,7 +232,7 @@ int32_t CTestboard::MaskTest(int16_t nTriggers, int16_t res[])
     // for each col, for each row, (masked pixel, unmasked pixel)
     PixelReadoutData pix;
     int pos = 0;
-    cout << "analyze" << endl;
+    cout << "analyze mask test" << endl;
     try
     {
         for (col=0; col<ROC_NUMCOLS; col++)
@@ -257,5 +258,141 @@ int32_t CTestboard::MaskTest(int16_t nTriggers, int16_t res[])
     } catch (int) {}
     roc_SetDAC(CtrlReg,0);
     return 1;
+}
+
+int32_t CTestboard::ChipEfficiency(int16_t nTriggers, int32_t trim[], double res[])
+{ 
+    //TODO move init in common place
+    // load settings
+    prep_dig_test();
+    InitDAC();
+    roc_Chip_Mask();
+    roc_SetDAC(Vcal, VCAL_TEST);
+    roc_SetDAC(CtrlReg,0x04); // 0x04
+
+    Pg_SetCmd(0, PG_RESR + 25);
+    Pg_SetCmd(1, PG_CAL  + 15 + tct_wbc);
+    Pg_SetCmd(2, PG_TRG  + 16);
+    Pg_SetCmd(3, PG_TOK);
+    uDelay(100);
+    Flush();
+
+
+    // --- scan all pixel ------------------------------------------------------
+    int col, row;
+    PixelReadoutData pix;
+    int nHits = 0;
+    cout << "analyze chip efficiency" << endl;
+    for (col=0; col<ROC_NUMCOLS; col++)
+    {
+        int pos = 0;
+        Daq_Open(500000);
+        Daq_Select_Deser160(deserAdjust);
+        Daq_Start();
+        roc_Col_Enable(col, true);
+        for (row=0; row<ROC_NUMROWS; row++)
+        {   
+            //roc_Pix_Trim(col, row, 15);
+            roc_Pix_Trim(col, row, trim[(int)row+((int)col*(int)ROC_NUMROWS)]);
+            roc_Pix_Cal(col, row, false);
+			uDelay(20);
+            for (int16_t i=0; i < nTriggers; i++)
+            {
+			    Pg_Single();
+            }
+            roc_Pix_Mask(col, row);
+			roc_ClrCal();
+        }
+        roc_Col_Enable(col, false);
+        Daq_Stop();
+
+        vector<uint16_t> data;
+        Daq_Read(data,500000);
+        Daq_Close();
+        try
+        {
+            for (row=0; row<ROC_NUMROWS; row++)
+            {
+                // must be nTriggers
+                nHits = 0;
+                for (int16_t i=0; i < nTriggers; i++)
+                {
+                    DecodePixel(data, pos, pix);
+                    if (pix.n > 0) nHits++;
+                }
+                // for each col, for each row, count number of hits and divide by triggers
+                res[(int)row+((int)col*(int)ROC_NUMROWS)]=(double)nHits/nTriggers;
+                cout << "Pix (" << col << "," << row << "): " << res[(int)row+((int)col*(int)ROC_NUMROWS)] << endl;
+            }
+        } catch (int) {}
+    }
+
+    roc_SetDAC(CtrlReg,0);
+    return 1;
+}
+
+int32_t CTestboard::CountReadouts(int16_t nTriggers, int col = 5, int row = 5)
+{ 
+    int32_t nHits = 0;
+    Daq_Open(5000);
+    Daq_Select_Deser160(deserAdjust);
+    Daq_Start();
+    roc_Pix_Trim(col, row, 15);
+    roc_Col_Enable(col, true);
+    roc_Pix_Cal(col, row, false);
+    for (int16_t i=0; i < nTriggers; i++)
+    {
+	    Pg_Single();
+    }
+    roc_Pix_Mask(col, row);
+	roc_ClrCal();
+    roc_Col_Enable(col, false);
+    Daq_Stop();
+
+    vector<uint16_t> data;
+    Daq_Read(data,5000);
+    Daq_Close();
+    PixelReadoutData pix;
+    int pos = 0;
+    try
+    {
+        for (int16_t i=0; i < nTriggers; i++)
+        {
+            DecodePixel(data, pos, pix);
+            if (pix.n > 0) nHits++;
+        }
+    } catch (int) {}
+    return nHits;
+}
+
+
+void CTestboard::DacDac(int32_t dac1, int32_t dacRange1, int32_t dac2, int32_t dacRange2, int32_t nTrig, int32_t res[])
+{
+
+    //TODO move init in common place
+    prep_dig_test();
+    InitDAC();
+    roc_Chip_Mask();
+    roc_SetDAC(Vcal, VCAL_TEST);
+    roc_SetDAC(CtrlReg,0x04); // 0x04
+
+    Pg_SetCmd(0, PG_RESR + 25);
+    Pg_SetCmd(1, PG_CAL  + 15 + tct_wbc);
+    Pg_SetCmd(2, PG_TRG  + 16);
+    Pg_SetCmd(3, PG_TOK);
+    uDelay(100);
+    Flush();
+
+	for (int i = 0; i < dacRange1; i++)
+	{
+		roc_SetDAC(dac1, i);
+		for (int k = 0; k < dacRange2; k++)
+		{
+			roc_SetDAC(dac2, k);
+			res[i*dacRange1 + k] = CountReadouts(nTrig);
+            //cout << "hits:" << res[i*dacRange1 + k] << endl;
+		}
+	}
+    return;
 }
 
