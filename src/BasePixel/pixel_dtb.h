@@ -425,6 +425,9 @@ public:
     void prep_dig_test();
     void SetMHz(int MHz);
     int32_t MaskTest(int16_t nTriggers, int16_t res[]);
+	int32_t ChipEfficiency(int16_t nTriggers, int32_t trim[], double res[]); 
+	void DacDac(int32_t dac1, int32_t dacRange1, int32_t dac2, int32_t dacRange2, int32_t nTrig, int32_t result[]);
+    int32_t CountReadouts(int16_t nTriggers, int col, int row);
     // ----------------------------
 
 
@@ -440,14 +443,12 @@ public:
 	int32_t AoutLevel(int16_t position, int16_t nTriggers){ return 1; }
 	int32_t AoutLevelChip(int16_t position, int16_t nTriggers, int32_t trims[],  int32_t res[]){ return 1; }
 	int32_t AoutLevelPartOfChip(int16_t position, int16_t nTriggers, int32_t trims[], int32_t res[], bool pxlFlags[]){ return 1; }
-	int32_t ChipEfficiency(int16_t nTriggers, int32_t trim[], double res[]){ return 1; }
 	void DoubleColumnADCData(int32_t column, int16_t data[], int32_t readoutStop[]){ return; }
 	int32_t PixelThreshold(int32_t col, int32_t row, int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim){ return 1; }
 	int32_t ChipThreshold(int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim[], int32_t res[]){ return 1; }
 	int32_t SCurve(int32_t nTrig, int32_t dacReg, int32_t threshold, int32_t res[]){ return 1; }
 	int32_t SCurveColumn(int32_t column, int32_t nTrig, int32_t dacReg, int32_t thr[], int32_t trims[], int32_t chipId[], int32_t res[]){ return 1; }
 	void ADCRead(int16_t buffer[], uint16_t &wordsread, int16_t nTrig){ return; }
-	void DacDac(int32_t dac1, int32_t dacRange1, int32_t dac2, int32_t dacRange2, int32_t nTrig, int32_t result[]){ return; }
 	void PHDac(int32_t dac, int32_t dacRange, int32_t nTrig, int32_t position, int16_t result[]){ return; }
 	void AddressLevels(int32_t position, int32_t result[]){ return; }
 	void TBMAddressLevels(int32_t result[]){ return; }
