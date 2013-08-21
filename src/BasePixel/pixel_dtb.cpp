@@ -322,7 +322,7 @@ int32_t CTestboard::ChipEfficiency(int16_t nTriggers, int32_t trim[], double res
                 }
                 // for each col, for each row, count number of hits and divide by triggers
                 res[(int)row+((int)col*(int)ROC_NUMROWS)]=(double)nHits/nTriggers;
-                cout << "Pix (" << col << "," << row << "): " << res[(int)row+((int)col*(int)ROC_NUMROWS)] << endl;
+                //cout << "Pix (" << col << "," << row << "): " << res[(int)row+((int)col*(int)ROC_NUMROWS)] << endl;
             }
         } catch (int) {}
     }
@@ -661,35 +661,6 @@ int32_t CTestboard::SCurveColumn(int32_t iColumn, int32_t nTrig, int32_t dacReg,
   	    roc_Col_Enable(iColumn, 0);
 	}
     return 1;
-}
-
-void CTestboard::AddressLevels(int32_t position, int32_t res[])
-{
-	/*unsigned short counter;
-	short data[FIFOSIZE];
-
-	for (int i = 0; i < 4000; i++) res[i] = 0;
-	for (int col = 0; col < ROC_NUMCOLS; col++)
-	{
-		EnableColumn(col);
-		for (int row = 0; row < ROC_NUMROWS; row++)
-		{
-			ArmPixel(col, row);
-
-	    SendADCTrig();
-  		tb.DataRead(tbmChannel, data, FIFOSIZE, counter);
-	    if (counter >= emptyReadoutLengthADC + 6)
-		  {
-		  	if (position < counter) res[data[position]+2000] += 1;
-		  	for (int k = 3; k < 8; k++) 
-		  	{
-		  		if (position + k < counter) res[data[position + k]+2000] += 1;
-		  	}
-		  }
-			DisarmPixel(col, row);
-		}
-	}*/
-    return;
 }
 
 
