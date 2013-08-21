@@ -345,21 +345,14 @@ int32_t CTestboard::CountReadouts(int32_t nTrig, int32_t dacReg, int32_t dacValu
 
 int32_t CTestboard::CountReadouts(int32_t nTriggers)
 { 
-    int col=5, row=5;
     int32_t nHits = 0;
     Daq_Open(5000);
     Daq_Select_Deser160(deserAdjust);
     Daq_Start();
-    roc_Pix_Trim(col, row, 15);
-    roc_Col_Enable(col, true);
-    roc_Pix_Cal(col, row, false);
     for (int16_t i=0; i < nTriggers; i++)
     {
 	    Pg_Single();
     }
-    roc_Pix_Mask(col, row);
-	roc_ClrCal();
-    roc_Col_Enable(col, false);
     Daq_Stop();
 
     vector<uint16_t> data;
@@ -381,11 +374,6 @@ int32_t CTestboard::CountReadouts(int32_t nTriggers)
 
 void CTestboard::DacDac(int32_t dac1, int32_t dacRange1, int32_t dac2, int32_t dacRange2, int32_t nTrig, int32_t res[])
 {
-
-    //TODO move init in common place
-    prep_dig_test();
-    InitDAC();
-    roc_Chip_Mask();
     roc_SetDAC(Vcal, VCAL_TEST);
     roc_SetDAC(CtrlReg,0x04); // 0x04
 
@@ -395,6 +383,7 @@ void CTestboard::DacDac(int32_t dac1, int32_t dacRange1, int32_t dac2, int32_t d
     Pg_SetCmd(3, PG_TOK);
     uDelay(100);
     Flush();
+
 
 	for (int i = 0; i < dacRange1; i++)
 	{
