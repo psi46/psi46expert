@@ -38,6 +38,7 @@
 #define ROC_NUMROWS  80  // # rows
 #define ROC_NUMCOLS  52  // # columns
 #define ROC_NUMDCOLS 26  // # double columns (= columns/2)
+#define ROC_NUMDCOLS 26  // # double columns (= columns/2)
 
 #define PIXMASK  0x80
 
@@ -424,10 +425,28 @@ public:
     void InitDAC();
     void prep_dig_test();
     void SetMHz(int MHz);
+    void ArmPixel(int col, int row);
+    void ArmPixel(int col, int row, int trim);    
+    void DisarmPixel(int col, int row);
+    void DisableAllPixels();
+    void EnableColumn(int col);
+    void EnableAllPixels(int32_t trim[]);
+    void SetChip(int iChip);    
     int32_t MaskTest(int16_t nTriggers, int16_t res[]);
 	int32_t ChipEfficiency(int16_t nTriggers, int32_t trim[], double res[]); 
 	void DacDac(int32_t dac1, int32_t dacRange1, int32_t dac2, int32_t dacRange2, int32_t nTrig, int32_t result[]);
-    int32_t CountReadouts(int16_t nTriggers, int col, int row);
+	void AddressLevels(int32_t position, int32_t result[]);
+    int32_t CountReadouts(int32_t nTriggers);
+	int32_t CountReadouts(int32_t nTriggers, int32_t chipId);
+	int32_t CountReadouts(int32_t nTriggers, int32_t dacReg, int32_t dacValue);
+    int32_t Threshold(int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg);    
+	int32_t PixelThreshold(int32_t col, int32_t row, int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim);
+    int32_t PixelThresholdXtalk(int32_t col, int32_t row, int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim);    
+	int32_t ChipThreshold(int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim[], int32_t res[]);
+	void ChipThresholdIntern(int32_t start[], int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim[], int32_t res[]);
+	int32_t SCurve(int32_t nTrig, int32_t dacReg, int32_t threshold, int32_t res[]);
+    int32_t SCurve(int32_t nTrig, int32_t dacReg, int32_t thr[], int32_t chipId[], int32_t sCurve[]);
+	int32_t SCurveColumn(int32_t column, int32_t nTrig, int32_t dacReg, int32_t thr[], int32_t trims[], int32_t chipId[], int32_t res[]);
     // ----------------------------
 
 
@@ -439,18 +458,12 @@ public:
     bool ScanDac(unsigned char dac, unsigned char count,
 	unsigned char min, unsigned char max, int16_t *ldac){ return false; }
 
-	int32_t CountReadouts(int32_t count, int32_t chipId){ return 1; }
 	int32_t AoutLevel(int16_t position, int16_t nTriggers){ return 1; }
 	int32_t AoutLevelChip(int16_t position, int16_t nTriggers, int32_t trims[],  int32_t res[]){ return 1; }
 	int32_t AoutLevelPartOfChip(int16_t position, int16_t nTriggers, int32_t trims[], int32_t res[], bool pxlFlags[]){ return 1; }
 	void DoubleColumnADCData(int32_t column, int16_t data[], int32_t readoutStop[]){ return; }
-	int32_t PixelThreshold(int32_t col, int32_t row, int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim){ return 1; }
-	int32_t ChipThreshold(int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim[], int32_t res[]){ return 1; }
-	int32_t SCurve(int32_t nTrig, int32_t dacReg, int32_t threshold, int32_t res[]){ return 1; }
-	int32_t SCurveColumn(int32_t column, int32_t nTrig, int32_t dacReg, int32_t thr[], int32_t trims[], int32_t chipId[], int32_t res[]){ return 1; }
 	void ADCRead(int16_t buffer[], uint16_t &wordsread, int16_t nTrig){ return; }
 	void PHDac(int32_t dac, int32_t dacRange, int32_t nTrig, int32_t position, int16_t result[]){ return; }
-	void AddressLevels(int32_t position, int32_t result[]){ return; }
 	void TBMAddressLevels(int32_t result[]){ return; }
 	void TrimAboveNoise(int16_t nTrigs, int16_t thr, int16_t mode, int16_t result[]){ return; }
 
@@ -513,6 +526,10 @@ public:
 
 
 
+private:
+    static const bool enableAll = true;
+    static const int hubId = 0;
+    static const int nRocs = 1;
     
 
 };
