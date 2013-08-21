@@ -264,9 +264,6 @@ int32_t CTestboard::ChipEfficiency(int16_t nTriggers, int32_t trim[], double res
 { 
     //TODO move init in common place
     // load settings
-    prep_dig_test();
-    InitDAC();
-    roc_Chip_Mask();
     roc_SetDAC(Vcal, VCAL_TEST);
     roc_SetDAC(CtrlReg,0x04); // 0x04
 

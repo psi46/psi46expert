@@ -426,6 +426,7 @@ public:
     void InitDAC();
     void prep_dig_test();
     void SetMHz(int MHz);
+    void I2cAddr(unsigned char id){ roc_I2cAddr(id); }
     void Set(unsigned char reg, unsigned char value){ roc_SetDAC(reg, value); }
     void SetReg(unsigned char addr, uint16_t value){ roc_SetDAC(addr, value); }
     void ArmPixel(int col, int row);
@@ -490,7 +491,6 @@ public:
 
     void ForceSignal(unsigned char pattern){ return; }
 
-    void I2cAddr(unsigned char id){ return; }
     bool ShowUSB() { return false; }; 
 
     bool Open(char name[], bool init = true){ return true;}
