@@ -365,7 +365,6 @@ public:
 
     void SetEmptyReadoutLength(int32_t emptyReadoutLength){ return; }
 
-    void Set(unsigned char reg, unsigned char value){ return; }
 
     void Single(unsigned char mask){ return; }
 
@@ -402,7 +401,6 @@ public:
 	uint16_t GetModRoCnt(uint16_t index){ return 1;}
 	void GetModRoCntAll(uint16_t *counts){ return; }
 
-
 	uint32_t Daq_Init(uint32_t size){ return 1; }
     void Daq_Enable(){ return; }
     void Daq_Disable(){ return; }
@@ -418,6 +416,9 @@ public:
 	void TbmWrite(int32_t hubAddr, int32_t addr, int32_t value){ return; }
 	void Tbm1Write(int32_t hubAddr, int32_t addr, int32_t value){ return; }
 	void Tbm2Write(int32_t hubAddr, int32_t addr, int32_t value){ return; }
+    void SetClock(unsigned char MHz){ return; }
+    void SetDelay(unsigned char signal, uint16_t ns){ return; }
+    void AdjustDelay(uint16_t k) { SetDelay(255, k); }
 
     // === module test functions ======================================
     
@@ -425,6 +426,8 @@ public:
     void InitDAC();
     void prep_dig_test();
     void SetMHz(int MHz);
+    void Set(unsigned char reg, unsigned char value){ roc_SetDAC(reg, value); }
+    void SetReg(unsigned char addr, uint16_t value){ roc_SetDAC(addr, value); }
     void ArmPixel(int col, int row);
     void ArmPixel(int col, int row, int trim);    
     void DisarmPixel(int col, int row);
@@ -435,7 +438,7 @@ public:
     int32_t MaskTest(int16_t nTriggers, int16_t res[]);
 	int32_t ChipEfficiency(int16_t nTriggers, int32_t trim[], double res[]); 
 	void DacDac(int32_t dac1, int32_t dacRange1, int32_t dac2, int32_t dacRange2, int32_t nTrig, int32_t result[]);
-	void AddressLevels(int32_t position, int32_t result[]);
+	void AddressLevels(int32_t position, int32_t result[]){ return;}
     int32_t CountReadouts(int32_t nTriggers);
 	int32_t CountReadouts(int32_t nTriggers, int32_t chipId);
 	int32_t CountReadouts(int32_t nTriggers, int32_t dacReg, int32_t dacValue);
@@ -476,18 +479,14 @@ public:
 	void SetNRocs(int32_t value){ return; }
 	void SetHubID(int32_t value){ return; }
     void SetAoutChipPosition(int32_t value){ return; }
-    void SetReg(unsigned char addr, uint16_t value){ return; }
     void MemRead(uint32_t addr, uint16_t size,
                  unsigned char * s){ return; }
 
      // == PSI46 testboard methods ===========================================
 
     unsigned char isClockPresent(){ return 1; }
-    void SetClock(unsigned char MHz){ return; }
     void SetClockStretch(unsigned char src,
 		uint16_t delay, uint16_t width){ return; }
-    void SetDelay(unsigned char signal, uint16_t ns){ return; }
-    void AdjustDelay(uint16_t k) { SetDelay(255, k); }
 
     void ForceSignal(unsigned char pattern){ return; }
 
