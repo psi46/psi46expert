@@ -331,8 +331,21 @@ int32_t CTestboard::ChipEfficiency(int16_t nTriggers, int32_t trim[], double res
     return 1;
 }
 
-int32_t CTestboard::CountReadouts(int16_t nTriggers, int col = 5, int row = 5)
+int32_t CTestboard::CountReadouts(int32_t nTrig, int32_t chipId)
+{
+    roc_I2cAddr(chipId);
+	return CountReadouts(nTrig);
+}
+
+int32_t CTestboard::CountReadouts(int32_t nTrig, int32_t dacReg, int32_t dacValue)
+{
+	roc_SetDAC(dacReg, dacValue);
+	return CountReadouts(nTrig);
+}
+
+int32_t CTestboard::CountReadouts(int32_t nTriggers)
 { 
+    int col=5, row=5;
     int32_t nHits = 0;
     Daq_Open(5000);
     Daq_Select_Deser160(deserAdjust);
@@ -395,4 +408,299 @@ void CTestboard::DacDac(int32_t dac1, int32_t dacRange1, int32_t dac2, int32_t d
 	}
     return;
 }
+
+void CTestboard::ArmPixel(int col, int row)
+{
+	ArmPixel(col, row, 15);
+}
+
+
+void CTestboard::ArmPixel(int col, int row, int trim)
+{
+	roc_Pix_Trim(col, row, trim);
+	roc_Pix_Cal (col, row, false);
+}
+
+
+void CTestboard::EnableColumn(int col)
+{
+		roc_Col_Enable(col, 1);
+		cDelay(20);
+}
+
+
+void CTestboard::EnableAllPixels(int32_t trim[])
+{
+	for (int col = 0; col < ROC_NUMCOLS; col++)
+	{
+		EnableColumn(col);
+		for (int row = 0; row < ROC_NUMROWS; row++)
+		{
+			roc_Pix_Trim(col, row, trim[col*ROC_NUMROWS + row]);
+		}
+	}
+}
+	
+	
+void CTestboard::DisableAllPixels()
+{
+	for (int col = 0; col < ROC_NUMCOLS; col++)
+	{
+		roc_Col_Enable(col, 0);
+		for (int row = 0; row < ROC_NUMROWS; row++)
+		{
+			roc_Pix_Mask(col, row);
+		}
+	}
+}
+
+
+void CTestboard::DisarmPixel(int col, int row)
+{
+	roc_ClrCal();
+	roc_Pix_Mask(col,row);
+}
+
+void CTestboard::SetChip(int iChip)
+{
+	int portId = iChip/4;
+	tbm_Addr(hubId, portId);
+	roc_I2cAddr(iChip);
+}
+
+// == Thresholds ===================================================
+
+
+int32_t CTestboard::Threshold(int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg)
+{
+	int32_t threshold = start, newValue, oldValue, result;
+	int stepAbs;
+	if (step < 0) stepAbs = -step; else stepAbs = step;
+			
+	newValue = CountReadouts(nTrig, dacReg, threshold);
+	if (newValue > thrLevel)
+	{
+		do
+		{
+			threshold-=step;
+			oldValue = newValue;
+			newValue = CountReadouts(nTrig, dacReg, threshold);
+		}
+		while ((newValue > thrLevel) && (threshold > (stepAbs - 1)) && (threshold < (256 - stepAbs)));
+
+		if (oldValue - thrLevel > thrLevel - newValue) result = threshold;
+		else result = threshold+step;
+	}
+	else
+	{
+		do
+		{
+			threshold+=step;
+			oldValue = newValue;
+			newValue = CountReadouts(nTrig, dacReg, threshold);
+		}
+		while ((newValue <= thrLevel) && (threshold > (stepAbs - 1)) && (threshold < (256 - stepAbs)));
+
+		if (thrLevel - oldValue > newValue - thrLevel) result = threshold;
+		else result = threshold-step;
+	}
+
+	if (result > 255) result = 255;
+	if (result < 0) result = 0;
+
+	return result;
+}
+
+int32_t CTestboard::PixelThreshold(int32_t col, int32_t row, int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim)
+{
+	int calRow = row;
+	roc_Pix_Trim(col, row, trim);
+
+	if (xtalk)
+	{
+		if (row == ROC_NUMROWS - 1) calRow = row - 1;
+		else calRow = row + 1;
+	}
+	if (cals) roc_Pix_Cal(col, calRow, true);
+	else roc_Pix_Cal(col, calRow, false);
+
+	int32_t res = Threshold(start, step, thrLevel, nTrig, dacReg);
+    roc_ClrCal();
+    if (enableAll == 0) roc_Pix_Mask(col, row);
+	return res;
+}
+
+int32_t CTestboard::PixelThresholdXtalk(int32_t col, int32_t row, int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim)
+{
+	int calRow;
+	if ( row >= ROC_NUMROWS/2 ) calRow = row - ROC_NUMROWS/2;
+  else calRow = row + ROC_NUMROWS/2;
+	
+	roc_Pix_Trim(col, row, trim);
+
+	if (!xtalk) roc_Pix_Cal(col, row, 1);
+	roc_Pix_Cal(col, row, 0);
+	roc_Pix_Cal(col, calRow, 1);
+
+	int32_t res = Threshold(start, step, thrLevel, nTrig, dacReg);
+    roc_ClrCal();
+    if (enableAll == 0) roc_Pix_Mask(col, row);
+	return res;
+}
+
+void CTestboard::ChipThresholdIntern(int32_t start[], int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim[], int32_t res[])
+{
+  int32_t thr, startValue;
+  if (enableAll != 0) EnableAllPixels(trim);	  
+	for (int col = 0; col < ROC_NUMCOLS; col++)
+	{
+		EnableColumn(col);
+		for (int row = 0; row < ROC_NUMROWS; row++)
+		{
+			if (step < 0) startValue = start[col*ROC_NUMROWS + row] + 10;
+			else startValue = start[col*ROC_NUMROWS + row];
+			if (startValue < 0) startValue = 0;
+			else if (startValue > 255) startValue = 255;
+			
+			thr = PixelThreshold(col, row, startValue, step, thrLevel, nTrig, dacReg, xtalk, cals, trim[col*ROC_NUMROWS + row]);
+			res[col*ROC_NUMROWS + row] = thr;
+		}
+		if (enableAll == 0) roc_Col_Enable(col, 0);
+	}
+	if (enableAll != 0) DisableAllPixels();	  
+}
+
+int32_t CTestboard::ChipThreshold(int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim[], int32_t res[])
+{
+  int startValue;
+  int32_t roughThr[ROC_NUMROWS * ROC_NUMCOLS], roughStep;
+  if (step < 0) 
+  {
+  	startValue = 255;
+  	roughStep = -4;
+  }
+  else 
+  {
+  	startValue = 0;
+  	roughStep = 4;
+  }
+  
+  for (int i = 0; i < ROC_NUMROWS * ROC_NUMCOLS; i++) roughThr[i] = startValue;
+  ChipThresholdIntern(roughThr, roughStep, 0, 1, dacReg, xtalk, cals, trim, roughThr);
+  ChipThresholdIntern(roughThr, step, thrLevel, nTrig, dacReg, xtalk, cals, trim, res);  
+  return 1;
+}
+
+int32_t CTestboard::SCurve(int32_t nTrig, int32_t dacReg, int32_t threshold, int32_t sCurve[])
+{
+	for (int i = 0; i < 256; i++) sCurve[i] = 0;
+	
+	int start = threshold - 16;
+	if (start < 0) start = 0;
+	int stop = threshold + 16;
+	if (stop > 256) stop = 256;
+	for (int i = start; i < stop; i++)
+	{
+		sCurve[i] = CountReadouts(nTrig, dacReg, i);
+	}
+    return 1;
+}
+
+int32_t CTestboard::SCurve(int32_t nTrig, int32_t dacReg, int32_t thr[], int32_t chipId[], int32_t sCurve[])
+{
+	int dac;
+	for (int i = 0; i < 32; i++)
+	{
+		for (int iChip = 0; iChip < nRocs; iChip++) 
+		{
+			SetChip(chipId[iChip]);
+			sCurve[i*nRocs + iChip] = 0;
+			
+			dac = thr[iChip] - 16 + i;
+			if (dac < 0) dac = 0;
+			else if (dac > 255) dac = 255;
+			roc_SetDAC(dacReg, dac);
+		}
+		cDelay(1200);
+		if (i == 0) cDelay(1200);		
+			
+		for (int n = 0; n < nTrig; n++) 
+		{
+            sCurve[i] = CountReadouts(nTrig, dacReg, i);
+		}
+	}
+    return 1;
+}
+
+
+int32_t CTestboard::SCurveColumn(int32_t iColumn, int32_t nTrig, int32_t dacReg, int32_t thr[], int32_t trim[], int32_t chipId[], int32_t sCurve[])
+{	
+	int32_t buffer[nRocs*32], thresholds[nRocs];
+	long position = 0;
+		
+	for (int iChip = 0; iChip < nRocs; iChip++)
+	{
+		SetChip(chipId[iChip]);
+  	    EnableColumn(iColumn);
+	}
+	
+	for (int iRow = 0; iRow < ROC_NUMROWS; iRow++)
+	{
+		for (int iChip = 0; iChip < nRocs; iChip++)
+		{
+			thresholds[iChip] =thr[nRocs * iRow + iChip];
+			SetChip(chipId[iChip]);
+			roc_Pix_Trim(iColumn, iRow, trim[nRocs * iRow + iChip]);
+			roc_Pix_Cal(iColumn, iRow, 0);
+		}
+		
+		SCurve(nTrig, dacReg, thresholds, chipId, buffer);
+
+		for (int iChip = 0; iChip < nRocs; iChip++)
+		{
+			SetChip(chipId[iChip]);
+ 		 	DisarmPixel(iColumn, iRow);
+		}
+
+		for (int i = 0; i < 32*nRocs; i++) sCurve[position + i] = buffer[i];
+		position+=32*nRocs;
+	}
+	
+	for (int iChip = 0; iChip < nRocs; iChip++)
+	{
+		SetChip(chipId[iChip]);
+  	    roc_Col_Enable(iColumn, 0);
+	}
+    return 1;
+}
+
+void CTestboard::AddressLevels(int32_t position, int32_t res[])
+{
+	/*unsigned short counter;
+	short data[FIFOSIZE];
+
+	for (int i = 0; i < 4000; i++) res[i] = 0;
+	for (int col = 0; col < ROC_NUMCOLS; col++)
+	{
+		EnableColumn(col);
+		for (int row = 0; row < ROC_NUMROWS; row++)
+		{
+			ArmPixel(col, row);
+
+	    SendADCTrig();
+  		tb.DataRead(tbmChannel, data, FIFOSIZE, counter);
+	    if (counter >= emptyReadoutLengthADC + 6)
+		  {
+		  	if (position < counter) res[data[position]+2000] += 1;
+		  	for (int k = 3; k < 8; k++) 
+		  	{
+		  		if (position + k < counter) res[data[position + k]+2000] += 1;
+		  	}
+		  }
+			DisarmPixel(col, row);
+		}
+	}*/
+    return;
+}
+
 
