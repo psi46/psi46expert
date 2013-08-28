@@ -424,6 +424,7 @@ public:
     
     // --- implemented funtions: ---
     void InitDAC();
+    void Init_Reset();
     void prep_dig_test();
     void SetMHz(int MHz);
     void I2cAddr(unsigned char id){ roc_I2cAddr(id); }
