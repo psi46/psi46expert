@@ -144,7 +144,6 @@ void CTestboard::SetMHz(int MHz = 0){
 
 void CTestboard::prep_dig_test(){
     SetMHz();
-    int bin = 1;
     roc_I2cAddr(0);
     SetRocAddress(0);
 }
@@ -171,7 +170,7 @@ void CTestboard::InitDAC()
     roc_SetDAC( 25,   2);    // Vcal
     roc_SetDAC( 26,  68);  // CalDel
     roc_SetDAC( 0xfe,15);   // WBC
-    roc_SetDAC( 0xfd, 4);   // CtrlReg
+    roc_SetDAC( 0xfd, 0);   // CtrlReg
 
     Flush();
 }
@@ -336,6 +335,7 @@ int32_t CTestboard::CountReadouts(int32_t nTrig, int32_t chipId)
 
 int32_t CTestboard::CountReadouts(int32_t nTrig, int32_t dacReg, int32_t dacValue)
 {
+    //cout << "Reg " << dacReg << " value " << dacValue << endl; 
 	roc_SetDAC(dacReg, dacValue);
 	return CountReadouts(nTrig);
 }
@@ -371,6 +371,8 @@ int32_t CTestboard::CountReadouts(int32_t nTriggers)
 
 void CTestboard::DacDac(int32_t dac1, int32_t dacRange1, int32_t dac2, int32_t dacRange2, int32_t nTrig, int32_t res[])
 {
+    roc_SetDAC(Vcal, VCAL_TEST);
+    roc_SetDAC(CtrlReg,0x04); // 0x04
     Init_Reset();
 
 	for (int i = 0; i < dacRange1; i++)
@@ -383,6 +385,7 @@ void CTestboard::DacDac(int32_t dac1, int32_t dacRange1, int32_t dac2, int32_t d
             //cout << "hits:" << res[i*dacRange1 + k] << endl;
 		}
 	}
+    roc_SetDAC(CtrlReg,0); // 0x04
     return;
 }
 
@@ -421,14 +424,7 @@ void CTestboard::EnableAllPixels(int32_t trim[])
 	
 void CTestboard::DisableAllPixels()
 {
-	for (int col = 0; col < ROC_NUMCOLS; col++)
-	{
-		roc_Col_Enable(col, 0);
-		for (int row = 0; row < ROC_NUMROWS; row++)
-		{
-			roc_Pix_Mask(col, row);
-		}
-	}
+    roc_Chip_Mask();
 }
 
 
@@ -552,8 +548,6 @@ void CTestboard::Init_Reset()
     //prep_dig_test();
     //InitDAC();
     //roc_Chip_Mask();
-    roc_SetDAC(Vcal, VCAL_TEST);
-    roc_SetDAC(CtrlReg,0x04); // 0x04
 
     Pg_SetCmd(0, PG_RESR + 25);
     Pg_SetCmd(1, PG_CAL  + 15 + tct_wbc);
