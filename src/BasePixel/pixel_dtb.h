@@ -346,7 +346,7 @@ public:
     #define STRETCH_AFTER_CAL  2  
     // == TBM functions =====================================================
 
-    bool TBMPresent() { return true; }
+    bool TBMPresent() { return false; }
 
     void tbm_Enable(bool on){ return; }
 
@@ -372,11 +372,11 @@ public:
 
     // -- enables the internal event generator
     //    mask: same as tb_Single
-    void Intern(unsigned char mask){ return; }
+    void Intern(unsigned char mask){ Single(mask); }
 
     // -- enables the external event input
     //    mask: same as tb_Single
-    void Extern(unsigned char mask){ return;}
+    void Extern(unsigned char mask){ Single(mask);}
 
     // -- gets the readout counter
     unsigned char GetRoCnt(){ return 1; }  
