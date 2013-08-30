@@ -139,6 +139,7 @@ public:
     void DacDac(int dac1, int dacRange1, int dac2, int dacRange2, int nTrig, int result[]);
     void PHDac(int dac, int dacRange, int nTrig, int position, short result[]);
     int PH(int col, int row);
+    bool test_pixel_address(int col, int row);
     void AddressLevels(int position, int result[]);
     void TBMAddressLevels(int result[]);
     void TrimAboveNoise(short nTrigs, short thr, short mode, short result[]);

@@ -682,3 +682,41 @@ int32_t CTestboard::PH(int32_t col, int32_t row)
   
   
     }
+
+bool CTestboard::test_pixel_address(int32_t col, int32_t row)
+{
+    Daq_Open(5000);
+    Daq_Select_Deser160(deserAdjust);
+    uDelay(100);
+    Daq_Start();
+    uDelay(100);
+
+    roc_Col_Enable(col, true);
+    
+    ArmPixel(col,row);
+    Pg_Single();
+    DisarmPixel(col,row);
+    
+    roc_Col_Enable(col, false);
+    Daq_Stop();
+
+    vector<uint16_t> data;
+    Daq_Read(data, 5000);
+    Daq_Close();
+    // --- analyze data
+    PixelReadoutData pix;
+
+    int pos = 0;
+    try
+    {
+        DecodePixel(data, pos, pix);
+        if (pix.n > 0){
+            //cout << "("<< pix.x  <<',' << pix.y << ')' << "("<< row  <<',' << col << ')' <<endl; 
+            return (pix.x == col && pix.y == row);
+        }
+        else return false;
+    } catch (int) {}
+
+    return false;
+  
+}

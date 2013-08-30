@@ -1134,6 +1134,11 @@ int TBAnalogInterface::PH(int col, int row)
     return cTestboard->PH(col, row);
 }
 
+bool TBAnalogInterface::test_pixel_address(int col, int row)
+{
+    return cTestboard->test_pixel_address(col, row);
+}
+
 void TBAnalogInterface::AddressLevels(int position, int result[])
 {
     cTestboard->AddressLevels(position, result);

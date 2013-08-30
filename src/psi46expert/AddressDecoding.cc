@@ -39,7 +39,22 @@ void AddressDecoding::RocAction()
 
 void AddressDecoding::DoubleColumnAction()
 {
-    if (!fdebug)
+    if (!roc->has_analog_readout()){
+        for (column=0; column<ROC_NUMCOLS; column++){
+            for (row=0; row<ROC_NUMROWS; row++){
+                if (testRange->IncludesPixel(chipId, column, row)) {
+                    bool correct_address = ((TBAnalogInterface *)tbInterface)->test_pixel_address(column, row);
+                    if (correct_address){
+                        map->Fill(column, row);
+                    }
+                    else{
+                        cout << "pixel " << column << "," << row << "  \033[31;49mNOT found\033[0m " << endl;
+                    }
+                }
+            }
+        }
+    }
+    else if (!fdebug)
     {
         if (IncludesDoubleColumn())
         {
@@ -99,7 +114,8 @@ void AddressDecoding::AnalyseResult(int pixel)
                                      &data[readoutStart],
                                      decodedModuleReadout,
                                      nRocs);
-        } else {
+        } 
+        else {
             int flags = 0;
             flags |= roc->has_row_address_inverted() ? DRO_INVERT_ROW_ADDRESS : 0;
             error = decode_digital_readout(&decodedModuleReadout, data + readoutStart, readoutStop[pixel] - readoutStart, nRocs, flags);
