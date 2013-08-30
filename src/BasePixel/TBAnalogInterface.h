@@ -138,6 +138,7 @@ public:
     int SCurveColumn(int column, int nTrig, int dacReg, int thr[], int trims[], int chipId[], int res[]);
     void DacDac(int dac1, int dacRange1, int dac2, int dacRange2, int nTrig, int result[]);
     void PHDac(int dac, int dacRange, int nTrig, int position, short result[]);
+    int PH(int col, int row);
     void AddressLevels(int position, int result[]);
     void TBMAddressLevels(int result[]);
     void TrimAboveNoise(short nTrigs, short thr, short mode, short result[]);

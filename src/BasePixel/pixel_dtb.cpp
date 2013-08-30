@@ -628,4 +628,57 @@ int32_t CTestboard::SCurveColumn(int32_t iColumn, int32_t nTrig, int32_t dacReg,
     return 1;
 }
 
+int32_t CTestboard::PH(int32_t col, int32_t row)
+{
 
+    Daq_Open(50000);
+    Daq_Select_Deser160(deserAdjust);
+    uDelay(100);
+    Daq_Start();
+    uDelay(100);
+
+    roc_Col_Enable(col, true);
+    roc_Pix_Trim(col, row, 15);
+    roc_Pix_Cal (col, row, false);
+
+    vector<uint16_t> data;
+
+    //roc_SetDAC(Vcal, vcal);
+    uDelay(100);
+    for (int k=0; k<5; k++)
+    {
+        Pg_Single();
+        uDelay(20);
+    }
+
+    roc_Pix_Mask(col, row);
+    roc_Col_Enable(col, false);
+    roc_ClrCal();
+
+    Daq_Stop();
+    Daq_Read(data, 4000);
+    Daq_Close();
+    //  DumpData(data, 200);
+
+    // --- analyze data
+    PixelReadoutData pix;
+
+    int pos = 0;
+    try
+    {
+        int cnt = 0;
+        double yi = 0.0;
+        for (int k=0; k<5; k++)
+        {
+            DecodePixel(data, pos, pix);
+            if (pix.n > 0) { yi += pix.p; cnt++; }
+        }
+        if (cnt > 0)
+            return yi/cnt;
+        else
+            return -1;
+    } catch (int) {}
+
+  
+  
+    }

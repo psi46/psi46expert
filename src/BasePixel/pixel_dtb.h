@@ -452,6 +452,7 @@ public:
 	int32_t SCurve(int32_t nTrig, int32_t dacReg, int32_t threshold, int32_t res[]);
     int32_t SCurve(int32_t nTrig, int32_t dacReg, int32_t thr[], int32_t chipId[], int32_t sCurve[]);
 	int32_t SCurveColumn(int32_t column, int32_t nTrig, int32_t dacReg, int32_t thr[], int32_t trims[], int32_t chipId[], int32_t res[]);
+    int32_t PH(int32_t col, int32_t row);
     // ----------------------------
 
 

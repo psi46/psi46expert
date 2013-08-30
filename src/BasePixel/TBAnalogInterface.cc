@@ -1129,6 +1129,10 @@ void TBAnalogInterface::PHDac(int dac, int dacRange, int nTrig, int position, sh
     cTestboard->PHDac(dac, dacRange, nTrig, position, result);
 }
 
+int TBAnalogInterface::PH(int col, int row)
+{
+    return cTestboard->PH(col, row);
+}
 
 void TBAnalogInterface::AddressLevels(int position, int result[])
 {
