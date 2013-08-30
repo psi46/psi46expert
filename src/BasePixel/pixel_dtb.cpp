@@ -167,7 +167,7 @@ void CTestboard::InitDAC()
     roc_SetDAC( 18, 115);    // VIon
     roc_SetDAC( 19, 100);    // Vcomp_ADC
     roc_SetDAC( 20,  90);    // VIref_ADC
-    roc_SetDAC( 25,   2);    // Vcal
+    roc_SetDAC( 25,   200);    // Vcal
     roc_SetDAC( 26,  68);  // CalDel
     roc_SetDAC( 0xfe,15);   // WBC
     roc_SetDAC( 0xfd, 0);   // CtrlReg
@@ -179,21 +179,7 @@ void CTestboard::InitDAC()
 // it's also sending a Cal signal right now...readout both
 int32_t CTestboard::MaskTest(int16_t nTriggers, int16_t res[])
 { 
-    //TODO move init in common place
-    // load settings
-    prep_dig_test();
-    InitDAC();
     roc_Chip_Mask();
-    roc_SetDAC(Vcal, VCAL_TEST);
-    roc_SetDAC(CtrlReg,0x04); // 0x04
-
-    Pg_SetCmd(0, PG_RESR + 25);
-    Pg_SetCmd(1, PG_CAL  + 15 + tct_wbc);
-    Pg_SetCmd(2, PG_TRG  + 16);
-    Pg_SetCmd(3, PG_TOK);
-    uDelay(100);
-    Flush();
-
     Daq_Open(50000);
     Daq_Select_Deser160(deserAdjust);
     Daq_Start();
@@ -255,25 +241,11 @@ int32_t CTestboard::MaskTest(int16_t nTriggers, int16_t res[])
             }
         }
     } catch (int) {}
-    roc_SetDAC(CtrlReg,0);
     return 1;
 }
 
 int32_t CTestboard::ChipEfficiency(int16_t nTriggers, int32_t trim[], double res[])
 { 
-    //TODO move init in common place
-    // load settings
-    roc_SetDAC(Vcal, VCAL_TEST);
-    roc_SetDAC(CtrlReg,0x04); // 0x04
-
-    Pg_SetCmd(0, PG_RESR + 25);
-    Pg_SetCmd(1, PG_CAL  + 15 + tct_wbc);
-    Pg_SetCmd(2, PG_TRG  + 16);
-    Pg_SetCmd(3, PG_TOK);
-    uDelay(100);
-    Flush();
-
-
     // --- scan all pixel ------------------------------------------------------
     int col, row;
     PixelReadoutData pix;
@@ -323,7 +295,7 @@ int32_t CTestboard::ChipEfficiency(int16_t nTriggers, int32_t trim[], double res
         } catch (int) {}
     }
 
-    roc_SetDAC(CtrlReg,0);
+    //roc_SetDAC(CtrlReg,0);
     return 1;
 }
 
@@ -371,10 +343,6 @@ int32_t CTestboard::CountReadouts(int32_t nTriggers)
 
 void CTestboard::DacDac(int32_t dac1, int32_t dacRange1, int32_t dac2, int32_t dacRange2, int32_t nTrig, int32_t res[])
 {
-    roc_SetDAC(Vcal, VCAL_TEST);
-    roc_SetDAC(CtrlReg,0x04); // 0x04
-    Init_Reset();
-
 	for (int i = 0; i < dacRange1; i++)
 	{
 		roc_SetDAC(dac1, i);
@@ -385,7 +353,6 @@ void CTestboard::DacDac(int32_t dac1, int32_t dacRange1, int32_t dac2, int32_t d
             //cout << "hits:" << res[i*dacRange1 + k] << endl;
 		}
 	}
-    roc_SetDAC(CtrlReg,0); // 0x04
     return;
 }
 
@@ -545,7 +512,7 @@ void CTestboard::ChipThresholdIntern(int32_t start[], int32_t step, int32_t thrL
 
 void CTestboard::Init_Reset()
 {
-    //prep_dig_test();
+    prep_dig_test();
     //InitDAC();
     //roc_Chip_Mask();
 
@@ -559,7 +526,6 @@ void CTestboard::Init_Reset()
 
 int32_t CTestboard::ChipThreshold(int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim[], int32_t res[])
 {
-  Init_Reset();
   int startValue;
   int32_t roughThr[ROC_NUMROWS * ROC_NUMCOLS], roughStep;
   if (step < 0) 
@@ -623,7 +589,6 @@ int32_t CTestboard::SCurve(int32_t nTrig, int32_t dacReg, int32_t thr[], int32_t
 
 int32_t CTestboard::SCurveColumn(int32_t iColumn, int32_t nTrig, int32_t dacReg, int32_t thr[], int32_t trim[], int32_t chipId[], int32_t sCurve[])
 {	
-    Init_Reset();
 	int32_t buffer[nRocs*32], thresholds[nRocs];
 	long position = 0;
 		

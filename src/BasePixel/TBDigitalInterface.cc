@@ -240,6 +240,7 @@ void TBDigitalInterface::Initialize(ConfigParameters * configParameters)
 		printf("Connect testboard and try command 'scan' to find connected devices.\n");
 		printf("Make sure you have permission to access USB devices.\n");
 	}
+    cTestboard->Init();
 
     fIsPresent = 1;
 
@@ -272,6 +273,7 @@ void TBDigitalInterface::Initialize(ConfigParameters * configParameters)
     gDelay->Mdelay(100);
     cTestboard->ResetOff();
     cTestboard->Flush();
+    cTestboard->Init_Reset();
 
 }
 
