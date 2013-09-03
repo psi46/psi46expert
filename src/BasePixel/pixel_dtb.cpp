@@ -578,10 +578,7 @@ int32_t CTestboard::SCurve(int32_t nTrig, int32_t dacReg, int32_t thr[], int32_t
 		cDelay(1200);
 		if (i == 0) cDelay(1200);		
 		
-		for (int n = 0; n < nTrig; n++) 
-		{
-            sCurve[i] = CountReadouts(nTrig, dacReg, i);
-		}
+        sCurve[i] = CountReadouts(nTrig);
 	}
     return 1;
 }
@@ -602,10 +599,9 @@ int32_t CTestboard::SCurveColumn(int32_t iColumn, int32_t nTrig, int32_t dacReg,
 	{
 		for (int iChip = 0; iChip < nRocs; iChip++)
 		{
-			thresholds[iChip] =thr[nRocs * iRow + iChip];
+			thresholds[iChip] = thr[nRocs * iRow + iChip];
 			SetChip(chipId[iChip]);
-			roc_Pix_Trim(iColumn, iRow, trim[nRocs * iRow + iChip]);
-			roc_Pix_Cal(iColumn, iRow, 0);
+            ArmPixel(iColumn,iRow,trim[nRocs * iRow + iChip]);
 		}
 		
 		SCurve(nTrig, dacReg, thresholds, chipId, buffer);
