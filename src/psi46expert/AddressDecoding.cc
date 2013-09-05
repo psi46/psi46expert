@@ -40,7 +40,7 @@ void AddressDecoding::RocAction()
 void AddressDecoding::DoubleColumnAction()
 {
     if (!roc->has_analog_readout()){
-        for (column=0; column<ROC_NUMCOLS; column++){
+        for (column=int(2*doubleColumn->DoubleColumnNumber()); column<=int(2*doubleColumn->DoubleColumnNumber()+1); column++){
             for (row=0; row<ROC_NUMROWS; row++){
                 if (testRange->IncludesPixel(chipId, column, row)) {
                     bool correct_address = ((TBAnalogInterface *)tbInterface)->test_pixel_address(column, row);
