@@ -1,0 +1,9 @@
+*~
+*.o
+*.lo
+*.la
+*Dict.h
+*Dict.cc
+.DS_Store
+src/psi46expert/.deps
+src/psi46expert/.libs
