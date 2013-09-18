@@ -104,7 +104,6 @@ void AddressLevels::TestROC()
     psi::LogInfo() << "[AddressLevels] Chip #" << roc->GetChipId() << '.'
                    << psi::endl;
     adcHistogramROC = new TH1D(Form("AddressLevels_C%d", roc->GetChipId()), Form("AddressLevels_C%d", roc->GetChipId()), 4000, -2000, 2000);
-    if (!roc->has_analog_readout()) return;
 
     int data[4000];
     roc->AddressLevelsTest(data);

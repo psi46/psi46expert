@@ -558,6 +558,13 @@ void TestModule::AdjustDACParameters()
         AdjustVOffsetOp();
     }
 
+    if (!is_analog) {
+        for (int iRoc = 0; iRoc < nRocs; iRoc++) {
+            psi::LogInfo() << "[TestModule] Adjusting pulse height range for ROC " << iRoc << " ..." << psi::endl;
+            GetRoc(iRoc)->AdjustPulseHeightRange();
+        }
+    }
+
     gDelay->Timestamp();
     WriteDACParameterFile(configParameters->GetDacParametersFileName());
     if (is_analog)
@@ -650,10 +657,6 @@ void TestModule::AdjustVana(double goalCurrent)
     int vana[nRocs];
     int vsf[nRocs];
 
-    /* The ROC may still draw some current when Vana is 0. To adjust
-       the current correctly this zero-current is taken into account. */
-    goalCurrent -= configParameters->rocZeroAnalogCurrent;
-
     for (int iRoc = 0; iRoc < nRocs; iRoc++)
     {
         vsf[iRoc] = GetRoc(iRoc)->GetDAC("Vsf");
@@ -662,8 +665,38 @@ void TestModule::AdjustVana(double goalCurrent)
         GetRoc(iRoc)->SetDAC("Vsf", 0);
     }
     tbInterface->Flush();
+
+    /* Take the average of three current measurements */
+    double current0 = 0.0;
+
     gDelay->Mdelay(500);
-    double current0 = anaInterface->GetIA();
+    current0 += anaInterface->GetIA();
+    tbInterface->Flush();
+
+    gDelay->Mdelay(500);
+    current0 += anaInterface->GetIA();
+    tbInterface->Flush();
+
+    gDelay->Mdelay(500);
+    current0 += anaInterface->GetIA();
+    tbInterface->Flush();
+
+    current0 /= 3.0;
+
+    /* Assume the current with Vana=0 is the same for every ROC and calculate
+       the the current for all ROCs except the one being adjusted such that
+       in the end the current is
+
+           nRocs * goalCurrent
+
+       and not
+
+           nRocs * goalCurrent + current0
+
+       This is especially helpful for ROCs that draw a significant current with
+       Vana=0.
+     */
+    current0 = (nRocs - 1) * current0 / nRocs;
 
     psi::LogDebug() << "[TestModule] ZeroCurrent " << current0 << psi::endl;
 
