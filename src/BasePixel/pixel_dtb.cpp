@@ -192,16 +192,18 @@ int32_t CTestboard::MaskTest(int16_t nTriggers, int16_t res[])
         uDelay(10);
         for (row=0; row<ROC_NUMROWS; row++)
         {
-            roc_Pix_Cal (col, row, false);
+            roc_Pix_Cal(col, row, false);
             uDelay(20);
-            Pg_Single();
-            uDelay(10);
+            //Pg_Single();
+            //uDelay(10);
             roc_Pix_Trim(col, row, 15);
+            uDelay(5);
+            roc_Pix_Mask(col, row);
             uDelay(5);
             Pg_Single();
             uDelay(10);
 
-            roc_Pix_Mask(col, row);
+            //roc_Pix_Mask(col, row);
             roc_ClrCal();
         }
         roc_Col_Enable(col, false);
@@ -230,7 +232,7 @@ int32_t CTestboard::MaskTest(int16_t nTriggers, int16_t res[])
                 //g_chipdata.pixmap.SetMaskedCount(col, row, pix.n);
 
                 // must be single pixel hit
-                DecodePixel(data, pos, pix);
+                //DecodePixel(data, pos, pix);
                 //g_chipdata.pixmap.SetUnmaskedCount(col, row, pix.n);
                 //if (pix.n > 0)
                 //{
@@ -268,7 +270,8 @@ int32_t CTestboard::ChipEfficiency(int16_t nTriggers, int32_t trim[], double res
             {
 			    Pg_Single();
             }
-            roc_Pix_Mask(col, row);
+            //why?
+            //roc_Pix_Mask(col, row);
 			roc_ClrCal();
         }
         roc_Col_Enable(col, false);
@@ -365,7 +368,7 @@ void CTestboard::ArmPixel(int col, int row)
 void CTestboard::ArmPixel(int col, int row, int trim)
 {
 	roc_Pix_Trim(col, row, trim);
-	roc_Pix_Cal (col, row, false);
+	roc_Pix_Cal(col, row, false);
 }
 
 
