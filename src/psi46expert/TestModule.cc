@@ -150,17 +150,17 @@ void TestModule::FullTestAndCalibration()
     AdjustDACParameters();
     DoTest(new FullTest(configParameters, FullRange(), testParameters, tbInterface, 1));
 
-    psi::LogInfo() << "[TestModule] PhCalibration: Start." << psi::endl;
+    //psi::LogInfo() << "[TestModule] PhCalibration: Start." << psi::endl;
 
-    for (int i = 0; i < nRocs; i++) GetRoc(i)->DoPhCalibration();
+    //for (int i = 0; i < nRocs; i++) GetRoc(i)->DoPhCalibration();
 
-    psi::LogInfo() << "[TestModule] PhCalibration: End." << psi::endl;
+    //psi::LogInfo() << "[TestModule] PhCalibration: End." << psi::endl;
 
-    psi::LogInfo() << "[TestModule] Trim: Start." << psi::endl;
+    //psi::LogInfo() << "[TestModule] Trim: Start." << psi::endl;
 
-    for (int i = 0; i < nRocs; i++) GetRoc(i)->DoTrim();
+    //for (int i = 0; i < nRocs; i++) GetRoc(i)->DoTrim();
 
-    psi::LogInfo() << "[TestModule] Trim: End." << psi::endl;
+    //psi::LogInfo() << "[TestModule] Trim: End." << psi::endl;
 }
 
 
@@ -558,12 +558,13 @@ void TestModule::AdjustDACParameters()
         AdjustVOffsetOp();
     }
 
-    if (!is_analog) {
-        for (int iRoc = 0; iRoc < nRocs; iRoc++) {
-            psi::LogInfo() << "[TestModule] Adjusting pulse height range for ROC " << iRoc << " ..." << psi::endl;
-            GetRoc(iRoc)->AdjustPulseHeightRange();
-        }
-    }
+    //disable for DTB at the moment...since does not work
+    //if (!is_analog) {
+    //    for (int iRoc = 0; iRoc < nRocs; iRoc++) {
+    //        psi::LogInfo() << "[TestModule] Adjusting pulse height range for ROC " << iRoc << " ..." << psi::endl;
+    //        GetRoc(iRoc)->AdjustPulseHeightRange();
+    //    }
+    //}
 
     gDelay->Timestamp();
     WriteDACParameterFile(configParameters->GetDacParametersFileName());
@@ -652,7 +653,7 @@ void TestModule::AdjustTBMUltraBlack()
 // Tries to automatically adjust Vana, may not work yet
 void TestModule::AdjustVana(double goalCurrent)
 {
-    if (!tbInterface->IsAnalogTB()) return;
+    //if (!tbInterface->IsAnalogTB()) return;
     TBAnalogInterface * anaInterface = (TBAnalogInterface *)tbInterface;
     int vana[nRocs];
     int vsf[nRocs];

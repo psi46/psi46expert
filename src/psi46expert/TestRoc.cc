@@ -34,6 +34,7 @@
 #include "DacDependency.h"
 #include "TemperatureTest.h"
 #include "IVCurve.h"
+#include "ThresholdTest.h"
 #include "OffsetOptimization.h"
 #include "SCurveTest.h"
 #include "HighRateTrimLow.h"
@@ -95,6 +96,7 @@ void TestRoc::Execute(SysCommand &command)
     if (Roc::Execute(command, 0)) {}
     else if (command.Keyword("Test1")) {Test1();}
     else if (command.Keyword("ThrMaps")) {ThrMaps();}
+    else if (command.Keyword("ThrTest")) {DoTest(new ThresholdTest(GetRange(), testParameters, tbInterface));}
     else if (command.Keyword("dac")) {dacParameters->Print();}
     else if (command.Keyword("PhError")) {PhError();}
     else if (command.Keyword("SamplingTest")) {ADCSamplingTest();}
@@ -559,7 +561,12 @@ void TestRoc::AdjustCalDelVthrComp()
     int vOffsetOp = GetDAC("VoffsetOp");
     SetDAC("VoffsetOp", 255);
 
+    AdjustCalDelVthrComp(20, 05, 200, get_threshold_autoset_value());
+    AdjustCalDelVthrComp(21, 05, 200, get_threshold_autoset_value());
+    AdjustCalDelVthrComp(20, 30, 200, get_threshold_autoset_value());
+    AdjustCalDelVthrComp(21, 30, 200, get_threshold_autoset_value());
     AdjustCalDelVthrComp(20, 20, 200, get_threshold_autoset_value());
+    AdjustCalDelVthrComp(21, 20, 200, get_threshold_autoset_value());
 
     calDel += GetDAC("CalDel");
     vthrComp += GetDAC("VthrComp");
@@ -827,254 +834,254 @@ int TestRoc::GetOptimalCalDel(int col, int row, int mode)
  */
 int TestRoc::AdjustPulseHeightRange(int range)
 {
-    /* The function works only with ROCs that have digital readout. */
-    if (has_analog_readout())
-        return 0;
-
-    /* Set Vcal range (use range value other than 0, 1 to use current range) */
-    int Vcal_stored = GetDAC("Vcal");
-    int CtrlReg_stored = GetDAC("CtrlReg");
-    if (range == 1)
-        SetDAC("CtrlReg", 4);
-    else if (range == 0)
-        SetDAC("CtrlReg", 0);
-
-    /* Test range that includes all pixels */
-    TestRange * testRangeFull = new TestRange();
-    testRangeFull->CompleteRoc(chipId);
-    ConfigParameters * configParameters = ConfigParameters::Singleton();
-    testRangeFull->ApplyMaskFile(configParameters->GetMaskFileName());
-
-    /* Make a Vcal threshold map to determine the lowest valid Vcal */
-    psi::LogInfo() << "[TestRoc] Finding minimal working Vcal value ..." << psi::endl;
-    ThresholdMap * thr_map_test = new ThresholdMap();
-    TH2D * thr_map = thr_map_test->GetMap("VcalThresholdMap", this, testRangeFull, 5);
-    delete thr_map_test;
-    thr_map->SetName("ph_adjust_thr_map");
-    int pix_col, pix_row, min_vcal;
-    pix_col = pix_row = min_vcal = -1;
-    /* Set the minimum Vcal */
-    for (int col = 0; col < ROCNUMCOLS; col++) {
-        for (int row = 0; row < ROCNUMROWS; row++) {
-            if (thr_map->GetBinContent(col + 1, row + 1) < 200 && thr_map->GetBinContent(col + 1, row + 1) > min_vcal) {
-                pix_col = col;
-                pix_row = row;
-                min_vcal = thr_map->GetBinContent(col + 1, row + 1);
-            }
-        }
-    }
-    /* Add some margin to make sure all pixels accept the Vcal */
-    if (GetDAC("CtrlReg") & 4)
-        min_vcal += 2;
-    else
-        min_vcal += 10;
-    psi::LogInfo() << "[TestRoc] Found Vcal: " << min_vcal << psi::endl;
-
-    /* Maximum Vcal is always 255 */
-    const int max_vcal = 255;
-
-    /* Test range that includes only one pixel */
-    /* FIXME: check whether the default pixel is masked */
-    TestRange * testRangeSingle = new TestRange();
-
-    PHTest * ph_test = NULL;
-    TH1D * voffset_ro_scan_low = NULL;
-    TH1D * voffset_ro_scan_high = NULL;
-
-    /* Use pixel 20:20 by default to make rough adjustments to the DACs, unless it's masked.
-       This is automatically done by the GetValidPixel function of the test range. */
-    testRangeFull->GetValidPixel(chipId, pix_col, pix_row);
-    testRangeSingle->AddPixel(chipId, pix_col, pix_row);
-
-    /* Make ADC insensitive to make it easier to find the midpoint.
-       This avoids clipping. */
-    SetDAC(20, 255);
-
-    /* Scan VOffsetR0 DAC for minimal and maximal Vcal value */
-    psi::LogInfo() << "[TestRoc] Finding optimal VOffsetR0 value ..." << psi::endl;
-    /* Scan VOffsetR0 to find the right offset with both a low and a high Vcal.
-       Use a loop to avoid duplication of code. */
-    for (int i = 0; i < 2; i++) {
-        SetDAC("Vcal", i == 0 ? min_vcal : max_vcal);
-        ph_test = new PHTest(testRangeSingle, testParameters, tbInterface);
-        ph_test->SetMode(17); // 17 = VOffsetR0 DAC
-        ph_test->SetNTrig(1);
-        ph_test->RocAction(this);
-        TH1D * voffset_ro_scan = (TH1D *)(ph_test->GetHistos()->First());
-        delete ph_test;
-        voffset_ro_scan->SetName(Form("ph_adjust_VOffsetR0_scan_vcal_%s", i == 0 ? "low" : "high"));
-        voffset_ro_scan->SetTitle(Form("VOffsetR0 scan pixel %i:%i Vcal=%i;VOffsetR0 [DAC units];Pulse height [ADC units]", pix_col, pix_row, GetDAC("Vcal")));
-        if (i == 0)
-            voffset_ro_scan_low = voffset_ro_scan;
-        else
-            voffset_ro_scan_high = voffset_ro_scan;
-    }
-
-    /* Find optimal VOffsetR0 value that puts the midpoint between minimal
-       and maximal Vcal to 127 */
-    int voffset_ro_optimal = -1;
-    for (int i = 0; i < 256; i++) {
-        if ((voffset_ro_scan_high->GetBinContent(i + 1) + voffset_ro_scan_low->GetBinContent(i + 1)) / 2 < 128) {
-            voffset_ro_optimal = i;
-            break;
-        }
-    }
-    /* Abort if the optimal VOffsetR0 could not be found */
-    if (voffset_ro_optimal == -1) {
-        psi::LogInfo() << "[TestRoc] Warning: Cannot adjust pulse height range!" << psi::endl;
-        return 0;
-    }
-    psi::LogInfo() << "[TestRoc] Found VOffsetR0 value: " << voffset_ro_optimal << psi::endl;
-    SetDAC("VOffsetR0", voffset_ro_optimal);
-
-    /* Scan VIref_ADC to stretch the pulse height. Use high Vcal only because high values are
-       critical. */
-    psi::LogInfo() << "[TestRoc] Finding optimal VIref_ADC value ..." << psi::endl;
-    /* Find optimal VIref_ADC using a single pixel*/
-    SetDAC("Vcal", max_vcal);
-    ph_test = new PHTest(testRangeSingle, testParameters, tbInterface);
-    ph_test->SetMode(20); // 20 = VIref_ADC DAC
-    ph_test->SetNTrig(1);
-    ph_test->RocAction(this);
-    TH1D * viref_adc_scan = (TH1D *)(ph_test->GetHistos()->First());
-    delete ph_test;
-    viref_adc_scan->SetName(Form("ph_adjust_VIref_ADC_scan"));
-    viref_adc_scan->SetTitle(Form("VIref_ADC scan pixel %i:%i Vcal=%i;VOffsetR0 [DAC units];Pulse height [ADC units]", pix_col, pix_row, GetDAC("Vcal")));
-
-    /* Adjust VIref_ADC such that the highest VCal does not exceed ADC value 200 */
-    int viref_adc_optimal = -1;
-    for (int i = 0; i < 256; i++) {
-        if (viref_adc_scan->GetBinContent(i + 1) < 200) {
-            viref_adc_optimal = i;
-            break;
-        }
-    }
-    /* Abort if optimal VIref_ADC value could not be found */
-    if (viref_adc_optimal == -1) {
-        psi::LogInfo() << "[TestRoc] Warning: Cannot adjust pulse height range!" << psi::endl;
-        return 0;
-    }
-    psi::LogInfo() << "[TestRoc] Found VIref_ADC value: " << viref_adc_optimal << psi::endl;
-    SetDAC(20, viref_adc_optimal);
-
-    // FIXME: find optimal fit range
-    int viref_adc_fit_min = -1;
-    for (int i = 0; i < viref_adc_optimal; i++) {
-        if (viref_adc_scan->GetBinContent(i + 1) < 255) {
-            viref_adc_fit_min = i;
-            break;
-        }
-    }
-    if (viref_adc_fit_min < 0) {
-        psi::LogInfo() << "[TestRoc] Warning: Cannot fine tune VIref_ADC and VOffsetR0!" << psi::endl;
-        return 0;
-    }
-
-    /* Now VOffsetR0 and VIref_ADC have been adjusted for one pixel.
-       Continue with pulse height maps to fine tune the values
-       to work for all pixels */
-    psi::LogInfo() << "[TestRoc] Fine tuning VOffsetR0 and VIref_ADC ..." << psi::endl;
-    TH2D * ph_map_low, * ph_map_high;
-    /* Make pulse height maps for low and high Vcal */
-    for (int i = 0; i < 2; i++) {
-        SetDAC("Vcal", i == 0 ? min_vcal : max_vcal);
-        ph_test = new PHTest(testRangeFull, testParameters, tbInterface);
-        ph_test->SetMode(0);
-        ph_test->SetNTrig(1);
-        ph_test->RocAction(this);
-        TH2D * ph_map = (TH2D *)(ph_test->GetHistos()->First());
-        ph_map->SetName(Form("ph_adjust_map_vcal_%s", i == 0 ? "low" : "high"));
-        ph_map->SetTitle(Form("Pulse height map Vcal=%i;Column;Row", GetDAC("Vcal")));
-        TH1D * ph_dist = (TH1D *)(ph_test->GetHistos()->At(1));
-        ph_dist->SetName(Form("ph_adjust_dist_vcal_%s", i == 0 ? "low" : "high"));
-        delete ph_test;
-        if (i == 0)
-            ph_map_low = ph_map;
-        else
-            ph_map_high = ph_map;
-    }
-
-    TCanvas * c = new TCanvas("dummy");
-    viref_adc_scan->Fit("pol1", "Q", "", viref_adc_fit_min, viref_adc_optimal);
-    voffset_ro_scan_high->Fit("pol1", "Q");
-    delete c;
-    float viref_adc_slope = viref_adc_scan->GetFunction("pol1")->GetParameter(1);
-    float voffset_ro_slope = voffset_ro_scan_high->GetFunction("pol1")->GetParameter(1);
-
-    /* Leave some room (in ADC values) above and below the pulse height spectrum to avoid clipping.
-       Below is a bit more because our minimal Vcal is not the exact minimum. */
-    const int room_above = 5;
-    const int room_below = 10;
-    /* Difference between highest and lowest pulse height */
-    int ph_delta = testRangeFull->GetMapMaximum(ph_map_high, chipId) - testRangeFull->GetMapMinimum(ph_map_low, chipId);
-    psi::LogInfo() << "[TestRoc] Maximum pulse height difference: " << ph_delta << psi::endl;
-    psi::LogInfo() << testRangeFull->GetMapMaximum(ph_map_high, chipId) << psi::endl;
-    psi::LogInfo() << testRangeFull->GetMapMinimum(ph_map_low, chipId) << psi::endl;
-
-    /* Calculate optimal VIref_ADC using the fit parameters from before */
-    viref_adc_optimal = GetDAC(20) + (255 - ph_delta - room_above - room_below) / 2.0 / viref_adc_slope;
-    SetDAC(20, viref_adc_optimal);
-
-    /* Scan the pixel with the highest pulse height to fine tune VOffsetR0 */
-    testRangeSingle->RemovePixel(chipId, pix_col, pix_row);
-    testRangeFull->GetMapMaximum(ph_map_high, chipId, pix_col, pix_row);
-    testRangeSingle->AddPixel(chipId, pix_col, pix_row);
-    for (int i = 0; i < 2; i++) {
-        SetDAC("Vcal", i == 0 ? min_vcal : max_vcal);
-        ph_test = new PHTest(testRangeSingle, testParameters, tbInterface);
-        ph_test->SetMode(17); // 17 = VOffsetR0 DAC
-        ph_test->SetNTrig(5);
-        ph_test->RocAction(this);
-        TH1D * voffset_ro_scan = (TH1D *)(ph_test->GetHistos()->First());
-        delete ph_test;
-        voffset_ro_scan->SetName(Form("ph_adjust_fine_VOffsetR0_scan_vcal_%s", i == 0 ? "low" : "high"));
-        voffset_ro_scan->SetTitle(Form("VOffsetR0 fine scan pixel %i:%i Vcal=%i;VOffsetR0 [DAC units];Pulse height [ADC units]", pix_col, pix_row, GetDAC("Vcal")));
-        if (i == 0)
-            voffset_ro_scan_low = voffset_ro_scan;
-        else
-            voffset_ro_scan_high = voffset_ro_scan;
-    }
-    /* Find the best VOffsetR0 value */
-    for (int i = 0; i < 255; i++) {
-        if (voffset_ro_scan_high->GetBinContent(i + 1) < 255 - room_above) {
-            voffset_ro_optimal = i;
-            break;
-        }
-    }
-    SetDAC("VOffsetR0", voffset_ro_optimal);
-    psi::LogInfo() << "[TestRoc] Set VOffsetR0=" << GetDAC("VOffsetR0") << " and VIref_ADC=" << GetDAC(20) << "." << psi::endl;
-
-    /* Make pulse height maps for high and low Vcal to verify the optimisation */
-    for (int i = 0; i < 2; i++) {
-        SetDAC("Vcal", i == 0 ? min_vcal : max_vcal);
-        ph_test = new PHTest(testRangeFull, testParameters, tbInterface);
-        ph_test->SetMode(0);
-        ph_test->SetNTrig(1);
-        ph_test->RocAction(this);
-        TH2D * ph_map = (TH2D *)(ph_test->GetHistos()->First());
-        ph_map->SetName(Form("ph_adjust_final_map_vcal_%s", i == 0 ? "low" : "high"));
-        ph_map->SetTitle(Form("Pulse height map (final) Vcal=%i;Column;Row", GetDAC("Vcal")));
-        TH1D * ph_dist = (TH1D *)(ph_test->GetHistos()->At(1));
-        ph_dist->SetName(Form("ph_adjust_dist2_vcal_%s", i == 0 ? "low" : "high"));
-        /* Delete other histograms from the PH map test */
-        while (ph_test->GetHistos()->GetEntries() > 2) {
-            TObject * h = ph_test->GetHistos()->At(2);
-            ph_test->GetHistos()->Remove(h);
-            delete h;
-        }
-        delete ph_test;
-        if (i == 0)
-            ph_map_low = ph_map;
-        else
-            ph_map_high = ph_map;
-    }
-
-    delete testRangeSingle;
-    delete testRangeFull;
-
-    SetDAC("Vcal", Vcal_stored);
-    SetDAC("CtrlReg", CtrlReg_stored);
-
+//    /* The function works only with ROCs that have digital readout. */
+//    if (has_analog_readout())
+//        return 0;
+//
+//    /* Set Vcal range (use range value other than 0, 1 to use current range) */
+//    int Vcal_stored = GetDAC("Vcal");
+//    int CtrlReg_stored = GetDAC("CtrlReg");
+//    if (range == 1)
+//        SetDAC("CtrlReg", 4);
+//    else if (range == 0)
+//        SetDAC("CtrlReg", 0);
+//
+//    /* Test range that includes all pixels */
+//    TestRange * testRangeFull = new TestRange();
+//    testRangeFull->CompleteRoc(chipId);
+//    ConfigParameters * configParameters = ConfigParameters::Singleton();
+//    testRangeFull->ApplyMaskFile(configParameters->GetMaskFileName());
+//
+//    /* Make a Vcal threshold map to determine the lowest valid Vcal */
+//    psi::LogInfo() << "[TestRoc] Finding minimal working Vcal value ..." << psi::endl;
+//    ThresholdMap * thr_map_test = new ThresholdMap();
+//    TH2D * thr_map = thr_map_test->GetMap("VcalThresholdMap", this, testRangeFull, 5);
+//    delete thr_map_test;
+//    thr_map->SetName("ph_adjust_thr_map");
+//    int pix_col, pix_row, min_vcal;
+//    pix_col = pix_row = min_vcal = -1;
+//    /* Set the minimum Vcal */
+//    for (int col = 0; col < ROCNUMCOLS; col++) {
+//        for (int row = 0; row < ROCNUMROWS; row++) {
+//            if (thr_map->GetBinContent(col + 1, row + 1) < 200 && thr_map->GetBinContent(col + 1, row + 1) > min_vcal) {
+//                pix_col = col;
+//                pix_row = row;
+//                min_vcal = thr_map->GetBinContent(col + 1, row + 1);
+//            }
+//        }
+//    }
+//    /* Add some margin to make sure all pixels accept the Vcal */
+//    if (GetDAC("CtrlReg") & 4)
+//        min_vcal += 2;
+//    else
+//        min_vcal += 10;
+//    psi::LogInfo() << "[TestRoc] Found Vcal: " << min_vcal << psi::endl;
+//
+//    /* Maximum Vcal is always 255 */
+//    const int max_vcal = 255;
+//
+//    /* Test range that includes only one pixel */
+//    /* FIXME: check whether the default pixel is masked */
+//    TestRange * testRangeSingle = new TestRange();
+//
+//    PHTest * ph_test = NULL;
+//    TH1D * voffset_ro_scan_low = NULL;
+//    TH1D * voffset_ro_scan_high = NULL;
+//
+//    /* Use pixel 20:20 by default to make rough adjustments to the DACs, unless it's masked.
+//       This is automatically done by the GetValidPixel function of the test range. */
+//    testRangeFull->GetValidPixel(chipId, pix_col, pix_row);
+//    testRangeSingle->AddPixel(chipId, pix_col, pix_row);
+//
+//    /* Make ADC insensitive to make it easier to find the midpoint.
+//       This avoids clipping. */
+//    SetDAC(20, 255);
+//
+//    /* Scan VOffsetR0 DAC for minimal and maximal Vcal value */
+//    psi::LogInfo() << "[TestRoc] Finding optimal VOffsetR0 value ..." << psi::endl;
+//    /* Scan VOffsetR0 to find the right offset with both a low and a high Vcal.
+//       Use a loop to avoid duplication of code. */
+//    for (int i = 0; i < 2; i++) {
+//        SetDAC("Vcal", i == 0 ? min_vcal : max_vcal);
+//        ph_test = new PHTest(testRangeSingle, testParameters, tbInterface);
+//        ph_test->SetMode(17); // 17 = VOffsetR0 DAC
+//        ph_test->SetNTrig(1);
+//        ph_test->RocAction(this);
+//        TH1D * voffset_ro_scan = (TH1D *)(ph_test->GetHistos()->First());
+//        delete ph_test;
+//        voffset_ro_scan->SetName(Form("ph_adjust_VOffsetR0_scan_vcal_%s", i == 0 ? "low" : "high"));
+//        voffset_ro_scan->SetTitle(Form("VOffsetR0 scan pixel %i:%i Vcal=%i;VOffsetR0 [DAC units];Pulse height [ADC units]", pix_col, pix_row, GetDAC("Vcal")));
+//        if (i == 0)
+//            voffset_ro_scan_low = voffset_ro_scan;
+//        else
+//            voffset_ro_scan_high = voffset_ro_scan;
+//    }
+//
+//    /* Find optimal VOffsetR0 value that puts the midpoint between minimal
+//       and maximal Vcal to 127 */
+//    int voffset_ro_optimal = -1;
+//    for (int i = 0; i < 256; i++) {
+//        if ((voffset_ro_scan_high->GetBinContent(i + 1) + voffset_ro_scan_low->GetBinContent(i + 1)) / 2 < 128) {
+//            voffset_ro_optimal = i;
+//            break;
+//        }
+//    }
+//    /* Abort if the optimal VOffsetR0 could not be found */
+//    if (voffset_ro_optimal == -1) {
+//        psi::LogInfo() << "[TestRoc] Warning: Cannot adjust pulse height range!" << psi::endl;
+//        return 0;
+//    }
+//    psi::LogInfo() << "[TestRoc] Found VOffsetR0 value: " << voffset_ro_optimal << psi::endl;
+//    SetDAC("VOffsetR0", voffset_ro_optimal);
+//
+//    /* Scan VIref_ADC to stretch the pulse height. Use high Vcal only because high values are
+//       critical. */
+//    psi::LogInfo() << "[TestRoc] Finding optimal VIref_ADC value ..." << psi::endl;
+//    /* Find optimal VIref_ADC using a single pixel*/
+//    SetDAC("Vcal", max_vcal);
+//    ph_test = new PHTest(testRangeSingle, testParameters, tbInterface);
+//    ph_test->SetMode(20); // 20 = VIref_ADC DAC
+//    ph_test->SetNTrig(1);
+//    ph_test->RocAction(this);
+//    TH1D * viref_adc_scan = (TH1D *)(ph_test->GetHistos()->First());
+//    delete ph_test;
+//    viref_adc_scan->SetName(Form("ph_adjust_VIref_ADC_scan"));
+//    viref_adc_scan->SetTitle(Form("VIref_ADC scan pixel %i:%i Vcal=%i;VOffsetR0 [DAC units];Pulse height [ADC units]", pix_col, pix_row, GetDAC("Vcal")));
+//
+//    /* Adjust VIref_ADC such that the highest VCal does not exceed ADC value 200 */
+//    int viref_adc_optimal = -1;
+//    for (int i = 0; i < 256; i++) {
+//        if (viref_adc_scan->GetBinContent(i + 1) < 200) {
+//            viref_adc_optimal = i;
+//            break;
+//        }
+//    }
+//    /* Abort if optimal VIref_ADC value could not be found */
+//    if (viref_adc_optimal == -1) {
+//        psi::LogInfo() << "[TestRoc] Warning: Cannot adjust pulse height range!" << psi::endl;
+//        return 0;
+//    }
+//    psi::LogInfo() << "[TestRoc] Found VIref_ADC value: " << viref_adc_optimal << psi::endl;
+//    SetDAC(20, viref_adc_optimal);
+//
+//    // FIXME: find optimal fit range
+//    int viref_adc_fit_min = -1;
+//    for (int i = 0; i < viref_adc_optimal; i++) {
+//        if (viref_adc_scan->GetBinContent(i + 1) < 255) {
+//            viref_adc_fit_min = i;
+//            break;
+//        }
+//    }
+//    if (viref_adc_fit_min < 0) {
+//        psi::LogInfo() << "[TestRoc] Warning: Cannot fine tune VIref_ADC and VOffsetR0!" << psi::endl;
+//        return 0;
+//    }
+//
+//    /* Now VOffsetR0 and VIref_ADC have been adjusted for one pixel.
+//       Continue with pulse height maps to fine tune the values
+//       to work for all pixels */
+//    psi::LogInfo() << "[TestRoc] Fine tuning VOffsetR0 and VIref_ADC ..." << psi::endl;
+//    TH2D * ph_map_low, * ph_map_high;
+//    /* Make pulse height maps for low and high Vcal */
+//    for (int i = 0; i < 2; i++) {
+//        SetDAC("Vcal", i == 0 ? min_vcal : max_vcal);
+//        ph_test = new PHTest(testRangeFull, testParameters, tbInterface);
+//        ph_test->SetMode(0);
+//        ph_test->SetNTrig(1);
+//        ph_test->RocAction(this);
+//        TH2D * ph_map = (TH2D *)(ph_test->GetHistos()->First());
+//        ph_map->SetName(Form("ph_adjust_map_vcal_%s", i == 0 ? "low" : "high"));
+//        ph_map->SetTitle(Form("Pulse height map Vcal=%i;Column;Row", GetDAC("Vcal")));
+//        TH1D * ph_dist = (TH1D *)(ph_test->GetHistos()->At(1));
+//        ph_dist->SetName(Form("ph_adjust_dist_vcal_%s", i == 0 ? "low" : "high"));
+//        delete ph_test;
+//        if (i == 0)
+//            ph_map_low = ph_map;
+//        else
+//            ph_map_high = ph_map;
+//    }
+//
+//    TCanvas * c = new TCanvas("dummy");
+//    viref_adc_scan->Fit("pol1", "Q", "", viref_adc_fit_min, viref_adc_optimal);
+//    voffset_ro_scan_high->Fit("pol1", "Q");
+//    delete c;
+//    float viref_adc_slope = viref_adc_scan->GetFunction("pol1")->GetParameter(1);
+//    float voffset_ro_slope = voffset_ro_scan_high->GetFunction("pol1")->GetParameter(1);
+//
+//    /* Leave some room (in ADC values) above and below the pulse height spectrum to avoid clipping.
+//       Below is a bit more because our minimal Vcal is not the exact minimum. */
+//    const int room_above = 5;
+//    const int room_below = 10;
+//    /* Difference between highest and lowest pulse height */
+//    int ph_delta = testRangeFull->GetMapMaximum(ph_map_high, chipId) - testRangeFull->GetMapMinimum(ph_map_low, chipId);
+//    psi::LogInfo() << "[TestRoc] Maximum pulse height difference: " << ph_delta << psi::endl;
+//    psi::LogInfo() << testRangeFull->GetMapMaximum(ph_map_high, chipId) << psi::endl;
+//    psi::LogInfo() << testRangeFull->GetMapMinimum(ph_map_low, chipId) << psi::endl;
+//
+//    /* Calculate optimal VIref_ADC using the fit parameters from before */
+//    viref_adc_optimal = GetDAC(20) + (255 - ph_delta - room_above - room_below) / 2.0 / viref_adc_slope;
+//    SetDAC(20, viref_adc_optimal);
+//
+//    /* Scan the pixel with the highest pulse height to fine tune VOffsetR0 */
+//    testRangeSingle->RemovePixel(chipId, pix_col, pix_row);
+//    testRangeFull->GetMapMaximum(ph_map_high, chipId, pix_col, pix_row);
+//    testRangeSingle->AddPixel(chipId, pix_col, pix_row);
+//    for (int i = 0; i < 2; i++) {
+//        SetDAC("Vcal", i == 0 ? min_vcal : max_vcal);
+//        ph_test = new PHTest(testRangeSingle, testParameters, tbInterface);
+//        ph_test->SetMode(17); // 17 = VOffsetR0 DAC
+//        ph_test->SetNTrig(5);
+//        ph_test->RocAction(this);
+//        TH1D * voffset_ro_scan = (TH1D *)(ph_test->GetHistos()->First());
+//        delete ph_test;
+//        voffset_ro_scan->SetName(Form("ph_adjust_fine_VOffsetR0_scan_vcal_%s", i == 0 ? "low" : "high"));
+//        voffset_ro_scan->SetTitle(Form("VOffsetR0 fine scan pixel %i:%i Vcal=%i;VOffsetR0 [DAC units];Pulse height [ADC units]", pix_col, pix_row, GetDAC("Vcal")));
+//        if (i == 0)
+//            voffset_ro_scan_low = voffset_ro_scan;
+//        else
+//            voffset_ro_scan_high = voffset_ro_scan;
+//    }
+//    /* Find the best VOffsetR0 value */
+//    for (int i = 0; i < 255; i++) {
+//        if (voffset_ro_scan_high->GetBinContent(i + 1) < 255 - room_above) {
+//            voffset_ro_optimal = i;
+//            break;
+//        }
+//    }
+//    SetDAC("VOffsetR0", voffset_ro_optimal);
+//    psi::LogInfo() << "[TestRoc] Set VOffsetR0=" << GetDAC("VOffsetR0") << " and VIref_ADC=" << GetDAC(20) << "." << psi::endl;
+//
+//    /* Make pulse height maps for high and low Vcal to verify the optimisation */
+//    for (int i = 0; i < 2; i++) {
+//        SetDAC("Vcal", i == 0 ? min_vcal : max_vcal);
+//        ph_test = new PHTest(testRangeFull, testParameters, tbInterface);
+//        ph_test->SetMode(0);
+//        ph_test->SetNTrig(1);
+//        ph_test->RocAction(this);
+//        TH2D * ph_map = (TH2D *)(ph_test->GetHistos()->First());
+//        ph_map->SetName(Form("ph_adjust_final_map_vcal_%s", i == 0 ? "low" : "high"));
+//        ph_map->SetTitle(Form("Pulse height map (final) Vcal=%i;Column;Row", GetDAC("Vcal")));
+//        TH1D * ph_dist = (TH1D *)(ph_test->GetHistos()->At(1));
+//        ph_dist->SetName(Form("ph_adjust_dist2_vcal_%s", i == 0 ? "low" : "high"));
+//        /* Delete other histograms from the PH map test */
+//        while (ph_test->GetHistos()->GetEntries() > 2) {
+//            TObject * h = ph_test->GetHistos()->At(2);
+//            ph_test->GetHistos()->Remove(h);
+//            delete h;
+//        }
+//        delete ph_test;
+//        if (i == 0)
+//            ph_map_low = ph_map;
+//        else
+//            ph_map_high = ph_map;
+//    }
+//
+//    delete testRangeSingle;
+//    delete testRangeFull;
+//
+//    SetDAC("Vcal", Vcal_stored);
+//    SetDAC("CtrlReg", CtrlReg_stored);
+//
     return 1;
 }
 
@@ -1383,6 +1390,8 @@ void TestRoc::ThrMaps()
 
     gDelay->Timestamp();
 }
+
+    
 
 /*void TestRoc::Scurves(){
 TestRange *fullRange = new TestRange();

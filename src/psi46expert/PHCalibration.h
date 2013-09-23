@@ -24,6 +24,7 @@ public:
     virtual void ReadTestParameters(TestParameters * testParameters);
     virtual void RocAction();
     void Measure(int nTriggers);
+    int GetCalDel(int vcalStep);
     int GetVthrComp(int vcalStep);
     void PulseHeightRocDigital(int data []);
 
@@ -31,9 +32,7 @@ private:
 
     int vcal[512], ctrlReg[512];
     int mode, vcalSteps, nTrig, numPixels, calDelVthrComp;
-    int vthrComp50, vthrComp100, vthrComp200;
-    int adjustVthrComp;
-    int adjustCalDel;
+    int calDel50, calDel100, calDel200, vthrComp50, vthrComp100, vthrComp200;
 
 };
 

@@ -43,8 +43,9 @@ void FullTest::ModuleAction()
         gDelay->Timestamp();
     }
 
-    DoTemperatureTest();
-    for (int iTest = 0; iTest < 3; iTest++)
+    //DoTemperatureTest();
+    //skip iTest = 2 (DTB)
+    for (int iTest = 0; iTest < 2; iTest++)
     {
         if (Scurve == 0)
         {
@@ -66,7 +67,7 @@ void FullTest::ModuleAction()
     if (Scurve != 0)
     {
         Test::ModuleAction();
-        DoTemperatureTest();
+        //DoTemperatureTest();
 
         psi::LogInfo() << "[FullTest] End." << psi::endl;
         // Log::Current()->printf("==>sv> End Test\n");
@@ -90,9 +91,11 @@ void FullTest::RocAction()
             if (iTest == 0) test = new PixelAlive(testRange, testParameters, tbInterface);
             if (iTest == 1) test = new BumpBonding(testRange, testParameters, tbInterface);
             if (iTest == 2) test = new TrimBits(testRange, testParameters, tbInterface);
-            if (iTest == 3) test = new TemperatureTest(testRange, testParameters, tbInterface);
+            if (iTest == 3) continue;
+                //test = new TemperatureTest(testRange, testParameters, tbInterface);
             if (iTest == 4) test = new AddressDecoding(testRange, testParameters, tbInterface);
-            if (iTest == 5) test = new AddressLevels(testRange, testParameters, tbInterface);
+            if (iTest == 5) continue;
+                //test = new AddressLevels(testRange, testParameters, tbInterface);
             test->RocAction(roc);
             TIter next(test->GetHistos());
             while (TH1 * histo = (TH1 *)next()) histograms->Add(histo);
