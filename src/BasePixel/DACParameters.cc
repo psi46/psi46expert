@@ -72,6 +72,7 @@ void DACParameters::Restore()
             SetParameter(i, parameters[i], false);
         }
     }
+    roc->Flush();
 }
 
 

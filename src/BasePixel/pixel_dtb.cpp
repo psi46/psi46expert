@@ -481,9 +481,9 @@ int32_t CTestboard::PixelThresholdXtalk(int32_t col, int32_t row, int32_t start,
 	
 	roc_Pix_Trim(col, row, trim);
 
-	if (!xtalk) roc_Pix_Cal(col, row, 1);
-	roc_Pix_Cal(col, row, 0);
-	roc_Pix_Cal(col, calRow, 1);
+	if (!xtalk) roc_Pix_Cal(col, row, true);
+	roc_Pix_Cal(col, row, false);
+	roc_Pix_Cal(col, calRow, true);
 
 	int32_t res = Threshold(start, step, thrLevel, nTrig, dacReg);
     roc_ClrCal();
