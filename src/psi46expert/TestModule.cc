@@ -559,12 +559,12 @@ void TestModule::AdjustDACParameters()
     }
 
     //disable for DTB at the moment...since does not work
-    //if (!is_analog) {
-    //    for (int iRoc = 0; iRoc < nRocs; iRoc++) {
-    //        psi::LogInfo() << "[TestModule] Adjusting pulse height range for ROC " << iRoc << " ..." << psi::endl;
-    //        GetRoc(iRoc)->AdjustPulseHeightRange();
-    //    }
-    //}
+    if (!is_analog) {
+        for (int iRoc = 0; iRoc < nRocs; iRoc++) {
+            psi::LogInfo() << "[TestModule] Adjusting pulse height range for ROC " << iRoc << " ..." << psi::endl;
+            GetRoc(iRoc)->AdjustPulseHeightRange();
+        }
+    }
 
     gDelay->Timestamp();
     WriteDACParameterFile(configParameters->GetDacParametersFileName());

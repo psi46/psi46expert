@@ -21,6 +21,20 @@ void PHTest::ReadTestParameters(TestParameters * testParameters)
     nTrig = (*testParameters).PHNTrig;
 }
 
+void PHTest::SetMode(int new_mode)
+{
+        mode = new_mode;
+}
+
+void PHTest::SetNTrig(int new_ntrig)
+{
+        nTrig = new_ntrig;
+}
+
+void PHTest::RocAction(TestRoc * testRoc)
+{
+        Test::RocAction(testRoc);
+}
 
 void PHTest::RocAction()
 {
