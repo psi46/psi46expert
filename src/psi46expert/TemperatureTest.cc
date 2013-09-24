@@ -3,6 +3,7 @@
 
 #include "TemperatureTest.h"
 #include "interface/Log.h"
+#include "TestRoc.h"
 #include "BasePixel/TBAnalogInterface.h"
 
 TemperatureTest::TemperatureTest(TestRange * aTestRange, TestParameters * testParameters, TBInterface * aTBInterface)
@@ -29,6 +30,8 @@ Double_t Fitfcn(Double_t * x, Double_t * par)
 
 void TemperatureTest::RocAction()
 {
+if (roc->has_analog_readout())
+    {
     TBAnalogInterface * anaInterface = (TBAnalogInterface *)tbInterface;
 
     // get black level
@@ -65,6 +68,7 @@ void TemperatureTest::RocAction()
 
     histograms->Add(meas);
     meas->Write();
+}
 }
 
 

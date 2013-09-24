@@ -150,17 +150,17 @@ void TestModule::FullTestAndCalibration()
     AdjustDACParameters();
     DoTest(new FullTest(configParameters, FullRange(), testParameters, tbInterface, 1));
 
-    //psi::LogInfo() << "[TestModule] PhCalibration: Start." << psi::endl;
+    psi::LogInfo() << "[TestModule] PhCalibration: Start." << psi::endl;
 
-    //for (int i = 0; i < nRocs; i++) GetRoc(i)->DoPhCalibration();
+    for (int i = 0; i < nRocs; i++) GetRoc(i)->DoPhCalibration();
 
-    //psi::LogInfo() << "[TestModule] PhCalibration: End." << psi::endl;
+    psi::LogInfo() << "[TestModule] PhCalibration: End." << psi::endl;
 
-    //psi::LogInfo() << "[TestModule] Trim: Start." << psi::endl;
+    psi::LogInfo() << "[TestModule] Trim: Start." << psi::endl;
 
-    //for (int i = 0; i < nRocs; i++) GetRoc(i)->DoTrim();
+    for (int i = 0; i < nRocs; i++) GetRoc(i)->DoTrim();
 
-    //psi::LogInfo() << "[TestModule] Trim: End." << psi::endl;
+    psi::LogInfo() << "[TestModule] Trim: End." << psi::endl;
 }
 
 
