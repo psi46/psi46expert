@@ -520,7 +520,7 @@ void CTestboard::Init_Reset()
     //roc_Chip_Mask();
 
     Pg_SetCmd(0, PG_RESR + 25);
-    Pg_SetCmd(1, PG_CAL  + 100 + tct_wbc);
+    Pg_SetCmd(1, PG_CAL  + 101 + tct_wbc);
     Pg_SetCmd(2, PG_TRG  + 16);
     Pg_SetCmd(3, PG_TOK);
     uDelay(100);
