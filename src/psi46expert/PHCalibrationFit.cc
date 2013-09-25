@@ -220,7 +220,7 @@ void PHCalibrationFit::FitAllCurves(char * dirName, int nRocs)
     int ph[2 * vcalSteps], a, b, maxRoc, maxCol, maxRow;
     double chiSquare, maxChiSquare = 0.;
 
-    printf("Fitting PH Curves %s\n", dirName);
+    printf("Fitting digital PH Curves %s\n", dirName);
 
     for (int chip = 0; chip < nRocs; chip++)
     {
@@ -261,7 +261,7 @@ void PHCalibrationFit::FitAllCurves(char * dirName, int nRocs)
 
                     if (1 == fitMode || 3 == fitMode)
                     {
-                        if (!(atoi(string)<0));
+                        if (atoi(string)<0);
                         else {
                             ph[i] = atoi(string);
                             x[n] = (double)ph[i];
@@ -271,7 +271,7 @@ void PHCalibrationFit::FitAllCurves(char * dirName, int nRocs)
                     }
                     if (0 == fitMode)
                     {
-                        if (!(atoi(string)<0) || (i < 2) || (i > 2 * vcalSteps - 2));
+                        if (atoi(string)<0 || (i < 2) || (i > 2 * vcalSteps - 2));
                         else {
                             ph[i] = atoi(string);
                             x[n] = (double)ph[i];
@@ -339,7 +339,7 @@ void PHCalibrationFit::FitCurve(char * dirName, int chip, int col, int row)
         fscanf(inputFile, "%s", string);
         if (1 == fitMode || 3 == fitMode)
         {
-            if (!(atoi(string)<0));
+            if (atoi(string)<0);
             else {
                 ph[i] = atoi(string);
                 printf("ph %i vcal %.0f\n", ph[i], vcalLow[i]);
@@ -350,7 +350,7 @@ void PHCalibrationFit::FitCurve(char * dirName, int chip, int col, int row)
         }
         if (0 == fitMode)
         {
-            if (!(atoi(string)<0) || (i < 2) || (i > 2 * vcalSteps - 2));
+            if (atoi(string)<0 || (i < 2) || (i > 2 * vcalSteps - 2));
             else {
                 ph[i] = atoi(string);
                 //              printf("ph %i vcal %.0f\n", ph[i], vcalLow[i]);
