@@ -469,32 +469,13 @@ int32_t CTestboard::PixelThreshold(int32_t col, int32_t row, int32_t start, int3
 
 	int32_t res = Threshold(start, step, thrLevel, nTrig, dacReg);
     roc_ClrCal();
-    if (enableAll == 0) roc_Pix_Mask(col, row);
-	return res;
-}
-
-int32_t CTestboard::PixelThresholdXtalk(int32_t col, int32_t row, int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim)
-{
-	int calRow;
-	if ( row >= ROC_NUMROWS/2 ) calRow = row - ROC_NUMROWS/2;
-  else calRow = row + ROC_NUMROWS/2;
-	
-	roc_Pix_Trim(col, row, trim);
-
-	if (!xtalk) roc_Pix_Cal(col, row, true);
-	roc_Pix_Cal(col, row, false);
-	roc_Pix_Cal(col, calRow, true);
-
-	int32_t res = Threshold(start, step, thrLevel, nTrig, dacReg);
-    roc_ClrCal();
-    if (enableAll == 0) roc_Pix_Mask(col, row);
+    roc_Pix_Mask(col, row);
 	return res;
 }
 
 void CTestboard::ChipThresholdIntern(int32_t start[], int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim[], int32_t res[])
 {
   int32_t thr, startValue;
-  if (enableAll != 0) EnableAllPixels(trim);	  
 	for (int col = 0; col < ROC_NUMCOLS; col++)
 	{
 		EnableColumn(col);
@@ -508,9 +489,8 @@ void CTestboard::ChipThresholdIntern(int32_t start[], int32_t step, int32_t thrL
 			thr = PixelThreshold(col, row, startValue, step, thrLevel, nTrig, dacReg, xtalk, cals, trim[col*ROC_NUMROWS + row]);
 			res[col*ROC_NUMROWS + row] = thr;
 		}
-		if (enableAll == 0) roc_Col_Enable(col, 0);
+		roc_Col_Enable(col, 0);
 	}
-	if (enableAll != 0) DisableAllPixels();	  
 }
 
 void CTestboard::Init_Reset()
