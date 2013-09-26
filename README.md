@@ -1,5 +1,5 @@
-Build and installation of psi46expert
-=====================================
+Build and installation of psi46expert for the digital testboard
+===============================================================
 
 1. Dependencies
 ---------------

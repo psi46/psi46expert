@@ -585,7 +585,8 @@ void TestRoc::AdjustCalDelVthrComp()
 void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise)
 {
     bool verbose = false;
-    int sCurve[180], nTrig = 5, nTrials = 5, n = 0, testColumn = column, testRow = row;
+    const int max_range = 256; 
+    int sCurve[max_range], nTrig = 5, nTrials = 5, n = 0, testColumn = column, testRow = row;
     int calDel, vthr;
     int oldCalDel = GetDAC("CalDel");
     int oldVthrComp = GetDAC("VthrComp");
@@ -602,7 +603,7 @@ void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise
         TestRange * testRange = new TestRange();
         testRange->AddPixel(chipId, testColumn, testRow);
         DacDependency * dacTest = new DacDependency(testRange, testParameters, tbInterface);
-        dacTest->SetDacs(26, 12, 180, 180);
+        dacTest->SetDacs(26, 12, max_range, max_range);
         dacTest->SetNTrig(nTrig);
         dacTest->RocAction(this);
         histo = (TH2D *)(dacTest->GetHistos()->First());
@@ -610,12 +611,12 @@ void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise
         n++;
         testColumn = (testColumn + 1) % ROCNUMCOLS;
 
-        double vthrMax = 0., vthrMin = 179., sum ;
-        vthr = 179;
+        double vthrMax = 0., vthrMin = max_range-1., sum ;
+        vthr = max_range-1;
         do
         {
             sum = 0.;
-            for (int caldel = 0; caldel < 180; caldel++) sum += histo->GetBinContent(caldel + 1, (int)vthr + 1);
+            for (int caldel = 0; caldel < max_range; caldel++) sum += histo->GetBinContent(caldel + 1, (int)vthr + 1);
             if (sum > nTrig * 20) vthrMax = vthr;
             vthr--;
         }
@@ -625,11 +626,11 @@ void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise
         do
         {
             sum = 0.;
-            for (int caldel = 0; caldel < 180; caldel++) sum += histo->GetBinContent(caldel + 1, (int)vthr + 1);
+            for (int caldel = 0; caldel < max_range; caldel++) sum += histo->GetBinContent(caldel + 1, (int)vthr + 1);
             if (sum > nTrig * 20) vthrMin = vthr;
             vthr++;
         }
-        while (vthrMin == 179. && vthr < 180);
+        while (vthrMin == max_range - 1. && vthr < max_range);
 
         psi::LogDebug() << "[TestRoc] vthr range [ " << vthrMin << ", " << vthrMax << "]." << psi::endl;
 
@@ -642,10 +643,10 @@ void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise
         if (vthr < vthrMin + 5)
             vthr = vthrMin + 5;
 
-        for (int caldel = 0; caldel < 180; caldel++) sCurve[caldel] = (int)histo->GetBinContent(caldel + 1, (int)vthr + 1);
+        for (int caldel = 0; caldel < max_range; caldel++) sCurve[caldel] = (int)histo->GetBinContent(caldel + 1, (int)vthr + 1);
 
         int calDel1 = (int)Threshold(sCurve, 0, 1, 1, nTrig - 1);
-        int calDel2 = (int)Threshold(sCurve, 179, -1, 1, nTrig - 1);
+        int calDel2 = (int)Threshold(sCurve, max_range-1, -1, 1, nTrig - 1);
         calDel = (calDel1 + calDel2) / 2;
     }
     while ((n < nTrials) && ((histo->GetMaximum() == 0) || (histo->GetBinContent(calDel + 1, vthr + 1) != nTrig)));
