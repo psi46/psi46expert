@@ -57,6 +57,9 @@ void Trim::RocAction()
 
     //Find good VthrComp
     calMap = thresholdMap->GetMap("CalThresholdMap", roc, testRange, nTrig);
+    const char * title;
+    title = calMap->GetTitle();
+    calMap->SetTitle(Form("%s (Trim)", title));
     AddMap(calMap);
     TH1D * distr = gAnalysis->Distribution(calMap, 255, 1., 254.);
     double mean = distr->GetMean();
@@ -79,9 +82,9 @@ void Trim::RocAction()
             }
         }
     }
-    psi::LogDebug() << "[Trim] There are " << thr255 << " pixels with "
+    psi::LogInfo() << "[Trim] There are " << thr255 << " pixels with "
                     << "threshold 255." << psi::endl;
-    psi::LogDebug() << "[Trim] Theshold range is [ " << thrMin << ", "
+    psi::LogInfo() << "[Trim] Theshold range is [ " << thrMin << ", "
                     << thrMax << "]." << psi::endl;
 
     if (thrMax == 0.)

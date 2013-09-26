@@ -211,8 +211,9 @@ void TBDigitalInterface::Initialize(ConfigParameters * configParameters)
     settings.read("psi46test.ini");
     
     cTestboard = new CTestboard();
-    if (!cTestboard->FindDTB(usbId)) {}
-	else if (cTestboard->Open(usbId))
+    usbId = configParameters->testboardName;
+    if (usbId == "*") cTestboard->FindDTB(usbId);
+	if (cTestboard->Open(usbId))
 	{
 		printf("\nDTB %s opened\n", usbId.c_str());
 		string info;

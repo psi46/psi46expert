@@ -2,6 +2,7 @@
 
 # Function that checks for program availability (works only
 # with programs the accept the --version argument)
+mkdir m4
 function check_prog {
 	# Try finding the program with the 'which' command.
 	# Redirect any output to /dev/null.

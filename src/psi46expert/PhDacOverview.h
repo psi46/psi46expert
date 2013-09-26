@@ -26,7 +26,7 @@ public:
 protected:
     void PHDac(TH1D * histo);
 
-    int NumberOfSteps;
+    int NumberOfSteps, ScanDac, VcalRange;
 
 };
 

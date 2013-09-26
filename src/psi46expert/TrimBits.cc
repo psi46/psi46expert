@@ -32,6 +32,8 @@ void TrimBits::RocAction()
     SaveDacParameters();
 
     SetDAC("Vtrim", 0);
+    SetDAC("Vcal", 50);
+    Flush();
 
     thrMap = thresholdMap->GetMap("CalThresholdMap", roc, testRange, nTrig);
     thrMap->Write();

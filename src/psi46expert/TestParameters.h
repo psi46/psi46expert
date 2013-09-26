@@ -44,6 +44,8 @@ public:
     int PHtestVcal;
     int PHDacType;
     int PHSafety;
+    int PHScanDac;
+    int PHScanVcalRange;
 
     int TrimVcal;
     int TrimNTrig;
@@ -61,7 +63,8 @@ public:
     int PHCalibrationNTrig;
     int PHCalibrationMode;
     int PHCalibrationNPixels;
-    int PHCalibrationCalDelVthrComp;
+    int PHCalibrationAdjustVthrComp;
+    int PHCalibrationAdjustCalDel;
 
     int IVStep;
     int IVStart;
@@ -84,9 +87,11 @@ public:
     float goalPar1;
     float goalCurrent;
 
-    int XrayNTrig;
-    int XrayVthrCompMin;
-    int XrayVthrCompMax;
+    int XrayNTrig;                      ///< Number of triggers per scan point
+    int XrayVthrCompMin;                ///< Minimum VthrComp value in the scan
+    int XrayVthrCompMax;                ///< Maximum VthrComp value in the scan (plus one)
+    int XrayClockStretchFactor;         ///< Factor for the stretch of the clock to increase statistics
+    int XrayClockStretchDelay;          ///< Delay after the calibration signal after which to stretch the clock
 
     double XrayMaxEff;
 

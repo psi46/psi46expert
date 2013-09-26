@@ -31,6 +31,7 @@ public:
     int AdjustCalDel(int mode = 0);
     int AdjustCalDel(int col, int row, int mode = 0);
     int GetOptimalCalDel(int col, int row, int mode = 0);
+    int AdjustPulseHeightRange(int range = 1);                                  ///< Adjusts the DACs to include all pulse height values in the ADC range
     void AdjustUltraBlackLevel(int ubLevel);
 
     // == Tests =============================================

@@ -29,8 +29,6 @@ id 1000
 va 1699
 vd 2500
 
-rocZeroAnalogCurrent 5.0
-
 -- adc parameters
 
 dataTriggerLevel -650

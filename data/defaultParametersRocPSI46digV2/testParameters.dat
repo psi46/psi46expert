@@ -8,7 +8,7 @@ DacRange2 256
 
 -- Trimming --
 
-TrimVcal 60
+TrimVcal 40
 TrimNTrig 5
 TrimDoubleWbc 1
 TrimVtrim -1
@@ -28,13 +28,20 @@ PHdac2Step 10
 PHNumberOfSteps 15
 PHtestVcal 60
 PHDacType 1
+# DAC to scan in PhScan test. 0: all DACs
+PHScanDac 0
+# Vcal range for PhScan test. 0: low range, 1: high range, 2: both
+PHScanVcalRange 0
 
 -- PHCalibration --
 
 PHCalibrationNTrig 10
-PHCalibrationMode 0
-PHCalibrationCalDelVthrComp 1
 # 0: 10 points 1: 100 points
+PHCalibrationMode 0
+# 1: Adjusts VthrComp for Vcal 50, 100, and (200)
+PHCalibrationAdjustVthrComp 1
+# 1: Adjusts CalDel for every Vcal setting
+PHCalibrationAdjustCalDel 1
 
 -- PixelMap --
 
@@ -108,6 +115,8 @@ XrayNTrig 20000
 XrayVthrCompMin 40
 XrayVthrCompMax 110
 XrayMaxEff 0.01
+XrayClockStretchFactor 100
+XrayClockStretchDelay 0
 
 -- High rate pixel map
 
@@ -120,7 +129,7 @@ HRPixelMapTriggerRate 5
 # Clock stretch factor (Disabled if < 2)
 HRPixelMapClockStretch 0
 # Clock stretch follows Calibrate after N clock cycles (can be negative)
-HRPixelMapStretchDelay 6
+HRPixelMapStretchDelay 7
 
 -- High rate efficiency
 

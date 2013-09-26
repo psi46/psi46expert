@@ -3,6 +3,7 @@
 
 #include "TemperatureTest.h"
 #include "interface/Log.h"
+#include "TestRoc.h"
 #include "BasePixel/TBAnalogInterface.h"
 
 TemperatureTest::TemperatureTest(TestRange * aTestRange, TestParameters * testParameters, TBInterface * aTBInterface)
@@ -29,6 +30,8 @@ Double_t Fitfcn(Double_t * x, Double_t * par)
 
 void TemperatureTest::RocAction()
 {
+if (roc->has_analog_readout())
+    {
     TBAnalogInterface * anaInterface = (TBAnalogInterface *)tbInterface;
 
     // get black level
@@ -43,6 +46,7 @@ void TemperatureTest::RocAction()
     calib->SetName(Form("TempCalibration_C%i", chipId));
     for (int rangeTemp = 0; rangeTemp < 8; rangeTemp++)
     {
+        psi::LogInfo() << "[TemperatureTest] Measuring calibration point " << rangeTemp << " ..." << psi::endl;
         SetDAC("RangeTemp", rangeTemp + 8);
         Flush();
         calib->SetPoint(rangeTemp, rangeTemp, anaInterface->LastDAC(nTrig, aoutChipPosition));
@@ -56,6 +60,7 @@ void TemperatureTest::RocAction()
 
     for (int rangeTemp = 0; rangeTemp < 8; rangeTemp++)
     {
+        psi::LogInfo() << "[TemperatureTest] Measuring temperature point " << rangeTemp << " ..." << psi::endl;
         SetDAC("RangeTemp", rangeTemp);
         Flush();
         meas->SetPoint(rangeTemp, rangeTemp, anaInterface->LastDAC(nTrig, aoutChipPosition));
@@ -63,6 +68,7 @@ void TemperatureTest::RocAction()
 
     histograms->Add(meas);
     meas->Write();
+}
 }
 
 
