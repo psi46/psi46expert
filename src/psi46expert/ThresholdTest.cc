@@ -66,18 +66,11 @@ void ThresholdTest::RocAction()
     else if (mode == 5)
     {
         if (vthr >= 0) SetDAC("VthrComp", vthr);
-        int nVcals = 11;
-        int vcals[] = {50, 70, 90, 110, 130, 150, 170, 190, 210, 230, 250};
-        for (int i = 0; i < nVcals; i++) {
-            SetDAC("Vcal", vcals[i]);
-            Flush();
-            std::cout << "I'm doing it for Vcal " << vcals[i] << " now..." << endl;
-            map = thresholdMap->GetMap(Form("TimeMar_vcal_%i", vcals[i]), roc, testRange, nTrig, mode);
-            histograms->Add(map);
-            histograms->Add(gAnalysis->Distribution(map));
-
-        }
-        std::cout << "just FYI, Threshold was at " << GetDAC("VthrComp") << endl;
+        if (vcal >= 0) SetDAC("Vcal", vcal);
+	Flush();
+	map = thresholdMap->GetMap(Form("TimeWalk_vcal_%i", vcal), roc, testRange, nTrig, mode);
+	histograms->Add(map);
+	histograms->Add(gAnalysis->Distribution(map));
     }
 
     else if (mode == 6)

@@ -6,35 +6,49 @@
 
 #include "BasePixel/GlobalConstants.h"
 #include <TObject.h>
+#include <TH2.h>
 
+/// Stores information about which pixels, columns, ROCs, etc. are to be tested or masked
+/**
+    Uses one bit for every pixel to determine whether this pixel should be included or
+    excluded in a test. This can either mean that the pixel is being tested or that it
+    is physically masked during the test. Some tests completely disregard this information
+    and test or mask or unmask any of the pixels.
+ */
 class TestRange : public TObject
 {
 
 public:
-    TestRange();
+    TestRange();                                                                        ///< Initializes the range to exclude all pixels
 
-    void AddPixel(int roc, int col, int row);
-    void RemovePixel(int roc, int col, int row);
-    bool ExcludesColumn(int roc, int col);
-    bool ExcludesRow(int roc, int row);
-    bool ExcludesRoc(int roc);
+    void AddPixel(int roc, int col, int row);                                           ///< Includes a pixel in the range
+    void RemovePixel(int roc, int col, int row);                                        ///< Excludes a pixel in the range
+    bool ExcludesColumn(int roc, int col);                                              ///< Excludes a column in the range
+    bool ExcludesRow(int roc, int row);                                                 ///< Excludes a row in the range
+    bool ExcludesRoc(int roc);                                                          ///< Excludes a ROC in the range
 
-    void CompleteRange();
-    void CompleteRoc(int iRoc);
+    void CompleteRange();                                                               ///< Includes all pixels of all ROCs in the range
+    void CompleteRoc(int iRoc);                                                         ///< Includes all pixels of the ROC in the range
 
-    bool IncludesPixel(int roc, int col, int row);
-    bool IncludesRoc(int roc);
-    bool IncludesDoubleColumn(int roc, int doubleColumn);
-    bool IncludesColumn(int roc, int column);
-    bool IncludesColumn(int column);
+    bool IncludesPixel(int roc, int col, int row);                                      ///< Checks whether a pixel is included in the range
+    bool IncludesRoc(int roc);                                                          ///< Checks whether a ROC is included in the range
+    bool IncludesDoubleColumn(int roc, int doubleColumn);                               ///< Checks whether a double column is included in the range
+    bool IncludesColumn(int roc, int column);                                           ///< Checks whether a column is included in the range
+    bool IncludesColumn(int column);                                                    ///< Checks whether a column is included in the range
 
-    void ApplyMaskFile(const char * fileName);
+    int GetValidPixel(int roc, int & col, int & row);                                   ///< Finds any (non-edge) pixel that is in the test range, default 20:20
+    int GetMapMaximum(TH2 * map, int roc, int & col, int & row, bool minimum = false);  ///< Finds the pixel in the range with the maximal map value
+    float GetMapMaximum(TH2 * map, int roc, bool minimum = false);                      ///< Finds the pixel in the range with the minimal map value
+    int GetMapMinimum(TH2 * map, int roc, int & col, int & row);                        ///< Gives the maximal map value respecting the test range
+    float GetMapMinimum(TH2 * map, int roc);                                            ///< Gives the minimal map value respecting the test range
 
-    void Print();
+    void ApplyMaskFile(const char * fileName);                                          ///< Reads a file to selectively disable pixels in the test range
+
+    void Print();                                                                       ///< Prints all disabled pixels
 
 protected:
 
-    bool pixel[MODULENUMROCS][ROCNUMCOLS][ROCNUMROWS];
+    bool pixel[MODULENUMROCS][ROCNUMCOLS][ROCNUMROWS];                                  ///< Array that holds the information about the pixel mask states
 
     ClassDef(TestRange, 1)
 };

@@ -74,6 +74,10 @@ void execute(SysCommand &command)
 {
     do
     {
+        /* Separate commands with a newline in batch mode */
+        if (cmdFileArg)
+            psi::LogInfo() << psi::endl;
+
         if (command.Keyword("gui"))
         {
             runGUI();
@@ -177,7 +181,9 @@ void runFile()
     psi::LogInfo() << "[psi46expert] Executing file '" << cmdFile
                    << "'." << psi::endl;
 
-    sysCommand.Read(cmdFile);
+    int failed = sysCommand.Read(cmdFile);
+    if (failed)
+        return;
     execute(sysCommand);
 
     gDelay->Timestamp();
@@ -537,7 +543,6 @@ int main(int argc, char * argv[])
     psi::LogInfo() << "[psi46expert] Setting up the testboard interface ..." << psi::endl;
     tbInterface = new TBDigitalInterface(configParameters);
     if (!tbInterface->IsPresent()) return -1;
-    psi::LogInfo() << "[psi46expert] Setting up the testboard interface ..." << psi::endl;
     controlNetwork = new TestControlNetwork(tbInterface, configParameters);
 
     Power_supply = new Keithley();
@@ -570,18 +575,22 @@ int main(int argc, char * argv[])
         // == CommandLine ================================================================
 
         char * p;
+        char * last = NULL;
         bool finished = false;
         do {
             p = readline("psi46expert> ");
-            add_history(p);
+            if (!last || strcmp(p, last) != 0)
+                add_history(p);
+            free(last);
 
             psi::LogDebug() << "psi46expert> " << p << psi::endl;
 
             if (sysCommand.Parse(p)) execute(sysCommand);
             finished = (strcmp(p, "exit") == 0) || (strcmp(p, "q") == 0);
-            free(p);
+            last = p;
         }
         while (!finished);
+        free(last);
     }
 
     // == Exit ========================================================================

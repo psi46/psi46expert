@@ -114,8 +114,7 @@ void AddressDecoding::AnalyseResult(int pixel)
                                      &data[readoutStart],
                                      decodedModuleReadout,
                                      nRocs);
-        } 
-        else {
+        } else {
             int flags = 0;
             flags |= roc->has_row_address_inverted() ? DRO_INVERT_ROW_ADDRESS : 0;
             error = decode_digital_readout(&decodedModuleReadout, data + readoutStart, readoutStop[pixel] - readoutStart, nRocs, flags);
@@ -127,7 +126,10 @@ void AddressDecoding::AnalyseResult(int pixel)
     }
     else
     {
-        psi::LogInfo() << "[AddressDecoding] Warning: Invalid readout length (" << readoutStop[pixel] - readoutStart << " / " << ((TBAnalogInterface *)tbInterface)->GetEmptyReadoutLengthADC() + 6 << ")" << psi::endl;
+        if (readoutStop[pixel] - readoutStart != ((TBAnalogInterface *)tbInterface)->GetEmptyReadoutLengthADC())
+            psi::LogInfo() << "[AddressDecoding] Warning: Invalid readout length (" << readoutStop[pixel] - readoutStart << ")" << psi::endl;
+        else
+            psi::LogInfo() << "[AddressDecoding] Warning: Empty readout for pixel " << column << ":" << row << " on ROC " << roc->GetChipId() << "." << psi::endl;
         if (fPrintDebug)
         {
             cout << "ADC values = { ";

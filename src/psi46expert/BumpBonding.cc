@@ -24,11 +24,12 @@ void BumpBonding::ReadTestParameters(TestParameters * testParameters)
 
 void BumpBonding::RocAction()
 {
+    psi::LogInfo() << "[BumpBonding] Finding missing bump bonds for ROC #" << chipId << " ..." << psi::endl;
     TBAnalogInterface * ai = dynamic_cast<TBAnalogInterface *>(tbInterface);
     bool is_analog = roc->has_analog_readout();
 
     if (is_analog) {
-
+        psi::LogInfo() << "[BumpBonding] Using method for analog ROCs ..." << psi::endl;
         ThresholdMap * thresholdMap = new ThresholdMap();
 
         SaveDacParameters();
@@ -38,6 +39,7 @@ void BumpBonding::RocAction()
         SetDAC("CtrlReg", 4);
         Flush();
 
+        psi::LogInfo() << "[BumpBonding] Measuring cross talk map ..." << psi::endl;
         TH2D * calXtalk = thresholdMap->GetMap("CalXTalkMap", roc, testRange, 5);
         TH1D * calXtalkDistribution = gAnalysis->Distribution(calXtalk);
         vthrComp = static_cast<int>(calXtalkDistribution->GetMean() + 3. * calXtalkDistribution->GetRMS());
@@ -51,7 +53,9 @@ void BumpBonding::RocAction()
 
         Flush();
 
+        psi::LogInfo() << "[BumpBonding] Measuring Vcal threshold map (via sensor) ..." << psi::endl;
         TH2D * vcals = thresholdMap->GetMap("VcalsThresholdMap", roc, testRange, nTrig);
+        psi::LogInfo() << "[BumpBonding] Measuring cross talk map ..." << psi::endl;
         TH2D * xtalk = thresholdMap->GetMap("XTalkMap", roc, testRange, nTrig);
         TH2D * difference = gAnalysis->DifferenceMap(vcals, xtalk, Form("vcals_xtalk_C%i", roc->GetChipId()));
 
@@ -72,14 +76,15 @@ void BumpBonding::RocAction()
     //dig chip
     else
     {
+        psi::LogInfo() << "[BumpBonding] Using method for digital ROCs ..." << psi::endl;
         SaveDacParameters();
-        psi::LogInfo() << "doing digital Bump Bonding Test ...";
         ThresholdMap * thresholdMap = new ThresholdMap();
 
 
         SetDAC("CtrlReg", 4);
         SetDAC("Vcal", 255);
         Flush();
+        psi::LogInfo() << "[BumpBonding] Measuring bump bonding map ..." << psi::endl;
         TH2D * map = thresholdMap->GetMap("BumpBondMap", roc, testRange, nTrig, 7);
 
         histograms->Add(map);

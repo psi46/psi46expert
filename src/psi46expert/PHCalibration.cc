@@ -105,7 +105,7 @@ void PHCalibration::ReadTestParameters(TestParameters * testParameters)
     //  memoryCorrection = (*testParameters).PHMemoryCorrection / 100;
     mode = (*testParameters).PHCalibrationMode;
     numPixels = (*testParameters).PHCalibrationNPixels;
-    calDelVthrComp = (*testParameters).PHCalibrationCalDelVthrComp;
+    //calDelVthrComp = (*testParameters).PHCalibrationCalDelVthrComp;
 }
 
 
@@ -170,15 +170,15 @@ void PHCalibration::RocAction()
     }
 
     if (debug) {calDel50 = 44; calDel100 = 63; calDel200 = 66; vthrComp50 = 114; vthrComp100 = 99; vthrComp200 = 85;}
-    else if (calDelVthrComp)
-    {
-        psi::LogInfo() << "Determining CalDel values ..." << psi::endl;
-        SetDAC("CtrlReg", 0);
-        calDel200 = GetDAC("CalDel"); vthrComp200 = GetDAC("VthrComp"); // from Pretest
-        roc->AdjustCalDelVthrComp(15, 15, 50, -0); calDel50 = GetDAC("CalDel"); vthrComp50 = GetDAC("VthrComp");
-        roc->AdjustCalDelVthrComp(15, 15, 100, -0); calDel100 = GetDAC("CalDel"); vthrComp100 = GetDAC("VthrComp");
-        //      roc->AdjustCalDelVthrComp(15, 15, 200, -1); calDel200 = GetDAC("CalDel"); vthrComp200 = GetDAC("VthrComp");
-    }
+    //else if (calDelVthrComp)
+    //{
+    //    psi::LogInfo() << "Determining CalDel values ..." << psi::endl;
+    //    SetDAC("CtrlReg", 0);
+    //    calDel200 = GetDAC("CalDel"); vthrComp200 = GetDAC("VthrComp"); // from Pretest
+    //    roc->AdjustCalDelVthrComp(15, 15, 50, -0); calDel50 = GetDAC("CalDel"); vthrComp50 = GetDAC("VthrComp");
+    //    roc->AdjustCalDelVthrComp(15, 15, 100, -0); calDel100 = GetDAC("CalDel"); vthrComp100 = GetDAC("VthrComp");
+    //    //      roc->AdjustCalDelVthrComp(15, 15, 200, -1); calDel200 = GetDAC("CalDel"); vthrComp200 = GetDAC("VthrComp");
+    //}
     else
     {
         calDel200 = GetDAC("CalDel"); vthrComp200 = GetDAC("VthrComp"); // from Pretest

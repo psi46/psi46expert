@@ -43,6 +43,8 @@ TestParameters::TestParameters(const char * _file)
         PHtestVcal(60),
         PHDacType(1),
         PHSafety(50),
+        PHScanDac(0),
+        PHScanVcalRange(0),
 
         TrimVcal(50),
         TrimNTrig(10),
@@ -60,7 +62,8 @@ TestParameters::TestParameters(const char * _file)
         PHCalibrationNTrig(1),
         PHCalibrationMode(0),
         PHCalibrationNPixels(4160),
-        PHCalibrationCalDelVthrComp(1),
+        PHCalibrationAdjustVthrComp(1),
+        PHCalibrationAdjustCalDel(1),
 
         IVStep(5),
         IVStart(0),
@@ -84,6 +87,8 @@ TestParameters::TestParameters(const char * _file)
         XrayNTrig(10000),
         XrayVthrCompMin(40),
         XrayVthrCompMax(110),
+        XrayClockStretchFactor(100),
+        XrayClockStretchDelay(0),
 
         XrayMaxEff(0.01),
 
@@ -174,6 +179,8 @@ bool TestParameters::ReadTestParameterFile(const char * _file)
         else if (0 == _name.compare("PHtestVcal")) { PHtestVcal      = static_cast<int>(_value); }
         else if (0 == _name.compare("PHDacType")) { PHDacType       = static_cast<int>(_value); }
         else if (0 == _name.compare("PHSafety")) { PHSafety        = static_cast<int>(_value); }
+        else if (0 == _name.compare("PHScanDac"))       { PHScanDac       = static_cast<int>(_value); }
+        else if (0 == _name.compare("PHScanVcalRange")) { PHScanVcalRange = static_cast<int>(_value); }
 
         else if (0 == _name.compare("TrimVcal")) { TrimVcal         = static_cast<int>(_value); }
         else if (0 == _name.compare("TrimNTrig")) { TrimNTrig        = static_cast<int>(_value); }
@@ -196,7 +203,8 @@ bool TestParameters::ReadTestParameterFile(const char * _file)
         else if (0 == _name.compare("PHCalibrationNTrig")) { PHCalibrationNTrig          = static_cast<int>(_value); }
         else if (0 == _name.compare("PHCalibrationMode")) { PHCalibrationMode           = static_cast<int>(_value); }
         else if (0 == _name.compare("PHCalibrationNPixels")) { PHCalibrationNPixels        = static_cast<int>(_value); }
-        else if (0 == _name.compare("PHCalibrationCalDelVthrComp")) { PHCalibrationCalDelVthrComp = static_cast<int>(_value); }
+        else if (0 == _name.compare("PHCalibrationAdjustVthrComp")) { PHCalibrationAdjustVthrComp = static_cast<int>(_value); }
+        else if (0 == _name.compare("PHCalibrationAdjustCalDel")) { PHCalibrationAdjustCalDel = static_cast<int>(_value); }
 
         else if (0 == _name.compare("TempNTrig")) { TempNTrig  = static_cast<int>(_value); }
         else if (0 == _name.compare("TBMUbLevel")) { TBMUbLevel = abs(static_cast<int>(_value)); }
@@ -216,6 +224,8 @@ bool TestParameters::ReadTestParameterFile(const char * _file)
         else if (0 == _name.compare("XrayVthrCompMin")) { XrayVthrCompMin = static_cast<int>(_value); }
         else if (0 == _name.compare("XrayVthrCompMax")) { XrayVthrCompMax = static_cast<int>(_value); }
         else if (0 == _name.compare("XrayMaxEff")) { XrayMaxEff      = _value; }
+        else if (0 == _name.compare("XrayClockStretchFactor")) { XrayClockStretchFactor = _value; }
+        else if (0 == _name.compare("XrayClockStretchDelay"))  { XrayClockStretchDelay  = _value; }
 
         else if (0 == _name.compare("HRPixelMapTriggerRate")) { HRPixelMapTriggerRate = static_cast<int>(_value); }
         else if (0 == _name.compare("HRPixelMapRepetitions")) { HRPixelMapRepetitions = static_cast<int>(_value); }

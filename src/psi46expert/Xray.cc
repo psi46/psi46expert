@@ -37,6 +37,8 @@ void Xray::ReadTestParameters(TestParameters * testParameters)
     vthrCompMin = (*testParameters).XrayVthrCompMin;
     vthrCompMax = (*testParameters).XrayVthrCompMax;
     maxEff = (*testParameters).XrayMaxEff;
+    clockStretchFactor = (*testParameters).XrayClockStretchFactor;
+    clockStretchDelay = (*testParameters).XrayClockStretchDelay;
 }
 
 
@@ -55,47 +57,36 @@ void Xray::ModuleAction()
         histo[chipId] = new TH1F(Form("XrayCal_C%i", chipId), Form("XrayCal_C%i", chipId), 256, 0., 256.);
 
         module->GetRoc(iRoc)->SaveDacParameters();
-        //as    module->GetRoc(iRoc)->SetDAC("WBC", 106);
-        //ul    module->GetRoc(iRoc)->SetDAC("WBC", 107);
         module->GetRoc(iRoc)->SetDAC("WBC", 106);
-        if (testRange->IncludesRoc(iRoc))
-        {
-            module->GetRoc(iRoc)->EnableAllPixels();
-            //      for (int i = 0; i < 52; i++) module->GetRoc(iRoc)->EnableDoubleColumn(i);
-            // for (int i = 0; i < 26; i++)
-            // {
-            //   module->GetRoc(iRoc)->EnablePixel(i*2, 20);
-            // }
-            //AS disable Noisy pixels (double column)
-            //      if(iRoc==10){
-            //        for (int ic = 34; ic < 36; ic++)
-            // {
-            //    for (int ir = 0; ir < 80; ir++)
-            //      {
-            //    module->GetRoc(iRoc)->DisablePixel(46, ir);
-            //    module->GetRoc(iRoc)->DisablePixel(47, ir);
-            //      }
-            //}
-            // }
+
+        /* Enable pixels in test range */
+        if (!testRange->IncludesRoc(iRoc))
+            continue;
+        for (int col = 0; col < ROC_NUMCOLS; col++) {
+            if (!testRange->IncludesColumn(iRoc, col))
+                continue;
+            for (int row = 0; row < ROC_NUMROWS; row++) {
+                if (testRange->IncludesPixel(iRoc, col, row))
+                    module->GetRoc(iRoc)->EnablePixel(col, row);
+            }
         }
     }
 
     tb->DataEnable(false);
-    if (module->GetRoc(0)->has_analog_readout()) {
-        // max stretching is 1022 (Beat)
-        tb->SetClockStretch(STRETCH_AFTER_CAL, 0, 100);
-    }
+    // max stretching is 1022 (Beat)
+    tb->SetClockStretch(STRETCH_AFTER_CAL, clockStretchDelay, clockStretchFactor);
     tb->Flush();
 
     // Check for noisy pixels
 
-    psi::LogInfo() << "Checking for noisy pixels ..." << psi::endl;
+    psi::LogInfo() << "[Xray] Checking for noisy pixels ..." << psi::endl;
 
     int nTrigs = 10000;
     for (int iRoc = 0; iRoc < nRocs; iRoc++) module->GetRoc(iRoc)->SetDAC("VthrComp", vthrCompMin);
     tb->CountAllReadouts(nTrigs / 10, countsTemp, amplitudesTemp);
     for (int iRoc = 0; iRoc < nRocs; iRoc++)
     {
+        psi::LogInfo() << Form("[Xray] Roc %2i has %i hits (in %i triggers).", iRoc, countsTemp[iRoc], nTrigs / 10) << psi::endl;
         if (countsTemp[iRoc] > maxEff * nTrigs / 10.)
         {
             psi::LogInfo() << "[Xray] Noisy ROC #"
@@ -130,10 +121,10 @@ void Xray::ModuleAction()
 
     // Start scan
 
-    psi::LogInfo() << "Starting VcThr scan [" << vthrCompMin << ":" << vthrCompMax - 1 << "] ..." << psi::endl;
+    psi::LogInfo() << "[Xray] Starting VthrComp scan [" << vthrCompMin << ":" << vthrCompMax << "] ..." << psi::endl;
 
     sum = 0;
-    for (int vthrComp = vthrCompMin; vthrComp < vthrCompMax; vthrComp++)
+    for (int vthrComp = vthrCompMin; vthrComp <= vthrCompMax; vthrComp++)
     {
         for (int iRoc = 0; iRoc < nRocs; iRoc++)
         {
@@ -169,7 +160,8 @@ void Xray::ModuleAction()
         {
             psi::LogDebug() << "[Xray] Roc #" << iRoc << " has "
                             << counts[iRoc] << " counts." << psi::endl;
-            if (counts[iRoc] < maxEff * nTrig) histo[module->GetRoc(iRoc)->GetChipId()]->Fill(vthrComp, counts[iRoc]); //if threshold too low -> noise hits
+            if (counts[iRoc] < maxEff * nTrig)
+                histo[module->GetRoc(iRoc)->GetChipId()]->Fill(vthrComp, counts[iRoc]); //if threshold too low -> noise hits
             else
             {
                 module->GetRoc(iRoc)->Mask();
@@ -178,11 +170,10 @@ void Xray::ModuleAction()
 
             sum += counts[iRoc];
         }
-        printf("VthrComp %i Sum %i\n", vthrComp, sum);
+        psi::LogInfo() << Form("[Xray] VthrComp %3i -> %5i hits", vthrComp, sum) << psi::endl;
     }
 
-    if (module->GetRoc(0)->has_analog_readout())
-        tb->SetClockStretch(0, 0, 0);
+    tb->SetClockStretch(0, 0, 0);
     tb->DataEnable(true);
     for (int iRoc = 0; iRoc < nRocs; iRoc++)
     {
@@ -199,62 +190,33 @@ void Xray::ModuleAction()
 
 void Xray::RocAction()
 {
-    //  double maxFitLimit, max = histo[chipId]->GetMaximum();
-    //   for (int i = histo->GetNbinsX(); i >= 0; i--)
-    //   {
-    //     if (histo->GetBinContent(i+1)) > max*0.3)
-    //     {
-    //       maxFitLimit = histo->GetBinCenter(i);
-    //     }
-    //   }
-
-    //  TF1 *fit = new TF1("Fit", Erffcn, 0., 256., 4);
-    // //  fit->SetParameter(0, max/2.);
-    //   fit->SetParameter(0, 30.);
-    //   fit->SetParameter(1, 70.);
-    //   fit->SetParameter(2, .1);
-    // //  fit->SetParameter(3, max/2.);
-    //   fit->SetParameter(3, 30.);
-
-
     TH1F * h1 = histo[chipId];
-    TF1 * fit = new TF1("Fit", Erf3fcn, 0., 256., 3);
+    TF1 * fit;
+    if (0)
+        fit = new TF1("Fit", Erf3fcn, 0., 256., 3);
+    else
+        fit = new TF1("Fit", "0.5 * (TMath::Erf((x - [0]) / [1]) + 1) * ([2] * (x - [0] - 2 * [1]) + [3])");
 
-    int minFit = 20;
-    int maxFit = 120;
-
-    // -- Patch missing errors in empty bins
-    for (int i = 1; i <= h1->GetNbinsX(); ++i) {
-        if (h1->GetBinContent(i) < 0.5) h1->SetBinError(i, 1.);
-    }
-
+    int minFit = -1;
+    int maxFit = 256;
 
     // -- minimum fit range
-    for (int i = 0; i < 100; ++i) {
-        if (h1->GetBinContent(i) > 0) {
+    for (int i = 0; i < 256; ++i) {
+        if (h1->GetBinContent(i + 1) > 0) {
             minFit = i;
             break;
         }
     }
-    minFit -= 10;
-    if (minFit < 0) minFit = 1;
-
+    if (minFit < 0)
+        return;
 
     // -- maximum fit range
-    for (int i = 150; i > 50; --i) {
-        if ((h1->GetBinContent(i) > 0)
-                && (h1->GetBinContent(i - 1) > h1->GetBinContent(i) - 3.*h1->GetBinError(i))
-                && (h1->GetBinContent(i - 1) < h1->GetBinContent(i) + 3.*h1->GetBinError(i))
-                && (h1->GetBinContent(i - 2) > h1->GetBinContent(i) - 3.*h1->GetBinError(i))
-                && (h1->GetBinContent(i - 2) < h1->GetBinContent(i) + 3.*h1->GetBinError(i))
-                && (h1->GetBinContent(i - 3) > h1->GetBinContent(i) - 3.*h1->GetBinError(i))
-                && (h1->GetBinContent(i - 3) < h1->GetBinContent(i) + 3.*h1->GetBinError(i))
-           ) {
-            maxFit = i - 1;
+    for (int i = 255; i >= 0; --i) {
+        if (h1->GetBinContent(i + 1) > 0) {
+            maxFit = i;
             break;
         }
     }
-
 
     // -- plateau value
     double ave(0.);
@@ -286,57 +248,14 @@ void Xray::RocAction()
         }
     }
 
-    fit->SetParameter(0, ave);
-    fit->SetParLimits(0, 0., ave * 2.);
-    fit->SetParameter(1, thr);
-    fit->SetParLimits(1, 0.7 * thr, (1.3 * thr > maxFit ? maxFit : 1.3 * thr));
-    fit->SetParameter(2, .1);
-    fit->SetParLimits(2, 0.05, 2.);
-
-
-    //   // -- Bins with zero entries have not zero error
-    //   TH1F *h1 = histo[chipId];
-    //   for (int i = 1; i <= h1->GetNbinsX(); ++i) {
-    //     if (h1->GetBinContent(i) < 0.5) h1->SetBinError(i, 1.);
-    //   }
-
-    //   // -- Determine decent starting values
-    //   double minFit(20);
-    //   double maxFit(120);
-
-    //   for (int i = 150; i > 50; --i) {
-    //     if ((h1->GetBinContent(i) > 0) && (h1->GetBinContent(i-1) > 0.3*h1->GetBinContent(i))) {
-    //       maxFit = i;
-    //       break;
-    //     }
-    //   }
-
-    //   for (int i = 0; i <100; ++i) {
-    //     if (h1->GetBinContent(i) > 0) {
-    //       minFit = i;
-    //       break;
-    //     }
-    //   }
-    //   minFit -= 10;
-    //   if (minFit < 0.) minFit = 1.;
-    //   //  minFit = 10.;
-
-    //   double ave(0.);
-    //   int nbin(10);
-    //   for (int i = maxFit - 2; i > maxFit - 2 - nbin; --i) {
-    //     ave += h1->GetBinContent(i);
-    //   }
-    //   ave /= nbin;
-    //   ave /= 2.;
-
-    //   fit->SetParameter(0, ave);
-    //   fit->SetParLimits(0, 0., ave*5.);
-    //   fit->SetParameter(1, minFit+30);
-    //   fit->SetParLimits(1, 20., maxFit);
-    //   fit->SetParameter(2, .1);
-    //   fit->SetParLimits(2, 0., 2.);
-    //   fit->SetParameter(3, ave);
-    //   fit->SetParLimits(3, 0., ave*10.);
+    fit->SetParName(0, "Threshold");
+    fit->SetParameter(0, (maxFit - minFit) / 2.0);
+    fit->SetParName(1, "Width");
+    fit->SetParameter(1, 5.0);
+    fit->SetParName(2, "Slope");
+    fit->SetParameter(2, 0);
+    fit->SetParName(3, "Height");
+    fit->SetParameter(3, ave);
 
     ((TBAnalogInterface *)tbInterface)->Clear();
 

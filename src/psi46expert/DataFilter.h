@@ -7,6 +7,8 @@
 
 #include <TH2I.h>
 
+//typedef unsigned long long int uint64_t;
+
 /* Pipe Objects -------------------------------------------------------- */
 
 class PipeObjectShort : public PipeObject {
@@ -101,14 +103,21 @@ class HitMapper : public Pipe {
     TH2I ** hitmap_roc;
     TH2I * hitmap_module;
     TH2F * hitmap_module2;
+    TH2I * hits_vs_time_dcol;
+    TH2I * hits_vs_time_roc;
     unsigned int nroc;
+    float time;
+    uint64_t first_timestamp;       ///< Testboard timestamp of the first event
+    uint64_t last_timestamp;        ///< Testboard timestamp of the last processed event
 
 public:
-    HitMapper(unsigned int nroc);
+    HitMapper(unsigned int nroc, float measurement_time);
     ~HitMapper();
     CEvent * Read();
     CEvent * Write();
     TH2 * getHitMap(int iroc);
+    TH2I * getHitsVsTimeDcol();
+    TH2I * getHitsVsTimeRoc();
 };
 
 class EfficiencyMapper : public Pipe {

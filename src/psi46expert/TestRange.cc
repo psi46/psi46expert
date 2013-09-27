@@ -220,3 +220,135 @@ void TestRange::Print()
         }
     }
 }
+
+/**
+    Finds a pixel on the ROC that is in the test range (unmasked). It
+    starts by trying pixel 20:20 and if that pixel exits, it is returned.
+    If it doesn't exist, all pixels will be tried except for the edge
+    pixels until a valid pixel is found.
+    @param roc ROC ID
+    @param col Integer where the column number (1-50) is returned. Column 0
+    and column 51 will never be returned.
+    @param row Integer where the row number (1-78) is returned. Row 0 and
+    row 79 will never be returned.
+    @return 1: Success, 0: failure
+ */
+int TestRange::GetValidPixel(int roc, int & col, int & row)
+{
+    /* Check the ROC number */
+    if (roc >= MODULENUMROCS)
+        return 0;
+
+    /* Check default pixel 20:20 */
+    if (pixel[roc][20][20]) {
+        col = 20;
+        row = 20;
+        return 1;
+    }
+
+    /* Find any pixel that is not masked (except for edge pixels) */
+    for (col = 1; col < ROCNUMCOLS - 1; col++) {
+        for (row = 1; row < ROCNUMROWS - 1; row++) {
+            if (pixel[roc][col][row])
+                return 1;
+        }
+    }
+
+    /* No pixel was found */
+    return 0;
+}
+
+/**
+    Takes a 2D histogram of size 52x80 (ROC map) and finds the maximum bin while
+    avoiding masked pixels.
+    @param map A 2D histogram with 52 bins on the x-axis and 80 bins on the
+    y-axis (ROC map)
+    @param roc ROC ID
+    @param col Integer where the column number (starting at zero) is returned
+    @param row Integer where the row number (starting at zero) is returned
+    @param minimum Optional parameter to search for the minimum (true) instead
+    of the maximum (false). Default: false
+    @return 1: success, 0: failure
+ */
+int TestRange::GetMapMaximum(TH2 * map, int roc, int & col, int & row, bool minimum)
+{
+    /* Check histogram dimensions */
+    if (map->GetXaxis()->GetNbins() != ROCNUMCOLS || map->GetYaxis()->GetNbins() != ROCNUMROWS)
+        return 0;
+
+    /* Define value to start with */
+    double bin_content;
+    if (minimum)
+        bin_content = 1e300;
+    else
+        bin_content = -1e300;
+
+    /* Scan through the histogram to find the maximum/minimum */
+    int found = 0;
+    for (int c = 0; c < ROCNUMCOLS; c++) {
+        for (int r = 0; r < ROCNUMROWS; r++) {
+            if (minimum && map->GetBinContent(c + 1, r + 1) < bin_content && pixel[roc][c][r]) {
+                bin_content = map->GetBinContent(c + 1, r + 1);
+                col = c;
+                row = r;
+                found = 1;
+            } else if (!minimum && map->GetBinContent(c + 1, r + 1) > bin_content && pixel[roc][c][r]) {
+                bin_content = map->GetBinContent(c + 1, r + 1);
+                col = c;
+                row = r;
+                found = 1;
+            }
+        }
+    }
+
+    return found;
+}
+
+/**
+    Takes a 2D histogram of size 52x80 (ROC map) and finds the minimum bin while
+    avoiding masked pixels.
+    @param map A 2D histogram with 52 bins on the x-axis and 80 bins on the
+    y-axis (ROC map)
+    @param roc ROC ID
+    @param col Integer where the column number (starting at zero) is returned
+    @param row Integer where the row number (starting at zero) is returned
+    @return 1: success, 0: failure
+ */
+int TestRange::GetMapMinimum(TH2 * map, int roc, int & col, int & row)
+{
+    /* Use the maximum function with the optional parameter set to true */
+    GetMapMaximum(map, roc, col, row, true);
+}
+
+/**
+    Takes a 2D histogram of size 52x80 (ROC map) and finds the maximum value while
+    avoiding masked pixels.
+    @param map A 2D histogram with 52 bins on the x-axis and 80 bins on the
+    y-axis (ROC map)
+    @param roc ROC ID
+    @param minimum Optional parameter to search for the minimum (true) instead
+    of the maximum (false). Default: false
+    @return Maximum of the map, or -1e300 if the maximum cannot be found
+ */
+float TestRange::GetMapMaximum(TH2 * map, int roc, bool minimum)
+{
+    int col, row;
+    if (GetMapMaximum(map, roc, col, row, minimum))
+        return map->GetBinContent(col + 1, row + 1);
+    else
+        return -1e300;
+}
+
+/**
+    Takes a 2D histogram of size 52x80 (ROC map) and finds the minimum value while
+    avoiding masked pixels.
+    @param map A 2D histogram with 52 bins on the x-axis and 80 bins on the
+    y-axis (ROC map)
+    @param roc ROC ID
+    @return Minimum of the map, or -1e300 if the maximum cannot be found
+ */
+float TestRange::GetMapMinimum(TH2 * map, int roc)
+{
+    float value = GetMapMaximum(map, roc, true);
+    return (value == -1e300) ? -value : value;
+}

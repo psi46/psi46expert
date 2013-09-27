@@ -18,6 +18,8 @@ public:
 protected:
 
     int nTrig, vthrCompMin, vthrCompMax;
+    int clockStretchFactor;                 ///< Factor for the stretch of the clock to increase statistics
+    int clockStretchDelay;                  ///< Delay after the calibration signal after which to stretch the clock
     double maxEff;
     TH1F * histo[MODULENUMROCS];
 };

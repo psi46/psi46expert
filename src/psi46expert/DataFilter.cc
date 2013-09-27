@@ -5,6 +5,7 @@
 #include <TMath.h>
 #include "BasePixel/RawPacketDecoder.h"
 #include "BasePixel/DigitalReadoutDecoder.h"
+#include "BasePixel/GlobalConstants.h"
 
 #include "TLinearFitter.h"
 
@@ -197,13 +198,13 @@ CRawEvent * RawData2RawEvent::Write()
     /* Read the timestamp (number of clockcycles, 48 bit) */
     if (!(last = Read()))
         return NULL;
-    rawevent.time = last->s;
+    rawevent.time = (unsigned short) last->s;
     if (!(last = Read()))
         return NULL;
-    rawevent.time = (rawevent.time << 16) | last->s;
+    rawevent.time = (rawevent.time << 16) | (unsigned short) last->s;
     if (!(last = Read()))
         return NULL;
-    rawevent.time = (rawevent.time << 16) | last->s;
+    rawevent.time = (rawevent.time << 16) | (unsigned short) last->s;
 
     /* Read data */
     if (!(last = Read()))
@@ -302,7 +303,12 @@ unsigned int RawEventDecoder::GetDecodingErrors()
 
 /* Filter pipe that stores hits in a 2D histogram ----------------------------------------------------------- */
 
-HitMapper::HitMapper(unsigned int nroc)
+/**
+    Constructor of the HitMapper data filter. It sets up all the histograms.
+    \param nroc Number of ROCs to be mapped
+    \param measurement_time Time in seconds that the test is running
+ */
+HitMapper::HitMapper(unsigned int nroc, float measurement_time)
 {
     int rows, cols;
     if (nroc % 2 != 0) {
@@ -337,7 +343,21 @@ HitMapper::HitMapper(unsigned int nroc)
     hitmap_roc = new TH2I * [nroc];
     for (int i = 0; i < nroc; i++) {
         hitmap_roc[i] = new TH2I(Form("hitmap_C%i", i), Form("Pixel hit map ROC %i", i), 52, 0, 52, 80, 0, 80);
+        hitmap_roc[i]->SetTitle(Form("Pixel hit map ROC %i;Column;Row;Hits per pixel", i));
     }
+
+    /* Make sure to not create problems with bad inputs and to allow for some space (time?) in the end */
+    time = TMath::Abs(measurement_time) * 1.05;
+    if (time == 0)
+        time = 1.0;
+    hits_vs_time_dcol = new TH2I("hitmap_hits_vs_time_dcol", "Hitmap DCol hits vs time", 1000, 0, time, ROCNUMDCOLS * nroc, 0, ROCNUMDCOLS * nroc);
+    hits_vs_time_dcol->SetTitle("Hitmap DCol hits vs time;Time [s];DCol Number;Hits per time bin");
+    hits_vs_time_roc = new TH2I("hitmap_hits_vs_time_roc", "Hitmap ROC hits vs time", 1000, 0, time, nroc, 0, nroc);
+    hits_vs_time_roc->SetTitle("Hitmap ROC hits vs time;Time [s];ROC Number;Hits per time bin");
+
+    last_timestamp = 0;
+    first_timestamp = 0;
+
     this->nroc = nroc;
 }
 
@@ -348,6 +368,8 @@ HitMapper::~HitMapper()
     for (int i = 0; i < nroc; i++) {
         delete hitmap_roc[i];
     }
+    delete hits_vs_time_dcol;
+    delete hits_vs_time_roc;
 }
 
 CEvent * HitMapper::Read()
@@ -359,6 +381,14 @@ CEvent * HitMapper::Write()
 {
     CEvent * event = Read();
     if (event) {
+        if (first_timestamp == 0) {
+            /* This is the first event */
+            first_timestamp = event->timestamp;
+        }
+        /* Test whether the timestamp on the testboard was reset */
+        if (last_timestamp > 0 && event->timestamp < last_timestamp)
+            first_timestamp = event->timestamp - (last_timestamp - first_timestamp);
+
         if (event->nHits > 0) {
             for (int r = 0; r < event->nRocs; r++) {
                 if (r >= nroc) {
@@ -399,9 +429,14 @@ CEvent * HitMapper::Write()
                     else
                         hits += 1.0;
                     hitmap_module2->SetBinContent(col + 1, row + 1, hits);
+
+                    hits_vs_time_dcol->Fill((event->timestamp - first_timestamp) / 40e6, r * ROCNUMDCOLS + col / 2);
+                    hits_vs_time_roc->Fill((event->timestamp - first_timestamp) / 40e6, r);
                 }
             }
         }
+        if (event->timestamp < (1ul << 48))
+            last_timestamp = event->timestamp;
     }
     return event;
 }
@@ -416,6 +451,16 @@ TH2 * HitMapper::getHitMap(int iroc)
         return hitmap_roc[iroc];
     else
         return NULL;
+}
+
+TH2I * HitMapper::getHitsVsTimeDcol()
+{
+    return hits_vs_time_dcol;
+}
+
+TH2I * HitMapper::getHitsVsTimeRoc()
+{
+    return hits_vs_time_roc;
 }
 
 /* Filter pipe that stores hits in a 2D histogram ------------------------------------------------------------ */

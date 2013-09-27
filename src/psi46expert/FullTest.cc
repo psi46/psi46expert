@@ -43,7 +43,8 @@ void FullTest::ModuleAction()
         gDelay->Timestamp();
     }
 
-    DoTemperatureTest();
+    //DoTemperatureTest();
+    //skip iTest = 2 (DTB)
     for (int iTest = 0; iTest < 3; iTest++)
     {
         if (Scurve == 0)

@@ -192,16 +192,18 @@ int32_t CTestboard::MaskTest(int16_t nTriggers, int16_t res[])
         uDelay(10);
         for (row=0; row<ROC_NUMROWS; row++)
         {
-            roc_Pix_Cal (col, row, false);
+            roc_Pix_Cal(col, row, false);
             uDelay(20);
-            Pg_Single();
-            uDelay(10);
+            //Pg_Single();
+            //uDelay(10);
             roc_Pix_Trim(col, row, 15);
+            uDelay(5);
+            roc_Pix_Mask(col, row);
             uDelay(5);
             Pg_Single();
             uDelay(10);
 
-            roc_Pix_Mask(col, row);
+            //roc_Pix_Mask(col, row);
             roc_ClrCal();
         }
         roc_Col_Enable(col, false);
@@ -230,7 +232,7 @@ int32_t CTestboard::MaskTest(int16_t nTriggers, int16_t res[])
                 //g_chipdata.pixmap.SetMaskedCount(col, row, pix.n);
 
                 // must be single pixel hit
-                DecodePixel(data, pos, pix);
+                //DecodePixel(data, pos, pix);
                 //g_chipdata.pixmap.SetUnmaskedCount(col, row, pix.n);
                 //if (pix.n > 0)
                 //{
@@ -268,7 +270,8 @@ int32_t CTestboard::ChipEfficiency(int16_t nTriggers, int32_t trim[], double res
             {
 			    Pg_Single();
             }
-            roc_Pix_Mask(col, row);
+            //why?
+            //roc_Pix_Mask(col, row);
 			roc_ClrCal();
         }
         roc_Col_Enable(col, false);
@@ -365,7 +368,7 @@ void CTestboard::ArmPixel(int col, int row)
 void CTestboard::ArmPixel(int col, int row, int trim)
 {
 	roc_Pix_Trim(col, row, trim);
-	roc_Pix_Cal (col, row, false);
+	roc_Pix_Cal(col, row, false);
 }
 
 
@@ -466,32 +469,13 @@ int32_t CTestboard::PixelThreshold(int32_t col, int32_t row, int32_t start, int3
 
 	int32_t res = Threshold(start, step, thrLevel, nTrig, dacReg);
     roc_ClrCal();
-    if (enableAll == 0) roc_Pix_Mask(col, row);
-	return res;
-}
-
-int32_t CTestboard::PixelThresholdXtalk(int32_t col, int32_t row, int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim)
-{
-	int calRow;
-	if ( row >= ROC_NUMROWS/2 ) calRow = row - ROC_NUMROWS/2;
-  else calRow = row + ROC_NUMROWS/2;
-	
-	roc_Pix_Trim(col, row, trim);
-
-	if (!xtalk) roc_Pix_Cal(col, row, 1);
-	roc_Pix_Cal(col, row, 0);
-	roc_Pix_Cal(col, calRow, 1);
-
-	int32_t res = Threshold(start, step, thrLevel, nTrig, dacReg);
-    roc_ClrCal();
-    if (enableAll == 0) roc_Pix_Mask(col, row);
+    roc_Pix_Mask(col, row);
 	return res;
 }
 
 void CTestboard::ChipThresholdIntern(int32_t start[], int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim[], int32_t res[])
 {
   int32_t thr, startValue;
-  if (enableAll != 0) EnableAllPixels(trim);	  
 	for (int col = 0; col < ROC_NUMCOLS; col++)
 	{
 		EnableColumn(col);
@@ -505,9 +489,8 @@ void CTestboard::ChipThresholdIntern(int32_t start[], int32_t step, int32_t thrL
 			thr = PixelThreshold(col, row, startValue, step, thrLevel, nTrig, dacReg, xtalk, cals, trim[col*ROC_NUMROWS + row]);
 			res[col*ROC_NUMROWS + row] = thr;
 		}
-		if (enableAll == 0) roc_Col_Enable(col, 0);
+		roc_Col_Enable(col, 0);
 	}
-	if (enableAll != 0) DisableAllPixels();	  
 }
 
 void CTestboard::Init_Reset()
@@ -517,7 +500,7 @@ void CTestboard::Init_Reset()
     //roc_Chip_Mask();
 
     Pg_SetCmd(0, PG_RESR + 25);
-    Pg_SetCmd(1, PG_CAL  + 15 + tct_wbc);
+    Pg_SetCmd(1, PG_CAL  + 101 + tct_wbc);
     Pg_SetCmd(2, PG_TRG  + 16);
     Pg_SetCmd(3, PG_TOK);
     uDelay(100);
