@@ -26,7 +26,7 @@
 #define RPC_PROFILING PROFILING
 
 // #define RPC_MULTITHREADING
-#include "rpc.h"
+#include "interface/rpc.h"
 
 #ifdef _WIN32
 #include "pipe.h"
