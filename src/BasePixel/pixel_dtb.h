@@ -32,7 +32,7 @@
 #include "pipe.h"
 #endif
 
-#include "usb.h"
+#include "interface/USBInterface.h"
 
 // size of ROC pixel array
 #define ROC_NUMROWS  80  // # rows

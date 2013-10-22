@@ -12,7 +12,6 @@ libpsi46BasePixel_la_SOURCES = CalibrationTable.cc \
 			       Module.cc \
 			       Pixel.cc \
 		 		   pixel_dtb.cpp \
-		 		   usb.cpp \
 		 		   profiler.cpp \
 		 		   settings.cpp \
 				   rpc_calls.cpp \
@@ -48,7 +47,6 @@ noinst_HEADERS = CalibrationTable.h \
 		 Module.h \
 		 Pixel.h \
 		 pixel_dtb.h \
-		 usb.h \
 		 profiler.h \
 		 settings.h \
 		 RawPacketDecoder.h \

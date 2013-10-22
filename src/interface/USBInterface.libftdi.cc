@@ -9,6 +9,8 @@
 
 #include "USBInterface.h"
 
+#include "BasePixel/profiler.h"
+
 // needed for threaded readout of FTDI
 #include <pthread.h> 
 #include <semaphore.h>
@@ -36,7 +38,7 @@ static void add_to_buf (unsigned char c) {
     else                      nh = head + 1;
 
     if (nh == tail) {
-        fprintf (stderr, "USBInterface: threaded read routine: overflow of circular buffer. Cannot happen!\n");
+        fprintf (stderr, "USBInterface (libftdi) FATAL: overflow of circular buffer in threaded read routine. Sorry -- will exit now.\n");
         exit (1);
     }
     read_buffer[head] = c;
@@ -139,10 +141,46 @@ bool CUSB::EnumNext(char name[])
       std::cout << " USBInterface::EnumNext(): Error polling USB device number " << enumPos << std::endl;
       return EXIT_FAILURE;
     }
+  name = serial; // return device string information for a single device
   ftdi_list_free(&devlist);
   enumPos++;
   return true;
 }
+
+
+bool CUSB::Enum(char name[], uint32_t pos)
+{
+  if( isUSB_open) { 
+    std::cout << " Warning: Trying to call USBInterface::EnumNext() while other USB device still open" << std::endl;
+    return false; 
+  }
+
+  struct ftdi_device_list *  	devlist;
+
+  ftdiStatus =  ftdi_usb_find_all(&ftdic, &devlist,vendorID,0);
+  if( ftdiStatus <= 0) {
+    enumCount = enumPos = 0;
+    return false;
+  }
+  enumCount = ftdiStatus;
+  if( pos > enumCount) return false;
+
+  // go to the position of the pos argument
+  for (int32_t i=0; i<pos; i++) devlist->next;
+  
+  char manufacturer[128], description[128], serial[128];
+  if ((ftdiStatus = ftdi_usb_get_strings(&ftdic,devlist->dev, manufacturer, 128, description, 128, serial, 128)) < 0)
+    {
+      std::cout << " USBInterface::EnumNext(): Error polling USB device number " << pos << std::endl;
+      return EXIT_FAILURE;
+    }
+  name = serial; // return device string information for a single device
+  ftdi_list_free(&devlist);
+  enumPos = pos;
+  return true;
+}
+
+
 
 bool CUSB::Open(char serialNumber[])
 {
@@ -257,42 +295,40 @@ void CUSB::Close()
   isUSB_open = 0;
 }
 
-bool CUSB::WriteCommand(unsigned char x){
+void CUSB::WriteCommand(unsigned char x){
   const unsigned char CommandChar = ESC_EXTENDED; 
-  bool StatusCmdBit = Write(sizeof(char), &CommandChar); // ESC_EXTENDED 
-  return Write(sizeof(char),&x) && StatusCmdBit;
+  Write(sizeof(char), &CommandChar); // ESC_EXTENDED 
+  Write(sizeof(char),&x);
 }
 
-bool CUSB::Write(uint32_t bytesToWrite, const void *buffer)
-{
-  if( !isUSB_open) return false;
+void CUSB::Write(uint32_t bytesToWrite, const void *buffer)
+{ PROFILING
+    if (!isUSB_open) throw CRpcError(CRpcError::WRITE_ERROR);
   uint32_t k=0;
   for( k=0; k < bytesToWrite; k++ ) {
-    if( m_posW >= USBWRITEBUFFERSIZE) { if( !Flush()) return false; }
+    if( m_posW >= USBWRITEBUFFERSIZE) {Flush();}
     m_bufferW[m_posW++] = ((unsigned char*)buffer)[k];
   }
-  return true;
+  return;
 }
 
 
-bool CUSB::Flush()
-{
+void CUSB::Flush()
+{ PROFILING
   int32_t bytesToWrite = m_posW;
   m_posW = 0;
 
-  if( !isUSB_open) return false;
+  if (!isUSB_open) throw CRpcError(CRpcError::WRITE_ERROR);
 
-  if( !bytesToWrite) return true;
+  if( !bytesToWrite) return;
 
   ftdiStatus = ftdi_write_data(&ftdic, m_bufferW, bytesToWrite);
 
-  if( ftdiStatus < 0) return false;
+  if( ftdiStatus < 0)  throw CRpcError(CRpcError::WRITE_ERROR);
   if( ftdiStatus != bytesToWrite) { 
     std::cout<< " Warning: USBInterface: mismatch of bytes sent to USB chip and bytes written! " << std::endl;
-    return false; 
+    throw CRpcError(CRpcError::WRITE_ERROR);
   }
-
-  return true;
 }
 
 bool CUSB::FillBuffer(uint32_t minBytesToRead)
@@ -302,9 +338,12 @@ bool CUSB::FillBuffer(uint32_t minBytesToRead)
 }
 
 
-bool CUSB::Read(uint32_t bytesToRead, void *buffer, uint32_t &bytesRead)
+void CUSB::Read(uint32_t bytesToRead, void *buffer, uint32_t &bytesRead)
 {
-    // Copy over data from the circular buffer
+ PROFILING
+   if (!isUSB_open) throw CRpcError(CRpcError::READ_ERROR);
+ 
+   // Copy over data from the circular buffer
     int32_t i;
     int32_t timewasted = 0; // time in ms wasted in this routine
 
@@ -333,16 +372,19 @@ bool CUSB::Read(uint32_t bytesToRead, void *buffer, uint32_t &bytesRead)
 	  sem_post (&buf_space);
 	} 
 	else // buffer was not ready and reading it timed out so we stop attempting it now
-	  break;
+	  {
+	    bytesRead = i;
+	    throw CRpcError(CRpcError::READ_TIMEOUT);
+	    break;
+	  }
       }
       bytesRead = i;
-      return (bytesRead==bytesToRead);
 }
 
 //----------------------------------------------------------------------
-bool CUSB::Clear()
+void CUSB::Clear()
 {
-  if( !isUSB_open) return false;
+  if( !isUSB_open) return;
 
   ftdiStatus = ftdi_usb_purge_buffers(&ftdic);
 
@@ -355,8 +397,6 @@ bool CUSB::Clear()
 
   m_posR = m_sizeR = 0;
   m_posW = 0;
-
-  return ftdiStatus != 0;
 }
 
 //----------------------------------------------------------------------
