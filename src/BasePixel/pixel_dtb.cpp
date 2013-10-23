@@ -270,8 +270,7 @@ int32_t CTestboard::ChipEfficiency(int16_t nTriggers, int32_t trim[], double res
             {
 			    Pg_Single();
             }
-            //why?
-            //roc_Pix_Mask(col, row);
+            roc_Pix_Mask(col, row);
 			roc_ClrCal();
         }
         roc_Col_Enable(col, false);
