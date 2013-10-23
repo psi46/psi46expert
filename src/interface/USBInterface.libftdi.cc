@@ -55,19 +55,55 @@ static void *reader (void *arg) {
     int32_t br, i;
 
     while (1) {
-        pthread_testcancel();
-        br = ftdi_read_data (handle, buf, sizeof(buf));
-	if (br< 0){
-	  std::cout << " ERROR during USB read polling: error code from libusb_bulk_transfer(): " << br << std::endl;
+      usleep(100); // wait 0.1 ms
+      pthread_testcancel();
+      br = ftdi_read_data (handle, buf, sizeof(buf));
+      if (br< 0){
+	std::cout << " ERROR during USB read polling: error code from libusb_bulk_transfer(): " << br << std::endl;
+      }
+      if (br > 0){
+	for (i=0; i<br; i++){
+	  add_to_buf (buf[i]);
 	}
-	if (br > 0){
-	  for (i=0; i<br; i++){
-	    add_to_buf (buf[i]);
-	  }
-	}
+      }
     }
     return NULL;
 }
+
+uint32_t FindAllUSB(struct ftdi_device_list ** devlist){
+  int status;
+  uint32_t nDevices = 0;
+  struct ftdi_device_list *  	devlist_atb;
+
+  // For backward (driver) compatibility:
+  // Old libfti versions do not allow wildcards for vendorID and productID.
+  // This first checks explicitly for DTB boards, then for ATB ones and merges the device lists
+
+  // DTB
+  status =  ftdi_usb_find_all(&ftdic, devlist,vendorID,productID_FT232H);
+  if( status < 0) {
+    return status;
+  }
+  if ( status > 0 ){
+    nDevices+=status;
+  }
+
+  // ATB
+  status =  ftdi_usb_find_all(&ftdic, &devlist_atb,vendorID,productID_OLD);
+  if( status < 0) {
+    return status;
+  }
+  if ( status > 0 ){
+    // merge device lists
+    struct ftdi_device_list **curdev;
+    curdev = devlist;
+    for (int i = 0; i<nDevices;i++) curdev=&(*curdev)->next; // go to end of DTB device list
+    (*curdev)->dev = devlist_atb->dev; // put pointer to last devlist entry to first ATB entry
+    nDevices+=status; // add number of ATB devices to total number
+  }
+  return nDevices;
+}
+
 
 
 CUSB::CUSB(){
@@ -85,8 +121,6 @@ CUSB::CUSB(){
 }
 
 CUSB::~CUSB(){ 
-    pthread_cancel(readerthread);
-    pthread_join(readerthread, NULL);
     Close(); 
     ftdi_deinit(&ftdic);
   }
@@ -101,7 +135,7 @@ bool CUSB::EnumFirst(uint32_t &nDevices)
 {
   struct ftdi_device_list *  	devlist;
 
-  ftdiStatus =  ftdi_usb_find_all(&ftdic, &devlist,vendorID,0); // product ID == 0 -> use ftdi defaults
+  ftdiStatus = FindAllUSB(&devlist);
   if( ftdiStatus <= 0) {
     nDevices = enumCount = enumPos = 0;
     return false;
@@ -120,10 +154,8 @@ bool CUSB::EnumNext(char name[])
     std::cout << " Warning: Trying to call USBInterface::EnumNext() while other USB device still open" << std::endl;
     return false; 
   }
-
   struct ftdi_device_list *  	devlist;
-
-  ftdiStatus =  ftdi_usb_find_all(&ftdic, &devlist,vendorID,0);
+  ftdiStatus =  FindAllUSB(&devlist);
   if( ftdiStatus <= 0) {
     enumCount = enumPos = 0;
     return false;
@@ -141,7 +173,7 @@ bool CUSB::EnumNext(char name[])
       std::cout << " USBInterface::EnumNext(): Error polling USB device number " << enumPos << std::endl;
       return EXIT_FAILURE;
     }
-  name = serial; // return device string information for a single device
+  strcpy(name,serial); // return device string information for a single device
   ftdi_list_free(&devlist);
   enumPos++;
   return true;
@@ -151,13 +183,12 @@ bool CUSB::EnumNext(char name[])
 bool CUSB::Enum(char name[], uint32_t pos)
 {
   if( isUSB_open) { 
-    std::cout << " Warning: Trying to call USBInterface::EnumNext() while other USB device still open" << std::endl;
+    std::cout << " Warning: Trying to call USBInterface::Enum() while other USB device still open" << std::endl;
     return false; 
   }
 
   struct ftdi_device_list *  	devlist;
-
-  ftdiStatus =  ftdi_usb_find_all(&ftdic, &devlist,vendorID,0);
+  ftdiStatus =  FindAllUSB(&devlist);
   if( ftdiStatus <= 0) {
     enumCount = enumPos = 0;
     return false;
@@ -174,7 +205,7 @@ bool CUSB::Enum(char name[], uint32_t pos)
       std::cout << " USBInterface::EnumNext(): Error polling USB device number " << pos << std::endl;
       return EXIT_FAILURE;
     }
-  name = serial; // return device string information for a single device
+  strcpy(name,serial); // return device string information for a single device
   ftdi_list_free(&devlist);
   enumPos = pos;
   return true;
@@ -194,13 +225,7 @@ bool CUSB::Open(char serialNumber[])
 
   // open list of usb devices with the expected vendor and product ids
   struct ftdi_device_list *  	devlist;
-  ftdiStatus =  ftdi_usb_find_all(&ftdic, &devlist,0,0);
-  
-  // Old libfti versions do not allow wildcards for vendorID and productID.
-  // This first checks explicitly for DTB boards, if still none found for ATB ones.
-  //FIXME Would better to merge the device lists!
-  if( ftdiStatus == 0) ftdiStatus =  ftdi_usb_find_all(&ftdic, &devlist,vendorID,productID_FT232H);
-  if( ftdiStatus == 0) ftdiStatus =  ftdi_usb_find_all(&ftdic, &devlist,vendorID,productID_OLD);
+  ftdiStatus =  FindAllUSB(&devlist);
   
   if( ftdiStatus <= 0) {
     std::cout << " USBInterface::Open(): Error searching attached USB devices! ftdiStatus: " << ftdiStatus << std::endl;
@@ -218,11 +243,13 @@ bool CUSB::Open(char serialNumber[])
       devlist->next;
       continue;
     }
-    if (strcmp(serialNumber,serial)){
+    std::cout << " USBInterface::Open(): looking at device with serial " << serial << std::endl;
+    if (strcmp(serialNumber,serial)!=0 && strcmp(serialNumber,"*")!=0){
       // not found, next device
       devlist->next;
     } else {
       // found the device
+      std::cout << " USBInterface::Open(): found device with serial " << serial << std::endl;
       // now open it
       ftdiStatus = ftdi_usb_open_dev(&ftdic, devlist->dev);
       if( ftdiStatus < 0) {
@@ -263,7 +290,7 @@ bool CUSB::Open(char serialNumber[])
   
   ftdi_list_free(&devlist);
   if (!isUSB_open){
-    std::cout << " Device with serial " << serialNumber <<  " not found! :-( " << std::endl;
+    std::cout << " Device with serial '" << serialNumber <<  "' not found! :-( " << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -291,7 +318,13 @@ bool CUSB::Open(char serialNumber[])
 void CUSB::Close()
 {
   if( !isUSB_open) return;
+  pthread_cancel(readerthread);
+  std::cout <<" DEBUG: will join thread now " << std::endl;
+  pthread_join(readerthread, NULL);
+  std::cout <<" DEBUG: thread joined now " << std::endl;
+  usleep(1000);
   ftdi_usb_close(&ftdic);
+  std::cout <<" DEBUG:  ftdi_usb_close() done" << std::endl;
   isUSB_open = 0;
 }
 
