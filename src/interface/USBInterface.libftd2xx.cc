@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <time.h> // needed for usleep function
 
+#include "BasePixel/profiler.h"
+
 #include "USBInterface.h"
 
 using namespace std;
@@ -81,6 +83,22 @@ bool CUSB::EnumNext(char name[])
 	enumPos++;
 	return true;
 }
+
+
+bool CUSB::Enum(char name[], uint32_t pos)
+{
+	enumPos=pos;
+	if (enumPos >= enumCount) return false;
+	ftdiStatus = FT_ListDevices((PVOID)enumPos, name, FT_LIST_BY_INDEX);
+	if (ftdiStatus != FT_OK)
+	{
+		enumCount = enumPos = 0;
+		return false;
+	}
+
+	return true;
+}
+
 
 bool CUSB::Open(char serialNumber[])
 {
@@ -175,48 +193,43 @@ void CUSB::Close()
 }
 
 
-bool CUSB::Write(uint32_t bytesToWrite, const void *buffer)
-{
-	if (!isUSB_open) return false;
-
+void CUSB::Write(uint32_t bytesToWrite, const void *buffer)
+{PROFILING
+	if (!isUSB_open) throw CRpcError(CRpcError::WRITE_ERROR);
 	uint32_t k=0;
 	for (k=0; k < bytesToWrite; k++)
 	{
-		if (m_posW >= USBWRITEBUFFERSIZE) { if (!Flush()) return false; }
+		if (m_posW >= USBWRITEBUFFERSIZE) { Flush(); }
 		m_bufferW[m_posW++] = ((unsigned char*)buffer)[k];
 	}
-	return true;
 }
 
-bool CUSB::WriteCommand(unsigned char x){
+void CUSB::WriteCommand(unsigned char x){
   const unsigned char CommandChar = ESC_EXTENDED; 
-  bool StatusCmdBit = Write(sizeof(char), &CommandChar); // ESC_EXTENDED 
-  return Write(sizeof(char),&x) && StatusCmdBit;
-
+  Write(sizeof(char), &CommandChar); // ESC_EXTENDED 
+  Write(sizeof(char),&x);
 }
 
 
-bool CUSB::Flush()
-{
+void CUSB::Flush()
+{PROFILING
 	uint32_t bytesWritten;
 	uint32_t bytesToWrite = m_posW;
 	m_posW = 0;
 
-	if (!isUSB_open) return false;
+	if (!isUSB_open) throw CRpcError(CRpcError::WRITE_ERROR);
 
-	if (!bytesToWrite) return true;
+	if (!bytesToWrite) return;
 
 	ftdiStatus = FT_Write(ftHandle, m_bufferW, bytesToWrite, &bytesWritten);
 
-	if (ftdiStatus != FT_OK) return false;
-	if (bytesWritten != bytesToWrite) { ftdiStatus = FT_IO_ERROR; return false; }
-
-	return true;
+	if (ftdiStatus != FT_OK) throw CRpcError(CRpcError::WRITE_ERROR);
+	if (bytesWritten != bytesToWrite) { ftdiStatus = FT_IO_ERROR; throw CRpcError(CRpcError::WRITE_ERROR); }
 }
 
 
 bool CUSB::FillBuffer(uint32_t minBytesToRead)
-{
+{PROFILING
 	if (!isUSB_open) return false;
 
 	uint32_t bytesAvailable, bytesToRead;
@@ -240,12 +253,13 @@ bool CUSB::FillBuffer(uint32_t minBytesToRead)
 }
 
 
-bool CUSB::Read(uint32_t bytesToRead, void *buffer, uint32_t &bytesRead)
-{
+void CUSB::Read(uint32_t bytesToRead, void *buffer, uint32_t &bytesRead)
+{PROFILING
+
+	if (!isUSB_open) throw CRpcError(CRpcError::READ_ERROR);
+
 	bool timeout = false;
 	bytesRead = 0;
-
-	if (!isUSB_open) return false;
 
 	uint32_t i;
 
@@ -259,7 +273,7 @@ bool CUSB::Read(uint32_t bytesToRead, void *buffer, uint32_t &bytesRead)
 			uint32_t n = bytesToRead-i;
 			if (n>USBREADBUFFERSIZE) n = USBREADBUFFERSIZE;
 
-			if (!FillBuffer(n)) return false;
+			if (!FillBuffer(n)) throw CRpcError(CRpcError::READ_ERROR);
 			if (m_sizeR < n) timeout = true;
 
 			if (m_posR<m_sizeR)
@@ -267,31 +281,28 @@ bool CUSB::Read(uint32_t bytesToRead, void *buffer, uint32_t &bytesRead)
 			else
 			{   // timeout (bytesRead < bytesToRead)
 				bytesRead = i;
-				return true;
+				throw CRpcError(CRpcError::READ_TIMEOUT);
 			}
 		}
 
 		else
 		{
 			bytesRead = i;
-			return true;
+			throw CRpcError(CRpcError::READ_TIMEOUT);
 		}
 	}
 
 	bytesRead = bytesToRead;
-	return true;
 }
 
 
-bool CUSB::Clear()
-{
-	if (!isUSB_open) return false;
+void CUSB::Clear()
+{ PROFILING
+	if (!isUSB_open) return;
 
 	ftdiStatus = FT_Purge(ftHandle, FT_PURGE_RX|FT_PURGE_TX);
 	m_posR = m_sizeR = 0;
 	m_posW = 0;
-
-	return ftdiStatus != FT_OK;
 }
 
 bool CUSB::Show()
@@ -334,7 +345,7 @@ int CUSB::GetQueue()
 // Maximum time to wait set by pMaxWait (in ms); if exceeded, the method returns false,
 // otherwise it returns true (=ready to read queue)
 // If pMaxWait is negative the routine will wait forever until buffer is filled.
-// Experience so far:
+// Experience so far (using ATB):
 // - The routine works well in all tested cases and can replace extended MDelay calls
 // - After a usb_write, a short delay (~ 10ms ?) is needed before calling this routine; 
 //     in case of memreadout the first buffer seems to be truncated otherwise 
@@ -359,7 +370,7 @@ bool CUSB::WaitForFilledQueue( int32_t pSize, int32_t pMaxWait )
     else std::cout << "USB NO DATA in buffer! " << endl;
     return false;
   }
-  std::cout << "USB ready to read data after = " << waitCounter*10 << " ms, bytes to fetch = " << bytesWaiting << std::endl;
+  //std::cout << "USB ready to read data after = " << waitCounter*10 << " ms, bytes to fetch = " << bytesWaiting << std::endl;
   return true;
 }
 
