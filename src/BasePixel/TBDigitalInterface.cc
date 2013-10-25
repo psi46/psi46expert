@@ -851,12 +851,14 @@ double TBDigitalInterface::GetID()
 void TBDigitalInterface::HVon()
 {
     cTestboard->HVon();
+    cTestboard->Flush();
 }
 
 
 void TBDigitalInterface::HVoff()
 {
     cTestboard->HVoff();
+    cTestboard->Flush();
 }
 
 

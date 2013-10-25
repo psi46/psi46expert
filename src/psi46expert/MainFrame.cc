@@ -549,24 +549,14 @@ void MainFrame::Poff()
 
 
 // -- Turn high voltage on
-void MainFrame::HVon()
-{
-    if (tbInterface->IsAnalogTB())
-    {
-        ((TBAnalogInterface *)tbInterface)->HVon();
-        tbInterface->Flush();
-    }
+void MainFrame::HVon() {
+  tbInterface->HVon();
 }
 
 
 // -- Turn high voltage off
-void MainFrame::HVoff()
-{
-    if (tbInterface->IsAnalogTB())
-    {
-        ((TBAnalogInterface *)tbInterface)->HVoff();
-        tbInterface->Flush();
-    }
+void MainFrame::HVoff() {
+  tbInterface->HVoff();
 }
 
 

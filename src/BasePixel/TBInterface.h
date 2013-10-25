@@ -31,6 +31,8 @@ public:
 
     virtual void Pon() = 0;
     virtual void Poff() = 0;
+    virtual void HVon() = 0;  
+    virtual void HVoff() = 0; 
     virtual void Set(int reg, int value) = 0;
     virtual void Single(int mask) = 0;
     virtual void Intern(int mask) = 0;

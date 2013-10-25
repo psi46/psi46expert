@@ -849,12 +849,14 @@ double TBAnalogInterface::GetID()
 void TBAnalogInterface::HVon()
 {
     cTestboard->HVon();
+    cTestboard->Flush();
 }
 
 
 void TBAnalogInterface::HVoff()
 {
     cTestboard->HVoff();
+    cTestboard->Flush();
 }
 
 
