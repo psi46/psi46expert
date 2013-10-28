@@ -6,6 +6,8 @@
 #include <vector>
 #include <stdint.h>
 
+#include <unistd.h>
+
 #include "rpc_io.h"
 #include "rpc_error.h"
 

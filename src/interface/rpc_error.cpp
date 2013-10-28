@@ -1,7 +1,7 @@
 // rpc_error.cpp
 
 #include "rpc_error.h"
-#include "pixel_dtb.h"
+#include "BasePixel/pixel_dtb.h"
 
 
 const char *CRpcError::GetMsg()
