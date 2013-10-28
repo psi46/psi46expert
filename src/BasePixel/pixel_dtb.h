@@ -26,13 +26,13 @@
 #define RPC_PROFILING PROFILING
 
 // #define RPC_MULTITHREADING
-#include "rpc.h"
+#include "interface/rpc.h"
 
 #ifdef _WIN32
 #include "pipe.h"
 #endif
 
-#include "usb.h"
+#include "interface/USBInterface.h"
 
 // size of ROC pixel array
 #define ROC_NUMROWS  80  // # rows

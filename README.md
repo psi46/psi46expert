@@ -7,9 +7,17 @@ To install psi46expert for the digital testboard a few libraries and programs ar
 
   - libusb-1.0 and libusb-0.1
     normally available as a package for your Linux distribution
-  - libftd2xx-1.1.x
+
+  - either libftdi (open-source) or libftd2xx (proprietary, version
+    1.1.x) the former is normally available as a package for your
+    Linux distribution (e.g. for Ubuntu, use 'sudo apt-get install
+    libftdi-dev' or compile from source code at
+    http://www.intra2net.com/en/developer/libftdi) while the latter
     can be downloaded from http://www.ftdichip.com/Drivers/D2XX.htm
-    Follow the instructions given on the website
+    (follow the installation instructions on the webpage)
+
+    Both libftdi and libftd2xx were tested with Ubuntu 12.10.
+    [Default choice: libftdi with libftd2xx as fallback]
 
   - ROOT
     download from http://root.cern.ch or try your Linux distriution's
@@ -18,6 +26,7 @@ To install psi46expert for the digital testboard a few libraries and programs ar
 
     cd $HOME/root/lib
     ln -s /usr/lib/libusb.so libusb.so
+
   - libtool, autoconf, automake
     always available as a package for your Linux distribution,
     normally installed by default
@@ -56,14 +65,10 @@ running
 Program names will then be for example psi46expertSUFFIX. Beware
 that library names will not be affected by this (see below).
 
-NOTE: Some linux versions, like RedHat Enterprise 6, 
-have an old glibc version not compatible with libftd2xx-1.1.x
+NOTE: Some linux versions ship with an old glibc version not
+compatible with libftd2xx-1.1.x; either use the open-source driver
+(libftdi) or follow the instructions in section 5.6 below.
 
-To use the software on such a linux system you can install GLIBC2.14
-manually and use the following commands for compiling
-
-    export LD_PRELOAD="/PATH/TO/GLIBC2.14/lib/libc.so.6:${LD_PRELOAD}"
-    ./configure LDFLAGS="-L/PATH/TO/GLIBC2.14/lib"
 
 5. Installing the software
 --------------------------
@@ -92,12 +97,6 @@ Then you can run
 
 5. Frequent problems
 --------------------
-  0.    If you have an old test board, you need to make sure
-        that the usb class can find it by using the method
-	usb.SetProductID(0x6001) in the code
-	(where 0x6001 corresponds to
-	the product ID of the old FT chips that the previous
-	boards were equipped with)
   1.	If ./autogen.sh does not work, you probably don't have
   	libtool installed. Or autoconf, automake. These are
   	standard packages in a Linux system. Check your Linux
@@ -181,20 +180,17 @@ Then you can run
   	and you should install such package and then recompile and
   	reinstall psi46expert.
 
-  6.	If you wish to use other devices with FTDI chips that require
-  	the bit bang mode and/or the kernel modules usbserial and
-  	ftdi_sio, then you should install libftd2xx-1.1.x.
+  6.    Some linux versions, like RedHat Enterprise 6, have an old glibc
+        version not compatible with libftd2xx-1.1.x
 
-  7. Some linux versions, like RedHat Enterprise 6, 
-     have an old glibc version not compatible with libftd2xx-1.1.x
+        To use the software on such a linux system you can either use
+        the open-source driver (libftdi) or install GLIBC2.14 manually
+        and use the following commands for compiling
 
-     To use the software on such a linux system you can install GLIBC2.14
-     manually and use the following commands for compiling
-
-     export LD_PRELOAD="/PATH/TO/GLIBC2.14/lib/libc.so.6:${LD_PRELOAD}"
-     ./configure LDFLAGS="-L/PATH/TO/GLIBC2.14/lib"
+         export LD_PRELOAD="/PATH/TO/GLIBC2.14/lib/libc.so.6:${LD_PRELOAD}"
+         ./configure LDFLAGS="-L/PATH/TO/GLIBC2.14/lib"
  
-  8.	If all things fail, you should talk to a code maintainer. Post
+  7.	If all things fail, you should talk to a code maintainer. Post
   	a message to the hypernews list 'Pixel psi46 Testboard':
 
   		hn-cms-pixel-psi46-testboard@cern.ch
