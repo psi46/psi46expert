@@ -24,6 +24,11 @@ static sem_t buf_data, buf_space;
 static unsigned char read_buffer[BUFSIZE];
 static int32_t head, tail; // read buffer is used as ring buffer
 
+// cleanup is threaded to include a timeout on the calls to the device that sometimes hang
+pthread_mutex_t cleanup_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_t usbclose_thread, usbdeinit_thread;
+volatile bool usbclose_done, usbdeinit_done;
+
 const int32_t productID_FT232H = 0x6014; // new testboard FTDI chip product id (FT232H)
 const int32_t productID_OLD = 0x6001; //  single channel devices (R Chips) used in older test boards
 const int32_t vendorID = 0x0403; // Future Technology Devices International, Ltd
@@ -58,6 +63,7 @@ static void *reader (void *arg) {
       usleep(100); // wait 0.1 ms
       pthread_testcancel();
       br = ftdi_read_data (handle, buf, sizeof(buf));
+      pthread_testcancel();
       if (br< 0){
 	std::cout << " ERROR during USB read polling: error code from libusb_bulk_transfer(): " << br << std::endl;
       }
@@ -68,6 +74,22 @@ static void *reader (void *arg) {
       }
     }
     return NULL;
+}
+
+static void *usbclose (void *arg) {
+  // on some circumstances, the ftdi_usb_close() call hangs;
+  // this is a workaround to implement a timeout
+    struct ftdi_context *handle = (struct ftdi_context *)(arg);
+    ftdi_usb_close(handle);
+    pthread_mutex_lock(&cleanup_mutex); usbclose_done = true; pthread_mutex_unlock(&cleanup_mutex);
+}
+
+static void *usbdeinit (void *arg) {
+  // on some circumstances, the ftdi_deinit() call hangs;
+  // this is a workaround to implement a timeout
+    struct ftdi_context *handle = (struct ftdi_context *)(arg);
+    ftdi_deinit(handle);
+    pthread_mutex_lock(&cleanup_mutex); usbdeinit_done = true; pthread_mutex_unlock(&cleanup_mutex);
 }
 
 uint32_t FindAllUSB(struct ftdi_device_list ** devlist){
@@ -121,9 +143,22 @@ CUSB::CUSB(){
 }
 
 CUSB::~CUSB(){ 
-    Close(); 
-    ftdi_deinit(&ftdic);
-  }
+  if (isUSB_open) Close(); 
+  pthread_mutex_lock(&cleanup_mutex); usbdeinit_done = false; pthread_mutex_unlock(&cleanup_mutex);
+  // create cleanup thread to allow timeout freeing the USB handle (might hang sometimes)
+  pthread_create (&usbdeinit_thread, NULL, usbdeinit, &ftdic);
+  bool done = false;
+  for (int time = 0; time<1000;time++){
+    usleep(1000); // wait 1ms
+    // check status and break if usbdevice is closed
+    pthread_mutex_lock(&cleanup_mutex); 
+    if (usbdeinit_done) {
+      // cout << " DEBUG: successfully free'd usb handle connection " << endl;
+      done = true;    }
+    pthread_mutex_unlock(&cleanup_mutex);
+    if (done) break;  }
+  //if (!done) cout << " WARNING: freeing the USB handle timed out! " << endl;
+}
 
 const char* CUSB::GetErrorMsg()
 {
@@ -315,16 +350,30 @@ bool CUSB::Open(char serialNumber[])
 }
 
 
-void CUSB::Close()
-{
+void CUSB::Close(){
   if( !isUSB_open) return;
   pthread_cancel(readerthread);
-  std::cout <<" DEBUG: will join thread now " << std::endl;
-  pthread_join(readerthread, NULL);
-  std::cout <<" DEBUG: thread joined now " << std::endl;
-  usleep(1000);
-  ftdi_usb_close(&ftdic);
-  std::cout <<" DEBUG:  ftdi_usb_close() done" << std::endl;
+  usleep(10000);
+  // join reader thread and clean up semaphores
+  int pth_status = pthread_join(readerthread, NULL);
+  sem_destroy (&buf_data);
+  sem_destroy (&buf_space);
+  usleep(10000);
+  // set the flag (lock mutex first)
+  pthread_mutex_lock(&cleanup_mutex); usbclose_done = false; pthread_mutex_unlock(&cleanup_mutex);
+  // create cleanup thread to allow timeout on call to device (might hang)
+  pthread_create (&usbclose_thread, NULL, usbclose, &ftdic);
+  bool done = false;
+  for (int time = 0; time<1000;time++){
+    usleep(1000); // wait 1ms
+    // check status and break if usbdevice is closed
+    pthread_mutex_lock(&cleanup_mutex);  // lock mutex
+    if (usbclose_done) {
+      //cout << " DEBUG: successfully closed usb connection " << endl;
+      done = true; }
+    pthread_mutex_unlock(&cleanup_mutex); // unlock mutex
+    if (done) break;}
+  //if (!done) cout << " WARNING: closing the USB connection timed out! " << endl;
   isUSB_open = 0;
 }
 
