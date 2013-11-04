@@ -329,13 +329,13 @@ bool CUSB::Open(char serialNumber[])
     return EXIT_FAILURE;
   }
 
-  std::cout << " resetting mode for FTDI chip " << std::endl;
+  //std::cout << " resetting mode for FTDI chip " << std::endl;
   int32_t status =  ftdi_set_bitmode(&ftdic, 0xFF, 0x40);
   if (status < 0){
     std::cout << " ERROR issuing reset: return code " << status << std::endl;
   }
   usleep(10000); // wait 10 ms
-  std::cout << " setting bit mode for FTDI chip " << std::endl;
+  //std::cout << " setting bit mode for FTDI chip " << std::endl;
   status =  ftdi_set_bitmode(&ftdic, 0xFF, 0x40);
   if (status < 0){
     std::cout << " ERROR setting bit mode: return code " << status << std::endl;
