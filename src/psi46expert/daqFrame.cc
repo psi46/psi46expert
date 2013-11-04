@@ -4,6 +4,7 @@
 #include <BasePixel/Keithley.h>
 
 #include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBDigitalInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include "psi46expert/TestControlNetwork.h"
 
@@ -432,7 +433,7 @@ void daqFrame::initializeHardware() {
     fpLM->log(Form("=========================="));
     fpLM->log(Form("==>daqf: INSTANTIATING MTB"));
     fpLM->log(Form("=========================="));
-    fTB = new TBAnalogInterface(fpLM->getMTBConfigParameters());
+    fTB = new TBDigitalInterface(fpLM->getMTBConfigParameters());
     fTB->Flush();
     fCN = new TestControlNetwork(fTB, fpLM->getMTBConfigParameters());
     fTB->Flush();
