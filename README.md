@@ -156,10 +156,13 @@ Then you can run
   	You can change these permissions permanently if you create a file
   	/etc/udev/rules.d/10-testboard.rules which contains
 
-  		SUBSYSTEM == "usb", ATTR{product} == "DLP-USB245M", GROUP="usb", MODE="0664"
+	        SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6014", ATTR{manufacturer}=="PSI", GROUP="plugdev", MODE="0664"
 
-  	and create a group "usb" and add yourself to that group. Newly
-  	plugged devices will have the correct permissions. For the
+  	and make sure your user belongs to the group "plugdev":
+
+	        groups youruser
+
+	Newly plugged devices will have the correct permissions. For the
   	libftd2xx-0.4.x library version it may be that you need the
   	usbfs. You can get this by putting the following line into your
   	/etc/fstab file:
