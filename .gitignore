@@ -9,19 +9,21 @@ src/psi46expert/.deps
 src/psi46expert/.libs
 
 # Autogen files to be ignored:
-Makefile.in
-data/*/Makefile.in
-data/Makefile.in
-src/Makefile.in
-src/*/Makefile.in
+Makefile*
+data/*/Makefile*
+data/Makefile*
+src/Makefile*
+src/*/Makefile*
 src/config.h.in
+src/stamp-h1
 aclocal.m4
 autom4te.cache
-config.guess
-config.sub
+config.*
 configure
 configure.ac
 depcomp
 install-sh
 ltmain.sh
 missing
+src/*/.deps/
+libtool
