@@ -33,3 +33,11 @@ install-sh
 ltmain.sh
 missing
 libtool
+bin/
+
+# ignore emacs autosaves
+\#*#
+
+# ignore eclipse project files
+.project
+.cproject
