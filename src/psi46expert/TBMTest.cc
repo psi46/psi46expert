@@ -32,7 +32,7 @@ void TBMTest::ModuleAction()
     result[0] = 0;
     result[1] = 0;
 
-    if (!tbInterface->TBMIsPresent()) return;
+    if (!tbInterface->TBMPresent()) return;
     if (configParameters->halfModule == 0) DualModeTest();
     ReadoutTest();
 
