@@ -3,7 +3,7 @@
 #include <iomanip>
 
 #include "BasePixel/TBAnalogInterface.h"
-#include "BasePixel/TBAnalogParameters.h"
+#include "BasePixel/TBParameters.h"
 #include "BasePixel/GlobalConstants.h"
 #include "BasePixel/RawPacketDecoder.h"
 #include "BasePixel/DigitalReadoutDecoder.h"
@@ -206,7 +206,7 @@ void TBAnalogInterface::ClearUSB() // reset USB buffer
 void TBAnalogInterface::Initialize(ConfigParameters * configParameters)
 {
 
-    tbParameters = (TBParameters *)new TBAnalogParameters(this);
+    tbParameters = (TBParameters *)new TBParameters(this);
 
     signalCounter = 0;
     readPosition = 0;

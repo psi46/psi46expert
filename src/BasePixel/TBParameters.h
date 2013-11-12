@@ -19,10 +19,10 @@ public:
 
     bool Execute(SysCommand command);
     void Restore();
-    virtual TBParameters * Copy() = 0;
+    virtual TBParameters * Copy();
 
     // == accessing =============================================================
-    virtual void SetParameter(int reg, int value) = 0;
+    virtual void SetParameter(int reg, int value);
     void SetParameter(const char * tbName, int value);
     int GetParameter(const char * dacName);
 

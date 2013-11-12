@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "BasePixel/TBParameters.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBDigitalInterface.h"
 #include "interface/Log.h"
 
 TBParameters::TBParameters(TBInterface * aTBInterface)
@@ -17,6 +17,51 @@ TBParameters::TBParameters(TBInterface * aTBInterface)
         parameters[i] = -1;
         names[i] = "";
     }
+
+    names[8] = "clk";
+    names[9] = "sda";
+    names[10] = "ctr";
+    names[11] = "tin";
+    names[12] = "rda";
+
+    names[17] = "trc";
+    names[18] = "tcc";
+    names[19] = "tct";
+    names[20] = "ttk";
+    names[21] = "trep";
+    names[22] = "cc";
+
+    names[77] = "spd"; // dummy register for clock frequency
+
+}
+
+TBParameters * TBParameters::Copy()
+{
+    TBParameters * newParameters;
+    newParameters = new TBParameters(tbInterface);
+    for (int i = 0; i < NTBParameters; i++)
+    {
+        newParameters->_SetParameter(i, parameters[i]);
+    }
+    return newParameters;
+}
+
+
+// -- sets a parameter
+void TBParameters::SetParameter(int reg, int value)
+{
+    parameters[reg] = value;
+    TBDigitalInterface * digInterface = (TBDigitalInterface *)tbInterface;
+    if (reg == 77) digInterface->SetClock(value);
+    else if (reg > 15)
+    {
+        tbInterface->Set(reg, value);
+    }
+    else
+    {
+        ((TBDigitalInterface *)tbInterface)->SetDelay(reg, value);
+    }
+    //  gLog->printf("set tb parameter %i to %i\n", reg, value);
 }
 
 
@@ -52,6 +97,7 @@ void TBParameters::Restore() {
 // -- sets a testboard parameter
 void TBParameters::SetParameter(const char * dacName, int value)
 {
+  cout << "TBPar::SetPar" << endl;
     for (int i = 0; i < NTBParameters; i++) {
         if (strcmp(names[i], dacName) == 0) {
             SetParameter(i, value);

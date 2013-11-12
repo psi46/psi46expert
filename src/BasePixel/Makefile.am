@@ -20,7 +20,6 @@ libpsi46BasePixel_la_SOURCES = CalibrationTable.cc \
 			       SysCommand.cc \
 			       TBAnalogInterface.cc \
 			       TBDigitalInterface.cc \
-			       TBAnalogParameters.cc \
 			       TBInterface.cc \
 			       TBM.cc \
 			       TBMParameters.cc \
@@ -54,7 +53,6 @@ noinst_HEADERS = CalibrationTable.h \
 		 SysCommand.h \
 		 TBAnalogInterface.h \
 		 TBDigitalInterface.h \
-		 TBAnalogParameters.h \
 		 TBInterface.h \
 		 TBM.h \
 		 TBMParameters.h \

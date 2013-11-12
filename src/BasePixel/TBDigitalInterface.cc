@@ -4,7 +4,7 @@
 
 #include "BasePixel/TBDigitalInterface.h"
 #include "BasePixel/settings.h"
-#include "BasePixel/TBAnalogParameters.h"
+#include "BasePixel/TBParameters.h"
 #include "BasePixel/GlobalConstants.h"
 #include "BasePixel/RawPacketDecoder.h"
 #include "BasePixel/DigitalReadoutDecoder.h"
@@ -208,8 +208,9 @@ void TBDigitalInterface::Initialize(ConfigParameters * configParameters)
 {
     string usbId;
     CSettings settings;
-    settings.read("psi46test.ini");
-    
+ 
+    tbParameters = (TBParameters *)new TBParameters(this);
+   
     cTestboard = new CTestboard();
     usbId = configParameters->testboardName;
     if (usbId == "*") cTestboard->FindDTB(usbId);
@@ -275,6 +276,8 @@ void TBDigitalInterface::Initialize(ConfigParameters * configParameters)
     cTestboard->ResetOff();
     cTestboard->Flush();
     cTestboard->Init_Reset();
+
+    ReadTBParameterFile(configParameters->GetTbParametersFileName());    //only after power on
 
 }
 
@@ -510,7 +513,7 @@ bool TBDigitalInterface::DataRead(short buffer[], unsigned short buffersize, uns
 
 void TBDigitalInterface::SetDelay(int signal, int ns)
 {
-    cTestboard->SetDelay(signal, ns);
+    cTestboard->Sig_SetDelay(signal, ns);
     Flush();
 }
 
