@@ -5,7 +5,7 @@
 #include "PhNoise.h"
 #include "TestRoc.h"
 #include "TestModule.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 
 bool PhNoise::debug = true;
 
@@ -21,11 +21,11 @@ PhNoise::PhNoise(TestRange * aTestRange, TestParameters * testParameters, TBInte
 void PhNoise::ModuleAction()
 {
     int offset;
-    if (((TBAnalogInterface *)tbInterface)->TBMPresent()) offset = 3; else offset = 2; //either tbm black or roc black
+    if (tbInterface->TBMPresent()) offset = 3; else offset = 2; //either tbm black or roc black
     TH1D * black = new TH1D("black", "black", 4000, -2000., 2000.);
     for (int i = 0; i < nReadouts; i++)
     {
-        ((TBAnalogInterface *)tbInterface)->ADCRead(data, count, 1);
+        tbInterface->ADCRead(data, count, 1);
         if (count > offset) black->Fill(data[offset]);
     }
 
@@ -38,7 +38,7 @@ void PhNoise::ModuleAction()
 void PhNoise::RocAction()
 {
     int data[ROCNUMROWS * ROCNUMCOLS], offset;
-    if (((TBAnalogInterface *)tbInterface)->TBMPresent()) offset = 16; else offset = 9;
+    if (tbInterface->TBMPresent()) offset = 16; else offset = 9;
     int phPosition = offset + aoutChipPosition * 3;
 
     TH2D * phMean = GetMap("phMean");

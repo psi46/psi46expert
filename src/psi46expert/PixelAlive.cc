@@ -3,7 +3,7 @@
 #include "PixelAlive.h"
 #include "TestRoc.h"
 #include "BasePixel/GlobalConstants.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 
 PixelAlive::PixelAlive(TestRange * aTestRange, TestParameters * testParameters, TBInterface * aTBInterface)
 {

@@ -1,7 +1,7 @@
 #include "DacOverview.h"
 #include "TestRoc.h"
 #include "TestModule.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/GlobalConstants.h"
 #include "TCanvas.h"
 #include "PhDacScan.h"
@@ -40,7 +40,7 @@ void DacOverview::DoDacScan()
     cout << " ************************* DAC SCAN **************************" << endl;
 
     int offset;
-    if (((TBAnalogInterface *)tbInterface)->TBMPresent()) offset = 16;
+    if (tbInterface->TBMPresent()) offset = 16;
     else offset = 9;
 
     cout << "chipId = " << chipId << ", col = " << column << ", row = " << row << endl;
@@ -66,7 +66,7 @@ void DacOverview::DoDacScan()
         Type = "TBM";
     }
 
-    ((TBAnalogInterface *)tbInterface)->DataTriggerLevel(-100);   // xxx
+    tbInterface->DataTriggerLevel(-100);   // xxx
     Flush();
 
     for (int DacRegister = Min; DacRegister < Max; DacRegister++) // loop over all possible Dacs of a DacType
@@ -118,19 +118,19 @@ void DacOverview::DoDacScan()
         }
 
         // set level so that Tbm Lev0 corresponds to lowest level
-        ((TBAnalogInterface *)tbInterface)->ADCRead(data, count, 1);
+        tbInterface->ADCRead(data, count, 1);
         int lev1 = data[7];
-        ((TBAnalogInterface *)tbInterface)->ADCRead(data, count, 1);
+        tbInterface->ADCRead(data, count, 1);
         int lev2 = data[7];
         while (lev2 > lev1)
         {
             lev1 = lev2;
-            ((TBAnalogInterface *)tbInterface)->ADCRead(data, count, 1);
+            tbInterface->ADCRead(data, count, 1);
             lev2 = data[7];
         }
         for (int i = 0; i < 3; i++)
         {
-            ((TBAnalogInterface *)tbInterface)->ADCRead(data, count, 1);
+            tbInterface->ADCRead(data, count, 1);
         }
 
         // loop over values for a Dac
@@ -149,7 +149,7 @@ void DacOverview::DoDacScan()
             {
                 for (int i = 0; i < 4; i++) // loop over levels
                 {
-                    ((TBAnalogInterface *)tbInterface)->ADCRead(data, count, 1);
+                    tbInterface->ADCRead(data, count, 1);
                     if (count != 70) printf("Warning! count = %i \n", count);
                     sum[i] = sum[i] + data[position];
                 }
@@ -166,7 +166,7 @@ void DacOverview::DoDacScan()
 
             // Test TBM UB, ROC LEV, ROC UB
 
-            ((TBAnalogInterface *)tbInterface)->ADCRead(data, count, 12);
+            tbInterface->ADCRead(data, count, 12);
             if (count != 70) printf("Warning! count = %i \n", count);
 
             position = 1;

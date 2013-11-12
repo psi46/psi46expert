@@ -3,7 +3,7 @@
 #include "Trim.h"
 #include "TestRoc.h"
 #include "BasePixel/GlobalConstants.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "Analysis.h"
 #include "ThresholdMap.h"
 

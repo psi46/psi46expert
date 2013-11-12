@@ -2,7 +2,7 @@
 #define __HR_SCURVE_H__
 
 #include "Test.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "TestParameters.h"
 #include "TestRange.h"
 

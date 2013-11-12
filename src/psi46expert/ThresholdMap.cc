@@ -1,7 +1,7 @@
 #include "ThresholdMap.h"
 #include "TestRoc.h"
 #include "BasePixel/GlobalConstants.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 
 
 ThresholdMap::ThresholdMap()
