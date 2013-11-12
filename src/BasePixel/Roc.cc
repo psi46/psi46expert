@@ -3,7 +3,7 @@
 #include <string>
 
 #include "BasePixel/Roc.h"
-#include "TBAnalogInterface.h"
+#include "TBInterface.h"
 #include "interface/Log.h"
 
 Roc::Roc(TBInterface * const aTBInterface, const int aChipId, const int aHubId, const int aPortId, const int anAoutChipPosition) :
@@ -324,34 +324,34 @@ bool Roc::WriteDACParameterFile(const char * filename)
 void Roc::ClrCal()
 {
     SetChip();
-    GetTBAnalogInterface()->RocClrCal();
+    GetTBInterface()->RocClrCal();
     tbInterface->CDelay(50);
 }
 
 
 void Roc::SendCal(int nTrig)
 {
-    GetTBAnalogInterface()->SendCal(nTrig);
+    GetTBInterface()->SendCal(nTrig);
 }
 
 
 void Roc::SingleCal()
 {
-    GetTBAnalogInterface()->SingleCal();
+    GetTBInterface()->SingleCal();
 }
 
 
 // -- Sends a calibrate signal to the chip, but does not read back the result immediately
 void Roc::SendRoCnt()
 {
-    ((TBAnalogInterface *)tbInterface)->SendRoCnt();
+    ((TBInterface *)tbInterface)->SendRoCnt();
 }
 
 
 // -- Reads back the result of an earlier sent calibrate signal
 int Roc::RecvRoCnt()
 {
-    return ((TBAnalogInterface *)tbInterface)->RecvRoCnt();
+    return ((TBInterface *)tbInterface)->RecvRoCnt();
 }
 
 
@@ -442,20 +442,20 @@ void Roc::Cals(int col, int row)
 // -- sends n calibrate signals and gives back the resulting ADC readout
 bool Roc::ADCData(short buffer[], unsigned short &wordsread)
 {
-    return GetTBAnalogInterface()->ADCData(buffer, wordsread);
+    return GetTBInterface()->ADCData(buffer, wordsread);
 }
 
 
 // -- sends n calibrate signals and gives back the resulting ADC readout
 void Roc::SendADCTrigs(int nTrig)
 {
-    GetTBAnalogInterface()->SendADCTrigs(nTrig);
+    GetTBInterface()->SendADCTrigs(nTrig);
 }
 
 
 bool Roc::GetADC(short buffer[], unsigned short buffersize, unsigned short &wordsread, int nTrig, int startBuffer[], int &nReadouts)
 {
-    return GetTBAnalogInterface()->GetADC(buffer, buffersize, wordsread, nTrig, startBuffer, nReadouts);
+    return GetTBInterface()->GetADC(buffer, buffersize, wordsread, nTrig, startBuffer, nReadouts);
 }
 
 
@@ -464,14 +464,14 @@ bool Roc::GetADC(short buffer[], unsigned short buffersize, unsigned short &word
 
 void Roc::SetChip()
 {
-    GetTBAnalogInterface()->SetChip(chipId, hubId, portId, aoutChipPosition);
+    GetTBInterface()->SetChip(chipId, hubId, portId, aoutChipPosition);
 }
 
 
 void Roc::PixTrim(int col, int row, int value)
 {
     SetChip();
-    GetTBAnalogInterface()->RocPixTrim(col, row, value);
+    GetTBInterface()->RocPixTrim(col, row, value);
     tbInterface->CDelay(50);
 }
 
@@ -479,7 +479,7 @@ void Roc::PixTrim(int col, int row, int value)
 void Roc::PixMask(int col, int row)
 {
     SetChip();
-    GetTBAnalogInterface()->RocPixMask(col, row);
+    GetTBInterface()->RocPixMask(col, row);
     tbInterface->CDelay(50);
 }
 
@@ -487,7 +487,7 @@ void Roc::PixMask(int col, int row)
 void Roc::PixCal(int col, int row, int sensorcal)
 {
     SetChip();
-    GetTBAnalogInterface()->RocPixCal(col, row, sensorcal);
+    GetTBInterface()->RocPixCal(col, row, sensorcal);
     tbInterface->CDelay(50);
 }
 
@@ -495,7 +495,7 @@ void Roc::PixCal(int col, int row, int sensorcal)
 void Roc::ColEnable(int col, int on)
 {
     SetChip();
-    GetTBAnalogInterface()->RocColEnable(col, on);
+    GetTBInterface()->RocColEnable(col, on);
     tbInterface->CDelay(50);
 }
 
@@ -503,7 +503,7 @@ void Roc::ColEnable(int col, int on)
 void Roc::RocSetDAC(int reg, int value)
 {
     SetChip();
-    GetTBAnalogInterface()->RocSetDAC(reg, value);
+    GetTBInterface()->RocSetDAC(reg, value);
 }
 
 
@@ -511,7 +511,7 @@ void Roc::DoubleColumnADCData(int doubleColumn, short data[], int readoutStop[])
 {
     SetChip();
     Flush();
-    GetTBAnalogInterface()->DoubleColumnADCData(doubleColumn, data, readoutStop);
+    GetTBInterface()->DoubleColumnADCData(doubleColumn, data, readoutStop);
 }
 
 
@@ -521,7 +521,7 @@ int Roc::ChipThreshold(int start, int step, int thrLevel, int nTrig, int dacReg,
     Flush();
     int trim[ROCNUMROWS * ROCNUMCOLS];
     GetTrimValues(trim);
-    return GetTBAnalogInterface()->ChipThreshold(start, step, thrLevel, nTrig, dacReg, xtalk, cals, trim, data);
+    return GetTBInterface()->ChipThreshold(start, step, thrLevel, nTrig, dacReg, xtalk, cals, trim, data);
 }
 
 
@@ -530,7 +530,7 @@ int Roc::PixelThreshold(int col, int row, int start, int step, int thrLevel, int
 {
     SetChip();
     Flush();
-    return GetTBAnalogInterface()->PixelThreshold(col, row, start, step, thrLevel, nTrig, dacReg, xtalk, cals, trim);
+    return GetTBInterface()->PixelThreshold(col, row, start, step, thrLevel, nTrig, dacReg, xtalk, cals, trim);
 }
 
 
@@ -538,7 +538,7 @@ int Roc::MaskTest(short nTriggers, short res[])
 {
     SetChip();
     Flush();
-    return GetTBAnalogInterface()->MaskTest(nTriggers, res);
+    return GetTBInterface()->MaskTest(nTriggers, res);
 }
 
 
@@ -548,7 +548,7 @@ int Roc::ChipEfficiency(int nTriggers, double res[])
     Flush();
     int trim[ROCNUMROWS * ROCNUMCOLS];
     GetTrimValues(trim);
-    return GetTBAnalogInterface()->ChipEfficiency(nTriggers, trim, res);
+    return GetTBInterface()->ChipEfficiency(nTriggers, trim, res);
 }
 
 
@@ -558,7 +558,7 @@ int Roc::AoutLevelChip(int position, int nTriggers, int res[])
     Flush();
     int trim[ROCNUMROWS * ROCNUMCOLS];
     GetTrimValues(trim);
-    return GetTBAnalogInterface()->AoutLevelChip(position, nTriggers, trim, res);
+    return GetTBInterface()->AoutLevelChip(position, nTriggers, trim, res);
 }
 
 
@@ -566,7 +566,7 @@ int Roc::AoutLevelPartOfChip(int position, int nTriggers, int res[], bool pxlFla
 {
     int trim[ROCNUMROWS * ROCNUMCOLS];
     GetTrimValues(trim);
-    return GetTBAnalogInterface()->AoutLevelPartOfChip(position, nTriggers, trim, res, pxlFlags);
+    return GetTBInterface()->AoutLevelPartOfChip(position, nTriggers, trim, res, pxlFlags);
 }
 
 
@@ -575,7 +575,7 @@ void Roc::DacDac(int dac1, int dacRange1, int dac2, int dacRange2, int nTrig, in
 {
     SetChip();
     Flush();
-    GetTBAnalogInterface()->DacDac(dac1, dacRange1, dac2, dacRange2, nTrig, result);
+    GetTBInterface()->DacDac(dac1, dacRange1, dac2, dacRange2, nTrig, result);
 }
 
 
@@ -584,15 +584,15 @@ void Roc::AddressLevelsTest(int result[])
     SetChip();
     Flush();
     int position = aoutChipPosition * 3;
-    if (tbInterface->TBMIsPresent()) position += 8;
-    GetTBAnalogInterface()->AddressLevels(position, result);
+    if (tbInterface->TBMPresent()) position += 8;
+    GetTBInterface()->AddressLevels(position, result);
 }
 
 void Roc::TrimAboveNoise(short nTrigs, short thr, short mode, short result[])
 {
     SetChip();
     Flush();
-    GetTBAnalogInterface()->TrimAboveNoise(nTrigs, thr, mode, result);
+    GetTBInterface()->TrimAboveNoise(nTrigs, thr, mode, result);
 }
 
 
