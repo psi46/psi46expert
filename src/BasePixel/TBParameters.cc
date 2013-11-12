@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "BasePixel/TBParameters.h"
-#include "BasePixel/TBDigitalInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "interface/Log.h"
 
 TBParameters::TBParameters(TBInterface * aTBInterface)
@@ -51,15 +51,14 @@ TBParameters * TBParameters::Copy()
 void TBParameters::SetParameter(int reg, int value)
 {
     parameters[reg] = value;
-    TBDigitalInterface * digInterface = (TBDigitalInterface *)tbInterface;
-    if (reg == 77) digInterface->SetClock(value);
+    if (reg == 77) tbInterface->SetClock(value);
     else if (reg > 15)
     {
         tbInterface->Set(reg, value);
     }
     else
     {
-        ((TBDigitalInterface *)tbInterface)->SetDelay(reg, value);
+        tbInterface->SetDelay(reg, value);
     }
     //  gLog->printf("set tb parameter %i to %i\n", reg, value);
 }
