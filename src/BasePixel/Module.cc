@@ -1,6 +1,6 @@
 #include "interface/Log.h"
 #include "BasePixel/Module.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 
 Module::Module(ConfigParameters * aConfigParameters, int aCNId, TBInterface * aTBInterface)
 {
@@ -166,7 +166,6 @@ void Module::ReadTrimConfiguration(char * filename)
 
 int Module::GetTemperature()
 {
-    TBAnalogInterface * anaInterface = (TBAnalogInterface *)tbInterface;
     const int nTriggers = 10;
 
     int temp[nRocs][8], calib[nRocs][8];
@@ -180,12 +179,12 @@ int Module::GetTemperature()
         /*    // Get range of last DAC
 
             GetRoc(iRoc)->SetDAC("Vcal", 0);
-            anaInterface->Flush();
-            min[iRoc] = anaInterface->LastDAC(nTriggers, iRoc);
+            tbInterface->Flush();
+            min[iRoc] = tbInterface->LastDAC(nTriggers, iRoc);
             Log::Current()->printf("min %i\n", min[iRoc]);
             GetRoc(iRoc)->SetDAC("Vcal", 255);
-            anaInterface->Flush();
-            max[iRoc] = anaInterface->LastDAC(nTriggers, iRoc);
+            tbInterface->Flush();
+            max[iRoc] = tbInterface->LastDAC(nTriggers, iRoc);
             Log::Current()->printf("max %i\n", max[iRoc]);*/
 
         // Calibrate
@@ -193,8 +192,8 @@ int Module::GetTemperature()
         for (int rangeTemp = 0; rangeTemp < 8; rangeTemp++)
         {
             GetRoc(iRoc)->SetDAC("RangeTemp", rangeTemp + 8);
-            anaInterface->Flush();
-            calib[iRoc][rangeTemp] = anaInterface->LastDAC(nTriggers, iRoc);
+            tbInterface->Flush();
+            calib[iRoc][rangeTemp] = tbInterface->LastDAC(nTriggers, iRoc);
             psi::LogDebug() << "[Module] Calib: " << calib[iRoc][rangeTemp] << psi::endl;
         }
 
@@ -203,8 +202,8 @@ int Module::GetTemperature()
         for (int rangeTemp = 0; rangeTemp < 8; rangeTemp++)
         {
             GetRoc(iRoc)->SetDAC("RangeTemp", rangeTemp);
-            anaInterface->Flush();
-            temp[iRoc][rangeTemp] = anaInterface->LastDAC(nTriggers, iRoc);
+            tbInterface->Flush();
+            temp[iRoc][rangeTemp] = tbInterface->LastDAC(nTriggers, iRoc);
             psi::LogDebug() << "[Module] Temp: " << temp[iRoc][rangeTemp] << psi::endl;
         }
     }
@@ -214,16 +213,15 @@ int Module::GetTemperature()
 
 void Module::AdjustDTL()
 {
-    TBAnalogInterface * anaInterface = (TBAnalogInterface *)tbInterface;
-    int dtl = 0, emptyReadoutLength = anaInterface->GetEmptyReadoutLengthADC();
+    int dtl = 0, emptyReadoutLength = tbInterface->GetEmptyReadoutLengthADC();
     short data[10000];
     unsigned short count;
 
     do
     {
         dtl -= 50;
-        anaInterface->DataTriggerLevel(dtl);
-        anaInterface->ADCData(data, count);
+        tbInterface->DataTriggerLevel(dtl);
+        tbInterface->ADCData(data, count);
     }
     while ((count != emptyReadoutLength) && (dtl > -2000));
 
@@ -231,20 +229,20 @@ void Module::AdjustDTL()
     {
         // try with second tbm
         TBM * tbm = GetTBM();
-        int channel = anaInterface->GetTBMChannel();
+        int channel = tbInterface->GetTBMChannel();
         dtl = 0;
 
         psi::LogInfo() << "[Module] Problem: Can not find data trigger level. "
                        << "Try different channel." << psi::endl;
 
         SetTBMSingle((channel + 1) % 2);
-        anaInterface->SetTBMChannel((channel + 1) % 2);
+        tbInterface->SetTBMChannel((channel + 1) % 2);
 
         do
         {
             dtl -= 50;
-            anaInterface->DataTriggerLevel(dtl);
-            anaInterface->ADCData(data, count);
+            tbInterface->DataTriggerLevel(dtl);
+            tbInterface->ADCData(data, count);
         }
         while ((count != emptyReadoutLength) && (dtl > -2000));
 
@@ -261,7 +259,7 @@ void Module::AdjustDTL()
 
     dtl = (data[0] + data[1] + data[2]) / 3 + 100;
 
-    anaInterface->DataTriggerLevel(dtl);
+    tbInterface->DataTriggerLevel(dtl);
     if (dtl < -1200)
         psi::LogInfo() << "[Module] Warning: Very low data trigger level: "
                        << dtl << ". Check AOUT channels." << psi::endl;

@@ -18,8 +18,6 @@ libpsi46BasePixel_la_SOURCES = CalibrationTable.cc \
 			       RawPacketDecoder.cc \
 			       Roc.cc \
 			       SysCommand.cc \
-			       TBAnalogInterface.cc \
-			       TBDigitalInterface.cc \
 			       TBInterface.cc \
 			       TBM.cc \
 			       TBMParameters.cc \
@@ -51,8 +49,6 @@ noinst_HEADERS = CalibrationTable.h \
 		 RawPacketDecoder.h \
 		 Roc.h \
 		 SysCommand.h \
-		 TBAnalogInterface.h \
-		 TBDigitalInterface.h \
 		 TBInterface.h \
 		 TBM.h \
 		 TBMParameters.h \

@@ -11,7 +11,7 @@
 #include "TestRoc.h"
 #include "TestDoubleColumn.h"
 #include "interface/Delay.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/CalibrationTable.h"
 #include "PHCalibration.h"
 #include "Analysis.h"
@@ -157,7 +157,7 @@ void TestRoc::DoIV(Test * aTest)
 int TestRoc::CountReadouts(int count)
 {
     //aoutChipPosition is only relevant for setup with TBM, otherwise count gives sum of all readouts
-    return GetTBAnalogInterface()->CountReadouts(count, aoutChipPosition);
+    return GetTBInterface()->CountReadouts(count, aoutChipPosition);
 }
 
 
@@ -219,7 +219,7 @@ void TestRoc::ADCSamplingTest()
         tbInterface->SetTBParameter("ctr", 15 + delay);
         tbInterface->SetTBParameter("tin", 10 + delay);
         tbInterface->Flush();
-        GetTBAnalogInterface()->ADC();
+        GetTBInterface()->ADC();
     }
 }
 
@@ -230,9 +230,9 @@ void TestRoc::ADCSamplingTest()
 //  {
 //    Log::Current()->printf("dtl: %i ------------------------------------- \n", delay);
 
-//      ((TBAnalogInterface*)tbInterface)->DataTriggerLevel(-delay);
+//      (tbInterface->DataTriggerLevel(-delay);
 //    tbInterface->Flush();
-//    GetTBAnalogInterface()->ADC();
+//    GetTBInterface()->ADC();
 //  }
 // }
 
@@ -270,7 +270,7 @@ void TestRoc::PhError()
         TH1D * phHist = new TH1D(Form("phHistVcal%d", vcal[Tvcal]), Form("phHistVcal%d", vcal[Tvcal]), 4000, -2000., 2000.);
         for (int i = 0; i < nReadouts; i++)
         {
-            ((TBAnalogInterface *)tbInterface)->ADCRead(data, count, 1);
+            tbInterface->ADCRead(data, count, 1);
             if (count > offset) phHist->Fill(data[offset]);
         }
 
@@ -298,12 +298,12 @@ void TestRoc::Test1()
     //     }
     //     Flush();
 
-    //         GetTBAnalogInterface()->SetTriggerMode(TRIGGER_MODULE2);
+    //         GetTBInterface()->SetTriggerMode(TRIGGER_MODULE2);
     //         SendADCTrigs(1);
     //
     //         for (int i = 0; i < 17; i++)
     //         {
-    //           int n = GetTBAnalogInterface()->GetModRoCnt(i);
+    //           int n = GetTBInterface()->GetModRoCnt(i);
     //           printf("%i n %i\n", i, n);
     //         }
 
@@ -311,13 +311,13 @@ void TestRoc::Test1()
     //         ArmPixel(7,7);
     //         Flush();
 
-    //         GetTBAnalogInterface()->SetTriggerMode(TRIGGER_MODULE2);
+    //         GetTBInterface()->SetTriggerMode(TRIGGER_MODULE2);
 
     // ------------------------------------------------------------------------
     //         int n;
     //         for (int i = 0; i < 16; i++)
     //         {
-    //           n = GetTBAnalogInterface()->CountReadouts(1, i);
+    //           n = GetTBInterface()->CountReadouts(1, i);
     //           printf("%i %i\n", i, n);
     //         }
 
@@ -339,7 +339,7 @@ void TestRoc::Test1()
     //    {
     //      if (k == nReadouts - 1) length = count - readoutStart[k];
     //      else length = readoutStart[k+1] - readoutStart[k];
-    //      if (length > GetTBAnalogInterface()->GetEmptyReadoutLengthADC()) noise++;
+    //      if (length > GetTBInterface()->GetEmptyReadoutLengthADC()) noise++;
     //    }
     //    cout << "x" << flush;
     //         }
@@ -349,7 +349,7 @@ void TestRoc::Test1()
     // ------------------------------------------------------------------------
 
     int offset;
-    if (((TBAnalogInterface *)tbInterface)->TBMPresent()) offset = 16;
+    if (tbInterface->TBMPresent()) offset = 16;
     else offset = 9;
     int nTrig = 10;
 
@@ -371,7 +371,7 @@ void TestRoc::Test1()
                 SetDAC("Vsf", vsf);
                 Flush();
                 short result[256];
-                ((TBAnalogInterface *)tbInterface)->PHDac(25, 256, nTrig, offset + aoutChipPosition * 3, result);
+                tbInterface->PHDac(25, 256, nTrig, offset + aoutChipPosition * 3, result);
                 TH1D * histo = new TH1D(Form("Vsf%d_Col%d_Row%d", vsf, col, row), Form("Vsf%d_Col%d_Row%d", vsf, col, row), 256, 0., 256.);
                 for (int dac = 0; dac < 256; dac++)
                 {
@@ -417,7 +417,7 @@ void TestRoc::Rainbow2()
     int nTrig = 5, nAlive;
 
     //        SetTrim(0.);
-    ((TBAnalogInterface *)tbInterface)->SetEnableAll(1);
+    tbInterface->SetEnableAll(1);
     Flush();
 
     for (int i = 120; i < 121; i += 5)
@@ -492,7 +492,7 @@ int TestRoc::AdjustVana(double current0, double goalcurrent)
     SetDAC("Vana", vana);
     Flush();
     gDelay->Mdelay(1000);
-    currentMeasured = GetTBAnalogInterface()->GetIA();
+    currentMeasured = GetTBInterface()->GetIA();
     psi::LogDebug << "Vana " << vana << " current: " << currentMeasured - current0 << psi::endl;
 
     //guess value, slope is roughly 0.5 mA / DAC
@@ -505,7 +505,7 @@ int TestRoc::AdjustVana(double current0, double goalcurrent)
     SetDAC("Vana", vana);
     Flush();
     gDelay->Mdelay(1000);
-    currentMeasured = GetTBAnalogInterface()->GetIA();
+    currentMeasured = GetTBInterface()->GetIA();
     psi::LogDebug << "Vana " << vana << " current: " << currentMeasured - current0 << psi::endl;
 
     if (currentMeasured < current0 + goalcurrent)
@@ -516,7 +516,7 @@ int TestRoc::AdjustVana(double current0, double goalcurrent)
             SetDAC("Vana", vana);
             Flush();
             currentMeasuredOld = currentMeasured;
-            currentMeasured = GetTBAnalogInterface()->GetIA();
+            currentMeasured = GetTBInterface()->GetIA();
             psi::LogDebug << "Vana " << vana << " current: " << currentMeasured - current0 << psi::endl;
         }
         while (currentMeasured < current0 + goalcurrent  && vana < 255);
@@ -534,7 +534,7 @@ int TestRoc::AdjustVana(double current0, double goalcurrent)
             SetDAC("Vana", vana);
             Flush();
             currentMeasuredOld = currentMeasured;
-            currentMeasured = GetTBAnalogInterface()->GetIA();
+            currentMeasured = GetTBInterface()->GetIA();
             psi::LogDebug << "Vana " << vana << " current: " << currentMeasured - current0 << psi::endl;
         }
         while (currentMeasured > current0 + goalcurrent  && vana > 0);
@@ -760,7 +760,6 @@ int TestRoc::AdjustCalDel(int col, int row, int mode)
 
 int TestRoc::GetOptimalCalDel(int col, int row, int mode)
 {
-    TBAnalogInterface * ai = GetTBAnalogInterface();
     int ntrig, dac, xtalk, cals, trim, start, step_size, thr_level;
     int low, high;
 
@@ -774,10 +773,10 @@ int TestRoc::GetOptimalCalDel(int col, int row, int mode)
     start = 0;
     step_size = 1;
     ArmPixel(col, row);
-    low = ai->PixelThreshold(col, row, start, step_size, thr_level, ntrig, dac, xtalk, cals, trim);
+    low = tbInterface->PixelThreshold(col, row, start, step_size, thr_level, ntrig, dac, xtalk, cals, trim);
     start = 255;
     step_size = -1;
-    high = ai->PixelThreshold(col, row, start, step_size, thr_level, ntrig, dac, xtalk, cals, trim);
+    high = tbInterface->PixelThreshold(col, row, start, step_size, thr_level, ntrig, dac, xtalk, cals, trim);
     ClrCal();
     PixMask(col, row);
 
@@ -1097,7 +1096,7 @@ void TestRoc::AdjustUltraBlackLevel(int ubLevel)
 
     SetDAC("Ibias_DAC", vibias);
     Flush();
-    GetTBAnalogInterface()->ADCData(data, count);
+    GetTBInterface()->ADCData(data, count);
 
     int levelMeasured = data[ubPosition], levelMeasuredOld;
     //  cout << "Ibias = " << vibias << " (start value) : measured UB level = " << levelMeasured << "; target = " << ubLevel << endl;
@@ -1108,7 +1107,7 @@ void TestRoc::AdjustUltraBlackLevel(int ubLevel)
             vibias++;
             SetDAC("Ibias_DAC", vibias);
             Flush();
-            GetTBAnalogInterface()->ADCData(data, count);
+            GetTBInterface()->ADCData(data, count);
             levelMeasuredOld = levelMeasured;
             levelMeasured = data[ubPosition];
             //      Log::Current()->printf("Ibias_DAC %i level: %i\n", vibias, levelMeasured);
@@ -1128,7 +1127,7 @@ void TestRoc::AdjustUltraBlackLevel(int ubLevel)
             vibias--;
             SetDAC("Ibias_DAC", vibias);
             Flush();
-            GetTBAnalogInterface()->ADCData(data, count);
+            GetTBInterface()->ADCData(data, count);
             levelMeasuredOld = levelMeasured;
             levelMeasured = data[ubPosition];
             //        Log::Current()->printf("Ibias_DAC %i level: %i\n", vibias, levelMeasured);
@@ -1274,7 +1273,7 @@ double TestRoc::GetTemperature()
     unsigned short count;
     short data[10000], blackLevel;
 
-    GetTBAnalogInterface()->ADCRead(data, count, nTriggers);
+    GetTBInterface()->ADCRead(data, count, nTriggers);
     blackLevel = data[9 + aoutChipPosition * 3];
     if (debug)
         psi::LogDebug() << "[TestRoc] blackLevel " << blackLevel << psi::endl;
@@ -1285,7 +1284,7 @@ double TestRoc::GetTemperature()
     {
         SetDAC("RangeTemp", rangeTemp + 8);
         Flush();
-        calib[rangeTemp] = GetTBAnalogInterface()->LastDAC(nTriggers, aoutChipPosition);
+        calib[rangeTemp] = GetTBInterface()->LastDAC(nTriggers, aoutChipPosition);
         if (debug)
             psi::LogDebug() << "[TestRoc] Calib " << calib[rangeTemp] << psi::endl;
     }
@@ -1296,7 +1295,7 @@ double TestRoc::GetTemperature()
     {
         SetDAC("RangeTemp", rangeTemp);
         Flush();
-        temp[rangeTemp] = GetTBAnalogInterface()->LastDAC(nTriggers, aoutChipPosition);
+        temp[rangeTemp] = GetTBInterface()->LastDAC(nTriggers, aoutChipPosition);
         if (debug)
             psi::LogDebug() << "[TestRoc] Temperature " << temp[rangeTemp] << psi::endl;
     }

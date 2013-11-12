@@ -565,7 +565,7 @@ void MainFrame::Exit()
     ((TBAnalogInterface *)tbInterface)->HVoff();
     tbInterface->Flush();
     tbInterface->Poff();
-    tbInterface->Cleanup();
+    tbInterface->Close();
 
     gFile->Write();
     gFile->Close();

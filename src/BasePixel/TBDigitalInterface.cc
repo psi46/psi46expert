@@ -12,18 +12,6 @@
 #include "interface/USBInterface.h"
 #include "interface/Delay.h"
 
-TBDigitalInterface::TBDigitalInterface(ConfigParameters * configParameters)
-{
-    Initialize(configParameters);
-}
-
-
-TBDigitalInterface::~TBDigitalInterface()
-{
-    delete cTestboard;
-}
-
-
 void TBDigitalInterface::Execute(SysCommand &command)
 {
     int buf[2];

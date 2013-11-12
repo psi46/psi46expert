@@ -751,7 +751,7 @@ void daqFrame::doExit() {
     fTB->HVoff();
     fTB->Flush();
     fTB->Poff();
-    fTB->Cleanup();
+    fTB->Close();
     gApplication->Terminate(0);
 }
 

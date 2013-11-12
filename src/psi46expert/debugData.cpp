@@ -297,7 +297,7 @@ int main(int argc, char * argv[])
 
     tbInterface->HVoff();
     tbInterface->Poff();
-    tbInterface->Cleanup();
+    tbInterface->Close();
 
     delete controlNetwork;
     delete tbInterface;
