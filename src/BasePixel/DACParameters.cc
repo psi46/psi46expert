@@ -8,7 +8,7 @@
 #include "BasePixel/DACParameters.h"
 #include "BasePixel/Roc.h"
 #include "BasePixel/CalibrationTable.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 
 DACParameters::DACParameters() : roc(NULL)
 {
@@ -123,7 +123,7 @@ void DACParameters::SetParameter(int reg, int value, bool correction)
     if (reg == 254)  // WBC needs a reset to get active
     {
         roc->CDelay(3000);
-        roc->GetTBAnalogInterface()->Single(0x08); //send a reset to set a DAC
+        roc->GetTBInterface()->Single(0x08); //send a reset to set a DAC
     }
 
     // some DACs (especially voltages) need some time to get "active"
