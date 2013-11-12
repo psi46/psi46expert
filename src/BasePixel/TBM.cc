@@ -6,7 +6,7 @@
 #include "BasePixel/TBM.h"
 #include "BasePixel/TBMParameters.h"
 #include "interface/Log.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 
 using namespace std;
 
@@ -60,12 +60,12 @@ int TBM::GetDAC(int reg)
 
 int TBM::ScanHubIDs()
 {
-    if (!tbInterface->TBMIsPresent()) return -1;
+    if (!tbInterface->TBMPresent()) return -1;
     int value;
     bool result;
     for (int i = 0; i < 32; i++)
     {
-        ((TBAnalogInterface *)tbInterface)->ModAddr(i);
+        tbInterface->ModAddr(i);
         result = GetReg(229, value);
         if (result)
         {
@@ -103,7 +103,7 @@ bool TBM::WriteTBMParameterFile(const char * filename)
 
 void TBM::SetTBMChannel(int tbmChannel)
 {
-    ((TBAnalogInterface *)tbInterface)->SetTBMChannel(tbmChannel);
+    tbInterface->SetTBMChannel(tbmChannel);
 }
 
 
@@ -162,10 +162,10 @@ void TBM::Execute(SysCommand &c)
             setTBM1(*value1,*value2);
             setTBM2(*value1,*value2);*/
     }
-    else if (c.Keyword("dual")) { ((TBAnalogInterface *)tbInterface)->SetTBMChannel(0); tbmParameters->SetParameter("Single", 1); }
-    else if (c.Keyword("dual2")) { ((TBAnalogInterface *)tbInterface)->SetTBMChannel(1); tbmParameters->SetParameter("Single", 1); }
-    else if (c.Keyword("single")) { ((TBAnalogInterface *)tbInterface)->SetTBMChannel(0); tbmParameters->SetParameter("Single", 0); }
-    else if (c.Keyword("single2")) { ((TBAnalogInterface *)tbInterface)->SetTBMChannel(1); tbmParameters->SetParameter("Single", 2); }
+    else if (c.Keyword("dual")) { tbInterface->SetTBMChannel(0); tbmParameters->SetParameter("Single", 1); }
+    else if (c.Keyword("dual2")) { tbInterface->SetTBMChannel(1); tbmParameters->SetParameter("Single", 1); }
+    else if (c.Keyword("single")) { tbInterface->SetTBMChannel(0); tbmParameters->SetParameter("Single", 0); }
+    else if (c.Keyword("single2")) { tbInterface->SetTBMChannel(1); tbmParameters->SetParameter("Single", 2); }
     else if (c.Keyword("fullspeed")) { tbmParameters->SetParameter("Speed", 1); }
     else if (c.Keyword("halfspeed")) { tbmParameters->SetParameter("Speed", 0); }
     else if (c.Keyword("setA", &value1, &value2)) { setTBM1(*value1, *value2);}
@@ -195,13 +195,13 @@ void TBM::Execute(SysCommand &c)
 
 bool TBM::GetReg(int reg, int &value)
 {
-    return ((TBAnalogInterface *)tbInterface)->GetTBMReg(reg, value);
+    return tbInterface->GetTBMReg(reg, value);
 }
 
 
 int TBM::init(void)
 {
-    if (!tbInterface->TBMIsPresent()) return 0;
+    if (!tbInterface->TBMPresent()) return 0;
 
     int status = 0;
 
