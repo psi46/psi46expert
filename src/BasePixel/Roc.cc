@@ -200,12 +200,6 @@ bool Roc::Execute(SysCommand &command, int warning)
     }
 }
 
-TBInterface * Roc::GetTBInterface()
-{
-    return tbInterface;
-}
-
-
 int Roc::GetChipId()
 {
     return chipId;

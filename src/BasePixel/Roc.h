@@ -25,7 +25,7 @@ public:
     void Initialize();
     void Initialize(ConfigParameters *);
     bool Execute(SysCommand &command, int warning = 1);
-    TBInterface * GetTBInterface() {return tbInterface;};
+    TBInterface * GetTBInterface() { return tbInterface; };
     int GetChipId();
     int GetAoutChipPosition();
     void SetTrim(int iCol, int iRow, int trimBit);
