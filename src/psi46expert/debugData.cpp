@@ -11,14 +11,14 @@
 #include "psi46expert/TestParameters.h"
 #include "psi46expert/TestControlNetwork.h"
 #include "psi46expert/MainFrame.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/SysCommand.h"
 #include "BasePixel/ConfigParameters.h"
 #include "BasePixel/GlobalConstants.h"
 #include "interface/Log.h"
 
 
-TBAnalogInterface * tbInterface;
+TBInterface * tbInterface;
 TestControlNetwork * controlNetwork;
 ConfigParameters * configParameters;
 SysCommand sysCommand;
@@ -212,7 +212,7 @@ int main(int argc, char * argv[])
     TFile * histoFile = new TFile(configParameters->GetRootFileName(), "RECREATE");
     gStyle->SetPalette(1, 0);
 
-    tbInterface = new TBAnalogInterface(configParameters);
+    tbInterface = new TBInterface(configParameters);
     if (!tbInterface->IsPresent()) return -1;
     controlNetwork = new TestControlNetwork(tbInterface, configParameters);
 
