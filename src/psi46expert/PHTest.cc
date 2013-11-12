@@ -2,7 +2,7 @@
 #include "PHTest.h"
 #include "TestRoc.h"
 #include "TestModule.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/DigitalReadoutDecoder.h"
 #include "Analysis.h"
 
@@ -44,7 +44,7 @@ void PHTest::RocAction()
         psi::LogInfo() << "[PHTest] Measuring pulse height map ..." << psi::endl;
         map = new TH2D(Form("PH_C%d", chipId), Form("Pulse height map C%d", chipId), ROCNUMCOLS, 0, ROCNUMCOLS, ROCNUMROWS, 0, ROCNUMROWS);
         int data[ROCNUMROWS * ROCNUMCOLS], offset;
-        if (((TBAnalogInterface *)tbInterface)->TBMPresent()) offset = 16;
+        if (tbInterface->TBMPresent()) offset = 16;
         else offset = 9;
         if (roc->has_analog_readout())
             roc->AoutLevelChip(offset + aoutChipPosition * 3, nTrig, data);
@@ -110,8 +110,6 @@ void PHTest::PhDac(char * dacName)
     histo->GetXaxis()->SetTitle(Form("%s (DAC units)", dacName));
     histo->GetYaxis()->SetTitle("Pulse height [ADC]");
 
-    TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
-
     if (roc->has_analog_readout()) {
         TH1D * ubHist = new TH1D("ubHist", "ubHist", 256, 0, 256);
         ubHist->SetLineColor(kRed);
@@ -125,13 +123,13 @@ void PHTest::PhDac(char * dacName)
         int ubPosition = 8 + aoutChipPosition * 3;
         unsigned short count;
 
-        if (ai->TBMPresent())
+        if (tbInterface->TBMPresent())
             offset = 16;
         else
             offset = 9;
 
-        ai->PHDac(mode, 256, nTrig, offset + aoutChipPosition * 3, result);
-        ai->ADCData(data, count);
+        tbInterface->PHDac(mode, 256, nTrig, offset + aoutChipPosition * 3, result);
+        tbInterface->ADCData(data, count);
 
         int ubLevel = data[ubPosition];
 
@@ -159,9 +157,9 @@ void PHTest::PhDac(char * dacName)
         for (int dac = 0; dac < 256; dac++) {
             /* Set DAC */
             SetDAC(dacName, dac);
-            ai->CDelay(500);
-            ai->Flush();
-            histo->SetBinContent(dac + 1, ai->PH(col, row));
+            tbInterface->CDelay(500);
+            tbInterface->Flush();
+            histo->SetBinContent(dac + 1, tbInterface->PH(col, row));
         }
     histograms->Add(histo);
     return;
@@ -177,8 +175,8 @@ void PHTest::PhDac(char * dacName)
         //DecodedReadoutModule * drm = new DecodedReadoutModule;
 
         ///* Set local trigger and channel */
-        //ai->SetReg(41, 0x20 | 0x01);
-        //ai->DataCtrl(false, false, true);
+        //tbInterface->SetReg(41, 0x20 | 0x01);
+        //tbInterface->DataCtrl(false, false, true);
 
         //EnablePixel();
         //ArmPixel();
@@ -190,43 +188,43 @@ void PHTest::PhDac(char * dacName)
         //for (int dac = 0; dac < 256; dac++) {
         //    /* Set DAC */
         //    SetDAC(dacName, dac);
-        //    ai->CDelay(500);
-        //    ai->Flush();
+        //    tbInterface->CDelay(500);
+        //    tbInterface->Flush();
 
         //    /* Send nTrig calibrates to the chip */
         //    for (int i = 0; i < nTrig; i++) {
-        //        ai->Single(RES | CAL | TRG | TOK);
-        //        ai->CDelay(500);
+        //        tbInterface->Single(RES | CAL | TRG | TOK);
+        //        tbInterface->CDelay(500);
         //    }
-        //    ai->Flush();
+        //    tbInterface->Flush();
 
         //    /* Read the data from the FIFO on the testboard */
-        //    ai->getCTestboard()->DataRead(ai->GetTBMChannel(), buffer, 256, nwords);
+        //    tbInterface->getCTestboard()->DataRead(tbInterface->GetTBMChannel(), buffer, 256, nwords);
 
         //    /* Calculate the mean pulseheight from nTrig measurements by analysing the data */
         //    float ph_mean = 0.0;
         //    int measurement_num = 0;
         //    int data_pos = 0;
         //    for (int trig = 0; trig < nTrig; trig++) {
-        //        int retval = decode_digital_readout(drm, buffer + trig * (ai->GetEmptyReadoutLengthADC() + 6), nwords, module->NRocs(), flags);
+        //        int retval = decode_digital_readout(drm, buffer + trig * (tbInterface->GetEmptyReadoutLengthADC() + 6), nwords, module->NRocs(), flags);
         //        if (retval >= 0) {
         //            /* Successful decoding */
         //            int hits = drm->roc[roc->GetChipId()].numPixelHits;
         //            if (hits == 1) {
         //                /* Record the pulse height and move to the next block of data */
         //                ph_mean += drm->roc[roc->GetChipId()].pixelHit[0].analogPulseHeight;
-        //                data_pos += ai->GetEmptyReadoutLengthADC() + hits * 6;
+        //                data_pos += tbInterface->GetEmptyReadoutLengthADC() + hits * 6;
         //                measurement_num++;
         //            } else if (hits > 1) {
         //                /* More hits than expected. Move to the next block of data. */
-        //                data_pos += ai->GetEmptyReadoutLengthADC() + hits * 6;
+        //                data_pos += tbInterface->GetEmptyReadoutLengthADC() + hits * 6;
         //            } else {
         //                /* No hits, move to the next block of data. */
-        //                data_pos += ai->GetEmptyReadoutLengthADC();
+        //                data_pos += tbInterface->GetEmptyReadoutLengthADC();
         //            }
         //        } else {
         //            /* Decoding failed. Try next block of data. */
-        //            data_pos += ai->GetEmptyReadoutLengthADC();
+        //            data_pos += tbInterface->GetEmptyReadoutLengthADC();
         //        }
         //    }
 
@@ -250,29 +248,27 @@ void PHTest::PhDac(char * dacName)
 void PHTest::PulseHeightRocDigital(int data [])
 {
 
-    TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
-    ai->Flush();
+    tbInterface->Flush();
 
     for (int col = 0; col < 52; col++) {
         for (int row = 0; row < 80; row++) {
-            data[80 * col + row] = ai->PH(col, row);
+            data[80 * col + row] = tbInterface->PH(col, row);
         }
     }
 
     return;
 
     //
-    //TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
-    //ai->Flush();
+    //tbInterface->Flush();
 
     ///* Structure that holds the decoded readout */
     //DecodedReadoutModule * drm = new DecodedReadoutModule;
 
     ///* Set local trigger and channel */
-    //ai->SetReg(41, 0x20 | 0x01);
+    //tbInterface->SetReg(41, 0x20 | 0x01);
 
     ///* Enable the FIFO gate */
-    //ai->DataCtrl(false, false, true);
+    //tbInterface->DataCtrl(false, false, true);
 
     ///* Buffer for the ADC data */
     //short * buffer = new short [256];
@@ -286,17 +282,17 @@ void PHTest::PulseHeightRocDigital(int data [])
     //    for (int row = 0; row < 80; row++) {
     //        /* Arm the pixel */
     //        roc->ArmPixel(col, row);
-    //        ai->CDelay(500);
-    //        ai->Flush();
+    //        tbInterface->CDelay(500);
+    //        tbInterface->Flush();
 
     //        /* send nTrig triggers with calibrates */
     //        for (int t = 0; t < nTrig; t++) {
-    //            ai->Single(RES | CAL | TRG | TOK);
-    //            ai->CDelay(500);
+    //            tbInterface->Single(RES | CAL | TRG | TOK);
+    //            tbInterface->CDelay(500);
     //        }
-    //        ai->Flush();
+    //        tbInterface->Flush();
 
-    //        ai->getCTestboard()->DataRead(ai->GetTBMChannel(), buffer, 256, nwords);
+    //        tbInterface->getCTestboard()->DataRead(tbInterface->GetTBMChannel(), buffer, 256, nwords);
 
     //        /* Calculate the mean pulseheight from nTrig measurements by analysing the data */
     //        float ph_mean = 0.0;
@@ -310,18 +306,18 @@ void PHTest::PulseHeightRocDigital(int data [])
     //                if (hits == 1) {
     //                    /* Record the pulse height and move to the next block of data */
     //                    ph_mean += drm->roc[roc->GetChipId()].pixelHit[0].analogPulseHeight;
-    //                    data_pos += ai->GetEmptyReadoutLengthADC() + hits * 6;
+    //                    data_pos += tbInterface->GetEmptyReadoutLengthADC() + hits * 6;
     //                    measurement_num++;
     //                } else if (hits > 1) {
     //                    /* More hits than expected. Move to the next block of data. */
-    //                    data_pos += ai->GetEmptyReadoutLengthADC() + hits * 6;
+    //                    data_pos += tbInterface->GetEmptyReadoutLengthADC() + hits * 6;
     //                } else {
     //                    /* No hits, move to the next block of data. */
-    //                    data_pos += ai->GetEmptyReadoutLengthADC();
+    //                    data_pos += tbInterface->GetEmptyReadoutLengthADC();
     //                }
     //            } else {
     //                /* Decoding failed. Try next block of data. */
-    //                data_pos += ai->GetEmptyReadoutLengthADC();
+    //                data_pos += tbInterface->GetEmptyReadoutLengthADC();
     //            }
     //        }
 
@@ -333,7 +329,7 @@ void PHTest::PulseHeightRocDigital(int data [])
 
     //        /* Disarm the pixel */
     //        roc->DisarmPixel(col, row);
-    //        ai->Flush();
+    //        tbInterface->Flush();
     //    }
     //}
 

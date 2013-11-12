@@ -4,7 +4,7 @@
 
 #include "Xray.h"
 #include "TestModule.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "ThresholdMap.h"
 #include "Analysis.h"
 #include <TMinuit.h>
@@ -44,7 +44,6 @@ void Xray::ReadTestParameters(TestParameters * testParameters)
 
 void Xray::ModuleAction()
 {
-    TBAnalogInterface * tb = ((TBAnalogInterface *)tbInterface);
     int counts[MODULENUMROCS], amplitudes[MODULENUMROCS], countsTemp[MODULENUMROCS], amplitudesTemp[MODULENUMROCS];
     int sum, nRocs = module->NRocs();
 
@@ -72,10 +71,10 @@ void Xray::ModuleAction()
         }
     }
 
-    tb->DataEnable(false);
+    tbInterface->DataEnable(false);
     // max stretching is 1022 (Beat)
-    tb->SetClockStretch(STRETCH_AFTER_CAL, clockStretchDelay, clockStretchFactor);
-    tb->Flush();
+    tbInterface->SetClockStretch(STRETCH_AFTER_CAL, clockStretchDelay, clockStretchFactor);
+    tbInterface->Flush();
 
     // Check for noisy pixels
 
@@ -83,7 +82,7 @@ void Xray::ModuleAction()
 
     int nTrigs = 10000;
     for (int iRoc = 0; iRoc < nRocs; iRoc++) module->GetRoc(iRoc)->SetDAC("VthrComp", vthrCompMin);
-    tb->CountAllReadouts(nTrigs / 10, countsTemp, amplitudesTemp);
+    tbInterface->CountAllReadouts(nTrigs / 10, countsTemp, amplitudesTemp);
     for (int iRoc = 0; iRoc < nRocs; iRoc++)
     {
         psi::LogInfo() << Form("[Xray] Roc %2i has %i hits (in %i triggers).", iRoc, countsTemp[iRoc], nTrigs / 10) << psi::endl;
@@ -103,7 +102,7 @@ void Xray::ModuleAction()
                     module->GetRoc(iRoc)->EnablePixel(i * 2 + 1, ir);
                 }
                 Flush();
-                tb->CountAllReadouts(nTrigs / 10, countsTemp, amplitudesTemp);
+                tbInterface->CountAllReadouts(nTrigs / 10, countsTemp, amplitudesTemp);
                 psi::LogDebug() << "[Xray] Dcol " << i << " readouts "
                                 << countsTemp[iRoc] << psi::endl;
 
@@ -132,11 +131,11 @@ void Xray::ModuleAction()
             amplitudes[iRoc] = 0;
             module->GetRoc(iRoc)->SetDAC("VthrComp", vthrComp);
         }
-        tb->Flush();
+        tbInterface->Flush();
 
         for (int k = 0; k < nTrig / nTrigs; k++)
         {
-            tb->CountAllReadouts(nTrigs, countsTemp, amplitudesTemp);
+            tbInterface->CountAllReadouts(nTrigs, countsTemp, amplitudesTemp);
             for (int iRoc = 0; iRoc < nRocs; iRoc++)
             {
                 counts[iRoc] += countsTemp[iRoc];
@@ -146,7 +145,7 @@ void Xray::ModuleAction()
 
         if (nTrig % nTrigs > 0)
         {
-            tb->CountAllReadouts(nTrig % nTrigs, countsTemp, amplitudesTemp);
+            tbInterface->CountAllReadouts(nTrig % nTrigs, countsTemp, amplitudesTemp);
             for (int iRoc = 0; iRoc < nRocs; iRoc++)
             {
                 counts[iRoc] += countsTemp[iRoc];
@@ -165,7 +164,7 @@ void Xray::ModuleAction()
             else
             {
                 module->GetRoc(iRoc)->Mask();
-                tb->Flush();
+                tbInterface->Flush();
             }
 
             sum += counts[iRoc];
@@ -173,14 +172,14 @@ void Xray::ModuleAction()
         psi::LogInfo() << Form("[Xray] VthrComp %3i -> %5i hits", vthrComp, sum) << psi::endl;
     }
 
-    tb->SetClockStretch(0, 0, 0);
-    tb->DataEnable(true);
+    tbInterface->SetClockStretch(0, 0, 0);
+    tbInterface->DataEnable(true);
     for (int iRoc = 0; iRoc < nRocs; iRoc++)
     {
         module->GetRoc(iRoc)->Mask();
         histograms->Add(histo[module->GetRoc(iRoc)->GetChipId()]);
     }
-    tb->Flush();
+    tbInterface->Flush();
 
     Test::ModuleAction();
 
@@ -257,7 +256,7 @@ void Xray::RocAction()
     fit->SetParName(3, "Height");
     fit->SetParameter(3, ave);
 
-    ((TBAnalogInterface *)tbInterface)->Clear();
+    tbInterface->Clear();
 
     histo[chipId]->Fit("Fit", "RQ", "", minFit, maxFit);
 

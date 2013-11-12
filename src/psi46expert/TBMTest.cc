@@ -2,7 +2,7 @@
 
 #include "TBMTest.h"
 #include "TestModule.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include <TParameter.h>
 
@@ -72,7 +72,6 @@ void TBMTest::ReadoutTest()
 void TBMTest::DualModeTest()
 {
     TBM * tbm = module->GetTBM();
-    TBAnalogInterface * anaInterface = (TBAnalogInterface *)tbInterface;
     ConfigParameters * configParameters = ConfigParameters::Singleton();
 
     unsigned short count;
@@ -80,28 +79,28 @@ void TBMTest::DualModeTest()
 
     psi::LogInfo() << "[TBMTest] Start." << psi::endl;
 
-    int channel = anaInterface->GetTBMChannel();
+    int channel = tbInterface->GetTBMChannel();
     int singleDual = tbm->GetDAC(0);
 
     int dtlOrig = configParameters->dataTriggerLevel, dtl;
-    anaInterface->DataTriggerLevel(dtl);
+    tbInterface->DataTriggerLevel(dtl);
 
     for (int k = 0; k < 2; k++)
     {
         module->SetTBMSingle(k);
-        anaInterface->SetTBMChannel(k);
+        tbInterface->SetTBMChannel(k);
 
         dtl = dtlOrig;
         do
         {
-            anaInterface->DataTriggerLevel(dtl);
-            anaInterface->Flush();
-            anaInterface->ADCData(data, count);
+            tbInterface->DataTriggerLevel(dtl);
+            tbInterface->Flush();
+            tbInterface->ADCData(data, count);
             dtl += 50;
         }
-        while ((count != anaInterface->GetEmptyReadoutLengthADC()) && (dtl < 0));
+        while ((count != tbInterface->GetEmptyReadoutLengthADC()) && (dtl < 0));
 
-        if (count != anaInterface->GetEmptyReadoutLengthADC())
+        if (count != tbInterface->GetEmptyReadoutLengthADC())
         {
             result[k] += 1;
 
@@ -121,14 +120,14 @@ void TBMTest::DualModeTest()
         dtl = dtlOrig;
         do
         {
-            anaInterface->DataTriggerLevel(dtl);
-            anaInterface->Flush();
-            anaInterface->ADCData(data, count);
+            tbInterface->DataTriggerLevel(dtl);
+            tbInterface->Flush();
+            tbInterface->ADCData(data, count);
             dtl += 50;
         }
-        while ((count != anaInterface->GetEmptyReadoutLengthADCDual()) && (dtl < 0));
+        while ((count != tbInterface->GetEmptyReadoutLengthADCDual()) && (dtl < 0));
 
-        if (count != anaInterface->GetEmptyReadoutLengthADCDual())
+        if (count != tbInterface->GetEmptyReadoutLengthADCDual())
         {
             result[k] += 2;
 
@@ -144,8 +143,8 @@ void TBMTest::DualModeTest()
         }
     }
 
-    anaInterface->SetTBMChannel(channel);
+    tbInterface->SetTBMChannel(channel);
     tbm->SetDAC(0, singleDual);
-    anaInterface->DataTriggerLevel(dtlOrig);
+    tbInterface->DataTriggerLevel(dtlOrig);
     Flush();
 }

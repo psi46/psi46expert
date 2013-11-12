@@ -5,7 +5,7 @@
 
 #include "TemperatureCalibration.h"
 #include "interface/Log.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "TestModule.h"
 
 Bool_t TemperatureCalibration::fPrintDebug = true;
@@ -403,9 +403,8 @@ void TemperatureCalibration::RocAction(ofstream * outputFile, Bool_t addCalibrat
     unsigned short count;
     short data[FIFOSIZE];
 
-    TBAnalogInterface * anaInterface = (TBAnalogInterface *)tbInterface;
     if (fPrintDebug) cout << "NumTrigger = " << fNumTrigger << endl;
-    anaInterface->ADCRead(data, count, fNumTrigger);
+    tbInterface->ADCRead(data, count, fNumTrigger);
     short blackLevel = data[9 + aoutChipPosition * 3];
 
     if (fPrintDebug) cout << "ADC(black level) = " << blackLevel << endl;
@@ -432,7 +431,7 @@ void TemperatureCalibration::RocAction(ofstream * outputFile, Bool_t addCalibrat
 
         gDelay->Mdelay(250);
 
-        int adcDifference_average = anaInterface->LastDAC(fNumTrigger, aoutChipPosition) - blackLevel;
+        int adcDifference_average = tbInterface->LastDAC(fNumTrigger, aoutChipPosition) - blackLevel;
 
         double voltageDifference = 470. - (399.5 + rangeTemp * 23.5);
         if (addCalibrationGraph) calibrationGraph->SetPoint(rangeTemp, voltageDifference, adcDifference_average);
@@ -464,7 +463,7 @@ void TemperatureCalibration::RocAction(ofstream * outputFile, Bool_t addCalibrat
 
         gDelay->Mdelay(250);
 
-        int adcDifference_average = anaInterface->LastDAC(fNumTrigger, aoutChipPosition) - blackLevel;
+        int adcDifference_average = tbInterface->LastDAC(fNumTrigger, aoutChipPosition) - blackLevel;
 
         fAdcTemperatureDependenceHistograms[roc->GetChipId()]->Fill(actualTemperature, adcDifference_average);
 

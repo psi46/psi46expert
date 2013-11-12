@@ -1,6 +1,6 @@
 #include "FigureOfMerit.h"
 #include "TestRoc.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/GlobalConstants.h"
 #include "TCanvas.h"
 #include "PhDacScan.h"
@@ -157,9 +157,9 @@ double FigureOfMerit::Timewalk(int i, int k)
 
     SetDAC("CtrlReg", 0);
     SetDAC("Vcal", 80);
-    ((TBAnalogInterface *)tbInterface)->PHDac(26, 256, nTrig, 16 + aoutChipPosition * 3, resultA);
+    tbInterface->PHDac(26, 256, nTrig, 16 + aoutChipPosition * 3, resultA);
     SetDAC("Vcal", 250);
-    ((TBAnalogInterface *)tbInterface)->PHDac(26, 256, nTrig, 16 + aoutChipPosition * 3, resultB);
+    tbInterface->PHDac(26, 256, nTrig, 16 + aoutChipPosition * 3, resultB);
 
     int numberOfReadoutsA = 0;
     int numberOfReadoutsB = 0;
@@ -208,7 +208,7 @@ int FigureOfMerit::LinearRange(int i, int k)
     TH1D * histo = new TH1D(Form("PHVcal_%s%d_%s%d_C%i", parameters->GetName(firstDac), dacValue1, parameters->GetName(secondDac), dacValue2, chipId),
                             Form("PHVcal_%s%d_%s%d_C%i", parameters->GetName(firstDac), dacValue1, parameters->GetName(secondDac), dacValue2, chipId), 256, 0, 256);
 
-    ((TBAnalogInterface *)tbInterface)->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, result);
+    tbInterface->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, result);
 
     for (int dac = 0; dac < 256; dac++) histo->SetBinContent(dac + 1, result[dac]);
     histo->SetMaximum(result[255] + 100);
@@ -234,7 +234,7 @@ int FigureOfMerit::PulseHeight(int i, int k)
     TH1D * histo = new TH1D(Form("PHVcal_%s%d_%s%d_C%i", parameters->GetName(firstDac), dacValue1, parameters->GetName(secondDac), dacValue2, chipId),
                             Form("PHVcal_%s%d_%s%d_C%i", parameters->GetName(firstDac), dacValue1, parameters->GetName(secondDac), dacValue2, chipId), 256, 0, 256);
 
-    ((TBAnalogInterface *)tbInterface)->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, result);
+    tbInterface->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, result);
 
     for (int dac = 0; dac < 256; dac++) histo->SetBinContent(dac + 1, result[dac]);
     histo->SetMaximum(result[255] + 100);
@@ -279,9 +279,9 @@ double FigureOfMerit::LowLinearRange(int i, int k)
                                     1792, 0, 1792);
 
     SetDAC("CtrlReg", 4);
-    ((TBAnalogInterface *)tbInterface)->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, resultHR);
+    tbInterface->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, resultHR);
     SetDAC("CtrlReg", 0);
-    ((TBAnalogInterface *)tbInterface)->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, result);
+    tbInterface->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, result);
 
     int value = 0;
     for (int vcal = 0; vcal < 256; vcal++)
@@ -323,7 +323,7 @@ int FigureOfMerit::Threshold(int i, int k) {
                             Form("PHVcal_%s%d_%s%d_C%i", parameters->GetName(firstDac), dacValue1, parameters->GetName(secondDac), dacValue2, chipId), 256, 0, 256);
 
     SetDAC("CtrlReg", 0);
-    ((TBAnalogInterface *)tbInterface)->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, result);
+    tbInterface->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, result);
 
     for (int dac = 0; dac < 256; dac++) histo->SetBinContent(dac + 1, result[dac]);
     histo->SetMaximum(result[255] + 100);

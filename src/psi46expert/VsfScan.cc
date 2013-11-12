@@ -7,7 +7,7 @@
 #include "TH1D.h"
 
 #include "interface/Log.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/GlobalConstants.h"
 #include "TestRoc.h"
 
@@ -83,12 +83,10 @@ void VsfScan::scan()
     // Lock Pixel
     roc->ArmPixel(_pixel.column, _pixel.row);
 
-    TBAnalogInterface * _interface = dynamic_cast<TBAnalogInterface *>(tbInterface);
-
     // Scan Vsf range specified in input test parameters file and get plots.
     for (int _dacValue = vsf.start,
             _step     = (vsf.stop - vsf.start) / vsf.steps,
-            _offset   = _interface->TBMPresent() ? 16 : 9,
+            _offset   = tbInterface->TBMPresent() ? 16 : 9,
             _vsfBin   = 1;
             _dacValue < vsf.stop;
             _dacValue += _step, ++_vsfBin)
@@ -103,14 +101,14 @@ void VsfScan::scan()
         sleep(2);
 
         // Extract Digital Current and add it's value to Histogram
-        _dcHist->SetBinContent(_vsfBin, _interface->GetID());
+        _dcHist->SetBinContent(_vsfBin, tbInterface->GetID());
 
         // Scan Vcal in range defined below. Note PH values are not nulled (!)
         // even though not whole range of Vcal is scanned: PH_VCAL_RANGE.first
         // might be NON-ZERO. The same remark is applicable to the top edge of
         // scanned range.
         short _pulseHeights[psi::DAC8];
-        _interface->PHDac(PH_VCAL_RANGE.first, PH_VCAL_RANGE.second, nTrig,
+        tbInterface->PHDac(PH_VCAL_RANGE.first, PH_VCAL_RANGE.second, nTrig,
                           _offset + aoutChipPosition * 3, _pulseHeights);
 
         // Create PH vs Vcal plot and fit it to extract Linearity Parameter
@@ -208,22 +206,20 @@ int VsfScan::getTestColumn()
     _fit->SetParameter(2, 112.7);
     _fit->SetParameter(3, 113);
 
-    TBAnalogInterface * _interface = dynamic_cast<TBAnalogInterface *>(tbInterface);
-
     std::vector<double> _linearities;
 
     // Try 5 pixels in different columns but same row and extract Linearity
     // Parameter for each of them
     for (int _col    = 5,
-            _offset = _interface->TBMPresent() ? 16 : 9;
+            _offset = tbInterface->TBMPresent() ? 16 : 9;
             psi::DCOLS > _col;
             _col += 5)
     {
         roc->ArmPixel(_col, 5);
-        _interface->Flush();
+        tbInterface->Flush();
 
         short _pulseHeights[psi::DAC8];
-        _interface->PHDac(PH_VCAL_RANGE.first, PH_VCAL_RANGE.second, nTrig,
+        tbInterface->PHDac(PH_VCAL_RANGE.first, PH_VCAL_RANGE.second, nTrig,
                           _offset + aoutChipPosition * 3, _pulseHeights);
 
         _name.str("");

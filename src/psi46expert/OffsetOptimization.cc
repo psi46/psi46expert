@@ -1,6 +1,6 @@
 #include "TCanvas.h"
 
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/GlobalConstants.h"
 #include "interface/Log.h"
 #include "OffsetOptimization.h"
@@ -93,7 +93,7 @@ void OffsetOptimization::DoDacDacScan()
                                     256, 0, 256);
 
             // PHDac( dac, dacRange, Trig, position, output)
-            dynamic_cast<TBAnalogInterface *>(tbInterface)->PHDac(25, 256, nTrig,
+            tbInterface->PHDac(25, 256, nTrig,
                     16 + aoutChipPosition * 3, result);
 
             for (int dac = 0; dac < 256; dac++) histo->SetBinContent(dac + 1, result[dac]);

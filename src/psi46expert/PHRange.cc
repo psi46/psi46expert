@@ -5,7 +5,7 @@
 
 #include "interface/Log.h"
 #include "BasePixel/Roc.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "TestRoc.h"
 #include "PHRange.h"
 
@@ -44,7 +44,7 @@ void PHRange::ReadTestParameters(TestParameters * testParameters)
 void PHRange::Init()
 {
     int aoutData[ROCNUMROWS * ROCNUMCOLS], offset, minPixelPh = 2000, maxPixelPh = -2000;
-    if (((TBAnalogInterface *)tbInterface)->TBMPresent()) offset = 16; else offset = 9;
+    if (tbInterface->TBMPresent()) offset = 16; else offset = 9;
     int trim[ROCNUMROWS * ROCNUMCOLS];
     phPosition = offset + aoutChipPosition * 3;
     TH1D * histoMin = new TH1D(Form("PH%i_C%i", vcalMin, chipId), Form("PH%i_C%i", vcalMin, chipId), 400, -2000., 2000.);
@@ -144,14 +144,13 @@ int PHRange::PH(int ctrlReg, int vcal, int calDel, int vthrComp, int vtrim, int 
     SetDAC("VthrComp", vthrComp);
     SetDAC("Vtrim", vtrim);
 
-    TBAnalogInterface * anaInterface = (TBAnalogInterface *)tbInterface;
-    anaInterface->DataCtrl(true, false);  //somehow needed to clear fifo buffer after AdjustCalDelVthrComp
+     tbInterface->DataCtrl(true, false);  //somehow needed to clear fifo buffer after AdjustCalDelVthrComp
 
     roc->SetTrim(pixel / ROCNUMROWS, pixel % ROCNUMROWS, 0);
     roc->ArmPixel(pixel / ROCNUMROWS, pixel % ROCNUMROWS);
 
-    anaInterface->ADCRead(data, count, 10);
-    if (count > anaInterface->GetEmptyReadoutLengthADC()) ph = data[phPosition];
+    tbInterface->ADCRead(data, count, 10);
+    if (count > tbInterface->GetEmptyReadoutLengthADC()) ph = data[phPosition];
 
     roc->DisarmPixel(pixel / ROCNUMROWS, pixel % ROCNUMROWS);
     roc->SetTrim(pixel / ROCNUMROWS, pixel % ROCNUMROWS, trim[pixel]);
@@ -290,8 +289,8 @@ void PHRange::ValidationPlot()  //fast (minimal) version
     int colNumber = 10, rowNumber = 13;
     roc->ArmPixel(colNumber, rowNumber);
     SetDAC("RangeTemp", 0); //maximal last dac
-    ((TBAnalogInterface *)tbInterface)->ADCRead(data, count, 5);
-    if (count == ((TBAnalogInterface *)tbInterface)->GetEmptyReadoutLengthADC() + 6) for (int i = 0; i < 8; i++) valPlot->Fill(i, data[8 + aoutChipPosition * 3 + i]);
+    tbInterface->ADCRead(data, count, 5);
+    if (count == tbInterface->GetEmptyReadoutLengthADC() + 6) for (int i = 0; i < 8; i++) valPlot->Fill(i, data[8 + aoutChipPosition * 3 + i]);
     roc->DisarmPixel(colNumber, rowNumber);
 
     //pulse height minimum and maximum

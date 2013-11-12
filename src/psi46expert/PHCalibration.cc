@@ -7,7 +7,7 @@
 
 #include "interface/Delay.h"
 #include "BasePixel/Roc.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include "interface/Log.h"
 #include "TestRoc.h"
@@ -282,12 +282,11 @@ int PHCalibration::GetVthrComp(int vcalStep)
 void PHCalibration::PulseHeightRocDigital(int data [])
 {
 
-    TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
-    ai->Flush();
+  tbInterface->Flush();
 
     for (int col = 0; col < 52; col++) {
         for (int row = 0; row < 80; row++) {
-            data[80 * col + row] = ai->PH(col, row);
+            data[80 * col + row] = tbInterface->PH(col, row);
         }
     }
 
@@ -296,17 +295,16 @@ void PHCalibration::PulseHeightRocDigital(int data [])
 
 //void PHCalibration::PulseHeightRocDigital(int data [])
 //{
-//    TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
-//    ai->Flush();
+//    tbInterface->Flush();
 //
 //    /* Structure that holds the decoded readout */
 //    DecodedReadoutModule * drm = new DecodedReadoutModule;
 //
 //    /* Set local trigger and channel */
-//    ai->SetReg(41, 0x20 | 0x01);
+//    tbInterface->SetReg(41, 0x20 | 0x01);
 //
 //    /* Enable the FIFO gate */
-//    ai->DataCtrl(false, false, true);
+//    tbInterface->DataCtrl(false, false, true);
 //
 //    /* Buffer for the ADC data */
 //    short * buffer = new short [256];
@@ -320,17 +318,17 @@ void PHCalibration::PulseHeightRocDigital(int data [])
 //        for (int row = 0; row < 80; row++) {
 //            /* Arm the pixel */
 //            roc->ArmPixel(col, row);
-//            ai->CDelay(500);
-//            ai->Flush();
+//            tbInterface->CDelay(500);
+//            tbInterface->Flush();
 //
 //            /* send nTrig triggers with calibrates */
 //            for (int t = 0; t < nTrig; t++) {
-//                ai->Single(RES | CAL | TRG | TOK);
-//                ai->CDelay(500);
+//                tbInterface->Single(RES | CAL | TRG | TOK);
+//                tbInterface->CDelay(500);
 //            }
-//            ai->Flush();
+//            tbInterface->Flush();
 //
-//            ai->getCTestboard()->DataRead(ai->GetTBMChannel(), buffer, 256, nwords);
+//            tbInterface->getCTestboard()->DataRead(tbInterface->GetTBMChannel(), buffer, 256, nwords);
 //
 //            /* Calculate the mean pulseheight from nTrig measurements by analysing the data */
 //            float ph_mean = 0.0;
@@ -344,18 +342,18 @@ void PHCalibration::PulseHeightRocDigital(int data [])
 //                    if (hits == 1) {
 //                        /* Record the pulse height and move to the next block of data */
 //                        ph_mean += drm->roc[roc->GetChipId()].pixelHit[0].analogPulseHeight;
-//                        data_pos += ai->GetEmptyReadoutLengthADC() + hits * 6;
+//                        data_pos += tbInterface->GetEmptyReadoutLengthADC() + hits * 6;
 //                        measurement_num++;
 //                    } else if (hits > 1) {
 //                        /* More hits than expected. Move to the next block of data. */
-//                        data_pos += ai->GetEmptyReadoutLengthADC() + hits * 6;
+//                        data_pos += tbInterface->GetEmptyReadoutLengthADC() + hits * 6;
 //                    } else {
 //                        /* No hits, move to the next block of data. */
-//                        data_pos += ai->GetEmptyReadoutLengthADC();
+//                        data_pos += tbInterface->GetEmptyReadoutLengthADC();
 //                    }
 //                } else {
 //                    /* Decoding failed. Try next block of data. */
-//                    data_pos += ai->GetEmptyReadoutLengthADC();
+//                    data_pos += tbInterface->GetEmptyReadoutLengthADC();
 //                }
 //            }
 //
@@ -367,7 +365,7 @@ void PHCalibration::PulseHeightRocDigital(int data [])
 //
 //            /* Disarm the pixel */
 //            roc->DisarmPixel(col, row);
-//            ai->Flush();
+//            tbInterface->Flush();
 //        }
 //    }
 //

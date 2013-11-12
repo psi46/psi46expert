@@ -8,7 +8,7 @@
 #include "interface/Delay.h"
 #include "interface/Log.h"
 #include "BasePixel/Roc.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include "TestRoc.h"
 #include "UbCheck.h"
@@ -78,7 +78,7 @@ int UbCheck::Ultrablack()
     short data[10000];
     unsigned short count;
 
-    ((TBAnalogInterface *)tbInterface)->ADCData(data, count);
+    tbInterface->ADCData(data, count);
     if (count > 1) return (data[0] + data[1] + data[2]) / 3;
     cout << " >>>>>>>>>>>>>>>> Error: Couldn't find ultra black level";
     return 0;
