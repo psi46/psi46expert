@@ -3,7 +3,7 @@
 #include <time.h>
 #include <BasePixel/Keithley.h>
 
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include "psi46expert/TestControlNetwork.h"
 
@@ -432,7 +432,7 @@ void daqFrame::initializeHardware() {
     fpLM->log(Form("=========================="));
     fpLM->log(Form("==>daqf: INSTANTIATING MTB"));
     fpLM->log(Form("=========================="));
-    fTB = new TBAnalogInterface(fpLM->getMTBConfigParameters());
+    fTB = new TBInterface(fpLM->getMTBConfigParameters());
     fTB->Flush();
     fCN = new TestControlNetwork(fTB, fpLM->getMTBConfigParameters());
     fTB->Flush();
@@ -515,7 +515,7 @@ void daqFrame::runStart() {
     fTB->SetReg(41, fReg41);
     fTB->SetReg(43, 2);
     if (fLocalTrigger) {
-        fTB->Intern(15);  // BasePixel/TBAnalogInterface.cc:  else if (command.Keyword("loop"))   {Intern(rctk_flag);}
+        fTB->Intern(15);  // BasePixel/TBInterface.cc:  else if (command.Keyword("loop"))   {Intern(rctk_flag);}
     }
     //fTB->Intern(RES);
     fTB->Flush();

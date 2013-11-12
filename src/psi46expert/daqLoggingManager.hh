@@ -7,7 +7,7 @@
 #include <time.h>
 
 class TestControlNetwork;
-class TBAnalogInterface;
+class TBInterface;
 class ConfigParameters;
 
 #include "TString.h"
@@ -47,7 +47,7 @@ public:
     int         incrementRunNumber();
 
     void        setupRun();
-    void        dumpHardwareConfiguration(int i, TestControlNetwork *, TBAnalogInterface *);
+    void        dumpHardwareConfiguration(int i, TestControlNetwork *, TBInterface *);
     void        copyHardwareInitialization();
 
 private:
