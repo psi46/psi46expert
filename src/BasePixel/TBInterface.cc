@@ -167,34 +167,30 @@ void TBInterface::Initialize(ConfigParameters * configParameters)
     cTestboard = new CTestboard();
     usbId = configParameters->testboardName;
     if (usbId == "*") cTestboard->FindDTB(usbId);
-	if (cTestboard->Open(usbId))
-	{
-		printf("\nDTB %s opened\n", usbId.c_str());
-		string info;
-		try
-		{
-			cTestboard->GetInfo(info);
-			printf("--- DTB info-------------------------------------\n"
-					"%s"
-					"-------------------------------------------------\n", info.c_str());
-			cTestboard->Welcome();
-			cTestboard->Flush();
-		}
-		catch(CRpcError &e)
-		{
-			e.What();
-			printf("ERROR: DTB software version could not be identified, please update it!\n");
-			cTestboard->Close();
-			printf("Connection to Board %s has been cancelled\n", usbId.c_str());
-		}
-	}
-	else
-	{
-		printf("USB error: %s\n", cTestboard->ConnectionError());
-		printf("ATB: could not open port to device %s\n", settings.port_tb);
-		printf("Connect testboard and try command 'scan' to find connected devices.\n");
-		printf("Make sure you have permission to access USB devices.\n");
-	}
+    if (cTestboard->Open(usbId)) {
+      printf("\nDTB %s opened\n", usbId.c_str());
+      string info;
+      try {
+	cTestboard->GetInfo(info);
+	printf("--- DTB info-------------------------------------\n"
+	       "%s"
+	       "-------------------------------------------------\n",
+	       info.c_str());
+	cTestboard->Welcome();
+	cTestboard->Flush();
+      }
+      catch(CRpcError &e) {
+	e.What();
+	printf("ERROR: DTB software version could not be identified, please update it!\n");
+	cTestboard->Close();
+	printf("Connection to Board %s has been cancelled\n", usbId.c_str());
+      }
+    }
+    else {
+      printf("USB error: %s\n", cTestboard->ConnectionError());
+      printf("DTB: could not open port to device %s\n", settings.port_tb);
+      printf("Make sure you have permission to access USB devices.\n");
+    }
     cTestboard->Init();
 
     fIsPresent = 1;
