@@ -50,10 +50,17 @@ void Roc::Initialize(ConfigParameters * pcfg)
     ReadDACParameterFile(configParameters->GetDacParametersFileName());
     ReadTrimConfiguration(configParameters->GetTrimParametersFileName());
 
+    psi::LogInfo() << "[Roc::Initialize] ClrCal..." << psi::endl;
     ClrCal();
+
+    psi::LogInfo() << "[Roc::Initialize] Mask..." << psi::endl;
     Mask();
     tbInterface->Flush();
 
+    psi::LogInfo() << "[Roc::Initialize] done." << psi::endl;
+
+    cout << "[Roc::Initialize] Ia " << tbInterface->GetIA()*1E3 << " mA" << endl;
+    cout << "[Roc::Initialize] Id " << tbInterface->GetID()*1E3 << " mA" << endl;
 }
 
 
