@@ -175,6 +175,15 @@ bool Roc::Execute(SysCommand &command, int warning)
         }
         return true;
     }
+    else if( command.Keyword("ph", &col, &row) ) {
+      for( int * j = col; (*j) >= 0; j++) {
+	for( int * k = row; (*k) >= 0; k++) {
+	  //cout << (*j) << "  " << (*k) << "  " << PH(*j, *k) << endl;
+	  cout << PH(*j, *k) << endl;
+	}
+      }
+      return true;
+    }
     else if (command.Keyword("ena")) 
 	{
         for( int j = 0; j < 52; j++ )
@@ -427,6 +436,10 @@ void Roc::DisablePixel(int col, int row)
     GetDoubleColumn(col)->DisablePixel(col, row);
 }
 
+int Roc::PH(int column, int row)
+{
+  return tbInterface->PH(column, row);
+}
 
 void Roc::Cal(int col, int row)
 {
