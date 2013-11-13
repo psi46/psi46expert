@@ -124,15 +124,15 @@ libpsi46readdata_la_SOURCES = UsbDaq.cc \
 # CUSTOM MAKE RULES -------------------------------------------------------------------------------------------------------------------------------------------
 
 TestRangeDict.cc: TestRange.h
-	rootcint -f $@ -c -I$(srcdir)/../../src $^
+	rootcint -f $@ -c -p -I$(srcdir)/../../src $^
 MainFrameDict.cc: MainFrame.h MainFrameLinkDef.h
-	rootcint -f $@ -c -I$(srcdir)/../../src $^
+	rootcint -f $@ -c -p -I$(srcdir)/../../src $^
 SCurveDict.cc: SCurve.h SCurveLinkDef.h
-	rootcint -f $@ -c -I$(srcdir)/../../src $^
+	rootcint -f $@ -c -p -I$(srcdir)/../../src $^
 PHCalibrationFitDict.cc: PHCalibrationFit.h PHCalibrationFitLinkDef.h
-	rootcint -f $@ -c -I$(srcdir)/../../src $^
+	rootcint -f $@ -c -p -I$(srcdir)/../../src $^
 daqFrameDict.cc: daqFrame.hh daqFrameLinkDef.h
-	rootcint -f $@ -c -I$(srcdir)/../../src $^
+	rootcint -f $@ -c -p -I$(srcdir)/../../src $^
 
 # MENTION ALL HEADERS SO THEY GET DISTRIBUTED -----------------------------------------------------------------------------------------------------------------
 
