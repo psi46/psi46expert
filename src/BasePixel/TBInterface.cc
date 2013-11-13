@@ -13,6 +13,13 @@
 #include "interface/Delay.h"
 
 
+TBInterface::TBInterface()
+{
+    ChipId = 0;
+    TBMpresent = 0;
+    HUBaddress = 0;
+}
+
 TBInterface::TBInterface(ConfigParameters * configParameters)
 {
     ChipId = 0;

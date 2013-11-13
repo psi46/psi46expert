@@ -12,6 +12,7 @@
 class TBInterface
 {
 public:
+    TBInterface();
     TBInterface(ConfigParameters * configParameters);
     virtual ~TBInterface();
 
