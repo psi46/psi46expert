@@ -27,7 +27,6 @@ HRTrimLow::~HRTrimLow()
 
 void HRTrimLow::RocAction(void)
 {
-    TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
 
     /* Set trim bits all to 1111=0xf */
     roc->SetTrim(0xf);
@@ -35,7 +34,7 @@ void HRTrimLow::RocAction(void)
 
     /* Unmask the ROC */
     roc->EnableAllPixels();
-    ai->Flush();
+    tbInterface->Flush();
 
     /* Find lowest working threshold (highest value of VthrComp) */
     const int start = 110;
@@ -108,7 +107,7 @@ void HRTrimLow::RocAction(void)
 
     /* Unmask the ROC (again) */
     roc->EnableAllPixels();
-    ai->Flush();
+    tbInterface->Flush();
 
     /* Make final map of trimmed chip */
     MakeMap();
@@ -129,8 +128,6 @@ void HRTrimLow::PixelAction(void)
         return;
     if (column != 26 || row != 41)
         return;
-
-    TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
 
     roc->EnableAllPixels();
 
@@ -159,7 +156,7 @@ void HRTrimLow::PixelAction(void)
         for (int col = COLA; col < COLB; col += 1) {
             if (trim[col] > breakdown[col]) {
                 cout << "Setting trim bit of pixel " << col << ":" << row << " to " << trim[col] << endl;
-                ai->RocPixTrim(col, row, trim[col]);
+                tbInterface->RocPixTrim(col, row, trim[col]);
             }
             done = done && (trim[col] <= breakdown[col]);
         }
@@ -218,7 +215,7 @@ void HRTrimLow::PixelAction(void)
     for (int col = COLA; col < COLB; col += 1) {
         cout << "Found trim bit of pixel " << col << ":" << row << " : " << breakdown[col] + 1 << endl;
         histograms->Add(trim_scan[col]);
-        ai->RocPixTrim(col, row, breakdown[col] + 1);
+        tbInterface->RocPixTrim(col, row, breakdown[col] + 1);
         roc->SetTrim(col, row, breakdown[col] + 1);
     }
 }
@@ -226,45 +223,44 @@ void HRTrimLow::PixelAction(void)
 /* Takes x-ray data */
 void HRTrimLow::MakeMap(void)
 {
-    TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
-    ai->Flush();
+    tbInterface->Flush();
 
     /* ??? */
-    ai->getCTestboard()->DataBlockSize(100);
-    ai->Flush();
+    tbInterface->getCTestboard()->DataBlockSize(100);
+    tbInterface->Flush();
 
     /* Set local trigger and tbm present */
-    ai->SetReg(41, 0x20 | 0x02);
-    ai->Flush();
+    tbInterface->SetReg(41, 0x20 | 0x02);
+    tbInterface->Flush();
 
     /* Send a reset to the chip */
-    ai->Single(RES);
+    tbInterface->Single(RES);
 
     /* Prepare the data aquisition (store to testboard RAM) */
-    unsigned int data_pointer = ai->getCTestboard()->Daq_Init(30000000);
+    unsigned int data_pointer = tbInterface->getCTestboard()->Daq_Init(30000000);
 
     /* Enable DMA (direct memory access) controller */
-    ai->getCTestboard()->Daq_Enable();
+    tbInterface->getCTestboard()->Daq_Enable();
 
     /* Set data aquisition to no clear buffer, multi trigger, continuous. */
-    ai->DataCtrl(false, false, true);
+    tbInterface->DataCtrl(false, false, true);
 
     /* Reset the clock counter on the testboard */
-    ai->SetReg(43, (1 << 1));
+    tbInterface->SetReg(43, (1 << 1));
 
     /* Set the trigger frequency (f = 40000000 / (256 * n)) */
-    //ai->getCTestboard()->Set(T_Periode, 5);
-    ai->getCTestboard()->Set(21, 5); // T_Periode has the wrong value. Should be fixed.
+    //tbInterface->getCTestboard()->Set(T_Periode, 5);
+    tbInterface->getCTestboard()->Set(21, 5); // T_Periode has the wrong value. Should be fixed.
 
     /* Issue continuous Reset-(Calibrate-)Trigger-Token pattern */
-    ai->Intern(TRG | TOK);
+    tbInterface->Intern(TRG | TOK);
 
     /* Set local trigger, tbm present, and run data aquisition */
-    ai->SetReg(41, 0x20 | 0x02 | 0x08);
-    ai->Flush();
+    tbInterface->SetReg(41, 0x20 | 0x02 | 0x08);
+    tbInterface->Flush();
 
     /* Reset the aquisition on the testboard */
-    ai->SetReg(43, (1 << 0));
+    tbInterface->SetReg(43, (1 << 0));
 
     float seconds = 1;
     for (float t = seconds; t > 0; t--) {
@@ -277,28 +273,28 @@ void HRTrimLow::MakeMap(void)
     gDelay->Mdelay((int)((seconds - (int)(seconds)) * 1000));
 
     /* Stop triggering */
-    ai->Single(RES);
-    ai->Flush();
+    tbInterface->Single(RES);
+    tbInterface->Flush();
 
     /* Wait for data aquisition to finish */
     gDelay->Mdelay(100);
 
     /* Get pointer to the end of the data block */
-    int data_end = ai->getCTestboard()->Daq_GetPointer();
-    ai->Flush();
+    int data_end = tbInterface->getCTestboard()->Daq_GetPointer();
+    tbInterface->Flush();
 
     /* Disable data aquisition */
-    ai->SetReg(41, 0x20 | 0x02);
-    ai->getCTestboard()->Daq_Disable();
-    ai->DataCtrl(false, false, false);
-    ai->Flush();
+    tbInterface->SetReg(41, 0x20 | 0x02);
+    tbInterface->getCTestboard()->Daq_Disable();
+    tbInterface->DataCtrl(false, false, false);
+    tbInterface->Flush();
 
     /* Number of words stored in memory */
     int nwords = (data_end - data_pointer) / 2;
     psi::LogInfo() << "Megabytes in RAM: " << nwords * 2. / 1024. / 1024. << psi::endl;
 
     /* Prepare data decoding */
-    RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
+    RAMRawDataReader rd(tbInterface->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
     RawData2RawEvent rs;
     RawEventDecoder ed(1, roc->has_analog_readout(), roc->has_row_address_inverted());
     HitMapper hm(1, seconds);
@@ -312,9 +308,9 @@ void HRTrimLow::MakeMap(void)
     triggers = count.TriggerCounter;
 
     /* Free the memory in the RAM */
-    ai->getCTestboard()->Daq_Done();
+    tbInterface->getCTestboard()->Daq_Done();
 
     /* Reset the chip */
-    ai->Single(RES);
-    ai->Flush();
+    tbInterface->Single(RES);
+    tbInterface->Flush();
 }

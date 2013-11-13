@@ -4,7 +4,7 @@
 #include "TemperatureTest.h"
 #include "interface/Log.h"
 #include "TestRoc.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 
 TemperatureTest::TemperatureTest(TestRange * aTestRange, TestParameters * testParameters, TBInterface * aTBInterface)
 {
@@ -32,13 +32,12 @@ void TemperatureTest::RocAction()
 {
 if (roc->has_analog_readout())
     {
-    TBAnalogInterface * anaInterface = (TBAnalogInterface *)tbInterface;
 
     // get black level
     unsigned short count;
     short data[FIFOSIZE], blackLevel;
 
-    anaInterface->ADCRead(data, count, nTrig);
+    tbInterface->ADCRead(data, count, nTrig);
     blackLevel = data[9 + aoutChipPosition * 3];
 
     // Calibrate
@@ -49,7 +48,7 @@ if (roc->has_analog_readout())
         psi::LogInfo() << "[TemperatureTest] Measuring calibration point " << rangeTemp << " ..." << psi::endl;
         SetDAC("RangeTemp", rangeTemp + 8);
         Flush();
-        calib->SetPoint(rangeTemp, rangeTemp, anaInterface->LastDAC(nTrig, aoutChipPosition));
+        calib->SetPoint(rangeTemp, rangeTemp, tbInterface->LastDAC(nTrig, aoutChipPosition));
     }
     histograms->Add(calib);
     calib->Write();
@@ -63,7 +62,7 @@ if (roc->has_analog_readout())
         psi::LogInfo() << "[TemperatureTest] Measuring temperature point " << rangeTemp << " ..." << psi::endl;
         SetDAC("RangeTemp", rangeTemp);
         Flush();
-        meas->SetPoint(rangeTemp, rangeTemp, anaInterface->LastDAC(nTrig, aoutChipPosition));
+        meas->SetPoint(rangeTemp, rangeTemp, tbInterface->LastDAC(nTrig, aoutChipPosition));
     }
 
     histograms->Add(meas);

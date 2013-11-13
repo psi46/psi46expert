@@ -1,7 +1,7 @@
 #include "TestPixel.h"
 #include "TestRoc.h"
 #include "BasePixel/CalibrationTable.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "interface/Delay.h"
 #include "ThresholdMap.h"
 #include "TestRange.h"

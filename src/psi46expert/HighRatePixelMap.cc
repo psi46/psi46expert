@@ -28,12 +28,11 @@ HRPixelMap::~HRPixelMap()
 
 void HRPixelMap::ModuleAction(void)
 {
-    TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
-    ai->Flush();
+    tbInterface->Flush();
 
     /* ??? */
-    ai->getCTestboard()->DataBlockSize(100);
-    ai->Flush();
+    tbInterface->getCTestboard()->DataBlockSize(100);
+    tbInterface->Flush();
 
     /* Unmask the ROC */
     int nroc = module->NRocs();
@@ -50,28 +49,28 @@ void HRPixelMap::ModuleAction(void)
             }
         }
     }
-    ai->Flush();
+    tbInterface->Flush();
 
     /* Set local trigger and tbm present */
     if (module->GetRoc(0)->has_analog_readout())
-        ai->SetReg(41, 0x20 | 0x02);
+        tbInterface->SetReg(41, 0x20 | 0x02);
     else
-        ai->SetReg(41, 0x20 | 0x01);
-    ai->Flush();
+        tbInterface->SetReg(41, 0x20 | 0x01);
+    tbInterface->Flush();
 
     /* Send a reset to the chip */
-    ai->Single(RES);
+    tbInterface->Single(RES);
 
     /* Set clock stretch */
     if (testParameters->HRPixelMapClockStretch > 1)
-        ai->SetClockStretch(STRETCH_AFTER_CAL, testParameters->HRPixelMapStretchDelay, testParameters->HRPixelMapClockStretch);
+        tbInterface->SetClockStretch(STRETCH_AFTER_CAL, testParameters->HRPixelMapStretchDelay, testParameters->HRPixelMapClockStretch);
 
     /* Get the digital and analog voltages / currents */
     psi::LogInfo() << "[HRPixelMap] Measuring chip voltages and currents ..." << psi::endl;
-    TParameter<float> vd("hr_pixelmap_digital_voltage", ai->GetVD());
-    TParameter<float> id("hr_pixelmap_digital_current", ai->GetID());
-    TParameter<float> va("hr_pixelmap_analog_voltage", ai->GetVA());
-    TParameter<float> ia("hr_pixelmap_analog_current", ai->GetIA());
+    TParameter<float> vd("hr_pixelmap_digital_voltage", tbInterface->GetVD());
+    TParameter<float> id("hr_pixelmap_digital_current", tbInterface->GetID());
+    TParameter<float> va("hr_pixelmap_analog_voltage", tbInterface->GetVA());
+    TParameter<float> ia("hr_pixelmap_analog_current", tbInterface->GetIA());
     vd.Write();
     id.Write();
     va.Write();
@@ -95,35 +94,35 @@ void HRPixelMap::ModuleAction(void)
         if (testParameters->HRPixelMapRepetitions > 1)
             psi::LogInfo() << "[HRPixelMap] Masuring iteration " << rep + 1 << "/" << testParameters->HRPixelMapRepetitions << " ..." << psi::endl;
         /* Prepare the data aquisition (store to testboard RAM) */
-        unsigned int data_pointer = ai->getCTestboard()->Daq_Init(30000000);
+        unsigned int data_pointer = tbInterface->getCTestboard()->Daq_Init(30000000);
 
         /* Enable DMA (direct memory access) controller */
-        ai->getCTestboard()->Daq_Enable();
+        tbInterface->getCTestboard()->Daq_Enable();
 
         /* Set data aquisition to no clear buffer, multi trigger, continuous. */
-        ai->DataCtrl(false, false, true);
+        tbInterface->DataCtrl(false, false, true);
 
         /* Reset the clock counter on the testboard */
-        ai->SetReg(43, (1 << 1));
+        tbInterface->SetReg(43, (1 << 1));
 
         /* Set the trigger frequency (f = 40000000 / (256 * n)) */
-        //ai->getCTestboard()->Set(T_Periode, 5);
-        ai->getCTestboard()->Set(21, testParameters->HRPixelMapTriggerRate); // T_Periode has the wrong value. Should be fixed.
+        //tbInterface->getCTestboard()->Set(T_Periode, 5);
+        tbInterface->getCTestboard()->Set(21, testParameters->HRPixelMapTriggerRate); // T_Periode has the wrong value. Should be fixed.
 
         /* Issue continuous Reset-(Calibrate-)Trigger-Token pattern */
-        ai->Single(RES);
-        ai->Intern(CAL | TRG | TOK);
+        tbInterface->Single(RES);
+        tbInterface->Intern(CAL | TRG | TOK);
 
         /* Set local trigger, tbm present, and run data aquisition */
         if (module->GetRoc(0)->has_analog_readout())
-            ai->SetReg(41, 0x20 | 0x02 | 0x08);
+            tbInterface->SetReg(41, 0x20 | 0x02 | 0x08);
         else
-            ai->SetReg(41, 0x20 | 0x01 | 0x08);
+            tbInterface->SetReg(41, 0x20 | 0x01 | 0x08);
 
-        ai->Flush();
+        tbInterface->Flush();
 
         /* Reset the aquisition on the testboard */
-        ai->SetReg(43, (1 << 0));
+        tbInterface->SetReg(43, (1 << 0));
 
         for (float t = seconds; t >= 1; t--) {
             cout << "\r[HRPixelMap] Taking data (" << t << " seconds) ... ";
@@ -136,34 +135,34 @@ void HRPixelMap::ModuleAction(void)
         cout << "\r[HRPixelMap] Taking data (" << seconds << " seconds) ... done" << endl;
 
         /* Stop triggering */
-        ai->Single(RES);
-        ai->Flush();
+        tbInterface->Single(RES);
+        tbInterface->Flush();
 
         /* Wait for data aquisition to finish */
         gDelay->Mdelay(100);
 
         /* Get pointer to the end of the data block */
-        int data_end = ai->getCTestboard()->Daq_GetPointer();
-        ai->Flush();
+        int data_end = tbInterface->getCTestboard()->Daq_GetPointer();
+        tbInterface->Flush();
 
         /* Disable data aquisition */
-        ai->SetReg(41, 0x20 | 0x02);
-        ai->getCTestboard()->Daq_Disable();
-        ai->DataCtrl(false, false, false);
-        ai->Flush();
+        tbInterface->SetReg(41, 0x20 | 0x02);
+        tbInterface->getCTestboard()->Daq_Disable();
+        tbInterface->DataCtrl(false, false, false);
+        tbInterface->Flush();
 
         /* Number of words stored in memory */
         int nwords = (data_end - data_pointer) / 2;
         psi::LogInfo() << "[HRPixelMap] Megabytes in RAM: " << nwords * 2. / 1024. / 1024. << psi::endl;
 
         /* Prepare data decoding */
-        RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
+        RAMRawDataReader rd(tbInterface->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
 
         /* Decoding chain */
         rd >> rs >> ed >> hm >> count >> mh >> phh >> end;
 
         /* Free the memory in the RAM */
-        ai->getCTestboard()->Daq_Done();
+        tbInterface->getCTestboard()->Daq_Done();
     }
 
     /* Store histograms */
@@ -232,9 +231,9 @@ void HRPixelMap::ModuleAction(void)
 
     /* Disable clock stretch */
     if (testParameters->HRPixelMapClockStretch > 1)
-        ai->SetClockStretch(0, 0, 0);
+        tbInterface->SetClockStretch(0, 0, 0);
 
     /* Reset the chip */
-    ai->Single(RES);
-    ai->Flush();
+    tbInterface->Single(RES);
+    tbInterface->Flush();
 }

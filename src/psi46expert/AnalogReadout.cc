@@ -1,6 +1,6 @@
 #include "AnalogReadout.h"
 #include "TestModule.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 
 
 AnalogReadout::AnalogReadout(TestRange * aTestRange, TestParameters * testParameters, TBInterface * aTBInterface)
@@ -16,9 +16,8 @@ void AnalogReadout::ModuleAction()
     unsigned short counter;
     short data[FIFOSIZE];
 
-    TBAnalogInterface * anaInterface = (TBAnalogInterface *)tbInterface;
-    int emptyReadoutLengthADC = anaInterface->GetEmptyReadoutLengthADC();
-    anaInterface->ADCRead(data, counter, 100);
+    int emptyReadoutLengthADC = tbInterface->GetEmptyReadoutLengthADC();
+    tbInterface->ADCRead(data, counter, 100);
 
     int max = counter;
     if (counter > emptyReadoutLengthADC) max = emptyReadoutLengthADC;

@@ -1,7 +1,7 @@
 #include "PhDacOverview.h"
 #include "TestRoc.h"
 #include "TestModule.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/GlobalConstants.h"
 #include <TParameter.h>
 #include "TCanvas.h"
@@ -49,10 +49,9 @@ void PhDacOverview::PixelAction()
 /* Test pulse height vs Vcal in the entire parameter space of the ROC and the TBM */
 void PhDacOverview::DoDacScan()
 {
-    TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
 
     int offset;
-    if (ai->TBMPresent())
+    if (tbInterface->TBMPresent())
         offset = 16;
     else
         offset = 9;
@@ -142,8 +141,8 @@ void PhDacOverview::DoDacScan()
 
             /* Measure digital current (2 times) */
             double id;
-            id = ai->GetID();
-            id = ai->GetID();
+            id = tbInterface->GetID();
+            id = tbInterface->GetID();
             TParameter<double> * parameter1 = new TParameter<double>(Form("ID_DAC%i_Value%i", DacRegister, loopNumber), id);
             parameter1->Write();
 
@@ -157,7 +156,7 @@ void PhDacOverview::DoDacScan()
     }
 
     /* Stop if there is no TBM */
-    if (!(ai->TBMPresent()))
+    if (!(tbInterface->TBMPresent()))
         return;
 
     /* Iterate over TBM DACs */
@@ -193,17 +192,16 @@ void PhDacOverview::DoDacScan()
 
 void PhDacOverview::PHDac(TH1D * histo)
 {
-    TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
 
     if (roc->has_analog_readout()) {
         int offset;
-        if (ai->TBMPresent())
+        if (tbInterface->TBMPresent())
             offset = 16;
         else
             offset = 9;
 
         short result[256];
-        ai->PHDac(25, 256, nTrig, offset + aoutChipPosition * 3, result);
+        tbInterface->PHDac(25, 256, nTrig, offset + aoutChipPosition * 3, result);
         for (int dac = 0; dac < 256; dac++) {
             if (result[dac] == 7777)
                 histo->SetBinContent(dac + 1, 0);
@@ -223,8 +221,8 @@ void PhDacOverview::PHDac(TH1D * histo)
         DecodedReadoutModule * drm = new DecodedReadoutModule;
 
         /* Set local trigger and channel */
-        ai->SetReg(41, 0x20 | 0x01);
-        ai->DataCtrl(false, false, true);
+        tbInterface->SetReg(41, 0x20 | 0x01);
+        tbInterface->DataCtrl(false, false, true);
 
         EnablePixel();
         ArmPixel();
@@ -236,18 +234,18 @@ void PhDacOverview::PHDac(TH1D * histo)
         for (int vcal = 0; vcal < 256; vcal++) {
             /* Set Vcal */
             SetDAC("Vcal", vcal);
-            ai->CDelay(500);
-            ai->Flush();
+            tbInterface->CDelay(500);
+            tbInterface->Flush();
 
             /* Send nTrig calibrates to the chip */
             for (int i = 0; i < nTrig; i++) {
-                ai->Single(RES | CAL | TRG | TOK);
-                ai->CDelay(500);
+                tbInterface->Single(RES | CAL | TRG | TOK);
+                tbInterface->CDelay(500);
             }
-            ai->Flush();
+            tbInterface->Flush();
 
             /* Read the data from the FIFO on the testboard */
-            ai->getCTestboard()->DataRead(ai->GetTBMChannel(), buffer, 256, nwords);
+            tbInterface->getCTestboard()->DataRead(tbInterface->GetTBMChannel(), buffer, 256, nwords);
 
             /* Calculate the mean pulseheight from nTrig measurements by analysing the data */
             float ph_mean = 0.0;
@@ -261,18 +259,18 @@ void PhDacOverview::PHDac(TH1D * histo)
                     if (hits == 1) {
                         /* Record the pulse height and move to the next block of data */
                         ph_mean += drm->roc[roc->GetChipId()].pixelHit[0].analogPulseHeight;
-                        data_pos += ai->GetEmptyReadoutLengthADC() + hits * 6;
+                        data_pos += tbInterface->GetEmptyReadoutLengthADC() + hits * 6;
                         measurement_num++;
                     } else if (hits > 1) {
                         /* More hits than expected. Move to the next block of data. */
-                        data_pos += ai->GetEmptyReadoutLengthADC() + hits * 6;
+                        data_pos += tbInterface->GetEmptyReadoutLengthADC() + hits * 6;
                     } else {
                         /* No hits, move to the next block of data. */
-                        data_pos += ai->GetEmptyReadoutLengthADC();
+                        data_pos += tbInterface->GetEmptyReadoutLengthADC();
                     }
                 } else {
                     /* Decoding failed. Try next block of data. */
-                    data_pos += ai->GetEmptyReadoutLengthADC();
+                    data_pos += tbInterface->GetEmptyReadoutLengthADC();
                 }
             }
 
@@ -296,7 +294,7 @@ void PhDacOverview::DoVsfScan()
 
 
     int offset;
-    if (((TBAnalogInterface *)tbInterface)->TBMPresent()) offset = 16;
+    if (tbInterface->TBMPresent()) offset = 16;
     else offset = 9;
     int nTrig = 10;
 
@@ -314,7 +312,7 @@ void PhDacOverview::DoVsfScan()
                 SetDAC("Vsf", vsf);
                 Flush();
                 short result[256];
-                ((TBAnalogInterface *)tbInterface)->PHDac(25, 256, nTrig, offset + aoutChipPosition * 3, result);
+                tbInterface->PHDac(25, 256, nTrig, offset + aoutChipPosition * 3, result);
                 TH1D * histo = new TH1D(Form("Vsf%d_Col%d_Row%d", vsf, col, row), Form("Vsf%d_Col%d_Row%d", vsf, col, row), 256, 0., 256.);
                 for (int dac = 0; dac < 256; dac++)
                 {

@@ -1,6 +1,6 @@
 #include <TH1D.h>
 #include "Test.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "TestParameters.h"
 #include "TestRange.h"
 

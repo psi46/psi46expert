@@ -20,8 +20,7 @@
 #include "psi46expert/TestControlNetwork.h"
 #include "psi46expert/MainFrame.h"
 #include "psi46expert/Xray.h"
-#include "BasePixel/TBAnalogInterface.h"
-#include "BasePixel/TBDigitalInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/SysCommand.h"
 #include "BasePixel/ConfigParameters.h"
 #include "BasePixel/GlobalConstants.h"
@@ -32,7 +31,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-TBDigitalInterface * tbInterface;
+TBInterface * tbInterface;
 TestControlNetwork * controlNetwork;
 ConfigParameters * configParameters;
 SysCommand sysCommand;
@@ -541,7 +540,7 @@ int main(int argc, char * argv[])
     gStyle->SetPalette(1, 0);
 
     psi::LogInfo() << "[psi46expert] Setting up the testboard interface ..." << psi::endl;
-    tbInterface = new TBDigitalInterface(configParameters);
+    tbInterface = new TBInterface(configParameters);
     if (!tbInterface->IsPresent()) return -1;
     controlNetwork = new TestControlNetwork(tbInterface, configParameters);
 
@@ -599,7 +598,7 @@ int main(int argc, char * argv[])
     {
         tbInterface->HVoff();
         tbInterface->Poff();
-        tbInterface->Cleanup();
+        tbInterface->Close();
     }
 
     if (V > 0)

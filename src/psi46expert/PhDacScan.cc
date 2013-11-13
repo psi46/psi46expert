@@ -1,6 +1,6 @@
 #include "PhDacScan.h"
 #include "TestRoc.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/GlobalConstants.h"
 #include <TMath.h>
 

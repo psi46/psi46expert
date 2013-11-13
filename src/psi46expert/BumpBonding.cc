@@ -4,7 +4,7 @@
 #include "TestRoc.h"
 #include "Analysis.h"
 #include "ThresholdMap.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 
 BumpBonding::BumpBonding(TestRange * aTestRange, TestParameters * testParameters, TBInterface * aTBInterface)
 {
@@ -25,7 +25,6 @@ void BumpBonding::ReadTestParameters(TestParameters * testParameters)
 void BumpBonding::RocAction()
 {
     psi::LogInfo() << "[BumpBonding] Finding missing bump bonds for ROC #" << chipId << " ..." << psi::endl;
-    TBAnalogInterface * ai = dynamic_cast<TBAnalogInterface *>(tbInterface);
     bool is_analog = roc->has_analog_readout();
 
     if (is_analog) {

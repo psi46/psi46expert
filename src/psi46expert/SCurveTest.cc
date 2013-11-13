@@ -5,7 +5,7 @@
 #include "psi46expert/TestModule.h"
 #include "BasePixel/CalibrationTable.h"
 #include "BasePixel/ConfigParameters.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 
 
 SCurveTest::SCurveTest(TestRange * aTestRange, TestParameters * testParameters, TBInterface * aTBInterface)
@@ -126,7 +126,7 @@ void SCurveTest::DoubleColumnAction()
                 }
             }
 
-            ((TBAnalogInterface *)tbInterface)->SCurveColumn(iCol, nTrig, dacReg, thr, trims, chipId, sCurve);
+            tbInterface->SCurveColumn(iCol, nTrig, dacReg, thr, trims, chipId, sCurve);
             //      for (int k = 0; k < 2*ROCNUMROWS*256; k++) printf("%i ", sCurve[k]);
 
             double x[255], y[255];

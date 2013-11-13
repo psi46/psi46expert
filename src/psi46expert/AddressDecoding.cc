@@ -3,7 +3,7 @@
 #include "AddressDecoding.h"
 #include "TestRoc.h"
 #include "BasePixel/GlobalConstants.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/RawPacketDecoder.h"
 #include "BasePixel/DecoderCalibration.h"
 #include "BasePixel/DigitalReadoutDecoder.h"
@@ -43,7 +43,7 @@ void AddressDecoding::DoubleColumnAction()
         for (column=int(2*doubleColumn->DoubleColumnNumber()); column<=int(2*doubleColumn->DoubleColumnNumber()+1); column++){
             for (row=0; row<ROC_NUMROWS; row++){
                 if (testRange->IncludesPixel(chipId, column, row)) {
-                    bool correct_address = ((TBAnalogInterface *)tbInterface)->test_pixel_address(column, row);
+                    bool correct_address = tbInterface->test_pixel_address(column, row);
                     if (correct_address){
                         map->Fill(column, row);
                     }
@@ -82,7 +82,7 @@ void AddressDecoding::DoubleColumnAction()
             SetPixel(doubleColumn->GetPixel(i));
             if (testRange->IncludesPixel(chipId, column, row)) {
                 ArmPixel();
-                ((TBAnalogInterface *)tbInterface)->ADCData(data, nword);
+                tbInterface->ADCData(data, nword);
                 DisarmPixel();
                 Flush();
                 if (nword < 25) {
@@ -107,7 +107,7 @@ void AddressDecoding::AnalyseResult(int pixel)
     ConfigParameters * configParameters = ConfigParameters::Singleton();
     int nRocs = configParameters->nRocs;
 
-    if (readoutStop[pixel] - readoutStart == ((TBAnalogInterface *)tbInterface)->GetEmptyReadoutLengthADC() + 6)
+    if (readoutStop[pixel] - readoutStart == tbInterface->GetEmptyReadoutLengthADC() + 6)
     {
         if (roc->has_analog_readout()) {
             error = nDecodedPixels = gDecoder->decode(readoutStop[pixel] - readoutStart,
@@ -126,7 +126,7 @@ void AddressDecoding::AnalyseResult(int pixel)
     }
     else
     {
-        if (readoutStop[pixel] - readoutStart != ((TBAnalogInterface *)tbInterface)->GetEmptyReadoutLengthADC())
+        if (readoutStop[pixel] - readoutStart != tbInterface->GetEmptyReadoutLengthADC())
             psi::LogInfo() << "[AddressDecoding] Warning: Invalid readout length (" << readoutStop[pixel] - readoutStart << ")" << psi::endl;
         else
             psi::LogInfo() << "[AddressDecoding] Warning: Empty readout for pixel " << column << ":" << row << " on ROC " << roc->GetChipId() << "." << psi::endl;
@@ -150,19 +150,19 @@ void AddressDecoding::AnalyseResult(int pixel)
                        << ") on ROC" << roc->GetChipId() << '.' << psi::endl;
 
         if ((readoutStop[pixel] - readoutStart) ==
-                dynamic_cast<TBAnalogInterface *>(tbInterface)->GetEmptyReadoutLengthADC())
+                tbInterface->GetEmptyReadoutLengthADC())
         {
             psi::LogDebug() << "[AddressDecoding] Pixel seems to be dead."
                             << psi::endl;
         }
 
         else if ((readoutStop[pixel] - readoutStart) !=
-                 (dynamic_cast<TBAnalogInterface *>(tbInterface)->GetEmptyReadoutLengthADC() + 6))
+                 (tbInterface->GetEmptyReadoutLengthADC() + 6))
         {
             psi::LogDebug() << "[AddressDecoding] Pixel has a wrong length ("
                             << readoutStop[pixel] - readoutStart
                             << ") of read-out signal. Expected length is "
-                            << (dynamic_cast<TBAnalogInterface *>(tbInterface)->GetEmptyReadoutLengthADC() + 6)
+                            << (tbInterface->GetEmptyReadoutLengthADC() + 6)
                             << '.' << psi::endl;
         }
     }

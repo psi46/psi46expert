@@ -10,7 +10,7 @@
 #include "TimeWalkStudy.h"
 #include "TestRoc.h"
 #include "TestModule.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 
 
 TimeWalkStudy::TimeWalkStudy(TestRange * aTestRange, TestParameters * testParameters, TBInterface * aTBInterface)
@@ -42,7 +42,7 @@ void TimeWalkStudy::ModuleAction()
     }
     Flush();
     gDelay->Mdelay(2000);
-    zeroCurrent = ((TBAnalogInterface *)tbInterface)->GetIA();
+    zeroCurrent = tbInterface->GetIA();
 
     Test::ModuleAction();
 
@@ -94,12 +94,12 @@ double TimeWalkStudy::TimeWalk(int vcalStep)
 
     int calDelSAVED = GetDAC("CalDel"), vcalSAVED = GetDAC("Vcal"), wbcSAVED = GetDAC("WBC");
 
-    ((TBAnalogInterface *)tbInterface)->CdVc(chipId, 97, 102, vcalStep, 90, lres, res);
+    tbInterface->CdVc(chipId, 97, 102, vcalStep, 90, lres, res);
 
     SetDAC("CalDel", calDelSAVED);
     SetDAC("Vcal", vcalSAVED);
     SetDAC("WBC", wbcSAVED);
-    ((TBAnalogInterface *)tbInterface)->DataCtrl(true, false);
+    tbInterface->DataCtrl(true, false);
     Flush();
 
     int t = lres / 3;
@@ -131,7 +131,7 @@ int TimeWalkStudy::FindNewVana()
     printf("time shift %e\n", tw);
     twBefore[chipId] = tw;
 
-    double current = ((TBAnalogInterface *)tbInterface)->GetIA();
+    double current = tbInterface->GetIA();
     printf("current %e\n", current - zeroCurrent);
 
     double goalCurrent = current - zeroCurrent + tw * powerSlope;
@@ -198,9 +198,9 @@ void TimeWalkStudy::CalDelDeltaT()
     int nTrigs = 10;
 
     int calDelSAVED = GetDAC("CalDel");
-    ((TBAnalogInterface *)tbInterface)->ScanAdac(chipId, 26, 0, 255, 1, nTrigs, 10, res);
+    tbInterface->ScanAdac(chipId, 26, 0, 255, 1, nTrigs, 10, res);
     SetDAC("CalDel", calDelSAVED);
-    ((TBAnalogInterface *)tbInterface)->DataCtrl(true, false);  //to clear fifo buffer
+    tbInterface->DataCtrl(true, false);  //to clear fifo buffer
     Flush();
 
     for (int i = 0; i < 255; i++) count += res[i];
@@ -247,7 +247,7 @@ void TimeWalkStudy::SetThreshold(int vcal)
     }
     while (((thr > vcal) || (thrOld > vcal)) && (vtrim < 255));
     SetDAC("Vcal", vcalSAVED);
-    ((TBAnalogInterface *)tbInterface)->DataCtrl(true, false);
+    tbInterface->DataCtrl(true, false);
     pixel->SetTrim(0);
     ArmPixel(); //pixel was masked after PixelThreshold()
     Flush();

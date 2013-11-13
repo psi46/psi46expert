@@ -12,12 +12,12 @@
 
 
 // ---------------------------------------------------
-#define TITLE        "PSI46V2 ROC/Wafer Tester"
-#define VERSION      "V1.3"
-#define TIMESTAMP    "07.08.2013"
+#define TITLE                  "PSI46V2 ROC/Wafer Tester"
+#define PIXEL_DTB_VERSION      "V1.3"
+#define TIMESTAMP              "07.08.2013"
 // ---------------------------------------------------
 
-#define VERSIONINFO TITLE " " VERSION " (" TIMESTAMP ")"
+#define VERSIONINFO TITLE " " PIXEL_DTB_VERSION " (" TIMESTAMP ")"
 
 
 #pragma once

@@ -2,7 +2,7 @@
 #include "daqDACSettings.hh"
 #include "daqFrame.hh"
 #include "psi46expert/TestControlNetwork.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 
 daqDACSettings::daqDACSettings(const TGWindow * p, const TGWindow * daq, int tbNumber) {
     // build widgets

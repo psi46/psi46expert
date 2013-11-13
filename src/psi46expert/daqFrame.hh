@@ -25,7 +25,7 @@
 #include <BasePixel/Keithley.h>
 
 
-class TBAnalogInterface;
+class TBInterface;
 class TestControlNetwork;
 
 class daqFrame: public TGMainFrame {
@@ -50,11 +50,11 @@ public:
 
     void setUsbDAQ(UsbDaq * p) { fpDAQ = p;}
     void setLoggingManager(daqLoggingManager * p) { fpLM = p;}
-    void setTbInterface(TBAnalogInterface * tb) {fTB = tb;}
+    void setTbInterface(TBInterface * tb) {fTB = tb;}
     void setControlNetwork(TestControlNetwork * tcn) {fCN = tcn;}
 
     UsbDaq       *      getDAQ() {return fpDAQ;}
-    TBAnalogInterface * getTbInterface(int n) {return fTB;}
+    TBInterface * getTbInterface(int n) {return fTB;}
     TestControlNetwork * getControlNetwork(int n) {return fCN;}
 
     // -- Slots
@@ -98,7 +98,7 @@ private:
 
     UsbDaq       *       fpDAQ;  //! do not save to file else there are
     daqLoggingManager  * fpLM;   //! do not save to file else there are
-    TBAnalogInterface  * fTB; //! problems with dictionary creation ...
+    TBInterface  * fTB; //! problems with dictionary creation ...
     TestControlNetwork * fCN; //! (note that //! is a magic comment)
 
     static const int dataBuffer_numWords = 30000000;

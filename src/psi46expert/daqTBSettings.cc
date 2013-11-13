@@ -1,7 +1,7 @@
 #include <iostream>
 #include "daqTBSettings.hh"
 
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "psi46expert/daqFrame.hh"
 
 daqTBSettings::daqTBSettings(const TGWindow * p, const TGWindow * daq, int tbNumber) {

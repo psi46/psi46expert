@@ -8,7 +8,7 @@
 #include <TStyle.h>
 #include <TGMsgBox.h>
 
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "interface/Delay.h"
 #include "interface/Log.h"
 #include "MainFrame.h"
@@ -562,10 +562,10 @@ void MainFrame::HVoff() {
 
 void MainFrame::Exit()
 {
-    ((TBAnalogInterface *)tbInterface)->HVoff();
+    tbInterface->HVoff();
     tbInterface->Flush();
     tbInterface->Poff();
-    tbInterface->Cleanup();
+    tbInterface->Close();
 
     gFile->Write();
     gFile->Close();
@@ -966,9 +966,9 @@ void  MainFrame::DoADC()
     short data[FIFOSIZE];
     bool is_analog = controlNetwork->GetModule(0)->GetRoc(0)->has_analog_readout();
     if (is_analog)
-        ((TBAnalogInterface *)tbInterface)->ADCRead(data, count);
+        tbInterface->ADCRead(data, count);
     else
-        ((TBAnalogInterface *)tbInterface)->ADCRead_digital(data, count);
+        tbInterface->ADCRead_digital(data, count);
 
     TH1D * hist = new TH1D("ADC", "ADC", count, 0, count);
 

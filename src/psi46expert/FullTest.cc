@@ -1,7 +1,7 @@
 #include "interface/Log.h"
 
 #include "interface/Delay.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include "FullTest.h"
 #include "PixelAlive.h"
