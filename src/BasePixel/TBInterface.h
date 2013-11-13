@@ -9,8 +9,6 @@
 #include "BasePixel/ConfigParameters.h"
 #include "BasePixel/pixel_dtb.h"
 
-class ConfigParameters;
-
 class TBInterface
 {
 public:
