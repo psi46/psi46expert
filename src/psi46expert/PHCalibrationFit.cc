@@ -330,8 +330,12 @@ void PHCalibrationFit::FitCurve(char * dirName, int chip, int col, int row)
         return;
     }
 
-    for (int i = 0; i < 4; i++) fgets(string, 1000, inputFile);
-    for (int i = 0; i < col * 80 + row; i++) fgets(string, 1000, inputFile);
+    for (int i = 0; i < 4; i++) {
+      if(fgets(string, 1000, inputFile) == NULL) break;
+    }
+    for (int i = 0; i < col * 80 + row; i++) {
+      if(fgets(string, 1000, inputFile) == NULL) break;
+    }
 
     n = 0;
     for (int i = 0; i < 2 * vcalSteps; i++)
