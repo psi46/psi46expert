@@ -2,7 +2,7 @@
 #include <iostream>
 using namespace std;
 
-#define BITS_PER_WORD   4
+#define BITS_PER_WORD   12
 #define TBM_HEADER_BITS 0 // FIXME
 #define ROC_HEADER_BITS 12
 #define COLUMN_ADDRESS_GROUPS 2
