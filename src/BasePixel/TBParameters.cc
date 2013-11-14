@@ -65,15 +65,21 @@ void TBParameters::SetParameter(int reg, int value)
 
 bool TBParameters::Execute(SysCommand command)
 {
-    for (int iDAC = 0; iDAC < NTBParameters; iDAC++)
+  if (command.Keyword("par")) {
+    Print();
+    return true;
+  }
+  else {
+    for (int iPar = 0; iPar < NTBParameters; iPar++)
     {
 
-        if ((strcmp(names[iDAC], "") != 0) && (strcmp(command.carg[0], names[iDAC]) == 0))
+        if ((strcmp(names[iPar], "") != 0) && (strcmp(command.carg[0], names[iPar]) == 0))
         {
-            SetParameter(iDAC, *command.iarg[1]);
+            SetParameter(iPar, *command.iarg[1]);
             return true;
         }
     }
+  }
     return false;
 }
 
@@ -197,6 +203,19 @@ bool TBParameters::WriteTBParameterFile(const char * _file)
     return true;
 }
 
+void TBParameters::Print()
+{
+  psi::LogInfo() << "Parameter\tName\t\tValue" << psi::endl;
+  psi::LogInfo() << "-----------------------------" << psi::endl;
+  for (int i = 0; i < NTBParameters; i++) {
+    if (parameters[i] == -1)
+      continue;
+    if (strlen(names[i]) >= 7)
+      psi::LogInfo() << i << "\t" << names[i] << ":\t" << parameters[i] << psi::endl;
+    else
+      psi::LogInfo() << i << "\t" << names[i] << ":\t\t" << parameters[i] << psi::endl;
+  }
+}
 
 // == Private =======================================================
 

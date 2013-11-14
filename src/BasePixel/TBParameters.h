@@ -29,6 +29,7 @@ public:
     // == file input / output ===================================================
     bool ReadTBParameterFile(const char * filename);
     bool WriteTBParameterFile(const char * filename);
+    void Print();
 
 protected:
     void _SetParameter(int reg, int value);
