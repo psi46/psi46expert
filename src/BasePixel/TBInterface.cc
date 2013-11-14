@@ -139,6 +139,12 @@ void TBInterface::Execute(SysCommand &command)
     {rctk_flag = RangeCheck(*value, 0, 15);}
     else if (command.Keyword("ctr", &value))
     {delay = RangeCheck(*value, 1, 120); SetTBParameter("ctr", delay);}
+    else if (command.Keyword("clk", &value))
+    {delay = RangeCheck(*value, 1, 120); SetTBParameter("clk", delay);}
+    else if (command.Keyword("sda", &value))
+    {delay = RangeCheck(*value, 1, 120); SetTBParameter("sda", delay);}
+    else if (command.Keyword("tin", &value))
+    {delay = RangeCheck(*value, 1, 120); SetTBParameter("tin", delay);}
     else
     {
         if (!tbParameters->Execute(command))

@@ -18,11 +18,11 @@ TBParameters::TBParameters(TBInterface * aTBInterface)
         names[i] = "";
     }
 
-    names[8] = "clk";
-    names[9] = "sda";
-    names[10] = "ctr";
-    names[11] = "tin";
-    names[12] = "rda";
+    names[0] = "clk";
+    names[1] = "sda";
+    names[2] = "ctr";
+    names[3] = "tin";
+    //names[12] = "rda";
 
     names[17] = "trc";
     names[18] = "tcc";
@@ -47,20 +47,19 @@ TBParameters * TBParameters::Copy()
 }
 
 
-// -- sets a parameter
+// -- sets a testboard parameter
 void TBParameters::SetParameter(int reg, int value)
 {
     parameters[reg] = value;
     if (reg == 77) tbInterface->SetClock(value);
     else if (reg > 15)
     {
-        tbInterface->Set(reg, value);
+      // tbInterface->Set(reg, value); WRONG! Writes into DAC parameters!
     }
     else
     {
         tbInterface->SetDelay(reg, value);
     }
-    //  gLog->printf("set tb parameter %i to %i\n", reg, value);
 }
 
 
@@ -96,7 +95,7 @@ void TBParameters::Restore() {
 // -- sets a testboard parameter
 void TBParameters::SetParameter(const char * dacName, int value)
 {
-  cout << "TBPar::SetPar" << endl;
+  cout << "TBPar::SetPar " << dacName << " " << value << endl;
     for (int i = 0; i < NTBParameters; i++) {
         if (strcmp(names[i], dacName) == 0) {
             SetParameter(i, value);
