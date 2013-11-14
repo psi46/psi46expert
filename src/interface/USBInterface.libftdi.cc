@@ -255,6 +255,8 @@ bool CUSB::Open(char serialNumber[])
     return false; 
   }
   
+  std::cout << " USBInterface::Open(): searching for device with serial number: '" << serialNumber << "'" << std::endl;
+
   // reset buffer index positions
   m_posR = m_sizeR = m_posW = 0;
 
@@ -277,10 +279,11 @@ bool CUSB::Open(char serialNumber[])
       std::cout << " USBInterface::Open(): Error polling USB device number " << i << std::endl;
       devlist->next;
       continue;
-    }
-    std::cout << " USBInterface::Open(): looking at device with serial " << serial << std::endl;
+    }    
     if (strcmp(serialNumber,serial)!=0 && strcmp(serialNumber,"*")!=0){
       // not found, next device
+      std::cout << " USBInterface::Open(): found non-matching device with serial number: '" << serial << "'" << std::endl;
+
       devlist->next;
     } else {
       // found the device
