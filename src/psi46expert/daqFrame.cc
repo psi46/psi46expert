@@ -435,7 +435,7 @@ void daqFrame::initializeHardware() {
     fpLM->log(Form("=========================="));
     fpLM->log(Form("==>daqf: INSTANTIATING MTB"));
     fpLM->log(Form("=========================="));
-    fTB = new TBDigitalInterface(fpLM->getMTBConfigParameters());
+    fTB = new TBInterface(fpLM->getMTBConfigParameters());
     fTB->Flush();
     fCN = new TestControlNetwork(fTB, fpLM->getMTBConfigParameters());
     fTB->Flush();
