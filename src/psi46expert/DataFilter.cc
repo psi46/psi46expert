@@ -955,10 +955,10 @@ void PulseHeightHistogrammer::LoadCalibration(int nRoc, const char * dirfilebase
         }
 
         /* skip 4 lines */
-        fgets(tmp, 100, f);
-        fgets(tmp, 100, f);
-        fgets(tmp, 100, f);
-        fgets(tmp, 100, f);
+        if(fgets(tmp, 100, f) == NULL) break;
+        if(fgets(tmp, 100, f) == NULL) break;
+        if(fgets(tmp, 100, f) == NULL) break;
+        if(fgets(tmp, 100, f) == NULL) break;
 
         /* read calibration for each pixel */
         for (int col = 0; col < 52; col++) {

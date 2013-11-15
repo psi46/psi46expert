@@ -1,6 +1,6 @@
 #include "ChipVariation.h"
 #include "TestRoc.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/GlobalConstants.h"
 #include "TCanvas.h"
 #include "PhDacScan.h"
@@ -53,13 +53,13 @@ void ChipVariation::Scan()
     SetDAC(253, 4);
 
     int offset;
-    if (((TBAnalogInterface *)tbInterface)->TBMPresent()) offset = 16;
+    if (tbInterface->TBMPresent()) offset = 16;
     else offset = 9;
 
     TH1D * histo = new TH1D(Form("ROC%i_Col%i_Row%i", chipId, column, row), Form("ROC%i_Col%i_Row%i", chipId, column, row), 256, 0, 256);
     cout << "Chip position " << aoutChipPosition << endl;
     short result[256];
-    ((TBAnalogInterface *)tbInterface)->PHDac(25, 256, nTrig, offset + aoutChipPosition * 3, result);
+    tbInterface->PHDac(25, 256, nTrig, offset + aoutChipPosition * 3, result);
     for (int dac = 0; dac < 256; dac++)
     {
         if (result[dac] == 7777) histo->SetBinContent(dac + 1, 0);

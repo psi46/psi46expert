@@ -6,8 +6,7 @@
 #include "TUnixSystem.h"
 
 #include "psi46expert/daqFrame.hh"
-#include "BasePixel/TBAnalogInterface.h"
-#include "BasePixel/TBDigitalInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "psi46expert/TestParameters.h"
 #include "psi46expert/TestControlNetwork.h"
 
@@ -92,7 +91,7 @@ void daqLoggingManager::setupRun() {
 
 
 // ----------------------------------------------------------------------
-void daqLoggingManager::dumpHardwareConfiguration(int imod, TestControlNetwork * cn, TBDigitalInterface * tb) {
+void daqLoggingManager::dumpHardwareConfiguration(int imod, TestControlNetwork * cn, TBInterface * tb) {
 
     //   system(Form("/bin/cp -r %s %s/settings", fpMTB->directory, getOutputDir()));
 

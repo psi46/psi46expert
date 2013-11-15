@@ -48,11 +48,11 @@ void HRSCurve::ModuleAction(void)
 
     /* Get the digital and analog voltages / currents */
     psi::LogInfo() << "Measuring chip voltages and currents ..." << psi::endl;
-    TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
-    TParameter<float> vd("hr_scurve_digital_voltage", ai->GetVD());
-    TParameter<float> id("hr_scurve_digital_current", ai->GetID());
-    TParameter<float> va("hr_scurve_analog_voltage", ai->GetVA());
-    TParameter<float> ia("hr_scurve_analog_current", ai->GetIA());
+
+    TParameter<float> vd("hr_scurve_digital_voltage", tbInterface->GetVD());
+    TParameter<float> id("hr_scurve_digital_current", tbInterface->GetID());
+    TParameter<float> va("hr_scurve_analog_voltage", tbInterface->GetVA());
+    TParameter<float> ia("hr_scurve_analog_current", tbInterface->GetIA());
     vd.Write();
     id.Write();
     va.Write();
@@ -95,48 +95,47 @@ void HRSCurve::ModuleAction(void)
 
 void HRSCurve::TakeEfficiencyMap(int ntrig, bool set_vcal, int vcal_offset)
 {
-    TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
-    ai->Flush();
+    tbInterface->Flush();
 
     /* ??? */
-    ai->getCTestboard()->DataBlockSize(100);
-    ai->Flush();
+    tbInterface->getCTestboard()->DataBlockSize(100);
+    tbInterface->Flush();
 
     /* Unmask ROC */
     for (int iroc = 0; iroc < module->NRocs(); iroc++)
         module->GetRoc(iroc)->EnableAllPixels();
-    ai->Flush();
+    tbInterface->Flush();
 
     /* Set local trigger and tbm present */
-    ai->SetReg(41, 0x20 | 0x02);
-    ai->Flush();
+    tbInterface->SetReg(41, 0x20 | 0x02);
+    tbInterface->Flush();
 
     /* Send a reset to the chip */
-    ai->Single(RES);
-    ai->Flush();
+    tbInterface->Single(RES);
+    tbInterface->Flush();
     gDelay->Mdelay(10);
 
     /* Prepare the data aquisition (store to testboard RAM) */
-    unsigned int data_pointer = ai->getCTestboard()->Daq_Init(30000000);
+    unsigned int data_pointer = tbInterface->getCTestboard()->Daq_Init(30000000);
 
     /* Enable DMA (direct memory access) controller */
-    ai->getCTestboard()->Daq_Enable();
+    tbInterface->getCTestboard()->Daq_Enable();
 
     /* Set data aquisition to no clear buffer, multi trigger, continuous. */
-    ai->DataCtrl(false, false, true);
+    tbInterface->DataCtrl(false, false, true);
 
     /* Reset the clock counter on the testboard */
-    ai->SetReg(43, (1 << 1));
+    tbInterface->SetReg(43, (1 << 1));
 
     /* Set local trigger, tbm present, and run data aquisition */
     if (module->GetRoc(0)->has_analog_readout())
-        ai->SetReg(41, 0x20 | 0x02 | 0x08);
+        tbInterface->SetReg(41, 0x20 | 0x02 | 0x08);
     else
-        ai->SetReg(41, 0x20 | 0x01 | 0x08);
-    ai->Flush();
+        tbInterface->SetReg(41, 0x20 | 0x01 | 0x08);
+    tbInterface->Flush();
 
     /* Reset the aquisition on the testboard */
-    ai->SetReg(43, (1 << 0));
+    tbInterface->SetReg(43, (1 << 0));
 
     /* iterate over columns and rows to get each pixel efficiency */
     for (int col = 0; col < 52; col++) {
@@ -147,50 +146,50 @@ void HRSCurve::TakeEfficiencyMap(int ntrig, bool set_vcal, int vcal_offset)
                 if (set_vcal)
                     module->GetRoc(iroc)->SetDAC("Vcal", rough_threshold[iroc]->GetBinContent(col + 1, row + 1) + vcal_offset);
             }
-            ai->CDelay(5000);
-            ai->Flush();
+            tbInterface->CDelay(5000);
+            tbInterface->Flush();
 
             /* send ntrig triggers with calibrates */
             for (int t = 0; t < ntrig; t++) {
-                ai->Single(RES | CAL | TRG | TOK);
-                ai->CDelay(500);
+                tbInterface->Single(RES | CAL | TRG | TOK);
+                tbInterface->CDelay(500);
             }
-            ai->Flush();
+            tbInterface->Flush();
 
             /* Disarm the pixel, but leave it enabled */
             for (int iroc = 0; iroc < module->NRocs(); iroc++) {
                 module->GetRoc(iroc)->DisarmPixel(col, row);
                 module->GetRoc(iroc)->EnablePixel(col, row);
             }
-            ai->Flush();
+            tbInterface->Flush();
         }
     }
 
     /* Stop triggering */
-    ai->Single(RES);
-    ai->Flush();
+    tbInterface->Single(RES);
+    tbInterface->Flush();
 
     /* Wait for data aquisition to finish */
     gDelay->Mdelay(100);
 
     /* Get pointer to the end of the data block */
-    int data_end = ai->getCTestboard()->Daq_GetPointer();
-    ai->Flush();
+    int data_end = tbInterface->getCTestboard()->Daq_GetPointer();
+    tbInterface->Flush();
 
     /* Disable data aquisition */
     if (module->GetRoc(0)->has_analog_readout())
-        ai->SetReg(41, 0x20 | 0x02);
+        tbInterface->SetReg(41, 0x20 | 0x02);
     else
-        ai->SetReg(41, 0x20 | 0x01);
-    ai->getCTestboard()->Daq_Disable();
-    ai->DataCtrl(false, false, false);
-    ai->Flush();
+        tbInterface->SetReg(41, 0x20 | 0x01);
+    tbInterface->getCTestboard()->Daq_Disable();
+    tbInterface->DataCtrl(false, false, false);
+    tbInterface->Flush();
 
     /* Number of words in memory */
     int nwords = (data_end - data_pointer) / 2;
 
     /* Prepare data decoding */
-    RAMRawDataReader rd(ai->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
+    RAMRawDataReader rd(tbInterface->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
     RawData2RawEvent rs;
     RawEventDecoder ed(module->NRocs(), module->GetRoc(0)->has_analog_readout(), module->GetRoc(0)->has_row_address_inverted());
     EfficiencyMapper em(module->NRocs(), ntrig);
@@ -212,9 +211,9 @@ void HRSCurve::TakeEfficiencyMap(int ntrig, bool set_vcal, int vcal_offset)
     psi::LogInfo() << "Overall efficiency: " << effdist->GetMean() << " %" << psi::endl;
 
     /* Free the memory in the RAM */
-    ai->getCTestboard()->Daq_Done();
+    tbInterface->getCTestboard()->Daq_Done();
 
     /* Reset the chip */
-    ai->Single(RES);
-    ai->Flush();
+    tbInterface->Single(RES);
+    tbInterface->Flush();
 }

@@ -1,7 +1,7 @@
 #include "psi46expert/Test.h"
 #include "psi46expert/TestControlNetwork.h"
 #include "psi46expert/TestModule.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 
 Test::Test()
 {
@@ -140,34 +140,34 @@ void Test::Flush()
 
 int Test::GetRoCnt()
 {
-    return ((TBAnalogInterface *)tbInterface)->GetRoCnt();
+    return tbInterface->GetRoCnt();
 }
 
 void Test::SendRoCnt()
 {
-    ((TBAnalogInterface *)tbInterface)->SendRoCnt();
+    tbInterface->SendRoCnt();
 }
 
 int Test::RecvRoCnt()
 {
-    return ((TBAnalogInterface *)tbInterface)->RecvRoCnt();
+    return tbInterface->RecvRoCnt();
 }
 
 
 void Test::SendCal(int nTrig)
 {
-    ((TBAnalogInterface *)tbInterface)->SendCal(nTrig);
+    tbInterface->SendCal(nTrig);
 }
 
 int Test::AoutLevel(int position, int nTriggers)
 {
-    return ((TBAnalogInterface *)tbInterface)->AoutLevel(position, nTriggers);
+    return tbInterface->AoutLevel(position, nTriggers);
 }
 
 
 int Test::SCurve(int nTrig, int dacReg, int threshold, int res[])
 {
-    return ((TBAnalogInterface *)tbInterface)->SCurve(nTrig, dacReg, threshold, res);
+    return tbInterface->SCurve(nTrig, dacReg, threshold, res);
 }
 
 // == roc actions =========================================================

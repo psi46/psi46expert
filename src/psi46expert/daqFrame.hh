@@ -27,7 +27,7 @@
 #include <stdint.h>
 
 
-class TBDigitalInterface;
+class TBInterface;
 class TestControlNetwork;
 
 class daqFrame: public TGMainFrame {
@@ -53,11 +53,11 @@ public:
 
     void setUsbDAQ(UsbDaq * p) { fpDAQ = p;}
     void setLoggingManager(daqLoggingManager * p) { fpLM = p;}
-    void setTbInterface(TBDigitalInterface * tb) {fTB = tb;}
+    void setTbInterface(TBInterface * tb) {fTB = tb;}
     void setControlNetwork(TestControlNetwork * tcn) {fCN = tcn;}
 
     UsbDaq       *      getDAQ() {return fpDAQ;}
-    TBDigitalInterface * getTbInterface(int n) {return fTB;}
+    TBInterface * getTbInterface(int n) {return fTB;}
     TestControlNetwork * getControlNetwork(int n) {return fCN;}
 
     // -- Slots
@@ -71,7 +71,6 @@ public:
 
     void doVdown(int V);
     void doVup(int V);
-
     void RemovePix(int roc, int col, int row);
     bool ExcludeColumn(int roc, int col);
     bool ExcludeRow(int roc, int row);
@@ -96,7 +95,6 @@ public:
     void doHVON();
     void doHVOFF();
     void doAction();
-  
     void doRefreshWindowTitle();
 
     int                  fLocalTrigger;
@@ -108,7 +106,7 @@ private:
 
     UsbDaq       *       fpDAQ;  //! do not save to file else there are
     daqLoggingManager  * fpLM;   //! do not save to file else there are
-    TBDigitalInterface  * fTB; //! problems with dictionary creation ...
+    TBInterface  * fTB; //! problems with dictionary creation ...
     TestControlNetwork * fCN; //! (note that //! is a magic comment)
 
     static const int dataBuffer_numWords = 30000000;
@@ -149,7 +147,6 @@ private:
     int vtrim[16], vthrcomp[16];
 
     const TGWindow * fpWindow;
-
 protected:
 	
     bool pixel[MODULENUMROCS][ROCNUMCOLS][ROCNUMROWS];

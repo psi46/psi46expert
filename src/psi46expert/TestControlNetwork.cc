@@ -3,7 +3,7 @@
 #include "IVCurve.h"
 #include "BasePixel/RawPacketDecoder.h"
 #include "BasePixel/DecoderCalibration.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include <TApplication.h>
 #include <TSystem.h>
 #include <iostream>

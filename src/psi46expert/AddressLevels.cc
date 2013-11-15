@@ -4,7 +4,7 @@
 #include "TestRoc.h"
 #include "TestModule.h"
 #include "BasePixel/GlobalConstants.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/RawPacketDecoder.h"
 #include "BasePixel/DecoderCalibration.h"
 #include <TLine.h>
@@ -74,7 +74,7 @@ void AddressLevels::TestTBM()
     adcHistogramTBM = new TH1D("TBMAddressLevels", "TBMAddressLevels", 4000, -2000, 2000);
 
     int data[4000];
-    ((TBAnalogInterface *)tbInterface)->TBMAddressLevels(data);
+    tbInterface->TBMAddressLevels(data);
     for (int i = 0; i < 4000; i++) adcHistogramTBM->SetBinContent(i + 1, data[i]);
     histograms->AddLast(adcHistogramTBM);
 

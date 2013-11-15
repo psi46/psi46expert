@@ -3,7 +3,7 @@
 #include "TrimVcal.h"
 #include "TestRoc.h"
 #include "BasePixel/GlobalConstants.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "Analysis.h"
 #include "ThresholdMap.h"
 
@@ -43,7 +43,7 @@ void TrimVcal::RocAction()
     roc->SetTrim(15);
     SetDAC("Vtrim", 0);
     SetDAC("Vcal", 200);
-    ((TBAnalogInterface *)tbInterface)->SetEnableAll(0);
+    tbInterface->SetEnableAll(0);
     Flush();
     //
     //  //Find good VthrComp
@@ -84,7 +84,7 @@ void TrimVcal::RocAction()
         double data[ROC_NUMROWS*ROC_NUMCOLS];
         double sum;*/
 
-    //  ((TBAnalogInterface*)tbInterface)->SetEnableAll(1);
+    //  tbInterface->SetEnableAll(1);
     //  for (int iRow = 0; iRow < 5; iRow++)
     //  {
     //      roc->SetTrim(15);
@@ -156,7 +156,7 @@ void TrimVcal::RocAction()
     //                  {
     //                      if (k == nReadouts - 1) length = count - readoutStart[k];
     //                      else length = readoutStart[k+1] - readoutStart[k];
-    //                      if (length > ((TBAnalogInterface*)tbInterface)->GetEmptyReadoutLengthADC() + 6) noise++;
+    //                      if (length > tbInterface->GetEmptyReadoutLengthADC() + 6) noise++;
     //                  }
     //              }
     // //               printf("%i %i trimbit %i noise %i\n", iCol, iRow, trimbit, noise);
@@ -185,7 +185,7 @@ void TrimVcal::RocAction()
 
     //Determine Vcal
 
-    ((TBAnalogInterface *)tbInterface)->SetEnableAll(0);
+    tbInterface->SetEnableAll(0);
     for (int i = 0; i < ROCNUMCOLS; i++)
     {
         for (int k = 0; k < ROCNUMROWS; k++)

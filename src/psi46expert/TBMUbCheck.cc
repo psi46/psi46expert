@@ -1,6 +1,6 @@
 #include "TBMUbCheck.h"
 #include "BasePixel/GlobalConstants.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/TBM.h"
 #include "TestModule.h"
 #include <iostream>
@@ -26,7 +26,6 @@ void TBMUbCheck::ModuleAction()
     cout << "Starting TBMUbCheck" << endl;
 
     TBM * tbm = module->GetTBM();
-    TBAnalogInterface * anaInterface = (TBAnalogInterface *)tbInterface;
     ConfigParameters * configParameters = ConfigParameters::Singleton();
     bool halfModule = !(configParameters->halfModule == 0);
 
@@ -36,9 +35,9 @@ void TBMUbCheck::ModuleAction()
 
     int dtlOrig = configParameters->dataTriggerLevel;
     int dtl = TMath::Min(ubTarget + 300, -200);
-    anaInterface->DataTriggerLevel(dtl);
+    tbInterface->DataTriggerLevel(dtl);
 
-    int tbmChannel_saved = anaInterface->GetTBMChannel();
+    int tbmChannel_saved = tbInterface->GetTBMChannel();
     int tbmMode_saved    = tbm->GetDAC(0);
     int tbmGain_saved    = tbm->GetDAC(4);
 
@@ -51,7 +50,7 @@ void TBMUbCheck::ModuleAction()
     {
         if (!halfModule)
         {
-            anaInterface->SetTBMChannel(itbm);
+            tbInterface->SetTBMChannel(itbm);
             module->SetTBMSingle(itbm);
         }
         tbmChannelOk = false;
@@ -64,7 +63,7 @@ void TBMUbCheck::ModuleAction()
             tbm->SetDAC(4, tbmGain_new);
 
             unsigned short count = 0;
-            ((TBAnalogInterface *)tbInterface)->ADCRead(data, count, nTrig);
+            tbInterface->ADCRead(data, count, nTrig);
 
             if (count > 0) {
                 tbmChannelOk = true;
@@ -74,7 +73,7 @@ void TBMUbCheck::ModuleAction()
         }
 
         unsigned short count = 0;
-        ((TBAnalogInterface *)tbInterface)->ADCRead(data, count, nTrig);
+        tbInterface->ADCRead(data, count, nTrig);
         if (count > 0) {
             double ubLevel = data[0];
             cout << "tbmGain = " << tbmGain << ", ubLevel = " << ubLevel << endl;
@@ -91,9 +90,9 @@ void TBMUbCheck::ModuleAction()
     tbm->SetDAC(4, tbmGain_target);
 
     //--- restore previous TBM settings
-    anaInterface->SetTBMChannel(tbmChannel_saved);
+    tbInterface->SetTBMChannel(tbmChannel_saved);
     tbm->SetDAC(0, tbmMode_saved);
-    anaInterface->DataTriggerLevel(dtlOrig);
+    tbInterface->DataTriggerLevel(dtlOrig);
     Flush();
 
     tbm->WriteTBMParameterFile(configParameters->GetTbmParametersFileName());

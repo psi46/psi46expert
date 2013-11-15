@@ -1,3 +1,5 @@
+.#*
+#*
 *~
 *.o
 *.lo
@@ -14,6 +16,11 @@ src/psi46expert/psi46hvOn
 src/psi46expert/psi46hvRead
 src/psi46expert/psi46readData
 src/psi46expert/psi46takeData
+
+# in-source installation files ignored:
+bin/
+lib/
+share/
 
 # Autogen files to be ignored:
 Makefile*

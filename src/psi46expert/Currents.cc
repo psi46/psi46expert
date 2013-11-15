@@ -1,7 +1,7 @@
 #include "Currents.h"
 #include "TestRoc.h"
 #include "TestModule.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/GlobalConstants.h"
 #include "TCanvas.h"
 #include <iomanip>
@@ -38,7 +38,6 @@ void Currents::DoCurrentScan()
         scanMax = 16;
     else
         scanMax = 256;
-    TBAnalogInterface* anaInterface = (TBAnalogInterface*)tbInterface;
     DACParameters * parameters = new DACParameters();
     char * dacName = parameters->GetName(DacRegister);
 
@@ -67,11 +66,11 @@ void Currents::DoCurrentScan()
         loopNumber++;
         SetDAC(DacRegister, scanValue);
         //measure currents twice:
-        double id = anaInterface->GetID();
-        id = anaInterface->GetID();
+        double id = tbInterface->GetID();
+        id = tbInterface->GetID();
         histo->SetBinContent(loopNumber+1, id);
-        double ia = anaInterface->GetIA();
-        ia = anaInterface->GetIA();
+        double ia = tbInterface->GetIA();
+        ia = tbInterface->GetIA();
         histoA->SetBinContent(loopNumber+1, ia);
         cout << setw(10) << left << scanValue << setw(10) << left << id << setw(10) << left << ia << endl;
         SetDAC(DacRegister, defaultValue);

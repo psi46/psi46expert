@@ -1,6 +1,4 @@
-#include <cstdlib>
-#include "BasePixel/TBAnalogInterface.h"
-#include "BasePixel/TBDigitalInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "psi46expert/TestParameters.h"
 #include "psi46expert/TestControlNetwork.h"
 #include "psi46expert/daqFrame.hh"
@@ -40,7 +38,6 @@ void my_sigint_handler(int s){
 // ----------------------------------------------------------------------
 int main(int argc, char * argv[])
 {
-  // init (global) daqFrame object 
   dF = 0;
   caught_sigint = false;
   // setup signal handling
@@ -49,12 +46,12 @@ int main(int argc, char * argv[])
   sigemptyset(&act.sa_mask);
   act.sa_flags = 0;
   sigaction(SIGINT, &act, 0);
-  
-  int mode(7), runnumber(0), localtrigger(0);
+    int mode(7), runnumber(0), localtrigger(0);
   int secondBoard = 0;
   int duration = -1;
-  bool batchMode = false, trimArg = false, dacArg = false, maskArg = false;	
-  char rootFile[1000], logFile[1000], dacFile[1000], trimFile[1000], directory[1000], tbName[1000], maskFile[1000];
+    bool batchMode = false, trimArg = false, dacArg = false, maskArg = false;
+    char rootFile[1000], logFile[1000], dacFile[1000], trimFile[1000], directory[1000], tbName[1000], maskFile[1000];
+
   int numROCs = 1;
 
     ConfigParameters * mtbConfigParameters = new ConfigParameters();
@@ -71,7 +68,7 @@ int main(int argc, char * argv[])
         if (!strcmp(argv[i], "-numrocs")) numROCs = atoi(argv[++i]);
         if (!strcmp(argv[i], "-l")) localtrigger = 1;
 	if (!strcmp(argv[i],"-s")) secondBoard = 1;
-	if (!strcmp(argv[i], "-m")) mode = atoi(argv[++i]);
+        if (!strcmp(argv[i], "-m")) mode = atoi(argv[++i]);
 	if (!strcmp(argv[i],"-r")) runnumber = atoi(argv[++i]);
 	if (!strcmp(argv[i],"-duration")) duration = atoi(argv[++i]);
         if (!strcmp(argv[i], "-dir")) strcpy(mtbConfigParameters->directory, argv[++i]);
@@ -87,7 +84,6 @@ int main(int argc, char * argv[])
         {
             maskArg = true;
 	    sprintf(maskFile, "%s/%s", mtbConfigParameters->directory, "pixelMask.dat");
-
         }
     }
 
@@ -100,7 +96,6 @@ int main(int argc, char * argv[])
     daqLoggingManager * lm = new daqLoggingManager("../data");
     lm->setRunMode(mode);
     lm->setMTBConfigParameters(mtbConfigParameters);
-
     if (runnumber > 0) lm->setRunNumber(runnumber);
     else if( secondBoard ) runnumber = lm->incrementRunNumber();
 
@@ -108,7 +103,6 @@ int main(int argc, char * argv[])
     RawPacketDecoder * gDecoder = RawPacketDecoder::Singleton();
     TString fileName = TString(mtbConfigParameters->directory).Append("/addressParameters.dat");
     cout << "Reading Address Level-Parameters from " << fileName << endl;
-    //DecoderCalibrationModule * decoderCalibrationModule = new DecoderCalibrationModule(fileName, 3, 0, DecodedReadoutConstants::NUM_ROCSMODULE);
     DecoderCalibrationModule * decoderCalibrationModule = new DecoderCalibrationModule(fileName, 3, 0, numROCs);
     decoderCalibrationModule->Print(&cout);
     gDecoder->SetCalibration(decoderCalibrationModule);
@@ -126,7 +120,6 @@ int main(int argc, char * argv[])
     dF->setLoggingManager(lm);
     if (localtrigger) dF->fLocalTrigger = 1;
     //  if(V>0)dF->doVup(V);
-
     if( duration > 0 ) dF->setRunDuration(duration);
 
     if (batchMode) {

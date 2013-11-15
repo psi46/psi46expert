@@ -3,8 +3,7 @@
 #include <stdlib.h>
 #include <BasePixel/Keithley.h>
 
-#include "BasePixel/TBAnalogInterface.h"
-#include "BasePixel/TBDigitalInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include "psi46expert/TestControlNetwork.h"
 
@@ -59,8 +58,6 @@ daqFrame::daqFrame(const TGWindow * p, UInt_t w, UInt_t h, daqLoggingManager * p
     Pixel_t colDarkSeaGreen;    gClient->GetColorByName("DarkSeaGreen", colDarkSeaGreen);
 
     SetBackgroundColor(colDarkSeaGreen);
-
-  // Window Title Setup
   doRefreshWindowTitle();
 
     // ----------------------------------------------------------------------
@@ -107,6 +104,7 @@ daqFrame::daqFrame(const TGWindow * p, UInt_t w, UInt_t h, daqLoggingManager * p
     TGCheckButton * wExternal = new TGCheckButton(wRunCtrl, "External", 70);
     wExternal->MoveResize(5, 100, 90, 15);
     wExternal->Connect("Clicked()", "daqFrame", this, "doSetExternal()");
+    //  wExternal->SetOn();
     if( fExternalTrigger ) wExternal->SetOn();
     wRunCtrl->AddFrame(wExternal);
 
@@ -250,7 +248,7 @@ daqFrame::daqFrame(const TGWindow * p, UInt_t w, UInt_t h, daqLoggingManager * p
     for (Int_t reg = 0; reg < 256; reg++) {
         name = dacParameters->GetName(reg);
         if (strcmp(name, "") != 0)  {
-	  //fpLM->log(Form("==>daqf: %s", name));
+        //    fpLM->log(Form("==>daqf: %s", name));
             fParametersComboBox->AddEntry(name, reg);
         }
     }
@@ -442,25 +440,16 @@ void daqFrame::initializeHardware() {
     fCN = new TestControlNetwork(fTB, fpLM->getMTBConfigParameters());
     fTB->Flush();
 
-
-    // if (fExternalTrigger) {
-    //     fTB->SetReg(21, 200);  //t_periode
-    //     fTB->SetReg(26, 85);  //trigger delay on testboard in units of 25ns
-    //     fTB->Intern(RES);
-    //     fTB->Flush();
-    // }
+    //if (fExternalTrigger) {
+     //   fTB->SetReg(21, 200);  //t_periode
+     //   fTB->SetReg(26, 85);  //trigger delay on testboard in units of 25ns
+    //    fTB->Intern(RES);
+    //    fTB->Flush();
+    //}
 
     fTB->ProbeSelect(0, 1);
 
-  //fTB->SetTriggerMode( TRIGGER_FIXED ); fpLM->log( Form( "TRIGGER_FIXED" ) ); // format?
-
   fTB->SetTriggerMode( TRIGGER_ROC ); fpLM->log( Form( "TRIGGER_ROC" ) ); // our standard
-  
-  //fTB->SetTriggerMode( TRIGGER_MODULE1 ); fpLM->log( Form( "TRIGGER_MODULE1" ) ); // ok 290312 - xray test. dig?
-
-  //fTB->SetTriggerMode( TRIGGER_MODULE2 ); fpLM->log( Form( "TRIGGER_MODULE2" ) ); // hits Feb 2012. dig?
-
-  //fTB->SetTriggerMode(TRIGGER_MODULE1);
     fTB->getCTestboard()->DataBlockSize(100);
 
     /*  fpLM->log("Enable all pixels");
@@ -472,16 +461,15 @@ void daqFrame::initializeHardware() {
     for (int i = 0; i < fCN->GetModule(0)->NRocs(); i++)
     {
         fCN->GetModule(0)->GetRoc(i)->EnableAllPixels();
-		// leave WBC as set by config
-        //fCN->GetModule(0)->GetRoc(i)->SetDAC("WBC", 106);
+     //   fCN->GetModule(0)->GetRoc(i)->SetDAC("WBC", 106);
     }
 
     for (int iRoc = 0; iRoc < fCN->GetModule(0)->NRocs(); ++iRoc)
     {
         vtrim[iRoc] = fCN->GetModule(0)->GetRoc(iRoc)->GetDAC("Vtrim");
-        //fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("Vtrim", 0);
+     //   fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("Vtrim", 0);
         vthrcomp[iRoc] = fCN->GetModule(0)->GetRoc(iRoc)->GetDAC("VthrComp");
-        //fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("VthrComp", 0);
+     //   fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("VthrComp", 0);
     }
 
     sleep(1);
@@ -535,11 +523,10 @@ void daqFrame::runStart() {
     gDelay->Mdelay(50);//milli secs
 
   }
-
-  if (fLocalTrigger) {
+    if (fLocalTrigger) {
     fpLM->log("==>daqf: ........ using local TRG of MTB.........");
-    //fReg41 = 0x22; // tbm present and intern ctr
-    // -- BEAT MEINT: Hier ist noch das Aequivalent zu "tb loop" zu programmieren...
+        //fReg41 = 0x22; // tbm present and intern ctr
+        // -- BEAT MEINT: Hier ist noch das Aequivalent zu "tb loop" zu programmieren...
     fReg41 = 0x20; // DP: tbm not present and intern trg
     if(
        strcmp( fpLM->getMTBConfigParameters()->directory, "chip202" ) == 0 ||
@@ -627,39 +614,27 @@ void daqFrame::runStart() {
 	strcmp( fpLM->getMTBConfigParameters()->directory, "chip113" ) == 0 
 
 	)
-
-      fReg41 = 0x42; // tbm emu and extern trg. like 0x40 (23.8.2011). WORKS
-
+        fReg41 = 0x42; // tbm present and extern ctr
     else { // dig
 
       //fReg41 = 0x41; // extern trg and ADC2 for digital ROC (Aug 2012)
       fReg41 = 0x43; // extern trg and TBM and ADC2 for digital ROC (Aug 2012)
+    }
 
-    } // dig
-
-    //fReg41 = 0x40; // DP 7/2011: tbm not present and extern trg. get empty events (23.8.2011) with TBM emu
-    //fReg41 = 0x10; // DP 7/2011: tbm not present and extern cal/trg/res. no trig, no data (23.8.2011)
-    //fReg41 = 0x12; // DP 7/2011: tbm emu and extern cal/trg/res. no data (23.8.2011)
-    //fReg41 = 0x50; // DP 7/2011: tbm not present and extern trg/cal/res + trig, like 0x40
-    //fReg41 = 0x80; // DP 7/2011: tbm not present and Marlon trg. no trig, no data (10.8.2011)
-
-    //fReg41 = 0x82; // DP 10/2011: tbm emu and Marlon ColOr trg  !!!
-
-    // Think about 0x72, 0x71 or 0x81.
+    // -- Set up MTB
   } // ext trigg
 
     // -- Set up MTB
   cout << " Setting DAC registers 41 to '" << fReg41 << "' and 43 to '" << 2 << "'" << endl;
-  fTB->SetReg(41, fReg41);
-  fTB->SetReg(43, 2);
-  if (fLocalTrigger) {
+    fTB->SetReg(41, fReg41);
+    fTB->SetReg(43, 2);
+    if (fLocalTrigger) {
     // int istretch = 10000;//10000*25 = 0.25 ms. 4 kHz trig rate max. 
     // int istretch = 1000;//1000*25 = 0.025 ms. 40 kHz trig rate max. 
     // int istretch = 100;//100*25 = 0.0025 ms. 400 kHz trig rate max. 
     // int istretch = 65000;//max 2^16-1 = 65535
     // int istretch = 40000;//40000*25ns = 1 ms, 1 kHz trig rate
     // int istretch = 20000;//20000*25ns = 0.5 ms
-
     int istretch = 0; // test beam
 
     fTB->SetClockStretch( STRETCH_AFTER_CAL, 5, istretch );
@@ -671,7 +646,7 @@ void daqFrame::runStart() {
 
   } else {
     fTB->SetClockStretch( STRETCH_AFTER_CAL, 5, 0 );//reset clock stretch
-  }
+    }
     //fTB->Intern(RES);
     fTB->Flush();
 
@@ -696,11 +671,11 @@ void daqFrame::runStart() {
 // ----------------------------------------------------------------------
 void daqFrame::doStart() {
 
-    // for (int iRoc = 0; iRoc < fCN->GetModule(0)->NRocs(); ++iRoc)
-    // {
-    //     fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("Vtrim", vtrim[iRoc]);
-    //     fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("VthrComp", vthrcomp[iRoc]);
-    // }
+   // for (int iRoc = 0; iRoc < fCN->GetModule(0)->NRocs(); ++iRoc)
+   // {
+   //     fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("Vtrim", vtrim[iRoc]);
+   //     fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("VthrComp", vthrcomp[iRoc]);
+   // }
 
     uint32_t filledMem1 = 0;
 
@@ -708,12 +683,10 @@ void daqFrame::doStart() {
 
     fpLM->log("==>daqf: START! ");
     fpLM->setupRun();
-
   if(!(strcmp(fpLM->getMTBConfigParameters()->GetMaskFileName(),"default")==0)){
     ApplyMaskFile(fpLM->getMTBConfigParameters()->GetMaskFileName()); // AP: 200612, works for individual ROCs so far
     cout << "\033[34mMask file is \033[0m " << fpLM->getMTBConfigParameters()->GetMaskFileName() << endl;
   }
-
 
     fpLM->log("==>daqf: Dumping h/w configuration");
     fpLM->dumpHardwareConfiguration(0, fCN, fTB);
@@ -769,9 +742,7 @@ void daqFrame::doStart() {
 
         runStart();
 
-	// monitor memory filling every second:
-
-	int seconds = 0, stepSize = 0;
+        int seconds = 0, stepSize = 0;
 	uint32_t filledSize = fTB->getCTestboard()->Daq_GetSize(); //DP
 	//unsigned int filledSize = fTB->getCTestboard()->Daq_GetSize();
 
@@ -781,14 +752,10 @@ void daqFrame::doStart() {
 	// i.e. not being filled anymore
 	uint32_t lastFilledMem = 0; // remember previous state of filledMem to recognize a blocked state
 	uint32_t oldFilledMem = 0; // remember previous state of filledMem to recognize a blocked state
-
         while (1) {
-	  if (fRunning == 0) break;
-	  sleep(1);
-	  seconds++;
-
-
-	  // -- memory address counter:
+            if (fRunning == 0) break;
+            sleep(1);
+            seconds++;
 
 	  filledMem1 = fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1;
 	  filledSize = fTB->getCTestboard()->Daq_GetSize();
@@ -897,28 +864,21 @@ void daqFrame::doStart() {
 	    fCanvas1->Update();
 	    bufferFullWarned=true;
 	  } // buffer full
+            if (stepSize == 0) stepSize = filledMem1;
+            fwMemMtb->SetText(Form("%8i", filledMem1));
+            gSystem->ProcessEvents();
 
-	  //fpLM->log(Form("==>daqf: %6i", seconds ) );
-
-	  if( stepSize == 0) stepSize = filledMem1;
-
-	  fwMemMtb->SetText(Form("%8i", filledMem1));//for GUI
-
-	  gSystem->ProcessEvents();// handle GUI events: ROOT?
-  
-	  if( (fFillMem) && (filledMem1 > dataBuffer_numWords - 2.*stepSize)) break;
-	  else if( (!fFillMem) && (seconds == fRunDuration)) break;
-
-	}//while running
+            if ((fFillMem) && (filledMem1 > dataBuffer_numWords - 2.*stepSize)) break;
+            else if ((!fFillMem) && (seconds == fRunDuration)) break;
+        }
 
         doBreak();
         readout(f, filledMem1);
 
 	fpLM->log( Form( "==>daqf: read out Run %i", fpLM->getRunNumber() ) );
-
-	if( fFillMem ) {
-	  fclose(f);
-	  seconds = fpLM->incrementRunNumber();
+        if (fFillMem) {
+            fclose(f);
+            seconds = fpLM->incrementRunNumber();
 	}
 	else {
 
@@ -934,9 +894,9 @@ void daqFrame::doStart() {
 	  gClient->NeedRedraw(fwOutputDir);
   
 	  doRefreshWindowTitle();
-	}
+        }
 
-    } //runs
+    }
 
     if (!fFillMem) {
         fclose(f);
@@ -965,17 +925,17 @@ void daqFrame::doStart() {
 
 // ----------------------------------------------------------------------
 void daqFrame::startTriggers() {
-  fpLM->log("==>daqf: Enable triggers");
+
+    fpLM->log("==>daqf: Enable triggers");
   if( fLocalTrigger) 
     //DP fReg41 = fReg41 | 0x22; // tbm present and intern trg
     fReg41 = fReg41 | 0x20; // tbm not present and intern trg
   else 
     fReg41 = fReg41 | 0x42; // tbm present and extern trg
-  //DP28.10.2013 fReg41 = fReg41 | 0x40; // tbm not present and extern trg
 
-  fpLM->log(Form("==>daqf: startTriggers MTB Enable triggers; writing reg41: %02x, unset data_aqu", fReg41));
-  if( fTB) fTB->SetReg(41, fReg41);
-  if( fTB) fTB->Flush();
+    fpLM->log(Form("==>daqf: startTriggers MTB Enable triggers; writing reg41: %02x, unset data_aqu", fReg41));
+    if (fTB) fTB->SetReg(41, fReg41);
+    if (fTB) fTB->Flush();
   gDelay->Mdelay(50);//milli secs
 }
 
@@ -1047,7 +1007,7 @@ void daqFrame::doExit() {
     fTB->HVoff();
     fTB->Flush();
     fTB->Poff();
-    fTB->Cleanup();
+    fTB->Close();
     gApplication->Terminate(0);
 }
 
@@ -1056,8 +1016,9 @@ void daqFrame::doExit() {
 // ----------------------------------------------------------------------
 void daqFrame::readout(FILE * file, uint32_t filledMem1)
 {
-  fpLM->log(Form("==>daqf: read mtb, words = %d", filledMem1 ) );
-  fTB->Mem_ReadOut( file, dataBuffer_fpga1, filledMem1 );
+
+    fpLM->log(Form("==>daqf: read mtb, words = %d", filledMem1));
+    fTB->Mem_ReadOut(file, dataBuffer_fpga1, filledMem1);
   fTB->getCTestboard()->DataCtrl( 0, true, false, false ); // clear FIFO
   fTB->Flush();
   fTB->getCTestboard()->DataCtrl( 0, false, false, false ); // clear FIFO
@@ -1080,7 +1041,7 @@ void daqFrame::doDuration() {
 
 // ----------------------------------------------------------------------
 void daqFrame::doRunNumberUpdate() {
-  fpLM->setRunNumber(atoi(fRunTextBuffer->GetString()));//changes outputDir
+    fpLM->setRunNumber(atoi(fRunTextBuffer->GetString()));
   fwOutputDir->SetText(fpLM->getOutputDir());//show new outputdir
   doRefreshWindowTitle();
 }
@@ -1342,8 +1303,8 @@ void daqFrame::doSetSysCommand1Text() {
 
 // ----------------------------------------------------------------------
 void daqFrame::wbcScan() {
-  //  const int WBCStart = 100; // beam test
-  //  const int WBCStop = 120; // beam test
+
+
   const int WBCStart = 95; // local
   const int WBCStop = 106; // local
 
@@ -1357,10 +1318,10 @@ void daqFrame::wbcScan() {
 	fCN->GetModule(0)->GetRoc(i)->EnableAllPixels();
 	fCN->GetModule(0)->GetRoc(i)->SetDAC("WBC", thiswbc);
       }
-    // contents of doStart() routine:
-    unsigned long filledMem1 = 0;
-    //unsigned int filledMem1 = 0;
 
+    unsigned long filledMem1 = 0;
+
+    //  for (int iwbc = 98; iwbc < 103; ++iwbc) {
     fRunning = 1;
 
     fpLM->log("==>daqf: START! ");
@@ -1368,17 +1329,17 @@ void daqFrame::wbcScan() {
 
     fpLM->log("==>daqf: Dumping h/w configuration");
     fpLM->dumpHardwareConfiguration(0, fCN, fTB);
-
+                // -- Force WBC setting even when no periodic resets are generated:
     fpLM->log(Form("==>daqf: MTB analog    current = %f   voltage = %f ",
 		   fTB->getCTestboard()->GetIA(), fTB->getCTestboard()->GetVA() 
 		   ));
     fpLM->log(Form("==>daqf: MTB digital   current = %f   voltage = %f ",
 		   fTB->getCTestboard()->GetID(), fTB->getCTestboard()->GetVD() 
 		   ));
-
+                //    Need to enable LOCAL CTR first, then do RESET. runStart() will disable the local CTR.
     if( fTemperature) getTemperature();
     for( int i = 0; i < fCN->GetModule(0)->NRocs(); i++) fCN->SetDAC(0, i, 27, 2); //Set TempReg DAC
-    fTB->Flush();
+                fTB->Flush();
     gDelay->Mdelay(50);//milli secs
     FILE *f;
 
@@ -1394,11 +1355,9 @@ void daqFrame::wbcScan() {
 		       << "Could not open file " << fpLM->getOutputDir()
 		       << "/" << fileName << psi::endl;
 	return;
-      }
-    }
+            }
+        }
 
-    //??  fRunDuration = atoi(fwDurationBuffer->GetString());
-  
     int nRuns = 1;
 
     // if( fFillMem) {
@@ -1423,13 +1382,10 @@ void daqFrame::wbcScan() {
 	  return;
 	}
       }
+        runStart();  // This also starts triggers
 
-      //      cout << "daqFrame.doStart: start run " << k << endl;
-
-      runStart();//FPGA
-      //
-      // monitor memory filling every second:
-      //
+        // -- Run loop and data watching
+        //    fRunDuration = atoi(fwDurationBuffer->GetString());
       int seconds = 0, stepSize = 0;
       uint32_t filledSize = fTB->getCTestboard()->Daq_GetSize(); //DP
       //unsigned int filledSize = fTB->getCTestboard()->Daq_GetSize();
@@ -1437,12 +1393,9 @@ void daqFrame::wbcScan() {
       while(1) {
 
 	if( fRunning == 0) break;
-
-	sleep(1);     
+            sleep(1);
 	seconds++;
-      
-	// -- memory address counter:
-
+            // -- memory address counter
 	filledMem1 = fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1;
 	filledSize = fTB->getCTestboard()->Daq_GetSize();
 	fpLM->log(Form("==>daqf: %4i: mem: %8lu  left %8lu",  seconds, (unsigned long )filledMem1, (unsigned long )filledSize ) );
@@ -1457,33 +1410,36 @@ void daqFrame::wbcScan() {
   
 	if( (fFillMem) && (filledMem1 > dataBuffer_numWords - 2.*stepSize)) break;
 	else if( (!fFillMem) && (seconds == fRunDuration)) break;
+        }
 
-      }//while running
+        //stopTriggers();  // stop triggers during readout
 
-      //filledMem1 = fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1;
-      //filledSize = fTB->getCTestboard()->Daq_GetSize();
-      //fpLM->log(Form("==>daqf: %4i: mem: %8d  left %8d",  seconds, filledMem1, filledSize ) );
+        // -- readout TB memory
+        /* get number of WORDs written to RAM by the DMA controller */
+        //filledMem1 = (fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1) / 2;
+        //fpLM->log(Form("... read out memory till address = %d", filledMem1));
 
       doBreak();
       readout( f, filledMem1 );
 
       if( fFillMem ) {
 	fclose(f);
-	//seconds = fpLM->incrementRunNumber(); // HP 20110825
-      }
-    
-    }//runs
+            }
+        }
+        //fTB->getCTestboard()->Daq_Done();
+        //fTB->getCTestboard()->Daq_Disable();
 
     if( !fFillMem) {
-      fclose(f);
+        fclose(f);
     }
 
     stopTriggers();  // Disable triggers
 
-    // --  for oscilloscope
-    //DP startTriggers(); 
-    
-    // doStop routine:
+        //double nero = 0, nero1 = 0;
+
+        //nero = h->Integral(19 + nRocs * 3, 201); // non empty readouts
+        //nero1 = h->Integral(15 + nRocs * 3, 201); // all readouts
+
     if( fRunning == 0) {
       fpLM->log("==>daqf: STOP pressing STOP! ");
       return;
@@ -1492,14 +1448,10 @@ void daqFrame::wbcScan() {
     
     fpLM->log("==>daqf: Run stop");
     fpLM->log(Form("==>daqf: Run %i, WBC = %i stopped. OK", fpLM->getRunNumber(), thiswbc));
-    
-    gSystem->ProcessEvents();// handle GUI events: ROOT?
+        gSystem->ProcessEvents();
+    }
 
 
-  } // while WBC
-  
-    // now increment the run number
-  
   int nextrunnumber = fpLM->incrementRunNumber();
   fRunTextBuffer->Clear();
   fRunTextBuffer->AddText(0, Form("%i", nextrunnumber));
@@ -1519,7 +1471,6 @@ void daqFrame::wbcScan() {
   tl->DrawLatex(0.15, 0.5, Form("SCAN FINISHED!"));
   fCanvas1->Modified(); 
   fCanvas1->Update();
-  
 
 }
 

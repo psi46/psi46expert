@@ -9,7 +9,7 @@
 #include "TestRoc.h"
 #include "BasePixel/DACParameters.h"
 #include "BasePixel/GlobalConstants.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "BasePixel/ConfigParameters.h"
 
 VsfOptimization::VsfOptimization(TestRange   *   aTestRange,
@@ -117,12 +117,12 @@ int VsfOptimization::CurrentOpt2()
 
     // Get Digital Current corresponding to ZERO Vsf
     SetDAC(DAC_REGISTER, 0); tbInterface->Flush(); sleep(2);
-    double dc0 = dynamic_cast<TBAnalogInterface *>(tbInterface)->GetID();
+    double dc0 = tbInterface->GetID();
 
     // Get Digital Current corresponding to Vsf obtained from PH Linearity
     // test
     SetDAC(DAC_REGISTER, par1Vsf); tbInterface->Flush(); sleep(2);
-    double dcBestPar1 = dynamic_cast<TBAnalogInterface *>(tbInterface)->GetID();
+    double dcBestPar1 = tbInterface->GetID();
 
     printf("dc0 = %f, dcBestPar1 = %f\n", dc0, dcBestPar1);
 
@@ -147,7 +147,7 @@ int VsfOptimization::CurrentOpt2()
 
         tbInterface->Flush();
         sleep(2);
-        dc = dynamic_cast<TBAnalogInterface *>(tbInterface)->GetID();
+        dc = tbInterface->GetID();
 
         if (debug) cout << "Digital current: " << dc << endl;
 
@@ -177,7 +177,7 @@ int VsfOptimization::CurrentOpt()
     SetDAC(dacRegister, 0);
     tbInterface->Flush();
     sleep(2);
-    dc[0] = ((TBAnalogInterface *)tbInterface)->GetID();
+    dc[0] = tbInterface->GetID();
 
     for (int dacValue = vsf.start; dacValue < vsf.stop; dacValue += ((vsf.stop - vsf.start) / vsf.steps))
     {
@@ -186,7 +186,7 @@ int VsfOptimization::CurrentOpt()
         if (debug) cout << dacName << " set to " << dacValue << endl;
         tbInterface->Flush();
         sleep(2);
-        dc[dacValue] = ((TBAnalogInterface *)tbInterface)->GetID();
+        dc[dacValue] = tbInterface->GetID();
         if (debug) cout << "Digital current: " << dc[dacValue] << endl;
         currentHist->SetBinContent(loopcount, dc[dacValue]);
         diff = dc[dacValue] - dc[0];
@@ -209,7 +209,7 @@ int VsfOptimization::Par1Opt()
     double chindf      = 777;
     int    dacRegister = 3;
     int    newVsf      = 150;
-    int    offset = dynamic_cast<TBAnalogInterface *>(tbInterface)->TBMPresent() ? 16 : 9;
+    int    offset = tbInterface->TBMPresent() ? 16 : 9;
     int    col;
 
     DACParameters * parameters = new DACParameters();
@@ -241,7 +241,7 @@ int VsfOptimization::Par1Opt()
         tbInterface->Flush();
 
         short result[256];
-        dynamic_cast<TBAnalogInterface *>(tbInterface)->PHDac(25, 256, nTrig,
+        tbInterface->PHDac(25, 256, nTrig,
                 offset + aoutChipPosition * 3, result);
         TH1D * histo = new TH1D(Form("Vsf%dROC%i", dacValue, chipId),
                                 Form("Vsf%dROC%i", dacValue, chipId), 256, 0., 256.);
@@ -328,7 +328,7 @@ int VsfOptimization::TestCol()
     phFit->SetParameter(3, 113.0);
     phFit->SetRange(50, 1500);
 
-    int offset = dynamic_cast<TBAnalogInterface *>(tbInterface)->TBMPresent()
+    int offset = tbInterface->TBMPresent()
                  ? 16
                  : 9;
 
@@ -340,7 +340,7 @@ int VsfOptimization::TestCol()
         tbInterface->Flush();
 
         short result[256];
-        dynamic_cast<TBAnalogInterface *>(tbInterface)->PHDac(25, 256, nTrig,
+        tbInterface->PHDac(25, 256, nTrig,
                 offset + aoutChipPosition * 3, result);
         TH1D * histo = new TH1D(Form("Col%dROC%i", col, chipId),
                                 Form("Col%dROC%i", col, chipId), 256, 0., 256.);

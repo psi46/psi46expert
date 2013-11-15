@@ -2,7 +2,7 @@
 #include <TMath.h>
 
 #include "SCurveTestBeam.h"
-#include "BasePixel/TBAnalogInterface.cc"
+#include "BasePixel/TBInterface.cc"
 #include "BasePixel/CalibrationTable.h"
 #include "BasePixel/RawPacketDecoder.h"
 #include "BasePixel/DecoderCalibration.h"
@@ -78,7 +78,7 @@ void SCurveTestBeam::RocAction()
     //         SetDAC("VthrComp", vthr);
     Flush();
 
-    //         ((TBAnalogInterface*)tbInterface)->ADC();
+    //         tbInterface->ADC();
 
     for (int i = 20; i < 100; i++)
     {

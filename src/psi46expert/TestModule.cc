@@ -8,7 +8,7 @@
 #include "interface/Log.h"
 
 #include "TestModule.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "interface/Delay.h"
 #include "TestRange.h"
 #include "FullTest.h"
@@ -104,8 +104,8 @@ void TestModule::Execute(SysCommand &command)
         else if (command.Keyword("ShortTestAndCalibration")) {ShortTestAndCalibration();}
         else if (command.Keyword("DumpParameters")) {DumpParameters();}
         else if (command.Keyword("Temp")) {GetTemperature();}
-        else if (command.Keyword("adc")) {((TBAnalogInterface *)tbInterface)->ADC();}
-        else if (command.Keyword("adc_fix")) {((TBAnalogInterface *)tbInterface)->ADC(200);} //
+        else if (command.Keyword("adc")) {tbInterface->ADC();}
+        else if (command.Keyword("adc_fix")) {tbInterface->ADC(200);} //
         else if (command.Keyword("dtlScan")) {DataTriggerLevelScan();}
         else if (strcmp(command.carg[0], "adjustUB") == 0) AdjustUltraBlackLevel();
         else if (strcmp(command.carg[0], "adjustDTL") == 0) AdjustDTL();
@@ -276,8 +276,8 @@ void TestModule::TestM()
 //    cout << dacName << " set to " << dacValue << endl;
 //    tbInterface->Flush();
 //    sleep(2.);
-//    //dc = ((TBAnalogInterface*)tbInterface)->GetIA();
-//    dc = ((TBAnalogInterface*)tbInterface)->GetID();
+//    //dc = tbInterface->GetIA();
+//    dc = tbInterface->GetID();
 //    cout << "Digital current: " << dc << endl;
 //    currentHist->SetBinContent((dacValue/10)+1,dc);
 //    for (int iRoc = 0; iRoc < nRocs; iRoc++) GetRoc(iRoc)->RestoreDacParameters();
@@ -315,8 +315,8 @@ void TestModule::DigiCurrent()
                 cout << dacName << " set to " << dacValue << endl;
                 tbInterface->Flush();
                 sleep(2);
-                //dc = ((TBAnalogInterface*)tbInterface)->GetIA();
-                dc = ((TBAnalogInterface *)tbInterface)->GetID();
+                //dc = tbInterface->GetIA();
+                dc = tbInterface->GetID();
                 cout << "Digital current: " << dc << endl;
                 currentHist->SetBinContent((dacValue / 10) + 1, dc);
             }
@@ -378,7 +378,7 @@ void TestModule::AdjustSamplingPoint()
         GetRoc(0)->ArmPixel(5, 5); //pixel must not be enabled during setting of the tb parameters above
         tbInterface->Flush();
 
-        ((TBAnalogInterface *)tbInterface)->ADCRead(data, count, nTrig);
+        tbInterface->ADCRead(data, count, nTrig);
 
         GetRoc(0)->DisarmPixel(5, 5);
         tbInterface->Flush();
@@ -459,7 +459,7 @@ void TestModule::AdjustSamplingPoint()
 
 void TestModule::AdjustAllDACParameters()
 {
-    bool tbmPresent = ((TBAnalogInterface *)tbInterface)->TBMPresent();
+    bool tbmPresent = tbInterface->TBMPresent();
 
     psi::LogInfo() << "[TestModule] Pretest Extended: Start." << psi::endl;
 
@@ -468,7 +468,7 @@ void TestModule::AdjustAllDACParameters()
 
     if (tbmPresent)
     {
-        ((TBAnalogInterface *)tbInterface)->SetTriggerMode(TRIGGER_MODULE1); // trigger mode 2 only works correctly after adjusting tbm and roc ultrablacks to the same level
+        tbInterface->SetTriggerMode(TRIGGER_MODULE1); // trigger mode 2 only works correctly after adjusting tbm and roc ultrablacks to the same level
         if (!configParameters->tbmEmulator)  AdjustTBMUltraBlack();
         AdjustDTL();
     }
@@ -478,7 +478,7 @@ void TestModule::AdjustAllDACParameters()
     if (tbmPresent)
     {
         AdjustUltraBlackLevel();
-        ((TBAnalogInterface *)tbInterface)->SetTriggerMode(TRIGGER_MODULE2);
+        tbInterface->SetTriggerMode(TRIGGER_MODULE2);
         AdjustSamplingPoint();
     }
     gDelay->Timestamp();
@@ -505,8 +505,7 @@ void TestModule::AdjustAllDACParameters()
  */
 void TestModule::AdjustDACParameters()
 {
-    TBAnalogInterface * ai = dynamic_cast<TBAnalogInterface *>(tbInterface);
-    bool tbmPresent = ai->TBMPresent();
+    bool tbmPresent = tbInterface->TBMPresent();
     bool is_analog = GetRoc(0)->has_analog_readout();
 
     psi::LogInfo() << "[TestModule] Pretest: Start." << psi::endl;
@@ -517,7 +516,7 @@ void TestModule::AdjustDACParameters()
     if (tbmPresent)
     {
         /* TBM not supported yet for digital readout */
-        ai->SetTriggerMode(TRIGGER_MODULE1); // trigger mode 2 only works correctly after adjusting tbm and roc ultrablacks to the same level
+        tbInterface->SetTriggerMode(TRIGGER_MODULE1); // trigger mode 2 only works correctly after adjusting tbm and roc ultrablacks to the same level
         if (!configParameters->tbmEmulator)   AdjustTBMUltraBlack();
         AdjustDTL();
     }
@@ -540,7 +539,7 @@ void TestModule::AdjustDACParameters()
     {
         /* TBM not supported yet for digital readout */
         AdjustUltraBlackLevel();
-        ((TBAnalogInterface *)tbInterface)->SetTriggerMode(TRIGGER_MODULE2);
+        tbInterface->SetTriggerMode(TRIGGER_MODULE2);
         AdjustSamplingPoint();
     }
 
@@ -593,7 +592,7 @@ void TestModule::ADCHisto()
 {
     unsigned short count;
     short data[FIFOSIZE];
-    ((TBAnalogInterface *)tbInterface)->ADCRead(data, count, 100);
+    tbInterface->ADCRead(data, count, 100);
     TH1D * hist = new TH1D("ADC", "ADC", count, 0., count);
     for (unsigned int n = 0; n < count; n++) hist->SetBinContent(n + 1, data[n]);
 }
@@ -653,8 +652,6 @@ void TestModule::AdjustTBMUltraBlack()
 // Tries to automatically adjust Vana, may not work yet
 void TestModule::AdjustVana(double goalCurrent)
 {
-    //if (!tbInterface->IsAnalogTB()) return;
-    TBAnalogInterface * anaInterface = (TBAnalogInterface *)tbInterface;
     int vana[nRocs];
     int vsf[nRocs];
 
@@ -671,15 +668,15 @@ void TestModule::AdjustVana(double goalCurrent)
     double current0 = 0.0;
 
     gDelay->Mdelay(500);
-    current0 += anaInterface->GetIA();
+    current0 += tbInterface->GetIA();
     tbInterface->Flush();
 
     gDelay->Mdelay(500);
-    current0 += anaInterface->GetIA();
+    current0 += tbInterface->GetIA();
     tbInterface->Flush();
 
     gDelay->Mdelay(500);
-    current0 += anaInterface->GetIA();
+    current0 += tbInterface->GetIA();
     tbInterface->Flush();
 
     current0 /= 3.0;
@@ -713,7 +710,7 @@ void TestModule::AdjustVana(double goalCurrent)
     }
     tbInterface->Flush();
     gDelay->Mdelay(500);
-    double current = anaInterface->GetIA();
+    double current = tbInterface->GetIA();
 
     psi::LogDebug() << "[TestModule] TotalCurrent " << current << psi::endl;
 }
@@ -726,7 +723,6 @@ void TestModule::VanaVariation()
 
     psi::LogInfo() << "[TestModule] VanaVariation." << psi::endl;
 
-    TBAnalogInterface * anaInterface = (TBAnalogInterface *)tbInterface;
     int vsf[nRocs], vana[nRocs];
     double x[3], y[3];
 
@@ -741,7 +737,7 @@ void TestModule::VanaVariation()
     tbInterface->Flush();
     gDelay->Mdelay(2000);
 
-    double current0 = anaInterface->GetIA();
+    double current0 = tbInterface->GetIA();
     psi::LogDebug() << "[TestModule] ZeroCurrent " << current0 << psi::endl;
 
     for (int iRoc = 0; iRoc < nRocs; iRoc++)
@@ -753,7 +749,7 @@ void TestModule::VanaVariation()
         tbInterface->Flush();
         gDelay->Mdelay(1000);
         x[0] = vana[iRoc] - 10;
-        y[0] = anaInterface->GetIA() - current0;
+        y[0] = tbInterface->GetIA() - current0;
         if (debug)
             psi::LogDebug() << "[TestModule] Vana " << x[0] << " Iana " << y[0]
                             << psi::endl;
@@ -762,7 +758,7 @@ void TestModule::VanaVariation()
         tbInterface->Flush();
         gDelay->Mdelay(1000);
         x[1] = vana[iRoc];
-        y[1] = anaInterface->GetIA() - current0;
+        y[1] = tbInterface->GetIA() - current0;
         if (debug)
             psi::LogDebug() << "[TestModule] Vana " << x[1] << " Iana " << y[1]
                             << psi::endl;
@@ -771,7 +767,7 @@ void TestModule::VanaVariation()
         tbInterface->Flush();
         gDelay->Mdelay(1000);
         x[2] = vana[iRoc] + 10;
-        y[2] = anaInterface->GetIA() - current0;
+        y[2] = tbInterface->GetIA() - current0;
         if (debug)
             psi::LogDebug() << "[TestModule] Vana " << x[2] << " Iana " << y[2]
                             << psi::endl;
@@ -795,12 +791,10 @@ void TestModule::VanaVariation()
 
 void TestModule::MeasureCurrents()
 {
-    TBAnalogInterface * anaInterface = (TBAnalogInterface *)tbInterface;
-
-    double ia = anaInterface->GetIA();
-    double va = anaInterface->GetVA();
-    double id = anaInterface->GetID();
-    double vd = anaInterface->GetVD();
+    double ia = tbInterface->GetIA();
+    double va = tbInterface->GetVA();
+    double id = tbInterface->GetID();
+    double vd = tbInterface->GetVD();
 
     psi::LogDebug() << "[TestModule] ============== Currents and Voltages ==============" << psi::endl;
     psi::LogDebug() << "[TestModule]    > Analog" << psi::endl;
@@ -827,13 +821,12 @@ void TestModule::AdjustUltraBlackLevel()
 {
     unsigned short count;
     short data[10000];
-    TBAnalogInterface * anaInterface = (TBAnalogInterface *)tbInterface;
 
     psi::LogInfo() << "[TestModule] Adjust UltraBlack Levels." << psi::endl;
 
-    anaInterface->ADCData(data, count);
+    tbInterface->ADCData(data, count);
 
-    if (count < anaInterface->GetEmptyReadoutLengthADC())
+    if (count < tbInterface->GetEmptyReadoutLengthADC())
     {
         psi::LogInfo() << "[TestModule] Error: no valid analog readout." << psi::endl;
 
@@ -855,19 +848,18 @@ bool TestModule::TestDACProgramming(int dacReg, int max)
     unsigned short count, count2;
     short data[10000], data2[10000];
     int dacValue;
-    TBAnalogInterface * anaInterface = (TBAnalogInterface *)tbInterface;
 
     for (int iRoc = 0; iRoc < nRocs; iRoc++)
     {
         dacValue = GetRoc(iRoc)->GetDAC(dacReg);
         GetRoc(iRoc)->SetDAC(dacReg, 0);
-        anaInterface->Flush();
-        anaInterface->ADCData(data, count);
+        tbInterface->Flush();
+        tbInterface->ADCData(data, count);
         GetRoc(iRoc)->SetDAC(dacReg, max);
-        anaInterface->Flush();
-        anaInterface->ADCData(data2, count2);
+        tbInterface->Flush();
+        tbInterface->ADCData(data2, count2);
         GetRoc(iRoc)->SetDAC(dacReg, dacValue);
-        anaInterface->Flush();
+        tbInterface->Flush();
 
         if (debug)
         {
@@ -879,7 +871,7 @@ bool TestModule::TestDACProgramming(int dacReg, int max)
             printf("\n");
         }
 
-        if ((count != anaInterface->GetEmptyReadoutLengthADC()) || (count2 != anaInterface->GetEmptyReadoutLengthADC()))
+        if ((count != tbInterface->GetEmptyReadoutLengthADC()) || (count2 != tbInterface->GetEmptyReadoutLengthADC()))
         {
             psi::LogInfo() << "[TestModule] Error: no valid analog readout." << psi::endl;
 
@@ -887,7 +879,7 @@ bool TestModule::TestDACProgramming(int dacReg, int max)
         }
 
         int offset;
-        if (anaInterface->TBMPresent()) offset = 10;
+        if (tbInterface->TBMPresent()) offset = 10;
         else if (configParameters->tbmEmulator) offset = 10;
         else offset = 3;
         if (TMath::Abs(data[offset + iRoc * 3] - data2[offset + iRoc * 3]) < 20)
@@ -920,7 +912,6 @@ bool TestModule::TestVanaProgramming()
     psi::LogInfo() << "[TestModule] Test if ROC DACs are programmable." << psi::endl;
     /* Sets Vana to maximum and minimum values and compares the current difference
        for each ROC */
-    TBAnalogInterface * ai = (TBAnalogInterface *) tbInterface;
     double analog_current [2];
     bool success = true;
     for (int iRoc = 0; iRoc < nRocs; iRoc++) {
@@ -928,15 +919,15 @@ bool TestModule::TestVanaProgramming()
         int Vana_save = GetRoc(iRoc)->GetDAC("Vana");
         /* Set to maximum */
         GetRoc(iRoc)->SetDAC(Vana, 255);
-        ai->Flush();
+        tbInterface->Flush();
         gDelay->Mdelay(500);
-        analog_current[1] = ai->GetIA();
+        analog_current[1] = tbInterface->GetIA();
 
         /* Set to minimum */
         GetRoc(iRoc)->SetDAC(Vana, 0);
-        ai->Flush();
+        tbInterface->Flush();
         gDelay->Mdelay(500);
-        analog_current[0] = ai->GetIA();
+        analog_current[0] = tbInterface->GetIA();
 
         /* Compare */
         if (analog_current[1] - analog_current[0] < 0.010 /* Amperes */) {
@@ -980,13 +971,12 @@ void TestModule::DumpParameters()
 
 void TestModule::DataTriggerLevelScan()
 {
-    TBAnalogInterface * anaInterface = (TBAnalogInterface *)tbInterface;
     int dtlOrig = configParameters->dataTriggerLevel;
 
-    if ((!anaInterface->DataTriggerLevelScan()) && (configParameters->halfModule == 0))
+    if ((!tbInterface->DataTriggerLevelScan()) && (configParameters->halfModule == 0))
     {
         TBM * tbm = GetTBM();
-        int channel = anaInterface->GetTBMChannel();
+        int channel = tbInterface->GetTBMChannel();
         int singleDual = tbm->GetDAC(0);
 
         // try for second tbm
@@ -994,15 +984,15 @@ void TestModule::DataTriggerLevelScan()
                        << "Try with channel " << channel << '.' << psi::endl;
 
         SetTBMSingle((channel + 1) % 2);
-        anaInterface->SetTBMChannel((channel + 1) % 2);
+        tbInterface->SetTBMChannel((channel + 1) % 2);
 
-        anaInterface->DataTriggerLevelScan();
+        tbInterface->DataTriggerLevelScan();
 
-        anaInterface->SetTBMChannel(channel);
+        tbInterface->SetTBMChannel(channel);
         tbm->SetDAC(0, singleDual);
     }
 
-    anaInterface->DataTriggerLevel(dtlOrig);
+    tbInterface->DataTriggerLevel(dtlOrig);
 }
 
 

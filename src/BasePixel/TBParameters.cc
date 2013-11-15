@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "BasePixel/TBParameters.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TBInterface.h"
 #include "interface/Log.h"
 
 TBParameters::TBParameters(TBInterface * aTBInterface)
@@ -17,20 +17,69 @@ TBParameters::TBParameters(TBInterface * aTBInterface)
         parameters[i] = -1;
         names[i] = "";
     }
+
+    names[0] = "clk";
+    names[1] = "sda";
+    names[2] = "ctr";
+    names[3] = "tin";
+    //names[12] = "rda";
+
+    names[17] = "trc";
+    names[18] = "tcc";
+    names[19] = "tct";
+    names[20] = "ttk";
+    names[21] = "trep";
+    names[22] = "cc";
+
+    names[77] = "spd"; // dummy register for clock frequency
+
+}
+
+TBParameters * TBParameters::Copy()
+{
+    TBParameters * newParameters;
+    newParameters = new TBParameters(tbInterface);
+    for (int i = 0; i < NTBParameters; i++)
+    {
+        newParameters->_SetParameter(i, parameters[i]);
+    }
+    return newParameters;
+}
+
+
+// -- sets a testboard parameter
+void TBParameters::SetParameter(int reg, int value)
+{
+    parameters[reg] = value;
+    if (reg == 77) tbInterface->SetClock(value);
+    else if (reg > 15)
+    {
+      // tbInterface->Set(reg, value); WRONG! Writes into DAC parameters!
+    }
+    else
+    {
+        tbInterface->SetDelay(reg, value);
+    }
 }
 
 
 bool TBParameters::Execute(SysCommand command)
 {
-    for (int iDAC = 0; iDAC < NTBParameters; iDAC++)
+  if (command.Keyword("par")) {
+    Print();
+    return true;
+  }
+  else {
+    for (int iPar = 0; iPar < NTBParameters; iPar++)
     {
 
-        if ((strcmp(names[iDAC], "") != 0) && (strcmp(command.carg[0], names[iDAC]) == 0))
+        if ((strcmp(names[iPar], "") != 0) && (strcmp(command.carg[0], names[iPar]) == 0))
         {
-            SetParameter(iDAC, *command.iarg[1]);
+            SetParameter(iPar, *command.iarg[1]);
             return true;
         }
     }
+  }
     return false;
 }
 
@@ -52,6 +101,7 @@ void TBParameters::Restore() {
 // -- sets a testboard parameter
 void TBParameters::SetParameter(const char * dacName, int value)
 {
+  cout << "TBPar::SetPar " << dacName << " " << value << endl;
     for (int i = 0; i < NTBParameters; i++) {
         if (strcmp(names[i], dacName) == 0) {
             SetParameter(i, value);
@@ -153,6 +203,19 @@ bool TBParameters::WriteTBParameterFile(const char * _file)
     return true;
 }
 
+void TBParameters::Print()
+{
+  psi::LogInfo() << "Parameter\tName\t\tValue" << psi::endl;
+  psi::LogInfo() << "-----------------------------" << psi::endl;
+  for (int i = 0; i < NTBParameters; i++) {
+    if (parameters[i] == -1)
+      continue;
+    if (strlen(names[i]) >= 7)
+      psi::LogInfo() << i << "\t" << names[i] << ":\t" << parameters[i] << psi::endl;
+    else
+      psi::LogInfo() << i << "\t" << names[i] << ":\t\t" << parameters[i] << psi::endl;
+  }
+}
 
 // == Private =======================================================
 
