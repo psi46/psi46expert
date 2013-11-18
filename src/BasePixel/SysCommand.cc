@@ -291,6 +291,8 @@ int SysCommand::Parse(char * line)
         }
         narg0++;
     }
+    // skip if nothing is left of parsed string (e.g. only whitespace)
+    if (narg0 == 0) return 0;
 
     //    debugging
     /*

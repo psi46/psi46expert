@@ -74,6 +74,8 @@
 #define	CtrlReg     0xFD
 
 
+#define print_missing() if(WARN_MISSING_CTESTBOARD) fprintf(stderr, "WARNING: Missing implementation of '%s' defined in %s:%d \n" , __PRETTY_FUNCTION__, __FILE__, __LINE__);
+
 
 class CTestboard
 {
@@ -346,29 +348,29 @@ public:
     #define STRETCH_AFTER_CAL  2  
     // == TBM functions =====================================================
 
-    bool TBMPresent() { return false; }
+    bool TBMPresent() { print_missing(); return false; }
 
-    void tbm_Enable(bool on){ return; }
+    void tbm_Enable(bool on){ print_missing(); return; }
 
-    void tbm_Addr(unsigned char hub, unsigned char port){ return; }
+    void tbm_Addr(unsigned char hub, unsigned char port){ print_missing(); return; }
 
-    void mod_Addr(unsigned char hub){ return; }
+    void mod_Addr(unsigned char hub){ print_missing(); return; }
 
-    void tbm_Set(unsigned char reg, unsigned char value){ return; }
+    void tbm_Set(unsigned char reg, unsigned char value){ print_missing(); return; }
 
-    bool tbm_Get(unsigned char reg, unsigned char &value){ return false; }
+    bool tbm_Get(unsigned char reg, unsigned char &value){ print_missing(); return false; }
 
-	bool tbm_GetRaw(unsigned char reg, int32_t &value){ return false; }
+	bool tbm_GetRaw(unsigned char reg, int32_t &value){ print_missing(); return false; }
 
-    bool GetVersion(char *s, uint32_t n){ return false;}
-
-
-    void SetEmptyReadoutLength(int32_t emptyReadoutLength){ return; }
+    bool GetVersion(char *s, uint32_t n){ print_missing(); return false;}
 
 
-    void Single(unsigned char mask){ return; }
+    void SetEmptyReadoutLength(int32_t emptyReadoutLength){ print_missing(); return; }
 
-	bool SingleWait(unsigned char mask, uint16_t timeout){return false;}
+
+    void Single(unsigned char mask){ print_missing(); return; }
+
+	bool SingleWait(unsigned char mask, uint16_t timeout){print_missing(); return false;}
 
     // -- enables the internal event generator
     //    mask: same as tb_Single
@@ -379,45 +381,45 @@ public:
     void Extern(unsigned char mask){ Single(mask);}
 
     // -- gets the readout counter
-    unsigned char GetRoCnt(){ return 1; }  
+    unsigned char GetRoCnt(){ print_missing(); return 1; }  
 
-    bool SendRoCnt(){ return false;}
-    unsigned char RecvRoCnt(){ return 1; }
+    bool SendRoCnt(){ print_missing(); return false;}
+    unsigned char RecvRoCnt(){ print_missing(); return 1; }
 
-    uint16_t GetRoCntEx(){ return 1; }
-    bool SendRoCntEx(){ return false; }
-	uint16_t RecvRoCntEx(){ return 1; }
+    uint16_t GetRoCntEx(){ print_missing(); return 1; }
+    bool SendRoCntEx(){ print_missing(); return false; }
+	uint16_t RecvRoCntEx(){ print_missing(); return 1; }
 
-	void SetTriggerMode(uint16_t mode){ return;}
-    void DataCtrl(char channel, bool clear, bool trigger, bool cont){ return;}
-    void DataEnable(bool on){return ;}
-	uint16_t DataState(){ return 1;}
-	void DataTriggerLevel(char channel, int16_t level){ return;}
-	void DataBlockSize(uint16_t size){return ;}
+	void SetTriggerMode(uint16_t mode){ print_missing(); return;}
+    void DataCtrl(char channel, bool clear, bool trigger, bool cont){ print_missing(); return;}
+    void DataEnable(bool on){print_missing(); return ;}
+	uint16_t DataState(){ print_missing(); return 1;}
+	void DataTriggerLevel(char channel, int16_t level){ print_missing(); return;}
+	void DataBlockSize(uint16_t size){print_missing(); return ;}
 	bool DataRead(char channel, int16_t buffer[], uint16_t buffersize,
-		uint16_t &wordsread){ return false;}
+		uint16_t &wordsread){ print_missing(); return false;}
 	bool DataReadRaw(char channel, int16_t buffer[], uint16_t buffersize,
-		uint16_t &wordsread){ return false; }
-	uint16_t GetModRoCnt(uint16_t index){ return 1;}
-	void GetModRoCntAll(uint16_t *counts){ return; }
+		uint16_t &wordsread){ print_missing(); return false; }
+	uint16_t GetModRoCnt(uint16_t index){ print_missing(); return 1;}
+	void GetModRoCntAll(uint16_t *counts){ print_missing(); return; }
 
-	uint32_t Daq_Init(uint32_t size){ return 1; }
-    void Daq_Enable(){ return; }
-    void Daq_Disable(){ return; }
-    bool Daq_Ready(){ return true; }
-	uint16_t Daq_GetPointer(){ return 1; }
-    void Daq_Done(){ return; }
+	uint32_t Daq_Init(uint32_t size){ print_missing(); return 1; }
+    void Daq_Enable(){ print_missing(); return; }
+    void Daq_Disable(){ print_missing(); return; }
+    bool Daq_Ready(){ print_missing(); return true; }
+	uint16_t Daq_GetPointer(){ print_missing(); return 1; }
+    void Daq_Done(){ print_missing(); return; }
 
-    void ProbeSelect(unsigned char port, unsigned char signal){ return;}
-	void SetTriggerMask(unsigned char mask){ return;}
+    void ProbeSelect(unsigned char port, unsigned char signal){ print_missing(); return;}
+	void SetTriggerMask(unsigned char mask){ print_missing(); return;}
 
-    void TBMEmulatorOn(){ return; }
-    void TBMEmulatorOff(){ return; }
-	void TbmWrite(int32_t hubAddr, int32_t addr, int32_t value){ return; }
-	void Tbm1Write(int32_t hubAddr, int32_t addr, int32_t value){ return; }
-	void Tbm2Write(int32_t hubAddr, int32_t addr, int32_t value){ return; }
-    void SetClock(unsigned char MHz){ return; }
-    void SetDelay(unsigned char signal, uint16_t ns){ return; }
+    void TBMEmulatorOn(){ print_missing(); return; }
+    void TBMEmulatorOff(){ print_missing(); return; }
+	void TbmWrite(int32_t hubAddr, int32_t addr, int32_t value){ print_missing(); return; }
+	void Tbm1Write(int32_t hubAddr, int32_t addr, int32_t value){ print_missing(); return; }
+	void Tbm2Write(int32_t hubAddr, int32_t addr, int32_t value){ print_missing(); return; }
+    void SetClock(unsigned char MHz){ print_missing(); return; }
+    void SetDelay(unsigned char signal, uint16_t ns){ print_missing(); return; }
     void AdjustDelay(uint16_t k) { SetDelay(255, k); }
 
     // === module test functions ======================================
@@ -440,7 +442,7 @@ public:
     int32_t MaskTest(int16_t nTriggers, int16_t res[]);
 	int32_t ChipEfficiency(int16_t nTriggers, int32_t trim[], double res[]); 
 	void DacDac(int32_t dac1, int32_t dacRange1, int32_t dac2, int32_t dacRange2, int32_t nTrig, int32_t result[]);
-	void AddressLevels(int32_t position, int32_t result[]){ return;}
+	void AddressLevels(int32_t position, int32_t result[]){ print_missing(); return;}
     int32_t CountReadouts(int32_t nTriggers);
 	int32_t CountReadouts(int32_t nTriggers, int32_t chipId);
 	int32_t CountReadouts(int32_t nTriggers, int32_t dacReg, int32_t dacValue);
@@ -457,58 +459,58 @@ public:
     // ----------------------------
 
 
-	bool GetPixel(int32_t x){ return false; }
-	int32_t FindLevel(){ return 1; }
-    unsigned char test_PUC(unsigned char col, unsigned char row, unsigned char trim){ return 1; }
-	void testColPixel(int32_t col, int32_t trimbit, unsigned char *res){ return; }
-	bool GetLastDac(unsigned char count, int32_t &ldac){ return false; }
+	bool GetPixel(int32_t x){ print_missing(); return false; }
+	int32_t FindLevel(){ print_missing(); return 1; }
+    unsigned char test_PUC(unsigned char col, unsigned char row, unsigned char trim){ print_missing(); return 1; }
+	void testColPixel(int32_t col, int32_t trimbit, unsigned char *res){ print_missing(); return; }
+	bool GetLastDac(unsigned char count, int32_t &ldac){ print_missing(); return false; }
     bool ScanDac(unsigned char dac, unsigned char count,
-	unsigned char min, unsigned char max, int16_t *ldac){ return false; }
+	unsigned char min, unsigned char max, int16_t *ldac){ print_missing(); return false; }
 
-	int32_t AoutLevel(int16_t position, int16_t nTriggers){ return 1; }
-	int32_t AoutLevelChip(int16_t position, int16_t nTriggers, int32_t trims[],  int32_t res[]){ return 1; }
-	int32_t AoutLevelPartOfChip(int16_t position, int16_t nTriggers, int32_t trims[], int32_t res[], bool pxlFlags[]){ return 1; }
-	void DoubleColumnADCData(int32_t column, int16_t data[], int32_t readoutStop[]){ return; }
-	void ADCRead(int16_t buffer[], uint16_t &wordsread, int16_t nTrig){ return; }
-	void PHDac(int32_t dac, int32_t dacRange, int32_t nTrig, int32_t position, int16_t result[]){ return; }
-	void TBMAddressLevels(int32_t result[]){ return; }
-	void TrimAboveNoise(int16_t nTrigs, int16_t thr, int16_t mode, int16_t result[]){ return; }
+	int32_t AoutLevel(int16_t position, int16_t nTriggers){ print_missing(); return 1; }
+	int32_t AoutLevelChip(int16_t position, int16_t nTriggers, int32_t trims[],  int32_t res[]){ print_missing(); return 1; }
+	int32_t AoutLevelPartOfChip(int16_t position, int16_t nTriggers, int32_t trims[], int32_t res[], bool pxlFlags[]){ print_missing(); return 1; }
+	void DoubleColumnADCData(int32_t column, int16_t data[], int32_t readoutStop[]){ print_missing(); return; }
+	void ADCRead(int16_t buffer[], uint16_t &wordsread, int16_t nTrig){ print_missing(); return; }
+	void PHDac(int32_t dac, int32_t dacRange, int32_t nTrig, int32_t position, int16_t result[]){ print_missing(); return; }
+	void TBMAddressLevels(int32_t result[]){ print_missing(); return; }
+	void TrimAboveNoise(int16_t nTrigs, int16_t thr, int16_t mode, int16_t result[]){ print_missing(); return; }
 
-	void ReadData(int32_t position, int32_t size, int32_t result[]){ return; }
-	void ReadFPGAData(int32_t size, int32_t result[]){ return; }
+	void ReadData(int32_t position, int32_t size, int32_t result[]){ print_missing(); return; }
+	void ReadFPGAData(int32_t size, int32_t result[]){ print_missing(); return; }
 
-	void SetEmptyReadoutLengthADC(int32_t emptyReadoutLengthADC){ return; }
-	void SetTbmChannel(int32_t tbmChannel){ return; }
-	void SetDTL(int32_t value){ return; }
-	void SetNRocs(int32_t value){ return; }
-	void SetHubID(int32_t value){ return; }
-    void SetAoutChipPosition(int32_t value){ return; }
+	void SetEmptyReadoutLengthADC(int32_t emptyReadoutLengthADC){ print_missing(); return; }
+	void SetTbmChannel(int32_t tbmChannel){ print_missing(); return; }
+	void SetDTL(int32_t value){ print_missing(); return; }
+	void SetNRocs(int32_t value){ print_missing(); return; }
+	void SetHubID(int32_t value){ print_missing(); return; }
+    void SetAoutChipPosition(int32_t value){ print_missing(); return; }
     void MemRead(uint32_t addr, uint16_t size,
-                 unsigned char * s){ return; }
+                 unsigned char * s){ print_missing(); return; }
 
      // == PSI46 testboard methods ===========================================
 
-    unsigned char isClockPresent(){ return 1; }
+    unsigned char isClockPresent(){ print_missing(); return 1; }
     void SetClockStretch(unsigned char src,
-		uint16_t delay, uint16_t width){ return; }
+		uint16_t delay, uint16_t width){ print_missing(); return; }
 
-    void ForceSignal(unsigned char pattern){ return; }
+    void ForceSignal(unsigned char pattern){ print_missing(); return; }
 
-    bool ShowUSB() { return false; }; 
+    bool ShowUSB() { print_missing(); return false; }; 
 
-    bool Open(char name[], bool init = true){ return true;}
+    bool Open(char name[], bool init = true){ print_missing(); return true;}
 
 
     // =======================================================================
 
-	int32_t demo(int16_t x){ return 1; }
+	int32_t demo(int16_t x){ print_missing(); return 1; }
 
 	void GetColPulseHeight(unsigned char col, unsigned char count,
-				int16_t data[]){ return; }
+				int16_t data[]){ print_missing(); return; }
 
 	void Scan1D(unsigned char vx,
 			unsigned char xmin, unsigned char xmax,	char xstep,
-			unsigned char rep, uint32_t usDelay, unsigned char res[]){ return; }
+			unsigned char rep, uint32_t usDelay, unsigned char res[]){ print_missing(); return; }
 
 	void BumpTestColPixel(unsigned char col, unsigned char res[]);
 	void BumpTestColRef(unsigned char col, unsigned char res[]);
@@ -519,12 +521,12 @@ public:
 
 	void ScanAdac(uint16_t chip, unsigned char dac,
       unsigned char min, unsigned char max, char step,
-      unsigned char rep, uint32_t usDelay, unsigned char res[]){ return; }
+      unsigned char rep, uint32_t usDelay, unsigned char res[]){ print_missing(); return; }
 	void CdVc(uint16_t chip, unsigned char wbcmin, unsigned char wbcmax, unsigned char vcalstep,
-          unsigned char cdinit, uint16_t &lres, uint16_t res[]){ return; }
+          unsigned char cdinit, uint16_t &lres, uint16_t res[]){ print_missing(); return; }
 
 	// === xray test =====================================================
-	char CountAllReadouts(int32_t nTrig, int32_t counts[], int32_t amplitudes[]){ return 1; }
+	char CountAllReadouts(int32_t nTrig, int32_t counts[], int32_t amplitudes[]){ print_missing(); return 1; }
 
 
 
