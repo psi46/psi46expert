@@ -12,9 +12,9 @@
 
 
 // ---------------------------------------------------
-#define TITLE                  "PSI46V2 ROC/Wafer Tester"
+#define TITLE        "PSI46V2 ROC/Wafer Tester"
 #define PIXEL_DTB_VERSION      "V1.3"
-#define TIMESTAMP              "07.08.2013"
+#define TIMESTAMP    "07.08.2013"
 // ---------------------------------------------------
 
 #define VERSIONINFO TITLE " " PIXEL_DTB_VERSION " (" TIMESTAMP ")"

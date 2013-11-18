@@ -1,6 +1,6 @@
-#include <cstdlib>
 #include <iostream>
 #include <time.h>
+#include <stdlib.h>
 #include <BasePixel/Keithley.h>
 
 #include "BasePixel/TBInterface.h"
@@ -38,7 +38,7 @@ daqFrame::daqFrame(const TGWindow * p, UInt_t w, UInt_t h, daqLoggingManager * p
     fMtbLogging      = 1;
     fFillMem         = 0;
     fTemperature     = 0;
-    fRunDuration     = 10;
+    fRunDuration     = 3600;
     fRunning         = 0;
 
 
@@ -58,6 +58,7 @@ daqFrame::daqFrame(const TGWindow * p, UInt_t w, UInt_t h, daqLoggingManager * p
     Pixel_t colDarkSeaGreen;    gClient->GetColorByName("DarkSeaGreen", colDarkSeaGreen);
 
     SetBackgroundColor(colDarkSeaGreen);
+  doRefreshWindowTitle();
 
     // ----------------------------------------------------------------------
     // -- Frame for Run Control
@@ -104,12 +105,13 @@ daqFrame::daqFrame(const TGWindow * p, UInt_t w, UInt_t h, daqLoggingManager * p
     wExternal->MoveResize(5, 100, 90, 15);
     wExternal->Connect("Clicked()", "daqFrame", this, "doSetExternal()");
     //  wExternal->SetOn();
+    if( fExternalTrigger ) wExternal->SetOn();
     wRunCtrl->AddFrame(wExternal);
 
     TGCheckButton * wLocal = new TGCheckButton(wRunCtrl, "Local", 70);
     wLocal->MoveResize(5, 130, 90, 15);
     wLocal->Connect("Clicked()", "daqFrame", this, "doSetLocal()");
-    wLocal->SetOn();
+    if( fLocalTrigger ) wLocal->SetOn();
     wRunCtrl->AddFrame(wLocal);
 
     TGCheckButton * wTemperature = new TGCheckButton(wRunCtrl, "Temperature", 70);
@@ -218,7 +220,7 @@ daqFrame::daqFrame(const TGWindow * p, UInt_t w, UInt_t h, daqLoggingManager * p
     // -- MTB SysCommand
     TGTextEntry * wSysCommand1 = new TGTextEntry(wSetup, fwSysCommand1Text = new TGTextBuffer(100));
     wSysCommand1->MoveResize(50, 40, 190, wSysCommand1->GetDefaultHeight());
-    wSysCommand1->SetText("exec module.ini");
+    //wSysCommand1->SetText("exec module.ini");
     wSysCommand1->Connect("ReturnPressed()", "daqFrame", this, "doSetSysCommand1Text()");
     wSetup->AddFrame(wSysCommand1);
 
@@ -246,7 +248,7 @@ daqFrame::daqFrame(const TGWindow * p, UInt_t w, UInt_t h, daqLoggingManager * p
     for (Int_t reg = 0; reg < 256; reg++) {
         name = dacParameters->GetName(reg);
         if (strcmp(name, "") != 0)  {
-            fpLM->log(Form("==>daqf: %s", name));
+        //    fpLM->log(Form("==>daqf: %s", name));
             fParametersComboBox->AddEntry(name, reg);
         }
     }
@@ -346,13 +348,13 @@ daqFrame::daqFrame(const TGWindow * p, UInt_t w, UInt_t h, daqLoggingManager * p
     fManualControlComboBox->AddEntry("Trim",    4);
 
     fManualControlComboBox->MoveResize(20, 190, 90, 20);
-    fManualControlComboBox->Select(0);
+    fManualControlComboBox->Select(2);
 
     wControl->AddFrame(fManualControlComboBox);
 
     parameterValue = new TGTextEntry(wControl, fManualControlTextBuffer = new TGTextBuffer(30));
     parameterValue->Resize(50, parameterValue->GetDefaultHeight());
-    parameterValue->SetText("15");
+    parameterValue->SetText("1");
     parameterValue->Move(120, 190);
     wControl->AddFrame(parameterValue);
 
@@ -370,6 +372,11 @@ daqFrame::daqFrame(const TGWindow * p, UInt_t w, UInt_t h, daqLoggingManager * p
     for (int i = 0; i < 256; i++) {
         fTbParNames[i] = TString("");
     }
+    fTbParNames[8] = TString("clk");
+    fTbParNames[9] = TString("sda");
+    fTbParNames[10] = TString("ctr");
+    fTbParNames[11] = TString("tin");
+    fTbParNames[12] = TString("rda");
 
     fTbParNames[17] = TString("trc");
     fTbParNames[18] = TString("tcc");
@@ -377,10 +384,7 @@ daqFrame::daqFrame(const TGWindow * p, UInt_t w, UInt_t h, daqLoggingManager * p
     fTbParNames[20] = TString("ttk");
     fTbParNames[21] = TString("trep");
     fTbParNames[22] = TString("cc");
-    fTbParNames[8] = TString("clk");
-    fTbParNames[9] = TString("sda");
-    fTbParNames[10] = TString("ctr");
-    fTbParNames[11] = TString("tin");
+
     fTbParNames[77] = TString("spd");
 
 
@@ -416,8 +420,7 @@ daqFrame::daqFrame(const TGWindow * p, UInt_t w, UInt_t h, daqLoggingManager * p
     // ======================================================================
     // -- Draw it
 
-    if (!batchMode)
-    {
+  if( !batchMode ) {
         MapSubwindows();
         MapWindow();
     }
@@ -437,36 +440,36 @@ void daqFrame::initializeHardware() {
     fCN = new TestControlNetwork(fTB, fpLM->getMTBConfigParameters());
     fTB->Flush();
 
-    if (fExternalTrigger) {
-        fTB->SetReg(21, 200);  //t_periode
-        fTB->SetReg(26, 85);  //trigger delay on testboard in units of 25ns
-        fTB->Intern(RES);
-        fTB->Flush();
-    }
+    //if (fExternalTrigger) {
+     //   fTB->SetReg(21, 200);  //t_periode
+     //   fTB->SetReg(26, 85);  //trigger delay on testboard in units of 25ns
+    //    fTB->Intern(RES);
+    //    fTB->Flush();
+    //}
 
     fTB->ProbeSelect(0, 1);
 
-    fTB->SetTriggerMode(TRIGGER_MODULE1);
+  fTB->SetTriggerMode( TRIGGER_ROC ); fpLM->log( Form( "TRIGGER_ROC" ) ); // our standard
     fTB->getCTestboard()->DataBlockSize(100);
 
     /*  fpLM->log("Enable all pixels");
       fpLM->log(">>>>>>>> Skip chip 3 <<<<<<<<<<<<");
       TestModule *module = fCN->GetModule(0);*/
 
-    fTB->SetClockStretch(STRETCH_AFTER_CAL, 5, 1000);
+    //fTB->SetClockStretch(STRETCH_AFTER_CAL, 5, 1000);
 
     for (int i = 0; i < fCN->GetModule(0)->NRocs(); i++)
     {
         fCN->GetModule(0)->GetRoc(i)->EnableAllPixels();
-        fCN->GetModule(0)->GetRoc(i)->SetDAC("WBC", 106);
+     //   fCN->GetModule(0)->GetRoc(i)->SetDAC("WBC", 106);
     }
 
     for (int iRoc = 0; iRoc < fCN->GetModule(0)->NRocs(); ++iRoc)
     {
         vtrim[iRoc] = fCN->GetModule(0)->GetRoc(iRoc)->GetDAC("Vtrim");
-        fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("Vtrim", 0);
+     //   fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("Vtrim", 0);
         vthrcomp[iRoc] = fCN->GetModule(0)->GetRoc(iRoc)->GetDAC("VthrComp");
-        fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("VthrComp", 0);
+     //   fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("VthrComp", 0);
     }
 
     sleep(1);
@@ -503,19 +506,146 @@ void daqFrame::runStart() {
     // -- set up RTB and MTB
     fpLM->log("==>daqf: --> MTB setup ");
 
+  if( fExternalTrigger ) {
+
+    //fTB->SetReg(21, 200);  //t_periode (obsolete says Tilman 2011)
+    fTB->SetReg( 26, 85 );  //trigger delay on testboard in units of 25ns
+    //fTB->SetReg( 26, 135 );  //trigger delay on testboard test for xdb2 27/06/2012 (WBC)
+
+    //fTB->Intern(0); // 10.6.2013. Massensterben of DCs
+    fTB->Intern(RES); // was active all the time to 10.6.2013
+    //fTB->Intern(RES|TOK);//gives corrupt data (10.8.2011)
+    //fTB->Intern(RES|CAL); // DCF test summer 2013
+    //fTB->Intern(RES|CAL|TOK);//gives corrupt data (10.8.2011)
+    //fTB->Intern(1001);//RES|cal|trg|TOK. gives corrupt data (10.8.2011)
+
+    fTB->Flush();
+    gDelay->Mdelay(50);//milli secs
+
+  }
     if (fLocalTrigger) {
-        fpLM->log("==>daqf: ........ using local CTR of MTB.........");
-        fReg41 = 0x22; // tbm present and intern ctr
+    fpLM->log("==>daqf: ........ using local TRG of MTB.........");
+        //fReg41 = 0x22; // tbm present and intern ctr
         // -- BEAT MEINT: Hier ist noch das Aequivalent zu "tb loop" zu programmieren...
-    } else {
+    fReg41 = 0x20; // DP: tbm not present and intern trg
+    if(
+       strcmp( fpLM->getMTBConfigParameters()->directory, "chip202" ) == 0 ||
+       strcmp( fpLM->getMTBConfigParameters()->directory, "chip203" ) == 0 ||
+       strcmp( fpLM->getMTBConfigParameters()->directory, "chip205" ) == 0 ||
+       strcmp( fpLM->getMTBConfigParameters()->directory, "chip308" ) == 0 ) {
+	  
+      fReg41 = 0x21; // DP: no TBM, intern trg, ADC2 for dig
+    }
+
+  }
+
+  else { // ext trig
+
+    if( strcmp( fpLM->getMTBConfigParameters()->directory, "chip11" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip10" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip16" ) == 0 ||
+
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip21" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip22" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip23" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip24" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip25" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip26" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip27" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip28" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip29" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip30" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip31" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip32" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip33" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip34" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip35" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip36" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip37" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip38" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip39" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip40" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip41" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip42" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip43" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip44" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip45" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip46" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip47" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip48" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip49" ) == 0 ||
+
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip51" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip52" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip53" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip54" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip55" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip56" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip57" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip58" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip59" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip60" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip61" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip62" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip63" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip64" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip65" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip66" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip67" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip68" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip69" ) == 0 ||
+
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip70" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip71" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip72" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip73" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip74" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip75" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip76" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip77" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip78" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip79" ) == 0 ||
+
+	// DESY analog 2013
+
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip110" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip111" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip112" ) == 0 ||
+	strcmp( fpLM->getMTBConfigParameters()->directory, "chip113" ) == 0 
+
+	)
         fReg41 = 0x42; // tbm present and extern ctr
+    else { // dig
+
+      //fReg41 = 0x41; // extern trg and ADC2 for digital ROC (Aug 2012)
+      fReg41 = 0x43; // extern trg and TBM and ADC2 for digital ROC (Aug 2012)
     }
 
     // -- Set up MTB
+  } // ext trigg
+
+    // -- Set up MTB
+  cout << " Setting DAC registers 41 to '" << fReg41 << "' and 43 to '" << 2 << "'" << endl;
     fTB->SetReg(41, fReg41);
     fTB->SetReg(43, 2);
     if (fLocalTrigger) {
-        fTB->Intern(15);  // BasePixel/TBInterface.cc:  else if (command.Keyword("loop"))   {Intern(rctk_flag);}
+    // int istretch = 10000;//10000*25 = 0.25 ms. 4 kHz trig rate max. 
+    // int istretch = 1000;//1000*25 = 0.025 ms. 40 kHz trig rate max. 
+    // int istretch = 100;//100*25 = 0.0025 ms. 400 kHz trig rate max. 
+    // int istretch = 65000;//max 2^16-1 = 65535
+    // int istretch = 40000;//40000*25ns = 1 ms, 1 kHz trig rate
+    // int istretch = 20000;//20000*25ns = 0.5 ms
+    int istretch = 0; // test beam
+
+    fTB->SetClockStretch( STRETCH_AFTER_CAL, 5, istretch );
+
+    fpLM->log( Form( "runStart: SetClockStretch = %i", istretch ) );
+
+    //fTB->Intern(15);  // FPGA sends RES|CAL|TRG|TOK sequence
+    fTB->Intern(CAL|TRG|TOK);  // FPGA sequence, no reset for DCF study
+
+  } else {
+    fTB->SetClockStretch( STRETCH_AFTER_CAL, 5, 0 );//reset clock stretch
     }
     //fTB->Intern(RES);
     fTB->Flush();
@@ -541,18 +671,22 @@ void daqFrame::runStart() {
 // ----------------------------------------------------------------------
 void daqFrame::doStart() {
 
-    for (int iRoc = 0; iRoc < fCN->GetModule(0)->NRocs(); ++iRoc)
-    {
-        fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("Vtrim", vtrim[iRoc]);
-        fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("VthrComp", vthrcomp[iRoc]);
-    }
+   // for (int iRoc = 0; iRoc < fCN->GetModule(0)->NRocs(); ++iRoc)
+   // {
+   //     fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("Vtrim", vtrim[iRoc]);
+   //     fCN->GetModule(0)->GetRoc(iRoc)->SetDAC("VthrComp", vthrcomp[iRoc]);
+   // }
 
-    unsigned int filledMem1;
+    uint32_t filledMem1 = 0;
 
     fRunning = 1;
 
     fpLM->log("==>daqf: START! ");
     fpLM->setupRun();
+  if(!(strcmp(fpLM->getMTBConfigParameters()->GetMaskFileName(),"default")==0)){
+    ApplyMaskFile(fpLM->getMTBConfigParameters()->GetMaskFileName()); // AP: 200612, works for individual ROCs so far
+    cout << "\033[34mMask file is \033[0m " << fpLM->getMTBConfigParameters()->GetMaskFileName() << endl;
+  }
 
     fpLM->log("==>daqf: Dumping h/w configuration");
     fpLM->dumpHardwareConfiguration(0, fCN, fTB);
@@ -609,15 +743,128 @@ void daqFrame::doStart() {
         runStart();
 
         int seconds = 0, stepSize = 0;
+	uint32_t filledSize = fTB->getCTestboard()->Daq_GetSize(); //DP
+	//unsigned int filledSize = fTB->getCTestboard()->Daq_GetSize();
+
+	// prepare warning flags/variables (HP 20120427)
+	bool bufferFullWarned = false; // remeber if we warned about full buffer already
+	bool bufferBlockageWarned = false; // remeber if we warned about the buffer being jammed
+	// i.e. not being filled anymore
+	uint32_t lastFilledMem = 0; // remember previous state of filledMem to recognize a blocked state
+	uint32_t oldFilledMem = 0; // remember previous state of filledMem to recognize a blocked state
         while (1) {
             if (fRunning == 0) break;
             sleep(1);
             seconds++;
 
-            /* get number of WORDs written to RAM by the DMA controller */
-            filledMem1 = (fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1) / 2;
+	  filledMem1 = fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1;
+	  filledSize = fTB->getCTestboard()->Daq_GetSize();
+	  fpLM->log( Form( "==>daqf: %4i: mem: %8lu  left %8lu  last sec %6lu",
+			   seconds,(unsigned long ) filledMem1, (unsigned long )filledSize, (unsigned long )(filledMem1-lastFilledMem) ) );
+	  lastFilledMem = filledMem1; // remember value
+
+	  // check for possible problems: buffer blockage i.e. buffer not being filled (HP 20120427)
+	  // check every 20 seconds for changed values
+
+	  if( (seconds-1)%20 == 0 ) {
+	    if( oldFilledMem == 0 ) oldFilledMem = filledMem1; // init
+	    else if( filledMem1 != oldFilledMem ) {
+	      oldFilledMem = filledMem1; // remember value
+	      if( bufferBlockageWarned ) {
+		bufferBlockageWarned = false; // reset flag
+		// gui: reset warning
+		fCanvas1->cd();
+		fCanvas1->Clear();
+		fCanvas1->Modified(); 
+		fCanvas1->Update();
+	      }
+	    }
+	    else if( !bufferBlockageWarned ) {
+	      // we might have a problem: let the user know
+	      if( filledMem1 == 0 ) {
+		// text warning:
+		fpLM->log(" Warning: no data coming in!");
+		// gui warning:
+		fCanvas1->cd();
+		fCanvas1->Clear();
+		TLatex *tl = new TLatex(); tl->SetNDC(kTRUE); tl->SetTextSize(0.15);
+		tl->SetTextColor(kRed);
+		tl->DrawLatex(0.15, 0.65, Form("Warning:"));
+		tl->DrawLatex(0.15, 0.35, Form("no data?"));
+		fCanvas1->Modified(); 
+		fCanvas1->Update();
+		bufferBlockageWarned=true;
+	      }
+	      else {
+		// got stuck while taking data
+		// text warning:
+		fpLM->log(" WARNING: no more data coming in!");
+		cout
+		  << " _            __  __             _     _            _            _  " << endl
+		  << "| |__  _   _ / _|/ _| ___ _ __  | |__ | | ___   ___| | _____  __| | " << endl
+		  << "| '_ \\| | | | |_| |_ / _ \\ '__| | '_ \\| |/ _ \\ / __| |/ / _ \\/ _` | " << endl
+		  << "| |_) | |_| |  _|  _|  __/ |    | |_) | | (_) | (__|   <  __/ (_| | " << endl
+		  << "|_.__/ \\__,_|_| |_|  \\___|_|    |_.__/|_|\\___/ \\___|_|\\_\\___|\\__,_| " << endl
+		  << "                                                                    " << endl;
+		//beep
+		std::cout << '\a';
+		// gui warning:
+		fCanvas1->cd();
+		fCanvas1->Clear();
+		TLatex *tl = new TLatex(); tl->SetNDC(kTRUE); tl->SetTextSize(0.15);
+		tl->SetTextColor(kRed);
+		tl->DrawLatex(0.15, 0.65, Form("WARNING:"));
+		tl->DrawLatex(0.15, 0.35, Form("no more data!"));
+		fCanvas1->Modified(); 
+		fCanvas1->Update();
+		bufferBlockageWarned=true;
+	      }
+	    } // if buffer blockage found and !warned about it
+	  }
+	  else if (bufferBlockageWarned && (filledMem1 != oldFilledMem)) {
+	    // revert flag
+	    bufferBlockageWarned=false; // reset flag
+	    fpLM->log(" Buffer filling (again)..  :-)");
+	    // gui: reset warning
+	    fCanvas1->cd();
+	    fCanvas1->Clear();
+	    fCanvas1->Modified(); 
+	    fCanvas1->Update();
+	  } // check for buffer blockage
+     
+	  // check for possible problems: buffer filled completely (HP 20120427)
+
+	  if( filledSize == 0 && !bufferFullWarned ) {
+	    // text warning:
+	    cout
+	      << " _____                        " << endl
+	      << "| ____|_ __ _ __ ___  _ __ _  " << endl
+	      << "|  _| | '__| '__/ _ \\| '__(_) " << endl
+	      << "| |___| |  | | | (_) | |   _  " << endl
+	      << "|_____|_|  |_|  \\___/|_|  (_) " << endl
+	      << "                              " << endl;
+	    cout
+	      << " ____         __  __             _____      _ _  " << endl
+	      << "| __ ) _   _ / _|/ _| ___ _ __  |  ___|   _| | | " << endl
+	      << "|  _ \\| | | | |_| |_ / _ \\ '__| | |_ | | | | | | " << endl
+	      << "| |_) | |_| |  _|  _|  __/ |    |  _|| |_| | | | " << endl
+	      << "|____/ \\__,_|_| |_|  \\___|_|    |_|   \\__,_|_|_| " << endl
+	      << "                                                 " << endl;
+	    fpLM->log(" ERROR: BOARD REPORTS NO SPACE LEFT IN BUFFER!");
+	    // beep
+	    std::cout << '\a';
+	    // gui warning:
+	    fCanvas1->cd();
+	    fCanvas1->Clear();
+	    TLatex *tl = new TLatex(); tl->SetNDC(kTRUE); tl->SetTextSize(0.15);
+	    tl->SetTextColor(kRed);
+	    tl->DrawLatex(0.15, 0.65, Form("ERROR:"));
+	    tl->DrawLatex(0.15, 0.35, Form("BUFFER FULL"));
+	    fCanvas1->Modified(); 
+	    fCanvas1->Update();
+	    bufferFullWarned=true;
+	  } // buffer full
             if (stepSize == 0) stepSize = filledMem1;
-            fpLM->log(Form("==>daqf: %4i: MTB: %8d",  seconds, filledMem1));
             fwMemMtb->SetText(Form("%8i", filledMem1));
             gSystem->ProcessEvents();
 
@@ -628,9 +875,25 @@ void daqFrame::doStart() {
         doBreak();
         readout(f, filledMem1);
 
+	fpLM->log( Form( "==>daqf: read out Run %i", fpLM->getRunNumber() ) );
         if (fFillMem) {
             fclose(f);
             seconds = fpLM->incrementRunNumber();
+	}
+	else {
+
+	  int nextrunnumber = fpLM->incrementRunNumber();
+	  fRunTextBuffer->Clear();
+	  fRunTextBuffer->AddText(0, Form("%i", nextrunnumber));
+	  fwRunNumber->TextChanged();
+	  gClient->NeedRedraw(fwRunNumber);
+
+	  fwOutputDirBuffer->Clear();
+	  fwOutputDirBuffer->AddText(0, fpLM->getOutputDir());
+	  fwOutputDir->TextChanged();
+	  gClient->NeedRedraw(fwOutputDir);
+  
+	  doRefreshWindowTitle();
         }
 
     }
@@ -655,7 +918,7 @@ void daqFrame::doStart() {
     fCanvas1->Update();
 
     // --  for oscilloscope
-    startTriggers();
+    //startTriggers();
     doStop();
 }
 
@@ -664,12 +927,16 @@ void daqFrame::doStart() {
 void daqFrame::startTriggers() {
 
     fpLM->log("==>daqf: Enable triggers");
-    if (fLocalTrigger) fReg41 = fReg41 | 0x22; // tbm present and intern ctr
-    else fReg41 = fReg41 | 0x42; // tbm present and extern ctr
+  if( fLocalTrigger) 
+    //DP fReg41 = fReg41 | 0x22; // tbm present and intern trg
+    fReg41 = fReg41 | 0x20; // tbm not present and intern trg
+  else 
+    fReg41 = fReg41 | 0x42; // tbm present and extern trg
 
     fpLM->log(Form("==>daqf: startTriggers MTB Enable triggers; writing reg41: %02x, unset data_aqu", fReg41));
     if (fTB) fTB->SetReg(41, fReg41);
     if (fTB) fTB->Flush();
+  gDelay->Mdelay(50);//milli secs
 }
 
 
@@ -716,16 +983,6 @@ void daqFrame::doStop() {
     fpLM->log(Form("==>daqf: Run %i stopped. OK", fpLM->getRunNumber()));
     fpDAQ->stop();
 
-    int nextrunnumber = fpLM->incrementRunNumber();
-    //??? FIXME The following would ideally increment the display.
-    //    So far, you have to click on the TGTextEntry field ...
-    fRunTextBuffer->Clear();
-    fRunTextBuffer->AddText(0, Form("%i", nextrunnumber));
-    fwRunNumber->TextChanged(Form("%i", nextrunnumber));
-
-    fwOutputDirBuffer->Clear();
-    fwOutputDirBuffer->AddText(0, fpLM->getOutputDir());
-    fwOutputDir->TextChanged(fpLM->getOutputDir());
 }
 
 
@@ -735,8 +992,7 @@ void daqFrame::doDraw() {
     fCanvas1->cd();
     TH1 * h = fpDAQ->getHistogrammer()->getNextHistogram();
 
-    if (h)
-    {
+  if( h ) {
         h->Print();
         h->Draw();
         fCanvas1->Update();
@@ -758,12 +1014,15 @@ void daqFrame::doExit() {
 
 
 // ----------------------------------------------------------------------
-void daqFrame::readout(FILE * file, unsigned int filledMem1)
+void daqFrame::readout(FILE * file, uint32_t filledMem1)
 {
-    fTB->Flush();
-    fTB->Clear();
+
     fpLM->log(Form("==>daqf: read mtb, words = %d", filledMem1));
     fTB->Mem_ReadOut(file, dataBuffer_fpga1, filledMem1);
+  fTB->getCTestboard()->DataCtrl( 0, true, false, false ); // clear FIFO
+  fTB->Flush();
+  fTB->getCTestboard()->DataCtrl( 0, false, false, false ); // clear FIFO
+  fTB->Flush();
 }
 
 
@@ -783,6 +1042,8 @@ void daqFrame::doDuration() {
 // ----------------------------------------------------------------------
 void daqFrame::doRunNumberUpdate() {
     fpLM->setRunNumber(atoi(fRunTextBuffer->GetString()));
+  fwOutputDir->SetText(fpLM->getOutputDir());//show new outputdir
+  doRefreshWindowTitle();
 }
 
 // ----------------------------------------------------------------------
@@ -883,7 +1144,12 @@ void daqFrame::doSetParameter() {
         for (int iRoc = rocMin; iRoc <= rocMax; iRoc++) {
             if (fCN->GetModule(0) && (iRoc < fCN->GetModule(0)->NRocs())) {
                 fpLM->log(Form("==>daqf: ROC %i: Parameter %s set to %i", iRoc, name, dacValue));
+	  if( reg == 254 ){
+	    fCN->GetModule(0)->GetRoc(iRoc)->SetDAC( "WBC", dacValue );//AG 26.8.2011
+	  }
+	  else{
                 fCN->SetDAC(0, iRoc, reg, dacValue);
+	  }
                 fTB->Flush(); // FIXME: Too often flush??
             }
         }
@@ -1038,114 +1304,173 @@ void daqFrame::doSetSysCommand1Text() {
 // ----------------------------------------------------------------------
 void daqFrame::wbcScan() {
 
-    int nRocs = fCN->GetModule(0)->NRocs();
 
-    fpLM->log("==>daqf: WBC SCAN! ");
-    fpLM->setupRun();
-    fpLM->log(Form("==>daqf: Open ROOT outputfile %s/takeDataHist.root", fpLM->getOutputDir()));
-    fpDAQ->getHistogrammer()->openRootFile(Form("%s/takeDataHist.root", fpLM->getOutputDir()));
-    fpDAQ->getHistogrammer()->init("daq");
-    fpDAQ->getHistogrammer()->reset();
+  const int WBCStart = 95; // local
+  const int WBCStop = 106; // local
 
-    TLatex * tl = new TLatex(); tl->SetNDC(kTRUE);
-    TH1D * h1 = new TH1D("w0", "wbc scan", 256, 0., 256.);
-    TH1D * h2 = new TH1D("w1", "ntrig", 256, 0., 256.);
+  int wbcscannumber=0;
+  while ( (WBCStart+wbcscannumber)<WBCStop){
+    int thiswbc = WBCStart+wbcscannumber;
+    wbcscannumber++; // increment to the next WBC value
+    fpLM->log(Form("--> set WBC = %d ", thiswbc));        
+    for( int i = 0; i < fCN->GetModule(0)->NRocs(); i++)
+      {
+	fCN->GetModule(0)->GetRoc(i)->EnableAllPixels();
+	fCN->GetModule(0)->GetRoc(i)->SetDAC("WBC", thiswbc);
+      }
 
-    unsigned int filledMem1(99);
-    unsigned short BLOCKSIZE = 32767;
-    unsigned char bbuffer[BLOCKSIZE];
-    unsigned short size;
+    unsigned long filledMem1 = 0;
 
     //  for (int iwbc = 98; iwbc < 103; ++iwbc) {
-    for (int iwbc = 95; iwbc < 105; ++iwbc) {
-        char * filename = new char[1000];
-        sprintf(filename, "%s/wbc-scan-%d.bin", fpLM->getOutputDir(), iwbc);
-        FILE * f = fopen(filename, "wb");
+    fRunning = 1;
 
-        fpDAQ->getHistogrammer()->reset();
-        fpLM->log("----------------------------------------------------------------------");
-        fpLM->log(Form("--> set WBC = %d ", iwbc));
-        for (int iRoc = 0; iRoc < nRocs; ++iRoc)  {
-            if (fCN->GetModule(0) && (iRoc < fCN->GetModule(0)->NRocs())) {
-                fCN->SetDAC(0, iRoc, 254, iwbc);
-                fTB->Flush();
+    fpLM->log("==>daqf: START! ");
+    fpLM->setupRun();
 
+    fpLM->log("==>daqf: Dumping h/w configuration");
+    fpLM->dumpHardwareConfiguration(0, fCN, fTB);
                 // -- Force WBC setting even when no periodic resets are generated:
+    fpLM->log(Form("==>daqf: MTB analog    current = %f   voltage = %f ",
+		   fTB->getCTestboard()->GetIA(), fTB->getCTestboard()->GetVA() 
+		   ));
+    fpLM->log(Form("==>daqf: MTB digital   current = %f   voltage = %f ",
+		   fTB->getCTestboard()->GetID(), fTB->getCTestboard()->GetVD() 
+		   ));
                 //    Need to enable LOCAL CTR first, then do RESET. runStart() will disable the local CTR.
-                int reg41 = 0x22;                // tbm present and intern ctr
-                fTB->SetReg(41, reg41);
-                fTB->Single(0x08);       // Reset !!
+    if( fTemperature) getTemperature();
+    for( int i = 0; i < fCN->GetModule(0)->NRocs(); i++) fCN->SetDAC(0, i, 27, 2); //Set TempReg DAC
                 fTB->Flush();
+    gDelay->Mdelay(50);//milli secs
+    FILE *f;
+
+    if( !fFillMem) {
+      	char fileName[200];
+	sprintf(fileName, "%s/scan_wbc_%03d.bin", fpLM->getOutputDir(), thiswbc);
+	psi::LogInfo() << "Opening File " << fpLM->getOutputDir()
+		       << "/" << fileName << psi::endl;
+	
+	f = fopen(fileName, "wb");
+      if( f == NULL) { 
+	psi::LogInfo() << psi::endl
+		       << "Could not open file " << fpLM->getOutputDir()
+		       << "/" << fileName << psi::endl;
+	return;
             }
         }
 
+    int nRuns = 1;
+
+    // if( fFillMem) {
+    //   nRuns = fRunDuration;
+    //   cout << " recording " << fRunDuration << " runs " << endl;
+    // }
+
+    for( int k = 0; k < nRuns; k++) {
+
+      if( fFillMem) {
+	fpLM->setupRun();
+	fpLM->dumpHardwareConfiguration(0, fCN, fTB);
+	char fileName[200];
+	sprintf(fileName, "%s/scan_wbc_%03d.bin", fpLM->getOutputDir(), thiswbc);
+	psi::LogInfo() << "Opening " << fpLM->getOutputDir()
+		       << "/" << fileName << psi::endl;
+	f = fopen(fileName, "wb");
+	if( f == NULL) { 
+	  psi::LogInfo() << psi::endl
+			 << "Could not open file " << fpLM->getOutputDir()
+			 << "/" << fileName << psi::endl;
+	  return;
+	}
+      }
         runStart();  // This also starts triggers
 
         // -- Run loop and data watching
         //    fRunDuration = atoi(fwDurationBuffer->GetString());
-        for (int i = 0; i < fRunDuration; ++i) {
+      int seconds = 0, stepSize = 0;
+      uint32_t filledSize = fTB->getCTestboard()->Daq_GetSize(); //DP
+      //unsigned int filledSize = fTB->getCTestboard()->Daq_GetSize();
+
+      while(1) {
+
+	if( fRunning == 0) break;
             sleep(1);
+	seconds++;
             // -- memory address counter
-            Clear();
-            /* get number of WORDs written to RAM by the DMA controller */
-            filledMem1 = (fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1) / 2;
-            fpLM->log(Form("memory fill: %8d", filledMem1));
+	filledMem1 = fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1;
+	filledSize = fTB->getCTestboard()->Daq_GetSize();
+	fpLM->log(Form("==>daqf: %4i: mem: %8lu  left %8lu",  seconds, (unsigned long )filledMem1, (unsigned long )filledSize ) );
+
+	//fpLM->log(Form("==>daqf: %6i", seconds ) );
+
+	if( stepSize == 0) stepSize = filledMem1;
+
+	fwMemMtb->SetText(Form("%8lu", filledMem1));//for GUI
+
+	gSystem->ProcessEvents();// handle GUI events: ROOT?
+  
+	if( (fFillMem) && (filledMem1 > dataBuffer_numWords - 2.*stepSize)) break;
+	else if( (!fFillMem) && (seconds == fRunDuration)) break;
         }
 
-        stopTriggers();  // stop triggers during readout
+        //stopTriggers();  // stop triggers during readout
 
         // -- readout TB memory
         /* get number of WORDs written to RAM by the DMA controller */
-        filledMem1 = (fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1) / 2;
-        fpLM->log(Form("... read out memory till address = %d", filledMem1));
+        //filledMem1 = (fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1) / 2;
+        //fpLM->log(Form("... read out memory till address = %d", filledMem1));
 
-        fTB->Flush();
-        fTB->Clear();
-        for (int k = 0; k < filledMem1 / BLOCKSIZE + 1; ++k)  {
-            for (int i = 0; i < BLOCKSIZE; i++) bbuffer[i] = 0;
-            if (k == filledMem1 / BLOCKSIZE) size = filledMem1 - k * BLOCKSIZE;
-            else size = BLOCKSIZE;
-            if (size > 0)
-            {
-                fTB->getCTestboard()->MemRead((unsigned int)(dataBuffer_fpga1 + k * BLOCKSIZE), size, bbuffer);
-                fwrite(bbuffer, size, 1, f);               // Write to disk
-                fpDAQ->setBinaryBuffer(size, &bbuffer[0]); // setup analysis
-                fpDAQ->singleStep();                            // histogramm
+      doBreak();
+      readout( f, filledMem1 );
+
+      if( fFillMem ) {
+	fclose(f);
             }
         }
-        fTB->getCTestboard()->Daq_Done();
-        fTB->getCTestboard()->Daq_Disable();
+        //fTB->getCTestboard()->Daq_Done();
+        //fTB->getCTestboard()->Daq_Disable();
 
-        fpLM->log("---------------->>>>> done");
+    if( !fFillMem) {
         fclose(f);
+    }
 
-        fCanvas1->cd();
-        TH1 * h  = fpDAQ->getHistogrammer()->getHistogram("h200");
-        TH1 * hh = fpDAQ->getHistogrammer()->getHistogram("h0");
-        h->Draw("");
+    stopTriggers();  // Disable triggers
 
-        double nero = 0, nero1 = 0;
+        //double nero = 0, nero1 = 0;
 
-        nero = h->Integral(19 + nRocs * 3, 201); // non empty readouts
-        nero1 = h->Integral(15 + nRocs * 3, 201); // all readouts
+        //nero = h->Integral(19 + nRocs * 3, 201); // non empty readouts
+        //nero1 = h->Integral(15 + nRocs * 3, 201); // all readouts
 
-        tl->DrawLatex(0.7, 0.7, Form("nero: %5.3f", nero));
-        double tmp = nero / nero1;
-        fpLM->log(Form(" non empty readouts %f,  all readouts %f, eff %f ", nero, nero1, tmp));
-        fpLM->log(Form("=>> WBC = %i, Eff: %f, Readouts: %f ", iwbc, tmp, nero1));
-        fCanvas1->Modified(); fCanvas1->Update();
-        h1->SetBinContent(iwbc + 1, nero);
-        h2->SetBinContent(iwbc + 1, hh->GetBinContent(4));
+    if( fRunning == 0) {
+      fpLM->log("==>daqf: STOP pressing STOP! ");
+      return;
+    }
+    fRunning = 0; 
+    
+    fpLM->log("==>daqf: Run stop");
+    fpLM->log(Form("==>daqf: Run %i, WBC = %i stopped. OK", fpLM->getRunNumber(), thiswbc));
         gSystem->ProcessEvents();
     }
 
-    fCanvas1->Clear(); fCanvas1->Divide(1, 2);
-    fCanvas1->cd(1); h1->Draw();
-    fCanvas1->cd(2); h2->Draw();
-    fCanvas1->Modified(); fCanvas1->Update();
 
-    startTriggers();
-    fpLM->log("end of  wbc scan");
+  int nextrunnumber = fpLM->incrementRunNumber();
+  fRunTextBuffer->Clear();
+  fRunTextBuffer->AddText(0, Form("%i", nextrunnumber));
+  fwRunNumber->TextChanged();
+  gClient->NeedRedraw(fwRunNumber);
+
+  fwOutputDirBuffer->Clear();
+  fwOutputDirBuffer->AddText(0, fpLM->getOutputDir());
+  fwOutputDir->TextChanged();
+  gClient->NeedRedraw(fwOutputDir);
+  
+  doRefreshWindowTitle();
+
+  fCanvas1->cd();
+  fCanvas1->Clear();
+  TLatex *tl = new TLatex(); tl->SetNDC(kTRUE); tl->SetTextSize(0.15);
+  tl->DrawLatex(0.15, 0.5, Form("SCAN FINISHED!"));
+  fCanvas1->Modified(); 
+  fCanvas1->Update();
 
 }
 
@@ -1163,7 +1488,7 @@ void daqFrame::dacScan()
 
     TLatex * tl = new TLatex(); tl->SetNDC(kTRUE);
 
-    unsigned int filledMem1(99);
+    uint32_t filledMem1(99);
     unsigned short BLOCKSIZE = 32767;
     unsigned char bbuffer[BLOCKSIZE];
 
@@ -1196,13 +1521,13 @@ void daqFrame::dacScan()
             // -- memory address counter
             Clear();
             /* get number of WORDs written to RAM by the DMA controller */
-            filledMem1 = (fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1) / 2;
+            filledMem1 = (fTB->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga1);
             fpLM->log(Form("memory fill: %8d", filledMem1));
         }
 
 
         for (int k = 0; k < filledMem1 / BLOCKSIZE; ++k)  {
-            fTB->getCTestboard()->MemRead((unsigned int)(dataBuffer_fpga1 + k * BLOCKSIZE), BLOCKSIZE, bbuffer);
+            fTB->getCTestboard()->MemRead((uint32_t)(dataBuffer_fpga1 + k * BLOCKSIZE), BLOCKSIZE, bbuffer);
             fwrite(bbuffer, BLOCKSIZE, 1, f);               // Write to disk
             fpDAQ->setBinaryBuffer(BLOCKSIZE, &bbuffer[0]); // setup analysis
             fpDAQ->singleStep();                            // histogramm
@@ -1232,6 +1557,13 @@ void daqFrame::dacScan()
 
 }
 
+void daqFrame::doRefreshWindowTitle(){
+  TString thisWindowName = "takeData: ";
+  thisWindowName+= fpLM->getMTBConfigParameters()->directory;
+  thisWindowName+= ", run ";
+  thisWindowName+= fpLM->getRunNumber();
+  SetWindowName(thisWindowName);
+}
 
 
 // ----------------------------------------------------------------------
@@ -1278,4 +1610,129 @@ void daqFrame::doVdown(int V) {
     Power_supply->ShutDown();
     delete Power_supply;
 
+}
+void daqFrame::setRunDuration(int duration){
+  fRunDuration = duration;
+  // update text field in gui
+  fwDuration->SetText(Form("%i", fRunDuration));
+  fwDuration->TextChanged();
+  gClient->NeedRedraw(fwDuration);
+}
+
+void daqFrame::ApplyMaskFile(const char *fileName){ // AP: added 200612 
+
+  using namespace std;//DP 8.6.2011
+
+  char fname[1000];
+  sprintf(fname, "%s", fileName);
+  
+  int roc, col, row;	
+  char keyWord[100], line[1000];
+
+  ifstream maskFile;
+  maskFile.open(fname);
+  
+  if (maskFile.bad()) 
+  {
+      cout << "!!!!!!!!!  ----> Could not open file "<<fname<<" to read pixel mask\n";
+      return;
+  }  
+  
+  cout << "Reading pixel mask from "<< fname << endl;
+  
+  while(maskFile.good()){
+    maskFile>>keyWord;
+    if (strcmp(keyWord,"#")==0){ 
+       maskFile.getline(line,60, '\n');
+       cout << "# "<<line << endl;// ignore rows starting with "#" = comment
+    }
+    else if(strcmp(keyWord,"pix")==0){
+       maskFile>>roc>>col>>row;
+       cout << "Exclude "<<keyWord<<" "<<roc<<" "<<col<<" "<<row<<endl; 
+       if ((roc >= 0)&&(roc < MODULENUMROCS)&&(col >= 0)&&(col < ROCNUMCOLS)&&(row >= 0)&&(row < ROCNUMROWS)){
+	 RemovePix(roc,col,row);
+       }else{
+         cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<col<<" "<<row<<endl;
+       }
+    }else if(strcmp(keyWord,"col")==0){
+       maskFile>>roc>>col;
+       cout << "Exclude "<<keyWord<<" "<<roc<<" "<<col<<endl;
+       if ((roc >= 0)&&(roc < MODULENUMROCS)&&(col >= 0)&&(col < ROCNUMCOLS)){
+	 ExcludeColumn(roc,col); 
+       }else{
+         cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<col<<endl; 
+       }
+    }else if(strcmp(keyWord,"row")==0){
+       maskFile>>roc>>row;
+       cout << "Exclude "<<keyWord<<" "<<roc<<" "<<row<<endl;
+       if ((roc >= 0)&&(roc < MODULENUMROCS)&&(row >= 0)&&(row < ROCNUMROWS)){
+	 ExcludeRow(roc,row);   
+       }else{
+         cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<row<<endl;
+       }
+    }else if(strcmp(keyWord,"roc")==0){
+       maskFile>>roc;
+       cout << "Exclude "<<keyWord<<" "<<roc<<endl;
+       if ((roc >= 0)&&(roc < MODULENUMROCS)){
+	 ExcludeRoc(roc);         
+       }else{
+         cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<col<<" "<<row<<endl;
+       }       
+    } 
+    sprintf(keyWord,"\0");   
+  
+  }
+  
+  maskFile.close();
+  
+  return;
+  
+}
+
+
+void daqFrame::RemovePix(int iRoc, int col, int row) // AP: added 200612
+{
+  Roc *r;
+  r = fCN->GetModule(0)->GetRoc(0);
+  r->PixMask(col, row);
+}
+
+bool daqFrame::ExcludeColumn(int iRoc, int column) // AP: added 200612
+{
+  bool result = false;
+  for (int l = 0; l < ROCNUMROWS; l++) 
+    {
+      Roc *r;
+      r = fCN->GetModule(0)->GetRoc(0);  
+      r->PixMask(column, l);
+      result = true ;
+    }
+  return result;
+}
+
+bool daqFrame::ExcludeRow(int iRoc, int row) // AP: added 200612
+{
+  bool result = false;
+  for (int l = 0; l < ROCNUMCOLS; l++) 
+    {
+      Roc *r;
+      r = fCN->GetModule(0)->GetRoc(0);  
+      r->PixMask(l, row);
+      result = true ;
+    }
+  return result;
+}
+
+bool daqFrame::ExcludeRoc(int iRoc) // AP: added 200612
+{
+  bool result = false;
+  for (int l = 0; l < ROCNUMROWS; l++) {
+    for (int m = 0; m < ROCNUMCOLS; m++){
+      Roc *r;
+      r = fCN->GetModule(0)->GetRoc(0);  
+      r->PixMask(m, l);
+      result = true ;
+    }
+  }  
+  return result;	
 }

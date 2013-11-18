@@ -23,6 +23,8 @@
 #include "BasePixel/SysCommand.h"
 #include "BasePixel/ConfigParameters.h"
 #include <BasePixel/Keithley.h>
+#include "BasePixel/GlobalConstants.h"
+#include <stdint.h>
 
 
 class TBInterface;
@@ -45,7 +47,8 @@ public:
     void getTemperature();
     void wbcScan();
     void dacScan();
-    void setRunDuration(int duration) {fRunDuration = duration;};
+    void setRunDuration(int duration);
+    void ApplyMaskFile(const char *fileName);
     void setFillMem(int i) {fFillMem = i;};
 
     void setUsbDAQ(UsbDaq * p) { fpDAQ = p;}
@@ -64,10 +67,14 @@ public:
     void doExit();
 
     void doDraw();
-    void readout(FILE * file, unsigned int filledMem);
+    void readout(FILE * file, uint32_t filledMem);
 
     void doVdown(int V);
     void doVup(int V);
+    void RemovePix(int roc, int col, int row);
+    bool ExcludeColumn(int roc, int col);
+    bool ExcludeRow(int roc, int row);
+    bool ExcludeRoc(int roc);
 
     void doDuration();
     void doAskTemperature();
@@ -88,6 +95,7 @@ public:
     void doHVON();
     void doHVOFF();
     void doAction();
+    void doRefreshWindowTitle();
 
     int                  fLocalTrigger;
     int                  fExternalTrigger;
@@ -102,7 +110,7 @@ private:
     TestControlNetwork * fCN; //! (note that //! is a magic comment)
 
     static const int dataBuffer_numWords = 30000000;
-    unsigned int dataBuffer_fpga1;
+    uint16_t dataBuffer_fpga1;
 
     SysCommand     *     fpSysCommand1;
 
@@ -139,6 +147,9 @@ private:
     int vtrim[16], vthrcomp[16];
 
     const TGWindow * fpWindow;
+protected:
+	
+    bool pixel[MODULENUMROCS][ROCNUMCOLS][ROCNUMROWS];
 
     ClassDef(daqFrame, 1)
 };
