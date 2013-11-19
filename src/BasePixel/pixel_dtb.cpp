@@ -1,7 +1,7 @@
 // psi46_tb.cpp
 #include "pixel_dtb.h"
 #include <stdio.h>
-#include "analyzer.h"
+#include "interface/analyzer.h"
 #ifndef _WIN32
 #include <unistd.h>
 #include <iostream>
@@ -636,7 +636,6 @@ int32_t CTestboard::PH(int32_t col, int32_t row)
     Daq_Stop();
     Daq_Read(data, 4000);
     Daq_Close();
-    //  DumpData(data, 200);
 
     // --- analyze data
     PixelReadoutData pix;

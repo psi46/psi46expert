@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <time.h> // needed for usleep function
 
-#include "BasePixel/profiler.h"
+#include "profiler.h"
 
 #include "USBInterface.h"
 

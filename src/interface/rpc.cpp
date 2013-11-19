@@ -1,7 +1,7 @@
 // rpc.cpp
 
 #include "rpc.h"
-#include "BasePixel/profiler.h"
+#include "profiler.h"
 
 
 CRpcIoNull RpcIoNull;

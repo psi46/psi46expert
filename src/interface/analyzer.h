@@ -2,11 +2,8 @@
 
 #pragma once
 
-#include "pixel_dtb.h"
-#include "datastream.h"
+#include "BasePixel/pixel_dtb.h"
 #include <vector>
-// #include <stdint.h>
-
 
 struct PixelReadoutData
 {
@@ -20,5 +17,4 @@ struct PixelReadoutData
 
 
 void DumpData(const vector<uint16_t> &x, unsigned int n);
-
 void DecodePixel(const std::vector<uint16_t> &x, int &pos, PixelReadoutData &pix);

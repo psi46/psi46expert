@@ -9,7 +9,7 @@
 
 #include "USBInterface.h"
 
-#include "BasePixel/profiler.h"
+#include "profiler.h"
 
 // needed for threaded readout of FTDI
 #include <pthread.h> 
