@@ -8,7 +8,6 @@ libpsi46interface_la_SOURCES = Delay.cc \
 			rpc_error.cpp \
 			rpc_io.cpp \
 			rpc_calls.cpp \
-			profiler.cpp \
 			analyzer.cpp
 
 
@@ -20,7 +19,8 @@ libpsi46interface_la_SOURCES = Delay.cc \
 			rpc_error.cpp \
 			rpc_io.cpp \
 			rpc_calls.cpp \
-			profiler.cpp
+			analyzer.cpp
+
 endif
 libpsi46interface_la_CPPFLAGS = -I$(srcdir)/..
 
@@ -30,6 +30,5 @@ noinst_HEADERS = Delay.h \
 		rpc.h \
 		rpc_error.h \
 		rpc_io.h \
-		profiler.h \
 		analyzer.h
 

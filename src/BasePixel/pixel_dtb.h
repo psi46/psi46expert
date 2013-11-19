@@ -22,9 +22,6 @@
 
 #pragma once
 
-#include "interface/profiler.h"
-#define RPC_PROFILING PROFILING
-
 // #define RPC_MULTITHREADING
 #include "interface/rpc.h"
 

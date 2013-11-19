@@ -1,8 +1,6 @@
 // rpc.cpp
 
 #include "rpc.h"
-#include "profiler.h"
-
 
 CRpcIoNull RpcIoNull;
 

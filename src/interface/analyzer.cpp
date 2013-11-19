@@ -19,7 +19,7 @@ void DumpData(const vector<uint16_t> &x, unsigned int n)
 }
 
 void DecodePixel(const vector<uint16_t> &x, int &pos, PixelReadoutData &pix)
-{ PROFILING
+{ 
 	pix.Clear();
 	unsigned int raw = 0;
 
