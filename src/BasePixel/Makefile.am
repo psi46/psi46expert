@@ -12,7 +12,6 @@ libpsi46BasePixel_la_SOURCES = CalibrationTable.cc \
 			       Module.cc \
 			       Pixel.cc \
 		 	       pixel_dtb.cpp \
-		 	       settings.cpp \
 			       RawPacketDecoder.cc \
 			       Roc.cc \
 			       SysCommand.cc \
@@ -36,7 +35,6 @@ noinst_HEADERS = CalibrationTable.h \
 		 Module.h \
 		 Pixel.h \
 		 pixel_dtb.h \
-		 settings.h \
 		 RawPacketDecoder.h \
 		 Roc.h \
 		 SysCommand.h \
