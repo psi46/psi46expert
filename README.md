@@ -1,9 +1,10 @@
 Build and installation of psi46expert for the digital testboard
 ===============================================================
 
-1. Dependencies
+0. Dependencies
 ---------------
-To install psi46expert for the digital testboard a few libraries and programs are required:
+To install psi46expert for the digital testboard a few libraries and programs
+are required:
 
   - libusb-1.0 and libusb-0.1
     normally available as a package for your Linux distribution
@@ -35,9 +36,26 @@ If these are installed in special directories (not /usr or /usr/local)
 then you have to take measures that the compiler finds your files
 (set and export PATH, CPATH, LIBRARY_PATH environment variables).
 
-2. Preparing the sources after SVN (subversion) checkout
---------------------------------------------------------
-After checking out the sources from SVN, run the following command
+
+1. Fetch the source code
+------------------------
+There are two options to get the code, choose the right for you particular
+setup and requirements:
+ 
+  - Stable versions are meant for production use in laboratory setups. You
+    can find the most recent one at
+    https://github.com/psi46/psi46expert/releases
+    Just download the tarball and follow the instructions given below to
+    compile it on your machine.
+  - The git development version is only meant to be used by developers
+    or if you want to try out a new feature on your laptop. This version
+    might not work because of some unfinished features and should never be
+    used in production. You can clone the repository by running:
+    git clone git@github.com:psi46/psi46expert.git
+
+2. Preparing the sources
+------------------------
+After checking out the sources from github, run the following command
 in the working directory:
 
 	./autogen.sh
