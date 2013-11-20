@@ -3,6 +3,13 @@
 #ifndef MAINFRAME
 #define MAINFRAME
 
+#ifdef __CINT__
+#undef __GNUC__
+#define _SYS__SELECT_H_
+struct pthread_cond_t;
+struct pthread_mutex_t;
+#endif
+
 #include <TGButton.h>
 #include <TGButtonGroup.h>
 #include <TGFrame.h>

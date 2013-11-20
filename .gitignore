@@ -41,6 +41,7 @@ ltmain.sh
 missing
 libtool
 bin/
+ar-lib
 
 # ignore emacs autosaves
 \#*#
