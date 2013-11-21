@@ -63,6 +63,10 @@ public:
     void SetEnableAll(int value);
     unsigned short GetModRoCnt(unsigned short index);
 
+    void Deser160PhaseScan();
+
+
+
 
     // == Analog functions =================================================
 

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <iomanip>
+#include <math.h>
 
 #include "BasePixel/TBInterface.h"
 //#include "BasePixel/settings.h"
@@ -105,6 +106,7 @@ void TBInterface::Execute(SysCommand &command)
     else if (command.Keyword("reseton"))    {ResetOn();}
     else if (command.Keyword("resetoff"))    {ResetOff();}
     else if (command.Keyword("dtlScan")) {DataTriggerLevelScan();}
+    else if (command.Keyword("phasescan")) {Deser160PhaseScan();}
 
     else if (strcmp(command.carg[0], "dv") == 0) {SetVD((double)*command.iarg[1] / 1000.);}
     else if (strcmp(command.carg[0], "av") == 0) {SetVA((double)*command.iarg[1] / 1000.);}
@@ -456,6 +458,68 @@ void TBInterface::Intern(int mask)
     cTestboard->Intern(mask);
 }
 
+void TBInterface::Deser160PhaseScan() {
+
+  cTestboard->Daq_Open(1000);
+  cTestboard->Pg_SetCmd(0, PG_TOK);
+
+  vector<uint16_t> data;
+
+  vector<std::pair<int,int> > goodvalues;
+
+  int x, y;
+  printf("      0     1     2     3     4     5     6     7\n");
+  for (y = 0; y < 20; y++)
+    {
+      printf("%2i:", y);
+      for (x = 0; x < 8; x++)
+	{
+	  cTestboard->Daq_Select_Deser160(x);
+	  cTestboard->Sig_SetDelay(SIG_CLK,  y);
+	  cTestboard->Sig_SetDelay(SIG_SDA,  y+15);
+	  cTestboard->Sig_SetDelay(SIG_CTR,  y);
+	  cTestboard->Sig_SetDelay(SIG_TIN,  y+5);
+	  cTestboard->uDelay(10);
+	  cTestboard->Daq_Start();
+	  cTestboard->Pg_Single();
+	  cTestboard->uDelay(10);
+	  cTestboard->Daq_Stop();
+	  cTestboard->Daq_Read(data, 100);
+
+	  if (data.size())
+	    {
+	      int h = data[0] & 0xffc;
+	      if (h == 0x7f8)
+		{
+		  printf(" <%03X>", int(data[0] & 0xffc));
+		  goodvalues.push_back(std::make_pair(y,x));
+		}
+	      else
+		printf("  %03X ", int(data[0] & 0xffc));
+	    }
+	  else printf("  ... ");
+	}
+      printf("\n");
+    }
+  cTestboard->Daq_Close();
+  printf("Old values: clk %i, deserAdjust %i\n", GetParameter("clk"), GetParameter("deserAdjust"));
+  if (goodvalues.size() == 0) {
+    printf("No value for Clk delay and phase found where header could be read back - no adjustments made.\n");
+    return;
+  }
+
+  printf("Good values are:\n");
+  for (std::vector<std::pair<int,int> >::const_iterator it = goodvalues.begin(); it != goodvalues.end(); it++)
+    {
+      printf("%i %i\n", it->first, it->second);
+    }
+  const int select = floor( 0.5*goodvalues.size() - .5);
+  //  delayAdjust = goodvalues[select].first;
+  //  deserAdjust = goodvalues[select].second;
+  printf("New values: %i %i\n", goodvalues[select].first, goodvalues[select].second);
+
+  return;
+}
 
 
 // == TBM functions ======================================================
