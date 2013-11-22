@@ -9,8 +9,6 @@
 
 #include "USBInterface.h"
 
-#include "BasePixel/profiler.h"
-
 // needed for threaded readout of FTDI
 #include <pthread.h> 
 #include <semaphore.h>
@@ -387,7 +385,7 @@ void CUSB::WriteCommand(unsigned char x){
 }
 
 void CUSB::Write(uint32_t bytesToWrite, const void *buffer)
-{ PROFILING
+{ 
     if (!isUSB_open) throw CRpcError(CRpcError::WRITE_ERROR);
   uint32_t k=0;
   for( k=0; k < bytesToWrite; k++ ) {
@@ -399,7 +397,7 @@ void CUSB::Write(uint32_t bytesToWrite, const void *buffer)
 
 
 void CUSB::Flush()
-{ PROFILING
+{ 
   int32_t bytesToWrite = m_posW;
   m_posW = 0;
 
@@ -425,7 +423,6 @@ bool CUSB::FillBuffer(uint32_t minBytesToRead)
 
 void CUSB::Read(uint32_t bytesToRead, void *buffer, uint32_t &bytesRead)
 {
- PROFILING
    if (!isUSB_open) throw CRpcError(CRpcError::READ_ERROR);
  
    // Copy over data from the circular buffer

@@ -7,8 +7,6 @@
 #include <unistd.h>
 #include <time.h> // needed for usleep function
 
-#include "BasePixel/profiler.h"
-
 #include "USBInterface.h"
 
 using namespace std;
@@ -194,7 +192,7 @@ void CUSB::Close()
 
 
 void CUSB::Write(uint32_t bytesToWrite, const void *buffer)
-{PROFILING
+{
 	if (!isUSB_open) throw CRpcError(CRpcError::WRITE_ERROR);
 	uint32_t k=0;
 	for (k=0; k < bytesToWrite; k++)
@@ -212,7 +210,7 @@ void CUSB::WriteCommand(unsigned char x){
 
 
 void CUSB::Flush()
-{PROFILING
+{
 	uint32_t bytesWritten;
 	uint32_t bytesToWrite = m_posW;
 	m_posW = 0;
@@ -229,7 +227,7 @@ void CUSB::Flush()
 
 
 bool CUSB::FillBuffer(uint32_t minBytesToRead)
-{PROFILING
+{
 	if (!isUSB_open) return false;
 
 	uint32_t bytesAvailable, bytesToRead;
@@ -254,7 +252,7 @@ bool CUSB::FillBuffer(uint32_t minBytesToRead)
 
 
 void CUSB::Read(uint32_t bytesToRead, void *buffer, uint32_t &bytesRead)
-{PROFILING
+{
 
 	if (!isUSB_open) throw CRpcError(CRpcError::READ_ERROR);
 
@@ -297,7 +295,7 @@ void CUSB::Read(uint32_t bytesToRead, void *buffer, uint32_t &bytesRead)
 
 
 void CUSB::Clear()
-{ PROFILING
+{ 
 	if (!isUSB_open) return;
 
 	ftdiStatus = FT_Purge(ftHandle, FT_PURGE_RX|FT_PURGE_TX);

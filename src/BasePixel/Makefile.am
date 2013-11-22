@@ -12,19 +12,14 @@ libpsi46BasePixel_la_SOURCES = CalibrationTable.cc \
 			       Module.cc \
 			       Pixel.cc \
 		 	       pixel_dtb.cpp \
-		 	       profiler.cpp \
-		 	       settings.cpp \
-			       rpc_calls.cpp \
 			       RawPacketDecoder.cc \
 			       Roc.cc \
 			       SysCommand.cc \
 			       TBInterface.cc \
 			       TBM.cc \
 			       TBMParameters.cc \
-			       TBParameters.cc \
-			       protocol.cpp \
-			       datastream.cpp \
-			       analyzer.cpp
+			       TBParameters.cc
+
 libpsi46BasePixel_la_CPPFLAGS = -I$(srcdir)/..
 
 noinst_HEADERS = CalibrationTable.h \
@@ -40,16 +35,10 @@ noinst_HEADERS = CalibrationTable.h \
 		 Module.h \
 		 Pixel.h \
 		 pixel_dtb.h \
-		 profiler.h \
-		 settings.h \
 		 RawPacketDecoder.h \
 		 Roc.h \
 		 SysCommand.h \
 		 TBInterface.h \
 		 TBM.h \
 		 TBMParameters.h \
-		 TBParameters.h \
-		 datastream.h \
-		 protocol.h \
-		 datapipe.h \
-		 analyzer.h
+		 TBParameters.h

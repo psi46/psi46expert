@@ -19,7 +19,7 @@ void DumpData(const vector<uint16_t> &x, unsigned int n)
 }
 
 void DecodePixel(const vector<uint16_t> &x, int &pos, PixelReadoutData &pix)
-{ PROFILING
+{ 
 	pix.Clear();
 	unsigned int raw = 0;
 
@@ -50,64 +50,4 @@ void DecodePixel(const vector<uint16_t> &x, int &pos, PixelReadoutData &pix)
 	r = r*6 + ( raw        & 7);
 	pix.y = 80 - r/2;
 	pix.x = 2*c + (r&1);
-}
-
-
-
-
-// --- event lister ---------------------------------------------------------
-
-class CStore : public CAnalyzer
-{
-	CRocEvent* Read();
-};
-
-
-CRocEvent* CStore::Read()
-{
-	CRocEvent *data = Get();
-	printf("%8u: %03X %4u:\n", (unsigned int)(data->eventNr), (unsigned int)(data->header), (unsigned int)(data->pixel.size()));
-	return data;
-}
-
-
-// --- column statistics ----------------------------------------------------
-
-class CColActivity : public CAnalyzer
-{
-	unsigned long colhits[52];
-	CRocEvent* Read();
-public:
-	CColActivity() { Clear(); }
-	void Clear();
-};
-
-
-void CColActivity::Clear()
-{
-	for (int i=0; i<52; i++) colhits[i] = 0;
-}
-
-
-CRocEvent* CColActivity::Read()
-{
-	CRocEvent *data = Get();
-	list<CPixel>::iterator i;
-	for (i = data->pixel.begin(); i != data->pixel.end(); i++)
-		if (i->x >= 0 && i->x < 52) colhits[i->x]++;
-	return data;
-}
-
-
-void Analyzer(CTestboard &tb)
-{
-	CBinaryDTBSource src(tb);
-	CDataRecordScanner rec;
-	CRocDecoder dec;
-	CStore lister;
-	CSink<CRocEvent*> pump;
-
-	src >> rec >> dec >> lister >> pump;
-
-	pump.GetAll();
 }

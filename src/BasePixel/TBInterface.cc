@@ -3,7 +3,7 @@
 #include <iomanip>
 
 #include "BasePixel/TBInterface.h"
-#include "BasePixel/settings.h"
+//#include "BasePixel/settings.h"
 #include "BasePixel/TBParameters.h"
 #include "BasePixel/GlobalConstants.h"
 #include "BasePixel/RawPacketDecoder.h"
@@ -166,8 +166,6 @@ int TBInterface::GetRoCnt()
 void TBInterface::Initialize(ConfigParameters * configParameters)
 {
     string usbId;
-    CSettings settings;
- 
     tbParameters = (TBParameters *)new TBParameters(this);
    
     cTestboard = new CTestboard();
@@ -194,7 +192,7 @@ void TBInterface::Initialize(ConfigParameters * configParameters)
     }
     else {
       printf("USB error: %s\n", cTestboard->ConnectionError());
-      printf("DTB: could not open port to device %s\n", settings.port_tb);
+      printf("DTB: could not open port to device %s\n", configParameters->testboardName);
       printf("Make sure you have permission to access USB devices.\n");
     }
     cTestboard->Init();
