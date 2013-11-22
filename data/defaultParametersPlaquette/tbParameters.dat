@@ -1,7 +1,7 @@
-  8        clk   2
-  9        sda  24
- 10        ctr   2
- 11        tin  40
+  0        clk   2
+  1        ctr   2
+  2        sda  24
+  3        tin  40
  12        rda  60
  17        trc  20
  18        tcc   6
