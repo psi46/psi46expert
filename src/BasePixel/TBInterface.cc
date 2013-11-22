@@ -522,7 +522,7 @@ void TBInterface::Deser160PhaseScan() {
 
 void TBInterface::Daq_Select_Deser160(uint8_t shift) {
   // Seems only to make sense to runs this after the Daq_Open command, ask Beat...
-  cout << "Set deserAdjust to " << shift << endl;
+  cout << "Set deserAdjust to " << (int)shift << endl;
   cTestboard->Daq_Select_Deser160(shift);
 }
 

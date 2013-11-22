@@ -5,6 +5,7 @@
 #ifndef _WIN32
 #include <unistd.h>
 #include <iostream>
+#include <iomanip>
 #endif
 
 // missing defs
@@ -606,7 +607,6 @@ int32_t CTestboard::SCurveColumn(int32_t iColumn, int32_t nTrig, int32_t dacReg,
 
 int32_t CTestboard::PH(int32_t col, int32_t row)
 {
-
     Daq_Open(50000);
     Daq_Select_Deser160(deserAdjust);
     uDelay(100);
@@ -618,10 +618,11 @@ int32_t CTestboard::PH(int32_t col, int32_t row)
     roc_Pix_Cal (col, row, false);
 
     vector<uint16_t> data;
+    unsigned int nTrig = 10;
 
     //roc_SetDAC(Vcal, vcal);
     uDelay(100);
-    for (int k=0; k<5; k++)
+    for (int k=0; k<nTrig; k++)
     {
         Pg_Single();
         uDelay(20);
@@ -635,6 +636,7 @@ int32_t CTestboard::PH(int32_t col, int32_t row)
     Daq_Read(data, 4000);
     Daq_Close();
 
+    DumpData(data,3*nTrig);
     // --- analyze data
     PixelReadoutData pix;
 
@@ -643,10 +645,19 @@ int32_t CTestboard::PH(int32_t col, int32_t row)
     {
         int cnt = 0;
         double yi = 0.0;
-        for (int k=0; k<5; k++)
+        for (int k=0; k<nTrig; k++)
         {
             DecodePixel(data, pos, pix);
-            if (pix.n > 0) { yi += pix.p; cnt++; }
+            if (pix.n > 0) { 
+	      yi += pix.p; 
+	      cnt++; 
+	      cout << setw(3) << cnt
+		   << ". " << pix.n
+		   << " " << setw(2) << pix.x
+		   << " " << setw(2) << pix.y
+		   << " " << setw(3) << pix.p
+		   << endl;
+	    }
         }
         if (cnt > 0)
             return yi/cnt;
