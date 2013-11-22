@@ -64,9 +64,7 @@ public:
     unsigned short GetModRoCnt(unsigned short index);
 
     void Deser160PhaseScan();
-
-
-
+    void Daq_Select_Deser160(uint8_t shift);
 
     // == Analog functions =================================================
 

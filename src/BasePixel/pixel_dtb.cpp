@@ -10,8 +10,6 @@
 // missing defs
 #define VCAL_TEST          20
 int tct_wbc = 0;
-const int delayAdjust = 4;
-const int deserAdjust = 4;
 
 bool CTestboard::EnumNext(string &name)
 {
