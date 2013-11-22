@@ -91,8 +91,8 @@ public:
 	~CTestboard() { RPC_EXIT }
 
 	//FIXME not nice but better than global variables:
-	int delayAdjust; // = 4;
-	int deserAdjust; // = 4;
+	int delayAdjust = 4;
+	int deserAdjust = 4;
 
 	// === RPC ==============================================================
 

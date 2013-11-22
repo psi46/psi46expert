@@ -19,8 +19,8 @@ TBParameters::TBParameters(TBInterface * aTBInterface)
     }
 
     names[0] = "clk";
-    names[1] = "sda";
-    names[2] = "ctr";
+    names[1] = "ctr";
+    names[2] = "sda";
     names[3] = "tin";
     //names[12] = "rda";
 

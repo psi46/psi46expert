@@ -510,11 +510,11 @@ void TBInterface::Deser160PhaseScan() {
 
   const int select = floor( 0.5*goodvalues.size() - .5);
   tbParameters->SetParameter("clk", goodvalues[select].first);
-  tbParameters->SetParameter("sda", goodvalues[select].first+15);
   tbParameters->SetParameter("ctr", goodvalues[select].first);
+  tbParameters->SetParameter("sda", goodvalues[select].first+15);
   tbParameters->SetParameter("tin", goodvalues[select].first+5);
-  //tbParameters->SetParameter("deserAdjust", goodvalues[select].second);
-  cTestboard->deserAdjust = goodvalues[select].second;
+  tbParameters->SetParameter("deserAdjust", goodvalues[select].second);
+  //cTestboard->deserAdjust = goodvalues[select].second;
 
   printf("New values: clk %i, deserAdjust %i\n", goodvalues[select].first, goodvalues[select].second);
   return;
@@ -522,6 +522,7 @@ void TBInterface::Deser160PhaseScan() {
 
 void TBInterface::Daq_Select_Deser160(uint8_t shift) {
   // Seems only to make sense to runs this after the Daq_Open command, ask Beat...
+  cout << "Set deserAdjust to " << shift << endl;
   cTestboard->Daq_Select_Deser160(shift);
 }
 
