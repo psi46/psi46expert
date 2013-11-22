@@ -19,8 +19,8 @@ TBParameters::TBParameters(TBInterface * aTBInterface)
     }
 
     names[0] = "clk";
-    names[1] = "sda";
-    names[2] = "ctr";
+    names[1] = "ctr";
+    names[2] = "sda";
     names[3] = "tin";
     //names[12] = "rda";
 
@@ -32,6 +32,8 @@ TBParameters::TBParameters(TBInterface * aTBInterface)
     names[22] = "cc";
 
     names[77] = "spd"; // dummy register for clock frequency
+
+    names[255] = "deserAdjust"; // dummy register for phase adjust setting of Deser160
 
 }
 
@@ -51,15 +53,14 @@ TBParameters * TBParameters::Copy()
 void TBParameters::SetParameter(int reg, int value)
 {
     parameters[reg] = value;
+    if(reg == 255) tbInterface->Daq_Select_Deser160(value);
     if (reg == 77) tbInterface->SetClock(value);
-    else if (reg > 15)
-    {
-      // tbInterface->Set(reg, value); WRONG! Writes into DAC parameters!
-    }
-    else
-    {
-        tbInterface->SetDelay(reg, value);
-    }
+    // Set the Delay registers via SetDelay():
+    else if (reg < 4) tbInterface->SetDelay(reg, value);
+    // Set the higher registers?
+    else {}
+
+    tbInterface->Flush();
 }
 
 

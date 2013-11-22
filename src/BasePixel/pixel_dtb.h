@@ -90,6 +90,9 @@ public:
 	CTestboard() { RPC_INIT rpc_io = &usb; }
 	~CTestboard() { RPC_EXIT }
 
+	//FIXME not nice but better than global variables:
+	int delayAdjust = 4;
+	int deserAdjust = 4;
 
 	// === RPC ==============================================================
 
