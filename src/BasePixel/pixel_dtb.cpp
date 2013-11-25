@@ -193,8 +193,6 @@ int32_t CTestboard::MaskTest(int16_t nTriggers, int16_t res[])
         {
             roc_Pix_Cal(col, row, false);
             uDelay(20);
-            //Pg_Single();
-            //uDelay(10);
             roc_Pix_Trim(col, row, 15);
             uDelay(5);
             roc_Pix_Mask(col, row);
@@ -202,7 +200,6 @@ int32_t CTestboard::MaskTest(int16_t nTriggers, int16_t res[])
             Pg_Single();
             uDelay(10);
 
-            //roc_Pix_Mask(col, row);
             roc_ClrCal();
         }
         roc_Col_Enable(col, false);
@@ -228,17 +225,6 @@ int32_t CTestboard::MaskTest(int16_t nTriggers, int16_t res[])
                 // must be empty readout
                 DecodePixel(data, pos, pix);
                 res[(int)row+((int)col*(int)ROC_NUMROWS)]=pix.n;
-                //g_chipdata.pixmap.SetMaskedCount(col, row, pix.n);
-
-                // must be single pixel hit
-                //DecodePixel(data, pos, pix);
-                //g_chipdata.pixmap.SetUnmaskedCount(col, row, pix.n);
-                //if (pix.n > 0)
-                //{
-                //    g_chipdata.pixmap.SetDefectColCode(col, row, pix.x != col);
-                //    g_chipdata.pixmap.SetDefectrowCode(col, row, pix.y != row);
-                //    g_chipdata.pixmap.SetPulseHeight(col, row, pix.p);
-                //}
             }
         }
     } catch (int) {}
@@ -300,60 +286,46 @@ int32_t CTestboard::ChipEfficiency(int16_t nTriggers, int32_t trim[], double res
     return 1;
 }
 
-int32_t CTestboard::CountReadouts(int32_t nTrig, int32_t chipId)
-{
-    roc_I2cAddr(chipId);
-	return CountReadouts(nTrig);
-}
-
-int32_t CTestboard::CountReadouts(int32_t nTrig, int32_t dacReg, int32_t dacValue)
-{
-    //cout << "Reg " << dacReg << " value " << dacValue << endl; 
-	roc_SetDAC(dacReg, dacValue);
-	return CountReadouts(nTrig);
-}
-
-int32_t CTestboard::CountReadouts(int32_t nTriggers)
-{ 
-    int32_t nHits = 0;
-    Daq_Open(5000);
-    Daq_Select_Deser160(deserAdjust);
-    Daq_Start();
-    for (int16_t i=0; i < nTriggers; i++)
-    {
-	    Pg_Single();
-    }
-    Daq_Stop();
-
-    vector<uint16_t> data;
-    Daq_Read(data,5000);
-    Daq_Close();
-    PixelReadoutData pix;
-    int pos = 0;
-    try
-    {
-        for (int16_t i=0; i < nTriggers; i++)
-        {
-            DecodePixel(data, pos, pix);
-            if (pix.n > 0) nHits++;
-        }
-    } catch (int) {}
-    return nHits;
-}
-
-
 void CTestboard::DacDac(int32_t dac1, int32_t dacRange1, int32_t dac2, int32_t dacRange2, int32_t nTrig, int32_t res[])
 {
-	for (int i = 0; i < dacRange1; i++)
-	{
-		roc_SetDAC(dac1, i);
-		for (int k = 0; k < dacRange2; k++)
-		{
-			roc_SetDAC(dac2, k);
-			res[i*dacRange1 + k] = CountReadouts(nTrig);
+    Daq_Open(1000000);
+    Daq_Select_Deser160(deserAdjust);
+    Daq_Start();
+
+    PixelReadoutData pix;
+    uint32_t n;
+    uint8_t status;
+    for (int i = 0; i < dacRange1; i++)
+    {
+        roc_SetDAC(dac1, i);
+        for (int k = 0; k < dacRange2; k++)
+        {
+            roc_SetDAC(dac2, k);
+            for (int16_t l=0; l < nTrig; l++)
+            {
+                Pg_Single();
+            }
+        }
+        vector<uint16_t> data;
+        status = Daq_Read(data, 20000, n);
+        int pos = 0;
+        for (int k = 0; k < dacRange2; k++)
+        {
+            int32_t nHits = 0;
+            try
+            {
+                for (int16_t l=0; l < nTrig; l++)
+                {
+                    DecodePixel(data, pos, pix);
+                    if (pix.n > 0) nHits++;
+                }
+            } catch (int) {}
             //cout << "hits:" << res[i*dacRange1 + k] << endl;
-		}
-	}
+            res[i*dacRange1 + k] = nHits;
+        }
+    }
+    Daq_Stop();
+    Daq_Close();
     return;
 }
 
@@ -402,6 +374,17 @@ void CTestboard::DisarmPixel(int col, int row)
 	roc_Pix_Mask(col,row);
 }
 
+void CTestboard::SetHubID(int32_t value)
+{
+    hubId = value;
+}
+
+
+void CTestboard::SetNRocs(int32_t value)
+{
+    nRocs = value;
+}
+
 void CTestboard::SetChip(int iChip)
 {
 	int portId = iChip/4;
@@ -411,65 +394,6 @@ void CTestboard::SetChip(int iChip)
 
 // == Thresholds ===================================================
 
-
-int32_t CTestboard::Threshold(int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg)
-{
-	int32_t threshold = start, newValue, oldValue, result;
-	int stepAbs;
-	if (step < 0) stepAbs = -step; else stepAbs = step;
-			
-	newValue = CountReadouts(nTrig, dacReg, threshold);
-	if (newValue > thrLevel)
-	{
-		do
-		{
-			threshold-=step;
-			oldValue = newValue;
-			newValue = CountReadouts(nTrig, dacReg, threshold);
-		}
-		while ((newValue > thrLevel) && (threshold > (stepAbs - 1)) && (threshold < (256 - stepAbs)));
-
-		if (oldValue - thrLevel > thrLevel - newValue) result = threshold;
-		else result = threshold+step;
-	}
-	else
-	{
-		do
-		{
-			threshold+=step;
-			oldValue = newValue;
-			newValue = CountReadouts(nTrig, dacReg, threshold);
-		}
-		while ((newValue <= thrLevel) && (threshold > (stepAbs - 1)) && (threshold < (256 - stepAbs)));
-
-		if (thrLevel - oldValue > newValue - thrLevel) result = threshold;
-		else result = threshold-step;
-	}
-
-	if (result > 255) result = 255;
-	if (result < 0) result = 0;
-
-	return result;
-}
-
-int32_t CTestboard::PixelThreshold(int32_t col, int32_t row, int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim)
-{
-	int calRow = row;
-	roc_Pix_Trim(col, row, trim);
-
-	if (xtalk)
-	{
-		if (row == ROC_NUMROWS - 1) calRow = row - 1;
-		else calRow = row + 1;
-	}
-	if (cals) roc_Pix_Cal(col, calRow, true);
-	else roc_Pix_Cal(col, calRow, false);
-
-	int32_t res = Threshold(start, step, thrLevel, nTrig, dacReg);
-    roc_ClrCal();
-    roc_Pix_Mask(col, row);
-	return res;
-}
 
 void CTestboard::ChipThresholdIntern(int32_t start[], int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim[], int32_t res[])
 {
@@ -605,104 +529,3 @@ int32_t CTestboard::SCurveColumn(int32_t iColumn, int32_t nTrig, int32_t dacReg,
     return 1;
 }
 
-int32_t CTestboard::PH(int32_t col, int32_t row)
-{
-    Daq_Open(50000);
-    Daq_Select_Deser160(deserAdjust);
-    uDelay(100);
-    Daq_Start();
-    uDelay(100);
-
-    roc_Col_Enable(col, true);
-    roc_Pix_Trim(col, row, 15);
-    roc_Pix_Cal (col, row, false);
-
-    vector<uint16_t> data;
-    unsigned int nTrig = 10;
-
-    //roc_SetDAC(Vcal, vcal);
-    uDelay(100);
-    for (int k=0; k<nTrig; k++)
-    {
-        Pg_Single();
-        uDelay(20);
-    }
-
-    roc_Pix_Mask(col, row);
-    roc_Col_Enable(col, false);
-    roc_ClrCal();
-
-    Daq_Stop();
-    Daq_Read(data, 4000);
-    Daq_Close();
-
-    DumpData(data,3*nTrig);
-    // --- analyze data
-    PixelReadoutData pix;
-
-    int pos = 0;
-    try
-    {
-        int cnt = 0;
-        double yi = 0.0;
-        for (int k=0; k<nTrig; k++)
-        {
-            DecodePixel(data, pos, pix);
-            if (pix.n > 0) { 
-	      yi += pix.p; 
-	      cnt++; 
-	      cout << setw(3) << cnt
-		   << ". " << pix.n
-		   << " " << setw(2) << pix.x
-		   << " " << setw(2) << pix.y
-		   << " " << setw(3) << pix.p
-		   << endl;
-	    }
-        }
-        if (cnt > 0)
-            return yi/cnt;
-        else
-            return -1;
-    } catch (int) {}
-
-  
-  
-    }
-
-bool CTestboard::test_pixel_address(int32_t col, int32_t row)
-{
-    Daq_Open(5000);
-    Daq_Select_Deser160(deserAdjust);
-    uDelay(100);
-    Daq_Start();
-    uDelay(100);
-
-    roc_Col_Enable(col, true);
-    
-    ArmPixel(col,row);
-    Pg_Single();
-    DisarmPixel(col,row);
-    
-    roc_Col_Enable(col, false);
-    Daq_Stop();
-
-    vector<uint16_t> data;
-    Daq_Read(data, 5000);
-    Daq_Close();
-    // --- analyze data
-    PixelReadoutData pix;
-
-    int pos = 0;
-    try
-    {
-        DecodePixel(data, pos, pix);
-        if (pix.n > 0){
-            //cout << "("<< pix.x  <<',' << pix.y << ')' << "("<< row  <<',' << col << ')' <<endl; 
-            return (pix.x == col && pix.y == row);
-        }
-        else return false;
-    } catch (int) {}
-
-    return false;
-  
-}

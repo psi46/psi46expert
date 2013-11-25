@@ -195,7 +195,7 @@ void HRSCurve::TakeEfficiencyMap(int ntrig, bool set_vcal, int vcal_offset)
     EfficiencyMapper em(module->NRocs(), ntrig);
 
     /* Decoding chain */
-    rd >> rs >> ed >> em >> end;
+    rd >> rs >> ed >> em >> pipe_end;
 
     /* Store histograms */
     for (int iroc = 0; iroc < module->NRocs(); iroc++) {

@@ -23,7 +23,7 @@ private:
     friend void operator>>(Pipe &left, PipeEnd &right);
 };
 
-extern PipeEnd end;
+extern PipeEnd pipe_end;
 
 void operator>>(Pipe &left, PipeEnd &right);
 

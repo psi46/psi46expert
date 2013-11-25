@@ -65,7 +65,7 @@ public:
     void EnablePixel(int col, int row);
     void EnableAllPixels();
     void DisablePixel(int col, int row);
-    int PH(int column, int row);
+    int PH(int column, int row, int trim, int nTrig);
     void Cal(int col, int row);
     void Cals(int col, int row);
     void ArmPixel(int column, int row);

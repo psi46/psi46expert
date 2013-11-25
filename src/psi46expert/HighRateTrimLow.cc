@@ -301,7 +301,7 @@ void HRTrimLow::MakeMap(void)
     EventCounter count;
 
     /* Decoding chain */
-    rd >> rs >> ed >> hm >> count >> end;
+    rd >> rs >> ed >> hm >> count >> pipe_end;
 
     /* Store histogram and number of triggers */
     map = (TH2I *) hm.getHitMap(0)->Clone();

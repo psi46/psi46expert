@@ -157,7 +157,7 @@ void HREfficiency::ModuleAction(void)
     EfficiencyMapper em(nroc, ntrig);
 
     /* Decoding chain */
-    rd >> rs >> ed >> em >> end;
+    rd >> rs >> ed >> em >> pipe_end;
 
     /* Store histograms */
     float background = 0;
