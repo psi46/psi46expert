@@ -87,12 +87,16 @@ class CTestboard
 public:
 	CRpcIo& GetIo() { return *rpc_io; }
 
-	CTestboard() { RPC_INIT rpc_io = &usb; }
+	CTestboard() { RPC_INIT rpc_io = &usb;
+	  // Set defaults for deser160 variables:
+	  delayAdjust = 4;
+	  deserAdjust = 4;
+	}
 	~CTestboard() { RPC_EXIT }
 
 	//FIXME not nice but better than global variables:
-	int delayAdjust = 4;
-	int deserAdjust = 4;
+	int delayAdjust;
+	int deserAdjust;
 
 	// === RPC ==============================================================
 
@@ -492,6 +496,8 @@ public:
 
     bool Open(char name[], bool init = true){ print_missing(); return true;}
 
+    // Compat. fix for test written for ATB:
+    unsigned short GetReg41(){return 1;}
 
     // =======================================================================
 
