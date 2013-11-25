@@ -3,13 +3,6 @@
 #ifndef MAINFRAME
 #define MAINFRAME
 
-#ifdef __CINT__
-#undef __GNUC__
-#define _SYS__SELECT_H_
-struct pthread_cond_t;
-struct pthread_mutex_t;
-#endif
-
 #include <TGButton.h>
 #include <TGButtonGroup.h>
 #include <TGFrame.h>
@@ -39,110 +32,120 @@ struct pthread_mutex_t;
 
 class MainFrame: public TGMainFrame
 {
-public:
-    MainFrame(const TGWindow * p, UInt_t w, UInt_t h,
-              TBInterface * aTbInterface, TestControlNetwork * aCN, ConfigParameters * configParameters, bool openWindow = true);
-    virtual ~MainFrame();
+ public:
+  MainFrame(const TGWindow * p, UInt_t w, UInt_t h,
+	    TBInterface * aTbInterface, TestControlNetwork * aCN, ConfigParameters * configParameters, bool openWindow = true);
+  virtual ~MainFrame();
 
-    void Execute(SysCommand command);
+  void Execute(SysCommand command);
 
-    // == General Actions =============================================
+  // == General Actions ========================================================
 
-    void SetParameter();
-    void Pon();
-    void Poff();
-    void HVon();
-    void HVoff();
-    void Exit();
-    void Save();
+  void SetParameter();
+  void Pon();
+  void Poff();
+  void HVon();
+  void HVoff();
+  void Exit();
+  void Save();
 
-    TestRange * GetRange(bool completeRocs = false);
+  TestRange * GetRange(bool completeRocs = false);
 
-    // == Tests ================================================
+  // == Tests ==================================================================
 
-    void DoTest();
-    void DoTest(Test * aTest);
-    void PreTest();
-    void IV();
-    void DoFullTest();
-    void DoTrim();
-    void DoPhCal();
-    void DoUbCheck();
-    void DoFom();
-    void DoADC();
-    void TestN();
+  void DoTest();
+  void DoTest(Test * aTest);
 
-    // == Histograms ===========================================
+  void DoAlive(); // DP
+  void PreTest();
+  void DoEffvana(); // DP
+  void DoTrim();
+  void DoEffcaldel(); // DP
+  void DoThrMap();
+  void DoADC1();
+  void DoADCn();
+  void DoPhmap(); // DP
+  void DoRBscan(); // DP
 
-    void Draw();
-    void DrawUpdate();
-    void DrawAuto();
-    void DrawLines();
-    void DrawPoints();
-    void DrawColz();
-    void DrawStatistics();
-    void DrawOverlay();
+  void IV();
+  void DoFullTest();
+  void DoPhCal();
+  void DoUbCheck();
+  void DoFom();
+  //DPvoid DoADC();
+  void TestN();
 
-    void Clear();
-    void ClearCanvas();
-    void AddLast(TH1 * histo, int test);
+  // == Histograms =============================================================
 
-    void NextHistogram();
-    void PreviousHistogram();
+  void Draw();
+  void DrawUpdate();
+  void DrawAuto();
+  void DrawLines();
+  void DrawPoints();
+  void DrawColz();
+  void DrawStatistics();
+  void DrawOverlay();
 
-    void MapFullRange();
-    void ClearOldHistos();
+  void Clear();
+  void ClearCanvas();
+  void AddLast(TH1 * histo, int test);
 
-    void DoTextField();
+  void NextHistogram();
+  void PreviousHistogram();
 
-private:
-    TRootEmbeddedCanvas * fEcanvas;
-    TGButtonGroup    *   fFctButtons;
-    TGRadioButton    *   fR[4];
-    TGCheckButton    *   fOverlayButton;
+  void MapFullRange();
+  void ClearOldHistos();
 
-    TGTextBuffer    *    moduleTextBuffer;
-    TGTextBuffer    *    rocTextBuffer;
-    TGTextBuffer    *    colTextBuffer;
-    TGTextBuffer    *    rowTextBuffer;
-    TGTextBuffer    *    parameterTextBuffer;
+  void DoTextField();
 
-    TGTextView     *     transcript;
-    TGTextEntry     *    commandLine;
+ private:
+  TRootEmbeddedCanvas * fEcanvas;
+  TGButtonGroup    *   fFctButtons;
+  TGRadioButton    *   fR[4];
+  TGCheckButton    *   fOverlayButton;
 
-    TGHProgressBar   *   progressBar;
+  TGTextBuffer    *    moduleTextBuffer;
+  TGTextBuffer    *    rocTextBuffer;
+  TGTextBuffer    *    colTextBuffer;
+  TGTextBuffer    *    rowTextBuffer;
+  TGTextBuffer    *    parameterTextBuffer;
 
-    TGComboBox     *     parametersComboBox;
-    TGComboBox     *     histogramsComboBox;
-    TGComboBox     *     dac1ComboBox;
-    TGComboBox     *     dac2ComboBox;
-    TGComboBox     *     criteriaComboBox;
+  TGTextView     *     transcript;
+  TGTextEntry     *    commandLine;
 
-    CommandLineInterpreter * fInterpreter;
-    SysCommand sysCommand;
+  TGHProgressBar   *   progressBar;
 
-    // == Tests ===========================================================================
+  TGComboBox     *     parametersComboBox;
+  TGComboBox     *     histogramsComboBox;
+  TGComboBox     *     dac1ComboBox;
+  TGComboBox     *     dac2ComboBox;
+  TGComboBox     *     criteriaComboBox;
 
-    static const Int_t nTests = 24;
+  CommandLineInterpreter * fInterpreter;
+  SysCommand sysCommand;
 
-    TList * histograms[nTests + 1];
-    Int_t currentTest;
-    TObject * currentHistogram[nTests + 1];
+  // == Tests ==================================================================
 
-    int  fOverlay;
-    int  drawOption;
-    bool drawStatistics;
-    bool clearOldHistos;
-    bool mapFullRange;
+  static const Int_t nTests = 26; // DP
 
-    bool test[nTests];
+  TList * histograms[nTests + 1];
+  Int_t currentTest;
+  TObject * currentHistogram[nTests + 1];
 
-    TBInterface    *    tbInterface;
-    TestControlNetwork * controlNetwork;
-    Analysis      *     fAnalysis;
-    ConfigParameters  * configParameters;
+  int  fOverlay;
+  int  drawOption;
+  bool drawStatistics;
+  bool clearOldHistos;
+  bool mapFullRange;
 
-    ClassDef(MainFrame, 1)
+  bool test[nTests];
+
+  TBInterface    *    tbInterface;
+  TestControlNetwork * controlNetwork;
+  Analysis      *     fAnalysis;
+  ConfigParameters  * configParameters;
+
+  ClassDef(MainFrame, 1);
 };
 
 #endif

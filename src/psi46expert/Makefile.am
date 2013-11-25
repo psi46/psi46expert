@@ -38,6 +38,7 @@ lib_LTLIBRARIES = libpsi46expert.la libpsi46daq.la libpsi46ana.la libpsi46readda
 
 libpsi46expert_la_SOURCES = AddressDecoding.cc \
 			    AddressLevels.cc \
+			    ADCmap.cc \
 			    AnalogReadout.cc \
 			    Analysis.cc \
 			    BumpBonding.cc \
@@ -54,9 +55,27 @@ libpsi46expert_la_SOURCES = AddressDecoding.cc \
 			    PHCalibration.cc \
 			    PhDacOverview.cc \
 			    PhDacScan.cc \
+			    PHDacDac.cc \
 			    PhNoise.cc \
 			    PHRange.cc \
 			    PHTest.cc \
+                            PHscan.cc \
+                            PHcc.cc \
+                            PHtcc.cc \
+                            RBscan.cc \
+                            PHvsCals.cc \
+                            PHmap.cc \
+                            PHmapcc.cc \
+                            ADC1.cc \
+                            ED.cc \
+                            Eff.cc \
+                            EffCalDel.cc \
+                            EffVana.cc \
+                            PHplot.cc \
+                            SCplot.cc \
+                            DACscan.cc \
+                            ThrvsDACs.cc \
+                            ThrVtrim.cc \
 			    PixelAlive.cc \
 			    SCurveTestBeam.cc \
 			    SCurveTest.cc \
@@ -138,6 +157,7 @@ daqFrameDict.cc: daqFrame.hh daqFrameLinkDef.h
 
 noinst_HEADERS = AddressDecoding.h \
 		 AddressLevels.h \
+		 ADCmap.h \
 		 AnalogReadout.h \
 		 Analysis.h \
 		 anaQA.h \
@@ -169,9 +189,27 @@ noinst_HEADERS = AddressDecoding.h \
 		 PHCalibration.h \
 		 PhDacOverview.h \
 		 PhDacScan.h \
+		 PHDacDac.h \
 		 PhNoise.h \
 		 PHRange.h \
 		 PHTest.h \
+                 PHscan.h \
+                 PHcc.h \
+                 PHtcc.h \
+                 RBscan.h \
+                 PHvsCals.h \
+                 PHmap.h \
+                 PHmapcc.h \
+                 ADC1.h \
+                 ED.h \
+                 Eff.h \
+                 EffCalDel.h \
+                 EffVana.h \
+                 PHplot.h \
+                 DACscan.h \
+                 SCplot.h \
+                 ThrvsDACs.h \
+                 ThrVtrim.h \
 		 PixelAlive.h \
 		 psi46expert.h \
 		 SCurve.h \
