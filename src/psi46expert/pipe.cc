@@ -1,7 +1,7 @@
 #include "pipe.h"
 #include <cstdlib>
 
-PipeEnd end;
+PipeEnd pipe_end;
 
 Pipe::Pipe()
 {

@@ -222,7 +222,7 @@ void TBInterface::Initialize(ConfigParameters * configParameters)
 
     cTestboard->SetHubID(configParameters->hubId);
     cTestboard->SetNRocs(configParameters->nRocs);
-    cTestboard->SetEnableAll(0);
+    cTestboard->SetChip(0);
 
     DataEnable(true);
     cTestboard->ResetOn(); // send hard reset to connected modules / TBMs
@@ -517,6 +517,7 @@ void TBInterface::Deser160PhaseScan() {
   //cTestboard->deserAdjust = goodvalues[select].second;
 
   printf("New values: clk %i, deserAdjust %i\n", goodvalues[select].first, goodvalues[select].second);
+  cTestboard->Flush();
   return;
 }
 
@@ -552,7 +553,7 @@ void TBInterface::TbmAddr(int hub, int port)
 
 int TBInterface::TbmWrite(const int hubAddr, const int addr, const int value)
 {
-    if (!cTestboard->TBMPresent()) return -1;
+    if (!cTestboard->TBM_Present()) return -1;
     cTestboard->TbmWrite(hubAddr, addr, value);
     return 0;
 }
@@ -560,7 +561,7 @@ int TBInterface::TbmWrite(const int hubAddr, const int addr, const int value)
 
 int TBInterface::Tbm1write(const int hubAddr, const int registerAddress, const int value)
 {
-    if (!cTestboard->TBMPresent()) return -1;
+    if (!cTestboard->TBM_Present()) return -1;
     cTestboard->Tbm1Write(hubAddr, registerAddress, value);
     return 0;
 }
@@ -568,7 +569,7 @@ int TBInterface::Tbm1write(const int hubAddr, const int registerAddress, const i
 
 int TBInterface::Tbm2write(const int hubAddr, const int registerAddress, const int value)
 {
-    if (!cTestboard->TBMPresent()) return -1;
+    if (!cTestboard->TBM_Present()) return -1;
     cTestboard->Tbm2Write(hubAddr, registerAddress, value);
     return 0;
 }
@@ -1273,9 +1274,9 @@ void TBInterface::DacDac(int dac1, int dacRange1, int dac2, int dacRange2, int n
     DataEnable(true);
 }
 
-int TBInterface::PH(int col, int row)
+int TBInterface::PH(int col, int row, int trim, int nTrig)
 {
-    return cTestboard->PH(col, row);
+    return cTestboard->PH(col, row, trim, nTrig);
 }
 
 void TBInterface::PHDac(int dac, int dacRange, int nTrig, int position, short result[])

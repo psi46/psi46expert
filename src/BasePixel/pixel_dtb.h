@@ -320,6 +320,20 @@ public:
 
 	// -- mask all pixels and columns of the chip
 	RPC_EXPORT void roc_Chip_Mask();
+    // == TBM functions =====================================================
+    RPC_EXPORT bool TBM_Present(); 
+
+    RPC_EXPORT void tbm_Enable(bool on);
+
+    RPC_EXPORT void tbm_Addr(uint8_t hub, uint8_t port);
+
+    RPC_EXPORT void mod_Addr(uint8_t hub);
+
+    RPC_EXPORT void tbm_Set(uint8_t reg, uint8_t value);
+
+    RPC_EXPORT bool tbm_Get(uint8_t reg, uint8_t &value);
+
+    RPC_EXPORT bool tbm_GetRaw(uint8_t reg, uint32_t &value);
 
 
 // --- Wafer test functions
@@ -329,11 +343,6 @@ public:
 	RPC_EXPORT void Ethernet_Send(string &message);
 	RPC_EXPORT uint32_t Ethernet_RecvPackets();
 
-    //TODO: Experimental
-	void SetEnableAll(int32_t value){ 
-        roc_I2cAddr(0);
-	    SetRocAddress(0);
-    }
     //TODO: Everything below needs to be implemented
     #define PROBE_ADC_GATE 12
     #define TRIGGER_OFF       0
@@ -346,27 +355,11 @@ public:
     #define TRG  0x0200
     #define TOK  0x0100
     #define STRETCH_AFTER_CAL  2  
-    // == TBM functions =====================================================
 
-    bool TBMPresent() { print_missing(); return false; }
-
-    void tbm_Enable(bool on){ print_missing(); return; }
-
-    void tbm_Addr(unsigned char hub, unsigned char port){ print_missing(); return; }
-
-    void mod_Addr(unsigned char hub){ print_missing(); return; }
-
-    void tbm_Set(unsigned char reg, unsigned char value){ print_missing(); return; }
-
-    bool tbm_Get(unsigned char reg, unsigned char &value){ print_missing(); return false; }
-
-	bool tbm_GetRaw(unsigned char reg, int32_t &value){ print_missing(); return false; }
 
     bool GetVersion(char *s, uint32_t n){ print_missing(); return false;}
 
-
     void SetEmptyReadoutLength(int32_t emptyReadoutLength){ print_missing(); return; }
-
 
     void Single(unsigned char mask){ print_missing(); return; }
 
@@ -443,19 +436,19 @@ public:
 	int32_t ChipEfficiency(int16_t nTriggers, int32_t trim[], double res[]); 
 	void DacDac(int32_t dac1, int32_t dacRange1, int32_t dac2, int32_t dacRange2, int32_t nTrig, int32_t result[]);
 	void AddressLevels(int32_t position, int32_t result[]){ print_missing(); return;}
-    int32_t CountReadouts(int32_t nTriggers);
-	int32_t CountReadouts(int32_t nTriggers, int32_t chipId);
-	int32_t CountReadouts(int32_t nTriggers, int32_t dacReg, int32_t dacValue);
-    int32_t Threshold(int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg);    
-	int32_t PixelThreshold(int32_t col, int32_t row, int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim);
-    int32_t PixelThresholdXtalk(int32_t col, int32_t row, int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim);    
+    RPC_EXPORT int32_t CountReadouts(int32_t nTriggers);
+	RPC_EXPORT int32_t CountReadouts(int32_t nTriggers, int32_t chipId);
+	RPC_EXPORT int32_t CountReadouts(int32_t nTriggers, int32_t dacReg, int32_t dacValue);
+	RPC_EXPORT int32_t PixelThreshold(int32_t col, int32_t row, int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim);
 	int32_t ChipThreshold(int32_t start, int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim[], int32_t res[]);
 	void ChipThresholdIntern(int32_t start[], int32_t step, int32_t thrLevel, int32_t nTrig, int32_t dacReg, int32_t xtalk, int32_t cals, int32_t trim[], int32_t res[]);
 	int32_t SCurve(int32_t nTrig, int32_t dacReg, int32_t threshold, int32_t res[]);
     int32_t SCurve(int32_t nTrig, int32_t dacReg, int32_t thr[], int32_t chipId[], int32_t sCurve[]);
 	int32_t SCurveColumn(int32_t column, int32_t nTrig, int32_t dacReg, int32_t thr[], int32_t trims[], int32_t chipId[], int32_t res[]);
-    int32_t PH(int32_t col, int32_t row);
-    bool test_pixel_address(int32_t col, int32_t row);
+    RPC_EXPORT int32_t PH(int32_t col, int32_t row, int32_t trim, int16_t nTriggers);
+    RPC_EXPORT bool test_pixel_address(int32_t col, int32_t row);
+    void SetNRocs(int32_t value);
+    void SetHubID(int32_t value);
     // ----------------------------
 
 
@@ -481,9 +474,8 @@ public:
 
 	void SetEmptyReadoutLengthADC(int32_t emptyReadoutLengthADC){ print_missing(); return; }
 	void SetTbmChannel(int32_t tbmChannel){ print_missing(); return; }
+    void SetEnableAll(int value){ print_missing(); return; }
 	void SetDTL(int32_t value){ print_missing(); return; }
-	void SetNRocs(int32_t value){ print_missing(); return; }
-	void SetHubID(int32_t value){ print_missing(); return; }
     void SetAoutChipPosition(int32_t value){ print_missing(); return; }
     void MemRead(uint32_t addr, uint16_t size,
                  unsigned char * s){ print_missing(); return; }
@@ -531,9 +523,7 @@ public:
 
 
 private:
-    static const bool enableAll = true;
-    static const int hubId = 0;
-    static const int nRocs = 1;
+    int hubId;
+    int nRocs;
     
-
 };

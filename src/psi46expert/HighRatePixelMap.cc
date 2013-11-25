@@ -159,7 +159,7 @@ void HRPixelMap::ModuleAction(void)
         RAMRawDataReader rd(tbInterface->getCTestboard(), (unsigned int) data_pointer, (unsigned int) data_pointer + 30000000, nwords * 2);
 
         /* Decoding chain */
-        rd >> rs >> ed >> hm >> count >> mh >> phh >> end;
+        rd >> rs >> ed >> hm >> count >> mh >> phh >> pipe_end;
 
         /* Free the memory in the RAM */
         tbInterface->getCTestboard()->Daq_Done();
