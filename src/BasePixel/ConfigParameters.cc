@@ -55,6 +55,7 @@ void ConfigParameters::Initialize()
     logFileName            = "log.txt";
     debugFileName          = "debug.log";
     rootFileName           = "expert.root";
+    flashFileName          = "dtb_fw.flash";
 
     ia = 1.2;
     id = 1.;
@@ -116,6 +117,7 @@ bool ConfigParameters::ReadConfigParameterFile(const char * _file)
         else if (0 == _name.compare("testParameters")) { SetTestParameterFileName(_value); }
         else if (0 == _name.compare("dacParameters")) { SetDacParameterFileName(_value); }
         else if (0 == _name.compare("rootFileName")) { SetRootFileName(_value); }
+        else if (0 == _name.compare("flashFileName")) { SetFlashFileName(_value); }
         else if (0 == _name.compare("trimParameters")) { SetTrimParameterFileName(_value); }
 
         else if (0 == _name.compare("nModules")) { nModules                  = _ivalue; }
@@ -187,6 +189,10 @@ void ConfigParameters::SetRootFileName(const std::string &_file)
     rootFileName.assign(directory).append("/").append(_file);
 }
 
+void ConfigParameters::SetFlashFileName(const std::string &_file)
+{
+    flashFileName.assign(directory).append("/").append(_file);
+}
 
 void ConfigParameters::SetLogFileName(const std::string &_file)
 {

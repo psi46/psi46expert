@@ -31,6 +31,8 @@ public:
 
     CTestboard * getCTestboard() {return cTestboard;}
     bool GetVersion(char * s, unsigned int n);
+    bool UpgradeDTB();
+
 
     void Execute(SysCommand &command);
     void Pon();
@@ -120,7 +122,7 @@ public:
 
     // == TBM functions ======================================================
 
-    bool TBMPresent() { return cTestboard->TBMPresent(); }
+    bool TBMPresent() { return cTestboard->TBM_Present(); }
     void Tbmenable(int on);
     void ModAddr(int hub);
     void TbmAddr(int hub, int port);
@@ -154,7 +156,7 @@ public:
     int SCurve(int nTrig, int dacReg, int threshold, int res[]);
     int SCurveColumn(int column, int nTrig, int dacReg, int thr[], int trims[], int chipId[], int res[]);
     void DacDac(int dac1, int dacRange1, int dac2, int dacRange2, int nTrig, int result[]);
-    int PH(int col, int row);
+    int PH(int col, int row, int trim, int nTrig);
     void PHDac(int dac, int dacRange, int nTrig, int position, short result[]);
     bool test_pixel_address(int col, int row);
     void AddressLevels(int position, int result[]);
@@ -195,6 +197,7 @@ private:
     int TBMChannel;
     int emptyReadoutLength, emptyReadoutLengthADC, emptyReadoutLengthADCDual;
     bool tbmenable;
+    string flashfilename;
 
     // == data buffer ========================================================
     static const int bufferSize = 2500000;

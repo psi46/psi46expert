@@ -40,12 +40,13 @@ void TBInterface::Execute(SysCommand &command)
     int buf[2];
     int * value = &buf[0]; int * reg = &buf[1];
     int delay;
-    if (command.Keyword("pon"))    {Pon();}
-    else if (command.Keyword("poff"))   {Poff();}
-    else if (command.Keyword("hvoff"))   {HVoff();}
-    else if (command.Keyword("hvon"))   {HVon();}
-    else if( command.Keyword( "usb" ) ) ShowUSB();
-    else if( command.Keyword( "clear" ) ) ClearUSB();
+    if (command.Keyword("pon")) {Pon();}
+    else if (command.Keyword("poff")) {Poff();}
+    else if (command.Keyword("hvoff")) {HVoff();}
+    else if (command.Keyword("hvon")) {HVon();}
+    else if (command.Keyword("usb")) ShowUSB();
+    else if (command.Keyword("upgrade")) UpgradeDTB();
+    else if (command.Keyword("clear")) ClearUSB();
     else if (command.Keyword("loop"))   {Intern(rctk_flag);}
     else if (command.Keyword("stop"))   {Single(0);}
     else if (command.Keyword("single")) {Single(rctk_flag);}
@@ -199,6 +200,8 @@ void TBInterface::Initialize(ConfigParameters * configParameters)
     }
     cTestboard->Init();
 
+    flashfilename = configParameters->GetFlashFileName();
+
     fIsPresent = 1;
 
     Pon();
@@ -222,7 +225,7 @@ void TBInterface::Initialize(ConfigParameters * configParameters)
 
     cTestboard->SetHubID(configParameters->hubId);
     cTestboard->SetNRocs(configParameters->nRocs);
-    cTestboard->SetEnableAll(0);
+    cTestboard->SetChip(0);
 
     DataEnable(true);
     cTestboard->ResetOn(); // send hard reset to connected modules / TBMs
@@ -234,6 +237,76 @@ void TBInterface::Initialize(ConfigParameters * configParameters)
 
     ReadTBParameterFile(configParameters->GetTbParametersFileName());    //only after power on
 
+}
+
+bool TBInterface::UpgradeDTB() {
+
+  fstream src;
+
+  if (cTestboard->UpgradeGetVersion() == 0x0100) {
+    // open file
+    src.open(flashfilename.c_str());
+      if (!src.is_open()) {
+	cout << "ERROR UPGRADE: Could not open flash file " << flashfilename << endl;
+	return false;
+      }
+      else cout << "Staring upgrade: Flashing file " << flashfilename << endl;
+
+      // check if upgrade is possible
+      cout << "Start upgrading DTB." << endl;
+      if (cTestboard->UpgradeStart(0x0100) != 0) {
+	string msg;
+	cTestboard->UpgradeErrorMsg(msg);
+	cout << "ERROR UPGRADE: " << msg.data() << endl;
+	return false;
+      }
+
+      // download data
+      cout << "Download running....." << endl
+	   << "DO NOT INTERRUPT DTB POWER and be patient!" << endl;
+
+      string rec;
+      uint16_t recordCount = 0;
+      while (true) {
+	getline(src, rec);
+	if (src.good()) {
+	  if (rec.size() == 0) continue;
+	  recordCount++;
+	  if (cTestboard->UpgradeData(rec) != 0) {
+	    string msg;
+	    cTestboard->UpgradeErrorMsg(msg);
+	    cout << "ERROR UPGRADE: " << msg.data() << endl;
+	    return false;
+	  }
+	}
+	else if (src.eof()) break;
+	else {
+	  cout << "ERROR UPGRADE: Error reading " << flashfilename << endl;
+	  return false;
+	}
+      }
+      
+      if (cTestboard->UpgradeError() != 0) {
+	string msg;
+	cTestboard->UpgradeErrorMsg(msg);
+	printf("ERROR UPGRADE: %s!\n", msg.data());
+	return false;
+      }
+
+      // write EPCS FLASH
+      cout << "DTB download complete." << endl;
+      cTestboard->mDelay(200);
+      cout << "FLASH write start (LED 1..4 on)" << endl
+	   << "DO NOT INTERUPT DTB POWER !" << endl
+	   << "Wait till LEDs goes off." << endl
+	   << "Restart the DTB." << endl;
+      cTestboard->UpgradeExec(recordCount);
+      cTestboard->Flush();
+      return true;
+    }
+
+  cout << "ERROR UPGRADE: Could not upgrade this DTB version!" << endl;
+  return false;
 }
 
 
@@ -517,6 +590,7 @@ void TBInterface::Deser160PhaseScan() {
   //cTestboard->deserAdjust = goodvalues[select].second;
 
   printf("New values: clk %i, deserAdjust %i\n", goodvalues[select].first, goodvalues[select].second);
+  cTestboard->Flush();
   return;
 }
 
@@ -552,7 +626,7 @@ void TBInterface::TbmAddr(int hub, int port)
 
 int TBInterface::TbmWrite(const int hubAddr, const int addr, const int value)
 {
-    if (!cTestboard->TBMPresent()) return -1;
+    if (!cTestboard->TBM_Present()) return -1;
     cTestboard->TbmWrite(hubAddr, addr, value);
     return 0;
 }
@@ -560,7 +634,7 @@ int TBInterface::TbmWrite(const int hubAddr, const int addr, const int value)
 
 int TBInterface::Tbm1write(const int hubAddr, const int registerAddress, const int value)
 {
-    if (!cTestboard->TBMPresent()) return -1;
+    if (!cTestboard->TBM_Present()) return -1;
     cTestboard->Tbm1Write(hubAddr, registerAddress, value);
     return 0;
 }
@@ -568,7 +642,7 @@ int TBInterface::Tbm1write(const int hubAddr, const int registerAddress, const i
 
 int TBInterface::Tbm2write(const int hubAddr, const int registerAddress, const int value)
 {
-    if (!cTestboard->TBMPresent()) return -1;
+    if (!cTestboard->TBM_Present()) return -1;
     cTestboard->Tbm2Write(hubAddr, registerAddress, value);
     return 0;
 }
@@ -1273,9 +1347,9 @@ void TBInterface::DacDac(int dac1, int dacRange1, int dac2, int dacRange2, int n
     DataEnable(true);
 }
 
-int TBInterface::PH(int col, int row)
+int TBInterface::PH(int col, int row, int trim, int nTrig)
 {
-    return cTestboard->PH(col, row);
+    return cTestboard->PH(col, row, trim, nTrig);
 }
 
 void TBInterface::PHDac(int dac, int dacRange, int nTrig, int position, short result[])

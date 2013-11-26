@@ -286,7 +286,8 @@ void PHCalibration::PulseHeightRocDigital(int data [])
 
     for (int col = 0; col < 52; col++) {
         for (int row = 0; row < 80; row++) {
-            data[80 * col + row] = tbInterface->PH(col, row);
+            int32_t trim = roc->GetPixel(col, row)->GetTrim();
+            data[80 * col + row] = tbInterface->PH(col, row, trim, nTrig);
         }
     }
 

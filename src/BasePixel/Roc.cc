@@ -179,7 +179,7 @@ bool Roc::Execute(SysCommand &command, int warning)
       for( int * j = col; (*j) >= 0; j++) {
 	for( int * k = row; (*k) >= 0; k++) {
 	  //cout << (*j) << "  " << (*k) << "  " << PH(*j, *k) << endl;
-	  cout << PH(*j, *k) << endl;
+	  cout << PH(*j, *k, 15, 1) << endl;
 	}
       }
       return true;
@@ -436,9 +436,9 @@ void Roc::DisablePixel(int col, int row)
     GetDoubleColumn(col)->DisablePixel(col, row);
 }
 
-int Roc::PH(int column, int row)
+int Roc::PH(int column, int row, int trim, int nTrig)
 {
-  return tbInterface->PH(column, row);
+  return tbInterface->PH(column, row, trim, nTrig);
 }
 
 void Roc::Cal(int col, int row)

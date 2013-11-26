@@ -150,6 +150,7 @@ void PHTest::PhDac(char * dacName)
 
         int col = pixel->GetColumn();
         int row = pixel->GetRow();
+        int32_t trim = pixel->GetTrim();
 
         histo->SetMinimum(0);
         histo->SetMaximum(255);
@@ -159,7 +160,7 @@ void PHTest::PhDac(char * dacName)
             SetDAC(dacName, dac);
             tbInterface->CDelay(500);
             tbInterface->Flush();
-            histo->SetBinContent(dac + 1, tbInterface->PH(col, row));
+            histo->SetBinContent(dac + 1, tbInterface->PH(col, row, trim, nTrig));
         }
     histograms->Add(histo);
     return;
@@ -252,7 +253,8 @@ void PHTest::PulseHeightRocDigital(int data [])
 
     for (int col = 0; col < 52; col++) {
         for (int row = 0; row < 80; row++) {
-            data[80 * col + row] = tbInterface->PH(col, row);
+            int32_t trim = roc->GetPixel(col, row)->GetTrim();
+            data[80 * col + row] = tbInterface->PH(col, row, trim, nTrig);
         }
     }
 
