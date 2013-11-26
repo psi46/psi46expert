@@ -33,6 +33,7 @@ public:
     const char * GetTrimParametersFileName();
     const char * GetTestParametersFileName();
     const char * GetRootFileName();
+    const char * GetFlashFileName();
     const char * GetLogFileName();
     const char * GetMaskFileName();
 
@@ -44,6 +45,7 @@ public:
     void SetTrimParameterFileName(const std::string &filename);
     void SetTestParameterFileName(const std::string &filename);
     void SetRootFileName(const std::string &filename);
+    void SetFlashFileName(const std::string &filename);
     void SetLogFileName(const std::string &filename);
     void SetDebugFileName(const std::string &filename);
     void SetMaskFileName(const std::string &filename);
@@ -64,6 +66,7 @@ private:
     std::string debugFileName;
     std::string testParametersFileName;
     std::string maskFileName;
+    std::string flashFileName;
 
     static ConfigParameters * instance;
 };
@@ -74,6 +77,7 @@ inline const char * ConfigParameters::GetTbmParametersFileName() { return tbmPar
 inline const char * ConfigParameters::GetTrimParametersFileName() { return trimParametersFileName.c_str(); }
 inline const char * ConfigParameters::GetTestParametersFileName() { return testParametersFileName.c_str(); }
 inline const char * ConfigParameters::GetRootFileName() { return rootFileName.c_str(); }
+inline const char * ConfigParameters::GetFlashFileName() { return flashFileName.c_str(); }
 inline const char * ConfigParameters::GetLogFileName() { return logFileName.c_str(); }
 inline const char * ConfigParameters::GetMaskFileName() { return maskFileName.c_str(); }
 

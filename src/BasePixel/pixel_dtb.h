@@ -124,6 +124,8 @@ public:
 	void ClosePipe() { pipe.Close(); }
 #endif
 
+	void SetTimeout(unsigned int timeout) { usb.SetTimeout(timeout); }
+
 	bool IsConnected() { return usb.Connected(); }
 	const char * ConnectionError()
 	{ return usb.GetErrorMsg(usb.GetLastError()); }

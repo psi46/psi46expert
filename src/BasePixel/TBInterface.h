@@ -31,6 +31,8 @@ public:
 
     CTestboard * getCTestboard() {return cTestboard;}
     bool GetVersion(char * s, unsigned int n);
+    bool UpgradeDTB();
+
 
     void Execute(SysCommand &command);
     void Pon();
@@ -195,6 +197,7 @@ private:
     int TBMChannel;
     int emptyReadoutLength, emptyReadoutLengthADC, emptyReadoutLengthADCDual;
     bool tbmenable;
+    string flashfilename;
 
     // == data buffer ========================================================
     static const int bufferSize = 2500000;
