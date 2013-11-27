@@ -32,7 +32,6 @@
 #include "SCurveTestBeam.h"
 #include "DacDependency.h"
 #include "PHTest.h"
-#include "PHscan.h" // renamed from PHTest
 #include "PHDacDac.h" // DP
 #include "PHcc.h" // DP
 #include "PHtcc.h" // DP
@@ -292,7 +291,8 @@ MainFrame::MainFrame(const TGWindow * p, UInt_t w, UInt_t h,
 
   const char testNames [nTests][14] =
     { "DacDac", "SCurve", "Bonds", "TrimBits", "AdrDec", "VsfScan", "VsfOpt",
-      "PhScan", "PHvsDACs", "PHDacDac", "PHplot", "CalDel", "ThrComp",
+      //"PhScan", 
+      "PHvsDACs", "PHDacDac", "PHplot", "CalDel", "ThrComp",
       //DP "Temp", "TempCal",
       "LinRange", "HldDelOpti", "TimeWalk", "Xray", "ED", "eff", "ThrVtrim",
       "HR PixelMap", "HR Efficiency", "HR SCurve", "PHcc", "PHtcc", "ThrvsDACs"
@@ -317,8 +317,8 @@ MainFrame::MainFrame(const TGWindow * p, UInt_t w, UInt_t h,
      // AdrLev:
     "",
     // PhScan:
-    "Scans each DAC parameter and measures the pulse height\n"
-    "with respect to Vcal for each value of each DAC.",
+    //"Scans each DAC parameter and measures the pulse height\n"
+    //"with respect to Vcal for each value of each DAC.",
     // PH:
     "Scans DAC <PHMode> to determine the pulse height for each value or, if <PHMode> = 0,\n"
     "uses the current DAC parameters and measures the pulse height for every pixel.",
@@ -530,7 +530,7 @@ MainFrame::MainFrame(const TGWindow * p, UInt_t w, UInt_t h,
   //  == Main frame ============================================================
 
   if( openWindow ) {
-    SetWindowName("psi46expert for DTB at DESY");
+    SetWindowName("psi46expert for DTB");
     //DP transcript->AddLine("Welcome to psi46expert!");
     MapSubwindows();
     Resize(GetDefaultSize());
@@ -816,7 +816,7 @@ void MainFrame::DoTest()
     case  4 : testToDo = new AddressDecoding(testRangeFull, controlNetwork->GetTestParameters(), tbInterface, false); break;
     case  5: testToDo = new VsfScan(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
     case  6: testToDo = new VsfOptimization(testRangeFull, controlNetwork->GetTestParameters(), tbInterface); break;
-    case  7 : testToDo = new PHscan(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
+      //case  7 : testToDo = new PHscan(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
       //DP case  6 : testToDo = new PhDacOverview(testRange, controlNetwork->GetTestParameters(), tbInterface); break;
     case  8: testToDo = new DACscan( testRange, controlNetwork->GetTestParameters(), tbInterface); break;
     case  9: testToDo = new PHDacDac( testRange, controlNetwork->GetTestParameters(), tbInterface); break;

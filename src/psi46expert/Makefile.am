@@ -59,7 +59,6 @@ libpsi46expert_la_SOURCES = AddressDecoding.cc \
 			    PhNoise.cc \
 			    PHRange.cc \
 			    PHTest.cc \
-                            PHscan.cc \
                             PHcc.cc \
                             PHtcc.cc \
                             RBscan.cc \
@@ -193,7 +192,6 @@ noinst_HEADERS = AddressDecoding.h \
 		 PhNoise.h \
 		 PHRange.h \
 		 PHTest.h \
-                 PHscan.h \
                  PHcc.h \
                  PHtcc.h \
                  RBscan.h \
