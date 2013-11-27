@@ -266,6 +266,10 @@ void Test::EnablePixel()
     pixel->EnablePixel();
 }
 
+void Test::Cals()
+{
+    pixel->Cals();
+}
 
 void Test::DisablePixel()
 {

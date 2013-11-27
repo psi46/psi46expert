@@ -72,6 +72,7 @@ public:
     // == pixel actions ============================================================
 
     void EnablePixel();
+    void Cals();
     void DisablePixel();
     void ArmPixel();
     void DisarmPixel();
