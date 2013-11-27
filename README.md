@@ -20,6 +20,10 @@ are required:
     Both libftdi and libftd2xx were tested with Ubuntu 12.10.
     [Default choice: libftdi with libftd2xx as fallback]
 
+    Currently we encourage you to use the FTD2XX library since there seem
+    to be data transfer speed issues with the current configuration of
+    libftdi. This is being looked into.
+
   - ROOT
     download from http://root.cern.ch or try your Linux distriution's
     package repository
