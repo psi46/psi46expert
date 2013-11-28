@@ -744,6 +744,7 @@ int Roc::set_chip_type(string chip_identifier)
 {
     analog_readout = false;
     row_address_inverted = false;
+
     if (chip_identifier == "psi46v2") {
         analog_readout = true;
         threshold_autoset_value = -50;
@@ -761,7 +762,12 @@ int Roc::set_chip_type(string chip_identifier)
         psi::LogError() << "[Roc] Unknown chip type " << chip_identifier << "!" << psi::endl;
         return 0;
     }
-    psi::LogDebug() << "[Roc] Setting ROC " << chipId << " as type " << chip_identifier << psi::endl;
+
+    tbInterface->getCTestboard()->SetPixelAddressInverted(row_address_inverted);
+
+    psi::LogInfo() << "[Roc] Setting ROC " << chipId << " as type " << chip_identifier;
+    if(row_address_inverted) psi::LogInfo() << " with pixID inverted";
+    psi::LogInfo() << psi::endl;
     return 1;
 }
 

@@ -257,6 +257,9 @@ public:
 	RPC_EXPORT uint8_t GetStatus();
 	RPC_EXPORT void SetRocAddress(uint8_t addr);
 
+	RPC_EXPORT bool GetPixelAddressInverted();
+	RPC_EXPORT void SetPixelAddressInverted(bool status);
+
 
 	// --- pulse pattern generator ------------------------------------------
 	#define PG_TOK   0x0100
