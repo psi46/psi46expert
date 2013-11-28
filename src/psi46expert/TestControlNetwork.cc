@@ -25,12 +25,14 @@ TestControlNetwork::TestControlNetwork(TBInterface * aTBInterface, ConfigParamet
         module[i] = new TestModule(configParameters, 0, tbInterface, testParameters);
     }
 
-    TString fileName = TString(configParameters->directory).Append("/addressParameters.dat");
-    cout << "Reading Address Level-Parameters from " << fileName << endl;
-    //DecoderCalibrationModule* decoderCalibrationModule = new DecoderCalibrationModule(fileName, 3, 0, NUM_ROCSMODULE);
-    DecoderCalibrationModule * decoderCalibrationModule = new DecoderCalibrationModule(fileName, 3, 0, configParameters->nRocs);
-    decoderCalibrationModule->Print(&cout);
-    gDecoder->SetCalibration(decoderCalibrationModule);
+    // Only read Address levels if needed (analog ROC/Module):
+    if(GetModule(0)->GetRoc(0)->has_analog_readout()) {
+      TString fileName = TString(configParameters->directory).Append("/addressParameters.dat");
+      cout << "Reading Address Level-Parameters from " << fileName << endl;
+      DecoderCalibrationModule * decoderCalibrationModule = new DecoderCalibrationModule(fileName, 3, 0, configParameters->nRocs);
+      decoderCalibrationModule->Print(&cout);
+      gDecoder->SetCalibration(decoderCalibrationModule);
+    }
 
     Initialize();
 }
