@@ -241,69 +241,75 @@ void TBInterface::Initialize(ConfigParameters * configParameters)
 
 bool TBInterface::UpgradeDTB() {
 
-  fstream src;
+  ifstream src;
 
   if (cTestboard->UpgradeGetVersion() == 0x0100) {
     // open file
     src.open(flashfilename.c_str());
-      if (!src.is_open()) {
-	cout << "ERROR UPGRADE: Could not open flash file " << flashfilename << endl;
-	return false;
-      }
-      else cout << "Staring upgrade: Flashing file " << flashfilename << endl;
+    if (!src.is_open()) {
+      cout << "ERROR UPGRADE: Could not open flash file " << flashfilename << endl;
+      return false;
+    }
+    else cout << "Staring upgrade: Flashing file " << flashfilename << endl;
 
-      // check if upgrade is possible
-      cout << "Start upgrading DTB." << endl;
-      if (cTestboard->UpgradeStart(0x0100) != 0) {
-	string msg;
-	cTestboard->UpgradeErrorMsg(msg);
-	cout << "ERROR UPGRADE: " << msg.data() << endl;
-	return false;
-      }
+    // Reading lines of file:
+    string line;
+    size_t file_lines;
+    for (file_lines = 0; getline(src, line); ++file_lines)
+      ;
+    src.clear (src.goodbit);
+    src.seekg(ios::beg);
 
-      // download data
-      cout << "Download running....." << endl
-	   << "DO NOT INTERRUPT DTB POWER and be patient!" << endl;
+    // check if upgrade is possible
+    cout << "Start upgrading DTB." << endl;
+    if (cTestboard->UpgradeStart(0x0100) != 0) {
+      string msg;
+      cTestboard->UpgradeErrorMsg(msg);
+      cout << "ERROR UPGRADE: " << msg.data() << endl;
+      return false;
+    }
 
-      string rec;
-      uint16_t recordCount = 0;
-      while (true) {
-	getline(src, rec);
-	if (src.good()) {
-	  if (rec.size() == 0) continue;
-	  recordCount++;
-	  if (cTestboard->UpgradeData(rec) != 0) {
-	    string msg;
-	    cTestboard->UpgradeErrorMsg(msg);
-	    cout << "ERROR UPGRADE: " << msg.data() << endl;
-	    return false;
-	  }
-	}
-	else if (src.eof()) break;
-	else {
-	  cout << "ERROR UPGRADE: Error reading " << flashfilename << endl;
+    // Download the flash data
+    string rec;
+    uint16_t recordCount = 0;
+    while (true) {
+      cout << "\rDownload running... " << ((int)(100 * recordCount / file_lines)) << " % " << flush;
+      getline(src, rec);
+      if (src.good()) {
+	if (rec.size() == 0) continue;
+	recordCount++;
+	if (cTestboard->UpgradeData(rec) != 0) {
+	  string msg;
+	  cTestboard->UpgradeErrorMsg(msg);
+	  cout << "ERROR UPGRADE: " << msg.data() << endl;
 	  return false;
 	}
       }
-      
-      if (cTestboard->UpgradeError() != 0) {
-	string msg;
-	cTestboard->UpgradeErrorMsg(msg);
-	printf("ERROR UPGRADE: %s!\n", msg.data());
+      else if (src.eof()) break;
+      else {
+	cout << "ERROR UPGRADE: Error reading " << flashfilename << endl;
 	return false;
       }
-
-      // write EPCS FLASH
-      cout << "DTB download complete." << endl;
-      cTestboard->mDelay(200);
-      cout << "FLASH write start (LED 1..4 on)" << endl
-	   << "DO NOT INTERUPT DTB POWER !" << endl
-	   << "Wait till LEDs goes off." << endl
-	   << "Restart the DTB." << endl;
-      cTestboard->UpgradeExec(recordCount);
-      cTestboard->Flush();
-      return true;
     }
+      
+    if (cTestboard->UpgradeError() != 0) {
+      string msg;
+      cTestboard->UpgradeErrorMsg(msg);
+      printf("ERROR UPGRADE: %s!\n", msg.data());
+      return false;
+    }
+
+    // write EPCS FLASH
+    cout << "DTB download complete." << endl;
+    cTestboard->mDelay(200);
+    cout << "FLASH write start (LED 1..4 on)" << endl
+	 << "DO NOT INTERUPT DTB POWER !" << endl
+	 << "Wait till LEDs goes off." << endl
+	 << "Power-cycle the DTB." << endl;
+    cTestboard->UpgradeExec(recordCount);
+    cTestboard->Flush();
+    return true;
+  }
 
   cout << "ERROR UPGRADE: Could not upgrade this DTB version!" << endl;
   return false;
